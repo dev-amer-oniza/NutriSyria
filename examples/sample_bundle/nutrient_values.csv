@@ -1,0 +1,23 @@
+data_source_code,external_ref,nutrient_code,amount_per_100g,unit,method,sample_count,min_amount,max_amount,notes
+usda_fdc_sr_legacy,SAMPLE-1,energy_kcal,160,kcal,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-1,water_g,60,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-1,protein_g,8,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-1,fat_g,2.5,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-1,carbohydrate_g,27,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-1,fiber_g,7,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-1,ash_g,0.5,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-2,energy_kcal,149,kcal,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-2,water_g,59,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-2,protein_g,6.4,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-2,fat_g,0.5,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-2,carbohydrate_g,33,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-2,fiber_g,2.1,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-2,ash_g,1.5,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-3,energy_kcal,300,kcal,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-3,water_g,12,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-3,protein_g,7,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-3,fat_g,1,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-3,carbohydrate_g,60,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-3,ash_g,0.5,g,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-4,energy_kcal,250,kcal,imported,,,,SAMPLE ONLY
+usda_fdc_sr_legacy,SAMPLE-4,protein_g,9,g,imported,,,,SAMPLE ONLY

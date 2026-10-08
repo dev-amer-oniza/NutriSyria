@@ -1,0 +1,5 @@
+food_id,food_name_ar,food_name_en,category_path,food_form_code,data_source_code,external_ref,notes
+,عينة حمص,SAMPLE chickpeas,,boiled,usda_fdc_sr_legacy,SAMPLE-1,"SAMPLE ONLY - invented numbers, not USDA data"
+,عينة ثوم,SAMPLE garlic,,raw,usda_fdc_sr_legacy,SAMPLE-2,"SAMPLE ONLY - invented numbers, not USDA data"
+,عينة أرز,SAMPLE rice,,raw,usda_fdc_sr_legacy,SAMPLE-3,SAMPLE ONLY - invented numbers (proximates deliberately do not add up to 100)
+,عينة خبز,SAMPLE bread,,boiledd,usda_fdc_sr_legacy,SAMPLE-4,SAMPLE ONLY - deliberate error: unknown food form

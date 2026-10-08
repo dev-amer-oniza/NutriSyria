@@ -1,0 +1,76 @@
+label,unit_code
+g,g
+gm,g
+gram,g
+grams,g
+غرام,g
+غ,g
+kg,kg
+kilogram,kg
+كيلو,kg
+كغ,kg
+mg,mg
+milligram,mg
+oz,oz
+ounce,oz
+lb,lb
+pound,lb
+باوند,lb
+ml,ml
+millilitre,ml
+milliliter,ml
+مل,ml
+l,l
+litre,l
+liter,l
+لتر,l
+tsp,tsp
+teaspoon,tsp
+ملعقة صغيرة,tsp
+tbsp,tbsp
+tablespoon,tbsp
+ملعقة كبيرة,tbsp
+cup,cup
+كوب,cup
+piece,piece
+each,piece
+unit,piece
+حبة,piece
+slice,slice
+شريحة,slice
+clove,clove
+فص,clove
+loaf,loaf
+رغيف,loaf
+can,can
+علبة,can
+can drained,can
+fl oz,fl_oz
+fluid ounce,fl_oz
+serving,serving
+nlea serving,serving
+حصة,serving
+bunch,bunch
+ربطة,bunch
+head,head
+heads,head
+رأس,head
+leaf,leaf
+leaves,leaf
+ورقة,leaf
+package,package
+pkg,package
+عبوة,package
+cloves,clove
+slices,slice
+pieces,piece
+small,piece
+medium,piece
+large,piece
+extra large,piece
+fruit,piece
+whole,piece
+egg,piece
+onion,piece
+banana,piece
+drumstick,piece

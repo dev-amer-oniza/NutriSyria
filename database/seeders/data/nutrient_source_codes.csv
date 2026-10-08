@@ -1,0 +1,35 @@
+nutrient_code,source_system,code,factor,priority,source_name,source_unit
+energy_kcal,usda_fdc,1008,1,100,Energy,KCAL
+energy_kcal,usda_fdc,2048,1,110,Energy (Atwater Specific Factors),KCAL
+energy_kcal,usda_fdc,2047,1,120,Energy (Atwater General Factors),KCAL
+energy_kj,usda_fdc,1062,1,100,Energy,kJ
+water_g,usda_fdc,1051,1,100,Water,G
+protein_g,usda_fdc,1003,1,100,Protein,G
+fat_g,usda_fdc,1004,1,100,Total lipid (fat),G
+carbohydrate_g,usda_fdc,1005,1,100,"Carbohydrate, by difference",G
+fiber_g,usda_fdc,1079,1,100,"Fiber, total dietary",G
+sugars_g,usda_fdc,2000,1,100,"Sugars, total including NLEA",G
+sugars_g,usda_fdc,1063,1,110,"""Sugars, Total NLEA""",G
+ash_g,usda_fdc,1007,1,100,Ash,G
+fat_sat_g,usda_fdc,1258,1,100,"Fatty acids, total saturated",G
+fat_mono_g,usda_fdc,1292,1,100,"Fatty acids, total monounsaturated",G
+fat_poly_g,usda_fdc,1293,1,100,"Fatty acids, total polyunsaturated",G
+cholesterol_mg,usda_fdc,1253,1,100,Cholesterol,MG
+sodium_mg,usda_fdc,1093,1,100,"Sodium, Na",MG
+potassium_mg,usda_fdc,1092,1,100,"Potassium, K",MG
+calcium_mg,usda_fdc,1087,1,100,"Calcium, Ca",MG
+iron_mg,usda_fdc,1089,1,100,"Iron, Fe",MG
+magnesium_mg,usda_fdc,1090,1,100,"Magnesium, Mg",MG
+phosphorus_mg,usda_fdc,1091,1,100,"Phosphorus, P",MG
+zinc_mg,usda_fdc,1095,1,100,"Zinc, Zn",MG
+vitamin_c_mg,usda_fdc,1162,1,100,"Vitamin C, total ascorbic acid",MG
+thiamin_mg,usda_fdc,1165,1,100,Thiamin,MG
+riboflavin_mg,usda_fdc,1166,1,100,Riboflavin,MG
+niacin_mg,usda_fdc,1167,1,100,Niacin,MG
+vitamin_b6_mg,usda_fdc,1175,1,100,Vitamin B-6,MG
+folate_ug,usda_fdc,1177,1,100,"Folate, total",UG
+vitamin_b12_ug,usda_fdc,1178,1,100,Vitamin B-12,UG
+vitamin_a_rae_ug,usda_fdc,1106,1,100,"Vitamin A, RAE",UG
+vitamin_d_ug,usda_fdc,1114,1,100,Vitamin D (D2 + D3),UG
+vitamin_e_mg,usda_fdc,1109,1,100,Vitamin E (alpha-tocopherol),MG
+vitamin_k_ug,usda_fdc,1185,1,100,Vitamin K (phylloquinone),UG

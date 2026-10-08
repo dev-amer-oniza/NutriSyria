@@ -1,0 +1,22 @@
+code,name_ar,name_en,dimension,base_factor
+g,غرام,gram,mass,1
+kg,كيلوغرام,kilogram,mass,1000
+mg,ملغ,milligram,mass,0.001
+oz,أونصة,ounce,mass,28.349523
+lb,باوند,pound,mass,453.59237
+ml,مل,millilitre,volume,1
+l,لتر,litre,volume,1000
+tsp,ملعقة صغيرة,teaspoon,household,
+tbsp,ملعقة كبيرة,tablespoon,household,
+cup,كوب,cup,household,
+piece,حبة,piece,count,
+slice,شريحة,slice,count,
+clove,فص,clove,count,
+loaf,رغيف,loaf,count,
+can,علبة,can,count,
+fl_oz,أونصة سائلة,fluid ounce,volume,29.573530
+serving,حصة,serving,count,
+bunch,ربطة,bunch,count,
+head,رأس,head,count,
+leaf,ورقة,leaf,count,
+package,عبوة,package,count,

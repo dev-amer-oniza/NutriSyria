@@ -1,0 +1,32 @@
+code,name_en,name_ar,unit,group,infoods_tagname,is_core,display_order
+energy_kcal,Energy,الطاقة,kcal,energy,ENERC,1,10
+energy_kj,Energy (kJ),الطاقة (كيلوجول),kJ,energy,ENERC,0,20
+water_g,Water,الماء,g,proximate,WATER,0,30
+protein_g,Protein,البروتين,g,proximate,PROCNT,1,40
+fat_g,Total fat,الدهون الكلية,g,proximate,FAT,1,50
+carbohydrate_g,Carbohydrate (by difference),الكربوهيدرات (بالفرق),g,carbohydrate,CHOCDF,1,60
+fiber_g,Dietary fibre,الألياف الغذائية,g,carbohydrate,FIBTG,1,70
+sugars_g,Total sugars,السكريات الكلية,g,carbohydrate,SUGAR,1,80
+ash_g,Ash,الرماد,g,proximate,ASH,0,90
+fat_sat_g,Saturated fat,الدهون المشبعة,g,fat,FASAT,1,100
+fat_mono_g,Monounsaturated fat,الدهون الأحادية غير المشبعة,g,fat,FAMS,0,110
+fat_poly_g,Polyunsaturated fat,الدهون المتعددة غير المشبعة,g,fat,FAPU,0,120
+cholesterol_mg,Cholesterol,الكوليسترول,mg,fat,CHOLE,0,130
+sodium_mg,Sodium,الصوديوم,mg,mineral,NA,1,140
+potassium_mg,Potassium,البوتاسيوم,mg,mineral,K,0,150
+calcium_mg,Calcium,الكالسيوم,mg,mineral,CA,0,160
+iron_mg,Iron,الحديد,mg,mineral,FE,0,170
+magnesium_mg,Magnesium,المغنيسيوم,mg,mineral,MG,0,180
+phosphorus_mg,Phosphorus,الفوسفور,mg,mineral,P,0,190
+zinc_mg,Zinc,الزنك,mg,mineral,ZN,0,200
+vitamin_c_mg,Vitamin C,فيتامين C,mg,vitamin,VITC,0,210
+thiamin_mg,Thiamin (B1),ثيامين (B1),mg,vitamin,THIA,0,220
+riboflavin_mg,Riboflavin (B2),ريبوفلافين (B2),mg,vitamin,RIBF,0,230
+niacin_mg,Niacin (B3),نياسين (B3),mg,vitamin,NIA,0,240
+vitamin_b6_mg,Vitamin B6,فيتامين B6,mg,vitamin,VITB6A,0,250
+folate_ug,Folate (total),الفولات (الكلي),ug,vitamin,FOL,0,260
+vitamin_b12_ug,Vitamin B12,فيتامين B12,ug,vitamin,VITB12,0,270
+vitamin_a_rae_ug,Vitamin A (RAE),فيتامين A (مكافئ النشاط الريتينولي),ug,vitamin,VITA_RAE,0,280
+vitamin_d_ug,Vitamin D (D2 + D3),فيتامين D,ug,vitamin,VITD,0,290
+vitamin_e_mg,Vitamin E (alpha-tocopherol),فيتامين E (ألفا توكوفيرول),mg,vitamin,TOCPHA,0,300
+vitamin_k_ug,Vitamin K (phylloquinone),فيتامين K (فيلوكينون),ug,vitamin,VITK1,0,310

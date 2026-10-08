@@ -1,0 +1,30 @@
+food_name_ar,food_name_en,forms,search_terms,exclude
+أرز,Rice,raw;cooked,rice,brown;wild;flour;bran;instant;precooked;parboiled;noodle;cake;cracker;cereal;pudding;milk;vinegar;syrup;seasoned;flavored;mix;dessert
+برغل,Bulgur wheat,raw;cooked,bulgur,
+قمح,Wheat,raw,wheat,flour;bran;germ;sprouted;bread;cereal;pasta;cracker;bulgur;gluten;starch;malt;protein
+طحين قمح,Wheat flour,any,wheat flour,self-rising;cake;pastry;bread;semolina;tortilla;bran;gluten;germ;sprouted
+خبز عربي,Pita bread,any,pita bread,crumbs;pudding;stuffing
+عدس,Lentils,raw;boiled,lentils,sprouted;soup;mix
+فاصولياء بيضاء,White beans,raw;boiled,white beans,sprouted;baked;soup;salad
+فول,Fava beans,raw;boiled,fava beans;broadbeans,immature;sprouted;in pod
+بازلاء,Green peas,raw;boiled,green peas;peas green,split;edible-podded;sprouted;soup;pod
+بطاطا,Potatoes,raw;boiled;fried,potatoes,dehydrated;flakes;puree;mashed;au gratin;hash;skins;scalloped;salad;pancakes;flour;chips;patty;tots;instant;stuffed;sticks
+بندورة,Tomatoes,raw,tomatoes,green;sun-dried;orange;yellow;paste;sauce;puree;juice;crushed;stewed;soup;ketchup;products
+بصل,Onions,raw;cooked,onions,dehydrated;flakes;powder;rings;spring;welsh;young
+ثوم,Garlic,raw,garlic,powder;bread
+خيار,Cucumber,raw,cucumber,pickle;kosher
+كوسا,Zucchini,raw;cooked,zucchini,baby;italian style
+باذنجان,Eggplant,raw;cooked,eggplant,pickled;dip
+سبانخ,Spinach,raw;cooked,spinach,souffle;creamed;new zealand
+جزر,Carrots,raw;cooked,carrots,baby;juice
+ملفوف,Cabbage,raw;cooked,cabbage,chinese;red;savoy;kimchi;japanese;mustard;celery;swamp;napa;pe-tsai;bok
+تفاح,Apple,raw,apples,applesauce;juice;pie;strudel;candied;crab
+برتقال,Orange,raw,oranges,juice;peel;drink;marmalade;sherbet;grapefruit;tangerine
+موز,Banana,raw,bananas,chips;plantain;bread;flour;cake;pudding;powder
+ليمون,Lemon,raw,lemons;lemon juice,peel;pie;cake;pudding;drink;grass;lemonade;lemon-lime
+تمر,Dates,dried,dates,sugar;spread
+دجاج,Chicken,raw;cooked,chicken,liver;gizzard;heart;feet;neck;giblets;skin only;stewing;capons;cornish;guinea;ground;luncheon;sausage;frankfurter;breakfast;salad;soup;coating;batter;spread;nuggets;patty
+لحم غنم,Lamb,raw;cooked,lamb,variety meats;kidney;liver;heart;brain;tongue;spleen;lung;new zealand
+بيض,Egg,raw;boiled,egg whole;egg,substitute;yolk;white;dried;duck;goose;quail;turkey;omelet;scrambled;fried;poached;custard;noodles;salad;nog;beverage;bread
+لبن/زبادي,Yogurt,plain,yogurt,fruit;vanilla;frozen;drink;chocolate
+زيت زيتون,Olive oil,any,oil olive,

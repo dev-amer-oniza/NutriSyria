@@ -1,0 +1,5 @@
+code,name,type,publisher,version,country,url,license,citation,priority
+usda_fdc_foundation,USDA Foundation Foods,usda_fdc,USDA Agricultural Research Service,,US,https://fdc.nal.usda.gov/,CC0 1.0,"U.S. Department of Agriculture, Agricultural Research Service. FoodData Central, 2019. fdc.nal.usda.gov.",90
+usda_fdc_sr_legacy,USDA SR Legacy,usda_fdc,USDA Agricultural Research Service,2018-04,US,https://fdc.nal.usda.gov/,CC0 1.0,"U.S. Department of Agriculture, Agricultural Research Service. FoodData Central, 2019. fdc.nal.usda.gov.",100
+usda_fdc_fndds,USDA FNDDS,usda_fdc,USDA Agricultural Research Service,2021-2023,US,https://fdc.nal.usda.gov/,CC0 1.0,"U.S. Department of Agriculture, Agricultural Research Service. FoodData Central, 2019. fdc.nal.usda.gov.",120
+internal_product_recipes,NutriSyria product recipes (calculated),recipe,,,,,,,

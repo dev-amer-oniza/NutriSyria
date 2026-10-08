@@ -1,0 +1,16 @@
+code,name_ar,name_en,group
+raw,نيء,Raw,state
+cooked,مطبوخ,Cooked (method not specified),state
+canned,معلّب,Canned,state
+dried,مجفف,Dried,state
+frozen,مجمّد,Frozen,state
+pickled,مخلل,Pickled,state
+strained,مصفّى,Strained,state
+boiled,مسلوق,Boiled,cooking_method
+steamed,مطبوخ بالبخار,Steamed,cooking_method
+grilled,مشوي,Grilled,cooking_method
+baked,مخبوز,Baked,cooking_method
+roasted,محمّص,Roasted,cooking_method
+fried,مقلي,Fried,cooking_method
+peeled,مقشّر,Peeled,edible_part
+as_sold,كما يُباع,As sold (processed product),state
