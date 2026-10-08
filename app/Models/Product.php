@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Product extends Model
@@ -41,5 +42,14 @@ class Product extends Model
     protected function isAnalyzed(): Attribute
     {
         return Attribute::make(get: fn() => $this->nutrientValues()->exists());
+    }
+    public function recipeIngredients(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ProductRecipeIngredient::class,
+            ProductRecipe::class,
+            'product_id',        // العمود في product_recipes الذي يشير لهذا المنتج
+            'product_recipe_id', // العمود في product_recipe_ingredients الذي يشير للوصفة
+        );
     }
 }

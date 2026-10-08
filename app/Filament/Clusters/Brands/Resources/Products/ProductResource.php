@@ -5,6 +5,7 @@ use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\CreateProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\ListProducts;
+use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
 use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeRelationManager;
 use App\Filament\Clusters\Brands\Resources\Products\Schemas\ProductForm;
 use App\Filament\Clusters\Brands\Resources\Products\Tables\ProductsTable;
@@ -44,7 +45,7 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RecipeRelationManager::class,
+            RecipeIngredientsRelationManager::class,
         ];
     }
 
