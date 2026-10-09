@@ -1,9 +1,7 @@
 <?php
 namespace App\Filament\Clusters\Brands\Resources\Products\RelationManagers;
 
-use App\Models\FoodPortion;
 use App\Models\FoodSourceRecord;
-use App\Models\MeasureUnit;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -85,7 +83,9 @@ class RecipeIngredientsRelationManager extends RelationManager
                 TextEntry::make('grams_preview')
                     ->label('الوزن الفعلي')
                     ->state(function (Get $get) {
-                        $result = self::computeGrams($get('food_source_record_id'), $get('measure_unit_id'), $get('amount'));
+                        $result = app(\App\Services\Nutrition\GramsConverter::class)->convert(
+                            (int) $get('food_source_record_id'), (int) $get('measure_unit_id'), (float) ($get('amount') ?? 0)
+                        );
 
                         if ($result === null) {
                             return '⚠ لا توجد حصة محفوظة تحوّل هذه الوحدة لهذا المكوّن تحديداً — احفظ حصة له أولاً من صفحة الغذاء';
@@ -123,13 +123,15 @@ class RecipeIngredientsRelationManager extends RelationManager
                 TextColumn::make('grams')
                     ->label('الوزن بالغرام')
                     ->getStateUsing(function (Model $record) {
-                        $grams = self::computeGrams($record->food_source_record_id, $record->measure_unit_id, $record->amount);
+                        $grams = app(\App\Services\Nutrition\GramsConverter::class)->convert(
+                            (int) $record->food_source_record_id, (int) $record->measure_unit_id, (float) $record->amount
+                        );
 
                         return $grams !== null ? number_format($grams, 1) . ' غ' : null;
                     })
                     ->badge()
-                    ->color(fn(Model $record) => self::computeGrams(
-                        $record->food_source_record_id, $record->measure_unit_id, $record->amount
+                    ->color(fn(Model $record) => app(\App\Services\Nutrition\GramsConverter::class)->convert(
+                        (int) $record->food_source_record_id, (int) $record->measure_unit_id, (float) $record->amount
                     ) !== null ? 'success' : 'warning')
                     ->placeholder('⚠ غير متوفر'),
                 TextColumn::make('is_added_after_cooking')
@@ -157,43 +159,4 @@ class RecipeIngredientsRelationManager extends RelationManager
         return sprintf('%s — %s (%s)', $r->food?->name_ar, $r->foodForm?->name_ar, $r->dataSource?->name);
     }
 
-    /**
-     * يحوّل الكمية إلى غرامات. المصدر الوحيد: وحدات الكتلة الثابتة (غرام/كيلوغرام) تُحسب
-     * رياضياً مباشرة؛ أي وحدة أخرى (كوب، ملعقة...) يجب أن توجد لها حصة محفوظة في
-     * food_portions لنفس الغذاء تحديداً، وإلا لا يمكن معرفة وزنها بأمان.
-     */
-    private static function computeGrams(?int $foodSourceRecordId, ?int $measureUnitId, mixed $amount): ?float
-    {
-        if (! $foodSourceRecordId || ! $measureUnitId || $amount === null || $amount === '') {
-            return null;
-        }
-
-        $amount = (float) $amount;
-        $unit   = MeasureUnit::find($measureUnitId);
-        if (! $unit) {
-            return null;
-        }
-
-        if ($unit->code === 'g') {
-            return $amount;
-        }
-        if ($unit->code === 'kg') {
-            return $amount * 1000;
-        }
-
-        $foodId = FoodSourceRecord::find($foodSourceRecordId)?->food_id;
-        if (! $foodId) {
-            return null;
-        }
-
-        $portion = FoodPortion::where('food_id', $foodId)
-            ->where('measure_unit_id', $measureUnitId)
-            ->first();
-
-        if (! $portion || (float) $portion->amount <= 0) {
-            return null;
-        }
-
-        return ($amount / (float) $portion->amount) * (float) $portion->gram_weight;
-    }
 }

@@ -73,6 +73,12 @@ class ProductForm
                             ->directory('products')
                             ->imageEditor(),
                     ]),
+                Section::make('التحليل الغذائي الرسمي')
+                    ->visible(fn($record) => $record && $record->nutrientValues()->exists())
+                    ->components([
+                        \Filament\Schemas\Components\View::make('filament.clusters.brands.components.product-analysis-summary')
+                            ->viewData(fn($record) => ['product' => $record]),
+                    ]),
 
             ]);
     }
