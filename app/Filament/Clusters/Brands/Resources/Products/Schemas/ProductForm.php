@@ -1,12 +1,15 @@
 <?php
+
 namespace App\Filament\Clusters\Brands\Resources\Products\Schemas;
 
+use App\Enums\RecipeStatus;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 
 class ProductForm
@@ -50,8 +53,8 @@ class ProductForm
                             ->required(),
                         Select::make('status')
                             ->label('حالة الوصفة')
-                            ->options(\App\Enums\RecipeStatus::class)
-                            ->default(\App\Enums\RecipeStatus::Draft)
+                            ->options(RecipeStatus::class)
+                            ->default(RecipeStatus::Draft)
                             ->required(),
                         TextInput::make('weight_before_cooking_g')
                             ->label('الوزن قبل الطبخ')
@@ -74,12 +77,11 @@ class ProductForm
                             ->imageEditor(),
                     ]),
                 Section::make('التحليل الغذائي الرسمي')
-                    ->visible(fn($record) => $record && $record->nutrientValues()->exists())
+                    ->visible(fn ($record) => $record && $record->nutrientValues()->exists())
                     ->components([
-                        \Filament\Schemas\Components\View::make('filament.clusters.brands.components.product-analysis-summary')
-                            ->viewData(fn($record) => ['product' => $record]),
+                        View::make('filament.clusters.brands.components.product-analysis-summary')
+                            ->viewData(fn ($record) => ['product' => $record]),
                     ]),
-
             ]);
     }
 }
