@@ -63,9 +63,6 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
-    public function restaurantRequest(): HasMany{
-        return $this->hasMany(RestaurantRequest::class,'customer_id');
-    }
 
     public function canAccessPanel(Panel $panel): bool{
         if($panel->getId() == 'admin'){
@@ -75,12 +72,5 @@ class User extends Authenticatable implements FilamentUser
             return $this->hasRole('restaurant-owner');
         }
         return false ;
-    }
-    public function tenants ():HasMany {
-        return $this->hasMany(Tenant::class , 'owner_id');
-    }
-
-    public function healthProfile():HasOne{
-        return $this->hasOne(UserHealthProfile::class , 'user_id');
     }
 }
