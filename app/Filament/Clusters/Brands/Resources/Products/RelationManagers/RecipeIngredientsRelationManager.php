@@ -2,6 +2,8 @@
 namespace App\Filament\Clusters\Brands\Resources\Products\RelationManagers;
 
 use App\Models\FoodSourceRecord;
+use App\Services\Nutrition\GramsConversion;
+use App\Services\Nutrition\GramsConverter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -83,15 +85,20 @@ class RecipeIngredientsRelationManager extends RelationManager
                 TextEntry::make('grams_preview')
                     ->label('الوزن الفعلي')
                     ->state(function (Get $get) {
-                        $result = app(\App\Services\Nutrition\GramsConverter::class)->convert(
+                        if (! $get('food_source_record_id') || ! $get('measure_unit_id')) {
+                            return '—';
+                        }
+
+                        $conversion = app(GramsConverter::class)->resolve(
                             (int) $get('food_source_record_id'), (int) $get('measure_unit_id'), (float) ($get('amount') ?? 0)
                         );
 
-                        if ($result === null) {
-                            return '⚠ لا توجد حصة محفوظة تحوّل هذه الوحدة لهذا المكوّن تحديداً — احفظ حصة له أولاً من صفحة الغذاء';
+                        if (! $conversion->ok()) {
+                            return '⚠ '.$conversion->message;
                         }
 
-                        return sprintf('= %s غرام', number_format($result, 1));
+                        return sprintf('= %s غرام', number_format($conversion->grams, 1))
+                            .($conversion->basis ? " ({$conversion->basis})" : '');
                     })
                     ->columnSpanFull(),
 
@@ -123,16 +130,13 @@ class RecipeIngredientsRelationManager extends RelationManager
                 TextColumn::make('grams')
                     ->label('الوزن بالغرام')
                     ->getStateUsing(function (Model $record) {
-                        $grams = app(\App\Services\Nutrition\GramsConverter::class)->convert(
-                            (int) $record->food_source_record_id, (int) $record->measure_unit_id, (float) $record->amount
-                        );
+                        $grams = $this->conversionFor($record)->grams;
 
                         return $grams !== null ? number_format($grams, 1) . ' غ' : null;
                     })
                     ->badge()
-                    ->color(fn(Model $record) => app(\App\Services\Nutrition\GramsConverter::class)->convert(
-                        (int) $record->food_source_record_id, (int) $record->measure_unit_id, (float) $record->amount
-                    ) !== null ? 'success' : 'warning')
+                    ->color(fn(Model $record) => $this->conversionFor($record)->ok() ? 'success' : 'warning')
+                    ->tooltip(fn(Model $record) => $this->conversionFor($record)->message ?? $this->conversionFor($record)->basis)
                     ->placeholder('⚠ غير متوفر'),
                 TextColumn::make('is_added_after_cooking')
                     ->label('بعد الطبخ')
@@ -152,6 +156,18 @@ class RecipeIngredientsRelationManager extends RelationManager
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /** @var array<string, GramsConversion> one conversion per row and render, shared by state, color and tooltip */
+    private array $conversions = [];
+
+    private function conversionFor(Model $record): GramsConversion
+    {
+        $key = implode('|', [$record->getKey(), $record->food_source_record_id, $record->measure_unit_id, $record->amount]);
+
+        return $this->conversions[$key] ??= app(GramsConverter::class)->resolve(
+            (int) $record->food_source_record_id, (int) $record->measure_unit_id, (float) $record->amount
+        );
     }
 
     private static function labelFor(FoodSourceRecord $r): string
