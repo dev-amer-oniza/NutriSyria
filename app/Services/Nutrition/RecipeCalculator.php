@@ -13,11 +13,13 @@ final class RecipeCalculator
     /**
      * @param  list<array{
      *     label: string,
-     *     grams: float,
+     *     grams: ?float,
+     *     problem?: ?string,
      *     is_added_after_cooking: bool,
      *     nutrients: array<int, array{amount: float, unit: string}>,
      * }>  $ingredients  one entry per recipe line, nutrients keyed by nutrient_id,
-     *     amount is the source's amount_per_100g (not yet scaled by grams)
+     *     amount is the source's amount_per_100g (not yet scaled by grams). grams is null when
+     *     the line could not be converted to grams; problem says why
      * @param  list<array{id: int, code: string, name_ar: string, unit: string, is_core: bool, display_order: int}>  $nutrientDefs
      *     every nutrient to report on, even ones no ingredient has a value for
      */
@@ -30,8 +32,14 @@ final class RecipeCalculator
     ): RecipeAnalysisResult {
         $gramsBeforeCooking = 0.0;   // ingredients present before cooking starts
         $gramsTotal = 0.0;           // every ingredient, including those added after cooking
+        $unconverted = [];           // lines with unknown grams: reported, never counted as zero
 
         foreach ($ingredients as $line) {
+            if ($line['grams'] === null) {
+                $unconverted[] = ['label' => $line['label'], 'problem' => $line['problem'] ?? null];
+
+                continue;
+            }
             $gramsTotal += $line['grams'];
             if (! $line['is_added_after_cooking']) {
                 $gramsBeforeCooking += $line['grams'];
@@ -45,7 +53,7 @@ final class RecipeCalculator
             $missingFrom = [];
 
             foreach ($ingredients as $line) {
-                if ($line['grams'] <= 0) {
+                if ($line['grams'] === null || $line['grams'] <= 0) {
                     continue;
                 }
                 $value = $line['nutrients'][$def['id']] ?? null;
@@ -88,6 +96,7 @@ final class RecipeCalculator
             weightAfterCookingG: $weightAfterCookingG,
             servings: max(1, $servings),
             weightWarning: $weightWarning,
+            unconvertedIngredients: $unconverted,
         );
     }
 }

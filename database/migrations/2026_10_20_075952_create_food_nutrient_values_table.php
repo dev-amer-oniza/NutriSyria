@@ -42,12 +42,15 @@ return new class extends Migration
         });
 
         // يحتاج MySQL 8.0.16 فما فوق. تحقق من نسختك قبل migrate: SELECT VERSION();
-        DB::statement(
-            'ALTER TABLE food_nutrient_values ADD CONSTRAINT food_nutrient_value_one_owner CHECK ('.
-            '(food_source_record_id IS NOT NULL AND product_id IS NULL) OR '.
-            '(food_source_record_id IS NULL AND product_id IS NOT NULL)'.
-            ')'
-        );
+        // SQLite (قاعدة الاختبارات) لا تدعم إضافة قيد لجدول موجود، فيُتخطّى القيد هناك فقط.
+        if (in_array(DB::getDriverName(), ['mysql', 'mariadb'], true)) {
+            DB::statement(
+                'ALTER TABLE food_nutrient_values ADD CONSTRAINT food_nutrient_value_one_owner CHECK ('.
+                '(food_source_record_id IS NOT NULL AND product_id IS NULL) OR '.
+                '(food_source_record_id IS NULL AND product_id IS NOT NULL)'.
+                ')'
+            );
+        }
     }
 
     public function down(): void

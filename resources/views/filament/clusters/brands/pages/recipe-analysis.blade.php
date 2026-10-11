@@ -22,7 +22,18 @@
                 </div>
             @endif
 
-            @unless ($result['can_save_official_value'])
+            @if ($result['unconverted_ingredients'])
+                <div class="mt-3 rounded-xl bg-danger-50 dark:bg-danger-500/10 text-danger-800 dark:text-danger-300 px-4 py-3 text-sm">
+                    <p class="font-bold">⛔ مكوّنات لم يمكن تحويلها إلى غرام: لم تُحتسب في القيم أدناه، ولا يمكن اعتماد التحليل قبل إصلاحها.</p>
+                    <ul class="mt-2 list-disc ps-5 space-y-1">
+                        @foreach ($result['unconverted_ingredients'] as $line)
+                            <li><span class="font-medium">{{ $line['label'] }}</span>@if ($line['problem']): {{ $line['problem'] }}@endif</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            @unless ($result['has_weight_after_cooking'])
                 <div class="mt-3 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 px-4 py-3 text-sm">
                     أدخل "الوزن بعد الطبخ" في الوصفة لتتمكن من اعتماد هذا التحليل كقيمة رسمية.
                 </div>

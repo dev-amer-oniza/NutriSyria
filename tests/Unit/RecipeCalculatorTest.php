@@ -120,6 +120,39 @@ class RecipeCalculatorTest extends TestCase
         $this->assertEqualsWithDelta(100.0, $r->perServing()[1]['amount'], 0.001);
     }
 
+    public function test_unconverted_ingredient_is_reported_left_out_of_totals_and_blocks_saving(): void
+    {
+        $ingredients = [
+            ['label' => 'عدس', 'grams' => 200, 'is_added_after_cooking' => false,
+                'nutrients' => [1 => ['amount' => 100, 'unit' => 'kcal']]],
+            ['label' => 'زيت زيتون', 'grams' => null, 'problem' => 'لا توجد حصة', 'is_added_after_cooking' => false,
+                'nutrients' => [1 => ['amount' => 884, 'unit' => 'kcal']]],
+        ];
+
+        $r = $this->calc()->calculate($ingredients, $this->nutrientDefs, null, 180, 1);
+
+        $this->assertSame([['label' => 'زيت زيتون', 'problem' => 'لا توجد حصة']], $r->unconvertedIngredients);
+        $this->assertEqualsWithDelta(200.0, $r->totals[1]['amount'], 0.001); // oil not counted as anything
+        $this->assertSame(200.0, $r->gramsTotal);
+        $this->assertSame([], $r->totals[1]['missing_from']);              // reported separately, not as "missing"
+        $this->assertTrue($r->hasWeightAfterCooking());
+        $this->assertFalse($r->canSaveOfficialValue());
+        $this->assertFalse($r->toArray()['can_save_official_value']);
+        $this->assertCount(1, $r->toArray()['unconverted_ingredients']);
+    }
+
+    public function test_can_save_when_every_ingredient_converted_and_after_cooking_weight_given(): void
+    {
+        $ingredients = [
+            ['label' => 'أرز', 'grams' => 100, 'is_added_after_cooking' => false, 'nutrients' => []],
+        ];
+
+        $r = $this->calc()->calculate($ingredients, $this->nutrientDefs, 100, 90, 1);
+
+        $this->assertSame([], $r->unconvertedIngredients);
+        $this->assertTrue($r->canSaveOfficialValue());
+    }
+
     public function test_cannot_save_official_value_without_after_cooking_weight(): void
     {
         $r = $this->calc()->calculate([], $this->nutrientDefs, 200, null, 1);

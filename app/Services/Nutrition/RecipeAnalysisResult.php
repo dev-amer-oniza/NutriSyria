@@ -21,6 +21,8 @@ final readonly class RecipeAnalysisResult
         public ?float $weightAfterCookingG,
         public int $servings,
         public ?string $weightWarning,
+        /** @var list<array{label: string, problem: ?string}> lines with unknown grams, left out of every total */
+        public array $unconvertedIngredients = [],
     ) {
     }
 
@@ -47,9 +49,15 @@ final readonly class RecipeAnalysisResult
         return $this->scale($this->servings > 0 ? 1 / $this->servings : null);
     }
 
-    public function canSaveOfficialValue(): bool
+    public function hasWeightAfterCooking(): bool
     {
         return $this->weightAfterCookingG !== null && $this->weightAfterCookingG > 0;
+    }
+
+    /** An ingredient with unknown grams would silently understate every value, so it blocks approval. */
+    public function canSaveOfficialValue(): bool
+    {
+        return $this->hasWeightAfterCooking() && $this->unconvertedIngredients === [];
     }
 
     /** @return array<int, array{nutrient: array, amount: ?float, missing_from: string[]}> */
@@ -84,6 +92,8 @@ final readonly class RecipeAnalysisResult
             'weight_after_cooking_g'  => $this->weightAfterCookingG,
             'servings'                => $this->servings,
             'weight_warning'          => $this->weightWarning,
+            'unconverted_ingredients' => $this->unconvertedIngredients,
+            'has_weight_after_cooking' => $this->hasWeightAfterCooking(),
             'can_save_official_value' => $this->canSaveOfficialValue(),
         ];
     }

@@ -61,19 +61,13 @@ final class RecipeAnalysisService
 
         $lines = [];
         foreach ($ingredientModels as $ingredient) {
-            $grams = $this->gramsConverter->convert(
+            $conversion = $this->gramsConverter->resolve(
                 $ingredient->food_source_record_id,
                 $ingredient->measure_unit_id,
                 (float) $ingredient->amount,
             );
 
             $label = $ingredient->ingredientRecord?->food?->name_ar ?? "سجل #{$ingredient->food_source_record_id}";
-
-            if ($grams === null) {
-                // لا يُستبعد المكوّن صمتاً: يُحتسب بوزن صفر فيظهر بوضوح في تحذير عدم تطابق
-                // الوزن، بدل أن يختفي من الحساب دون تفسير.
-                $grams = 0.0;
-            }
 
             $nutrientValues = [];
             foreach ($valuesByRecord->get($ingredient->food_source_record_id, collect()) as $value) {
@@ -85,7 +79,10 @@ final class RecipeAnalysisService
 
             $lines[] = [
                 'label' => $label,
-                'grams' => $grams,
+                // null = not convertible: the calculator reports the line and blocks approval
+                // instead of counting it as zero grams.
+                'grams' => $conversion->grams,
+                'problem' => $conversion->message,
                 'is_added_after_cooking' => (bool) $ingredient->is_added_after_cooking,
                 'nutrients' => $nutrientValues,
             ];
@@ -108,6 +105,10 @@ final class RecipeAnalysisService
      */
     public function approve(Product $product, RecipeAnalysisResult $result): void
     {
+        if ($result->unconvertedIngredients) {
+            throw new RuntimeException('لا يمكن اعتماد التحليل: مكوّنات لم يمكن تحويلها إلى غرام: '
+                .implode('، ', array_unique(array_column($result->unconvertedIngredients, 'label'))).'.');
+        }
         if (! $result->canSaveOfficialValue()) {
             throw new RuntimeException('لا يمكن اعتماد التحليل بلا إدخال الوزن بعد الطبخ.');
         }
