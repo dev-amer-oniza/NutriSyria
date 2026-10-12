@@ -28,7 +28,7 @@ class ImportCommit extends Command
         $this->line("Records:  {$s['records_created']} created | {$s['records_updated']} updated | {$s['records_unchanged']} unchanged | {$s['records_skipped']} skipped (blocked)");
         $this->line("Foods:    {$s['foods_created']} new (inactive until approved)");
         $this->line("Values:   {$s['values_written']} written | {$s['values_unchanged']} unchanged");
-        $this->line("Portions: {$s['portions_written']} written");
+        $this->line("Portions: {$s['portions_written']} new | {$s['portions_updated']} updated in place | {$s['portions_kept']} kept (your default or corrected weight)");
 
         if ($s['changed_values']) {
             $this->newLine();

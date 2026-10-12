@@ -1,6 +1,7 @@
 <?php
 namespace App\Services\Import;
 
+use App\Services\Nutrition\PortionResolver;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
@@ -212,11 +213,14 @@ final class BundleImporter
         $stats = [
             'records_created' => 0, 'records_updated' => 0, 'records_unchanged' => 0, 'records_skipped'  => 0,
             'foods_created'   => 0, 'values_written'  => 0, 'values_unchanged'  => 0, 'portions_written' => 0,
+            'portions_updated' => 0, 'portions_kept' => 0,
             'changed_values'  => [],
         ];
 
         try {
             [$recordRows, $valuesByKey, $portionsByKey] = $this->loadRowsForCommit($batchId);
+            // A bundle without portions.csv says nothing about portions: leave the stored ones alone.
+            $hasPortionSheet = DB::table('import_rows')->where('import_batch_id', $batchId)->where('sheet', 'portions')->exists();
 
             foreach ($recordRows as $key => $recordRow) {
                 $values  = $valuesByKey[$key] ?? [];
@@ -227,8 +231,8 @@ final class BundleImporter
                     continue;
                 }
 
-                DB::transaction(function () use ($batchId, $l, $recordRow, $values, $portionsByKey, $key, &$stats) {
-                    $this->commitRecord($batchId, $l, $recordRow, $values, $portionsByKey[$key] ?? [], $stats);
+                DB::transaction(function () use ($batchId, $l, $recordRow, $values, $portionsByKey, $key, $hasPortionSheet, &$stats) {
+                    $this->commitRecord($batchId, $l, $recordRow, $values, $hasPortionSheet ? ($portionsByKey[$key] ?? []) : null, $stats);
                 });
             }
 
@@ -278,7 +282,8 @@ final class BundleImporter
         return [$records, $values, $portions];
     }
 
-    private function commitRecord(int $batchId, Lookups $l, object $recordRow, array $valueRows, array $portionRows, array &$stats): void
+    /** @param  list<object>|null  $portionRows  null when the bundle has no portions sheet */
+    private function commitRecord(int $batchId, Lookups $l, object $recordRow, array $valueRows, ?array $portionRows, array &$stats): void
     {
         $raw    = $recordRow->raw;
         $dsId   = $l->dataSources[$raw['data_source_code']];
@@ -398,50 +403,122 @@ final class BundleImporter
             $stats['values_written'] += count($toWrite);
         }
 
-        // ---- portions: replace only the portions this importer created for this record
-        DB::table('food_portions')->where('food_source_record_id', $recordId)
-            ->whereNotNull('evidence->import_batch_id')->delete();
-
         $committedIds = [$recordRow->id];
         foreach ($new as $item) {
             $committedIds[] = $item['row_id'];
         }
 
-        $portionInserts = [];
+        // ---- portions
+        if ($portionRows !== null) {
+            $this->syncPortions($batchId, $l, $recordId, $foodId, $formId, $portionRows, $stats, $committedIds);
+        }
+
+        DB::table('import_rows')->whereIn('id', $committedIds)->update(['status' => 'committed', 'updated_at' => $now]);
+    }
+
+    /**
+     * Brings the portions this importer owns for one record in line with the bundle WITHOUT
+     * deleting and re-inserting them, so the admin's work survives a re-import:
+     *  - a portion is matched by unit + amount + source label and updated in place;
+     *    is_default, confidence and validity dates are never touched;
+     *  - a gram weight the admin corrected (it differs from what this importer last wrote) is kept;
+     *  - a portion the source no longer lists is removed, unless it is the default or was corrected.
+     * Portions the admin added by hand (no evidence.import_batch_id) are never touched.
+     *
+     * @param  list<object>  $portionRows
+     * @param  list<int>  $committedIds
+     */
+    private function syncPortions(int $batchId, Lookups $l, int $recordId, int $foodId, int $formId, array $portionRows, array &$stats, array &$committedIds): void
+    {
+        $now = now();
+
+        $existing = [];   // match key => list of stored rows
+        foreach (DB::table('food_portions')->where('food_source_record_id', $recordId)
+            ->whereNotNull('evidence->import_batch_id')->orderBy('id')->get() as $row) {
+            $row->evidence = json_decode($row->evidence ?? '', true) ?: [];
+            $label = $row->evidence['source_label'] ?? $row->evidence['modifier'] ?? $row->description ?? '';
+            $existing[self::portionKey((int) $row->measure_unit_id, (float) $row->amount, $label)][] = $row;
+        }
+
         foreach ($portionRows as $pr) {
             if ($pr->status !== 'valid') {
                 continue; // portion errors never block a record; the row is simply skipped
             }
-            $p                = $pr->raw;
-            $label            = trim($p['measure_unit_label']);
-            $portionInserts[] = [
+            $p      = $pr->raw;
+            $label  = trim($p['measure_unit_label']);
+            $unitId = $l->resolveUnitLabel($label);
+            $amount = ($p['amount'] ?? '') === '' ? 1.0 : (float) $p['amount'];
+            $grams  = (float) $p['gram_weight'];
+
+            $fields = [
                 'food_id'               => $foodId,
-                'measure_unit_id'       => $l->resolveUnitLabel($label),
-                'amount'                => ($p['amount'] ?? '') === '' ? 1 : (float) $p['amount'],
-                'gram_weight'           => (float) $p['gram_weight'],
-                // keep the source wording ("cup, chopped") when the label carried more than the unit
-                'description'           => ($p['description'] ?? '') ?: ($l->isExactUnitLabel($label) ? null : $label),
-                'food_source_record_id' => $recordId,
+                // keep the source wording ("cup, chopped") when the label carried more than the unit,
+                // and always keep a size word ("small" is a piece alias, but it is not just "piece")
+                'description'           => ($p['description'] ?? '') ?: ($l->isExactUnitLabel($label) && ! PortionResolver::isSizeWord($label) ? null : $label),
                 'food_form_id'          => $formId,
                 'basis'                 => ($p['basis'] ?? '') ?: $this->cfg['default_portion_basis'],
-                'confidence_level'      => $this->cfg['default_confidence'],
-                'is_default'            => false,
                 'evidence'              => json_encode([
-                    'import_batch_id' => $batchId,
-                    'source_row'      => $pr->row_number,
-                    'modifier'        => ($p['modifier'] ?? '') ?: null,
+                    'import_batch_id'      => $batchId,
+                    'source_row'           => $pr->row_number,
+                    'modifier'             => ($p['modifier'] ?? '') ?: null,
+                    'source_label'         => $label,
+                    'imported_gram_weight' => $grams,
                 ], JSON_UNESCAPED_UNICODE),
-                'created_at'            => $now,
                 'updated_at'            => $now,
             ];
+
+            $key   = self::portionKey($unitId, $amount, $label);
+            $match = isset($existing[$key]) ? array_shift($existing[$key]) : null;
+
+            if ($match) {
+                $corrected = self::adminCorrected($match, $grams);
+                if (! $corrected) {
+                    $fields['gram_weight'] = $grams;
+                }
+                DB::table('food_portions')->where('id', $match->id)->update($fields);
+                $stats['portions_updated']++;
+            } else {
+                DB::table('food_portions')->insert($fields + [
+                    'measure_unit_id'       => $unitId,
+                    'amount'                => $amount,
+                    'gram_weight'           => $grams,
+                    'food_source_record_id' => $recordId,
+                    'confidence_level'      => $this->cfg['default_confidence'],
+                    'is_default'            => false,
+                    'created_at'            => $now,
+                ]);
+                $stats['portions_written']++;
+            }
             $committedIds[] = $pr->id;
         }
-        if ($portionInserts) {
-            DB::table('food_portions')->insert($portionInserts);
-            $stats['portions_written'] += count($portionInserts);
-        }
 
-        DB::table('import_rows')->whereIn('id', $committedIds)->update(['status' => 'committed', 'updated_at' => $now]);
+        foreach ($existing as $rows) {
+            foreach ($rows as $row) {
+                if ($row->is_default || self::adminCorrected($row, null)) {
+                    $stats['portions_kept']++;
+
+                    continue;
+                }
+                DB::table('food_portions')->where('id', $row->id)->delete();
+            }
+        }
+    }
+
+    private static function portionKey(?int $unitId, float $amount, string $label): string
+    {
+        return $unitId.'|'.round($amount, 4).'|'.mb_strtolower(trim($label));
+    }
+
+    /**
+     * True when the stored gram weight is not what this importer last wrote, i.e. the admin
+     * corrected it. Rows imported before imported_gram_weight was recorded count as corrected
+     * only when they differ from the incoming source weight (nothing is lost either way).
+     */
+    private static function adminCorrected(object $row, ?float $incomingGrams): bool
+    {
+        $lastImported = $row->evidence['imported_gram_weight'] ?? $incomingGrams;
+
+        return $lastImported !== null && abs((float) $row->gram_weight - (float) $lastImported) > 1e-6;
     }
 
     private function sameValue(object $prev, array $new): bool
