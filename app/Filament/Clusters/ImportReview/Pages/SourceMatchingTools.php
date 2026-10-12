@@ -34,6 +34,8 @@ class SourceMatchingTools extends Page implements HasForms
 
     protected static ?string $title = 'أدوات مطابقة المصادر الكبيرة (USDA وغيره)';
 
+    private const TOOL_TIMEOUT_SECONDS = 600;
+
     public ?array $matchData = [];
 
     public ?array $buildData = [];
@@ -74,6 +76,16 @@ class SourceMatchingTools extends Page implements HasForms
         return collect(File::directories($dir))
             ->mapWithKeys(fn($path) => [basename($path) => basename($path)])
             ->all();
+    }
+
+    /**
+     * Matching several large releases (Foundation + SR Legacy) takes longer than PHP's default
+     * 60 s request limit, which killed the request with "Maximum execution time exceeded" while
+     * the Python tool was still running. Give this request the same 10 minutes the tool gets.
+     */
+    private function allowLongRun(): void
+    {
+        @set_time_limit(self::TOOL_TIMEOUT_SECONDS + 60);
     }
 
     /** "--fdc-dir <folder>" once per chosen release, limited to folders that really exist. */
@@ -165,6 +177,7 @@ class SourceMatchingTools extends Page implements HasForms
 
     public function generateDraft()
     {
+        $this->allowLongRun();
         $state              = $this->matchForm->getState();
         $this->errorMessage = null;
 
@@ -174,7 +187,7 @@ class SourceMatchingTools extends Page implements HasForms
 
         $adapter = config("source_adapters.{$state['adapter']}");
 
-        $result = Process::timeout(600)->run([
+        $result = Process::timeout(self::TOOL_TIMEOUT_SECONDS)->run([
             env('PYTHON_BIN', 'python'),
             base_path('tools/' . $adapter['script']),
             'suggest',
@@ -200,6 +213,7 @@ class SourceMatchingTools extends Page implements HasForms
 
     public function buildBundle()
     {
+        $this->allowLongRun();
         $state              = $this->buildForm->getState();
         $this->errorMessage = null;
 
@@ -209,7 +223,7 @@ class SourceMatchingTools extends Page implements HasForms
 
         $adapter = config("source_adapters.{$state['adapter']}");
 
-        $result = Process::timeout(600)->run([
+        $result = Process::timeout(self::TOOL_TIMEOUT_SECONDS)->run([
             env('PYTHON_BIN', 'python'),
             base_path('tools/' . $adapter['script']),
             'build',

@@ -40,6 +40,7 @@ Wanted-foods list (for suggest): food_name_ar, food_name_en, forms, [search_term
 import argparse
 import re
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 import pandas as pd
@@ -250,11 +251,10 @@ def fit_form(target: str, guess: str):
     return (target, "") if guess == target else None
 
 
-def score_description(desc: str, term_words: list, term_segments: list = None):
-    """None if the description does not match any term; else (score, match_label).
-
-    term_segments[i] is how many comma-separated parts term i has: a term written the USDA way
-    ("squash, summer, zucchini") is an exact match when it equals that many leading parts."""
+@lru_cache(maxsize=None)
+def _desc_parts(desc: str):
+    """The pieces of a USDA description that scoring needs, parsed once per description
+    (suggest scores every description against every wanted food)."""
     low = desc.lower()
     if any(x in low for x in EXCLUDE):
         return None
@@ -263,7 +263,18 @@ def score_description(desc: str, term_words: list, term_segments: list = None):
     head = words(segments[0])
     lead = words(" ".join(segments[:2]))
     paren = set(words(" ".join(re.findall(r"\(([^)]*)\)", desc))))
-    have = set(words(desc))
+    return low, segments, head, lead, paren, set(words(desc))
+
+
+def score_description(desc: str, term_words: list, term_segments: list = None):
+    """None if the description does not match any term; else (score, match_label).
+
+    term_segments[i] is how many comma-separated parts term i has: a term written the USDA way
+    ("squash, summer, zucchini") is an exact match when it equals that many leading parts."""
+    parts = _desc_parts(desc)
+    if parts is None:
+        return None
+    low, segments, head, lead, paren, have = parts
     best = None
     for i, tw in enumerate(term_words):
         if not tw or not all(w in have for w in tw):
@@ -317,13 +328,14 @@ def cmd_suggest(a):
         targets = [t.strip().lower() for t in (w.get("forms") or "any").split(";") if t.strip()] or ["any"]
 
         exclude = [t.strip().lower() for t in (w.get("exclude") or "").split(";") if t.strip()]
+        # one pattern for all excludes, same word-boundary rule as has_word()
+        excluded = re.compile(r"\b(?:" + "|".join(map(re.escape, exclude)) + r")\b") if exclude else None
 
         scored = []
         for c in catalog:
-            if any(has_word(c["desc"].lower(), x) for x in exclude):
-                continue
             res = score_description(c["desc"], term_words, term_segments)
-            if res:
+            # excludes are checked only for the few descriptions that match a term
+            if res and not (excluded and excluded.search(c["desc"].lower())):
                 scored.append({**c, "score": res[0], "match": res[1]})
 
         for target in targets:
