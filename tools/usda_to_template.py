@@ -189,8 +189,11 @@ def fit_form(target: str, guess: str):
     return (target, "") if guess == target else None
 
 
-def score_description(desc: str, term_words: list):
-    """None if the description does not match any term; else (score, match_label)."""
+def score_description(desc: str, term_words: list, term_segments: list = None):
+    """None if the description does not match any term; else (score, match_label).
+
+    term_segments[i] is how many comma-separated parts term i has: a term written the USDA way
+    ("squash, summer, zucchini") is an exact match when it equals that many leading parts."""
     low = desc.lower()
     if any(x in low for x in EXCLUDE):
         return None
@@ -201,10 +204,13 @@ def score_description(desc: str, term_words: list):
     paren = set(words(" ".join(re.findall(r"\(([^)]*)\)", desc))))
     have = set(words(desc))
     best = None
-    for tw in term_words:
+    for i, tw in enumerate(term_words):
         if not tw or not all(w in have for w in tw):
             continue
-        if set(head) == set(tw):
+        k = term_segments[i] if term_segments else 1
+        if k > 2 and set(words(",".join(segments[:k]))) == set(tw):
+            cand = (58, "exact")
+        elif set(head) == set(tw):
             cand = (60, "exact")
         elif all(w in paren for w in tw):
             cand = (50, "alias")
@@ -243,6 +249,7 @@ def cmd_suggest(a):
     for w in wanted.to_dict("records"):
         terms = [t.strip() for t in (w.get("search_terms") or w["food_name_en"]).split(";") if t.strip()]
         term_words = [words(t) for t in terms]
+        term_segments = [len(t.split(",")) for t in terms]
         targets = [t.strip().lower() for t in (w.get("forms") or "any").split(";") if t.strip()] or ["any"]
 
         exclude = [t.strip().lower() for t in (w.get("exclude") or "").split(";") if t.strip()]
@@ -251,7 +258,7 @@ def cmd_suggest(a):
         for c in catalog:
             if any(has_word(c["desc"].lower(), x) for x in exclude):
                 continue
-            res = score_description(c["desc"], term_words)
+            res = score_description(c["desc"], term_words, term_segments)
             if res:
                 scored.append({**c, "score": res[0], "match": res[1]})
 
@@ -286,6 +293,15 @@ def cmd_suggest(a):
                             "score": c["score"], "rank": rank})
 
     df = pd.DataFrame(out)
+    # build accepts one food per USDA item: never pre-mark the same fdc_id twice
+    first = {}
+    for i in df.index[df.pick == "yes"]:
+        key = df.at[i, "fdc_id"]
+        if key in first:
+            df.at[i, "pick"] = ""
+            df.at[i, "hint"] = f"same USDA item already picked for {first[key]}: choose another or drop this row"
+        else:
+            first[key] = f"{df.at[i, 'food_name_ar']} ({df.at[i, 'target_form']})"
     df.to_csv(a.out, index=False, encoding="utf-8-sig")  # BOM so Excel shows Arabic correctly
     top = df[df["rank"].astype(str) == "1"]
     marked = int((top.pick == "yes").sum())
