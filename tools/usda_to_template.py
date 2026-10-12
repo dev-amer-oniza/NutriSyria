@@ -108,6 +108,24 @@ def current_foods(folder) -> pd.DataFrame:
     return food
 
 
+def nutrient_id_fixer(folder):
+    """Function mapping food_nutrient.nutrient_id to the FDC nutrient id (nutrient.id).
+
+    Most releases store nutrient.id (1008 = energy) in food_nutrient.csv, but the FNDDS survey
+    release stores the old SR nutrient number (208 = energy, nutrient.nutrient_nbr). Without this
+    translation every FNDDS food looks empty and imports with no values at all."""
+    nut = read(folder, "nutrient.csv", usecols=["id", "nutrient_nbr"])
+    path = Path(folder) / "food_nutrient.csv"
+    if nut is None or not path.exists():
+        return lambda s: s
+    sample = set(pd.read_csv(path, dtype=str, usecols=["nutrient_id"], nrows=50_000).nutrient_id)
+    ids, nbrs = set(nut.id), set(nut.nutrient_nbr.dropna())
+    if len(sample & ids) >= len(sample & nbrs):
+        return lambda s: s
+    by_nbr = dict(zip(nut.nutrient_nbr, nut.id))
+    return lambda s: s.map(by_nbr)
+
+
 # FDC nutrient ids that answer "does this food have energy / protein / fat / carbohydrate?"
 COMPLETENESS = {
     "energy": {"1008", "2047", "2048"},
@@ -122,7 +140,9 @@ def missing_basics(folder, fdc_ids) -> dict:
     path = Path(folder) / "food_nutrient.csv"
     wanted, have = set(fdc_ids), {}
     needed = set().union(*COMPLETENESS.values())
+    fix = nutrient_id_fixer(folder)
     for ch in pd.read_csv(path, dtype=str, usecols=["fdc_id", "nutrient_id", "amount"], chunksize=500_000):
+        ch = ch.assign(nutrient_id=fix(ch.nutrient_id))
         ch = ch[ch.fdc_id.isin(wanted) & ch.nutrient_id.isin(needed) & ch.amount.notna()]
         for f, n in zip(ch.fdc_id, ch.nutrient_id):
             have.setdefault(f, set()).add(n)
@@ -314,6 +334,10 @@ def cmd_suggest(a):
                 if c["state"] and c["state"] != target and target not in ("any", "-", "\u2014", "plain", ""):
                     continue  # frozen/canned/dried/pickled item, but that state was not asked for
                 fit = fit_form(target, c["guess"])
+                # FNDDS describes food as eaten ("Lentils, NFS" is cooked lentils): never assume a
+                # form it does not state, or cooked weights end up on a raw ingredient.
+                if fit and fit[1] and c["source"] == DATASETS["survey_fndds_food"]:
+                    fit = None
                 if fit:
                     fits.append({**c, "form_code": fit[0], "form_note": fit[1]})
             if not fits:
@@ -469,9 +493,11 @@ def cmd_build(a):
         nmap = m if nmap is None else pd.concat([nmap, m]).drop_duplicates(["nutrient_code", "code"])
         path = Path(folder) / "food_nutrient.csv"
         header = pd.read_csv(path, nrows=0).columns
+        fix = nutrient_id_fixer(folder)
         chunks += [
             ch[ch.fdc_id.isin(ids) & ch.nutrient_id.isin(set(m.code))]
-            for ch in pd.read_csv(path, dtype=str, usecols=[c for c in cols if c in header], chunksize=500_000)
+            for ch in (c.assign(nutrient_id=fix(c.nutrient_id))
+                       for c in pd.read_csv(path, dtype=str, usecols=[c for c in cols if c in header], chunksize=500_000))
         ]
         der = read(folder, "food_nutrient_derivation.csv")
         if der is not None:
