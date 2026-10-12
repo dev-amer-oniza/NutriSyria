@@ -33,6 +33,12 @@
                 </div>
             @endif
 
+            @if ($result['filled_value_count'])
+                <div class="mt-3 rounded-xl bg-info-50 dark:bg-info-500/10 text-info-800 dark:text-info-300 px-4 py-3 text-sm">
+                    ℹ {{ $result['filled_value_count'] }} قيمة لم يذكرها المصدر المختار لمكوّنها، فأُكملت من مصدر آخر معتمد لنفس الغذاء والشكل، أو حُسبت السعرات من البروتين والدهون والكربوهيدرات. التفاصيل تحت كل مغذٍّ.
+                </div>
+            @endif
+
             @unless ($result['has_weight_after_cooking'])
                 <div class="mt-3 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 px-4 py-3 text-sm">
                     أدخل "الوزن بعد الطبخ" في الوصفة لتتمكن من اعتماد هذا التحليل كقيمة رسمية.
@@ -66,6 +72,16 @@
                                     @if ($row['missing_from'])
                                         <div class="text-xs text-warning-600 dark:text-warning-400">
                                             ⚠ ناقص من: {{ implode('، ', array_unique($row['missing_from'])) }}
+                                        </div>
+                                    @endif
+                                    @if ($row['borrowed'] ?? [])
+                                        <div class="text-xs text-info-600 dark:text-info-400">
+                                            ↺ مستعار: @foreach ($row['borrowed'] as $label => $source){{ $label }} ({{ $source }})@unless ($loop->last)، @endunless@endforeach
+                                        </div>
+                                    @endif
+                                    @if ($row['computed'] ?? [])
+                                        <div class="text-xs text-info-600 dark:text-info-400">
+                                            ≈ محسوب من البروتين والدهون والكربوهيدرات: {{ implode('، ', $row['computed']) }}
                                         </div>
                                     @endif
                                 </td>

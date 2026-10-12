@@ -12,6 +12,13 @@ Setup (one time)
   2. Point --nutrients / --source-codes at database/seeders/data/nutrients.csv and
      nutrient_source_codes.csv (or at a DB export with the same columns).
 
+Several releases at once
+  suggest and build accept --fdc-dir more than once (e.g. Foundation AND SR Legacy). suggest
+  ranks each release on its own and may pre-mark the best item of each; both are imported for
+  the same food and form, recipes use the higher-priority one (data_sources.priority) and fill
+  the nutrients it lacks from the other. Superseded Foundation versions are never offered, and
+  an item without protein/fat/carbohydrate is never pre-marked ("incomplete analysis").
+
 Commands
   verify-map   check every mapped FDC nutrient id against the real nutrient.csv (run this first)
   search       list candidate FDC foods for one search term
@@ -86,6 +93,42 @@ def read(folder, name, required=False, **kw):
     return pd.read_csv(path, dtype=str, encoding="utf-8-sig", **kw)
 
 
+def current_foods(folder) -> pd.DataFrame:
+    """food.csv rows of the supported datasets, without superseded Foundation versions.
+
+    A Foundation release keeps older analyses of the same food in food.csv (e.g. two
+    "Milk, whole, 3.25% milkfat" rows from 2019); foundation_food.csv lists only the
+    current ones, so anything else of type foundation_food is an outdated version."""
+    food = read(folder, "food.csv", required=True,
+                usecols=["fdc_id", "data_type", "description", "publication_date"])
+    food = food[food.data_type.isin(DATASETS)]
+    current = read(folder, "foundation_food.csv", usecols=["fdc_id"])
+    if current is not None:
+        food = food[(food.data_type != "foundation_food") | food.fdc_id.isin(set(current.fdc_id))]
+    return food
+
+
+# FDC nutrient ids that answer "does this food have energy / protein / fat / carbohydrate?"
+COMPLETENESS = {
+    "energy": {"1008", "2047", "2048"},
+    "protein": {"1003"},
+    "fat": {"1004", "1085"},
+    "carbohydrate": {"1005", "1050"},
+}
+
+
+def missing_basics(folder, fdc_ids) -> dict:
+    """fdc_id -> list of COMPLETENESS keys the food has no value for."""
+    path = Path(folder) / "food_nutrient.csv"
+    wanted, have = set(fdc_ids), {}
+    needed = set().union(*COMPLETENESS.values())
+    for ch in pd.read_csv(path, dtype=str, usecols=["fdc_id", "nutrient_id", "amount"], chunksize=500_000):
+        ch = ch[ch.fdc_id.isin(wanted) & ch.nutrient_id.isin(needed) & ch.amount.notna()]
+        for f, n in zip(ch.fdc_id, ch.nutrient_id):
+            have.setdefault(f, set()).add(n)
+    return {f: [k for k, ids in COMPLETENESS.items() if not have.get(f, set()) & ids] for f in wanted}
+
+
 def read_codes(path) -> pd.DataFrame:
     codes = pd.read_csv(path, dtype=str, encoding="utf-8-sig")
     return codes[codes.source_system == SOURCE_SYSTEM].copy()
@@ -116,9 +159,7 @@ def cmd_verify_map(a):
 
 # --------------------------------------------------------------------- search
 def cmd_search(a):
-    food = read(a.fdc_dir, "food.csv", required=True,
-                usecols=["fdc_id", "data_type", "description", "publication_date"])
-    food = food[food.data_type.isin(DATASETS)]
+    food = current_foods(a.fdc_dir)  # supported datasets, superseded Foundation versions hidden
     mask = pd.Series(True, index=food.index)
     for term in a.terms:
         mask &= food.description.str.contains(term, case=False, regex=False, na=False)
@@ -233,12 +274,15 @@ def score_description(desc: str, term_words: list, term_segments: list = None):
 
 
 def cmd_suggest(a):
-    food = read(a.fdc_dir, "food.csv", required=True,
-                usecols=["fdc_id", "data_type", "description", "publication_date"])
-    food = food[food.data_type.isin(DATASETS)]
-    catalog = [{"fdc_id": r.fdc_id, "desc": r.description, "guess": guess_form(r.description),
-                "state": guess_state(r.description)}
-               for r in food.itertuples() if isinstance(r.description, str)]
+    catalog = []
+    for folder in a.fdc_dir:
+        food = current_foods(folder)
+        food = food[food.description.apply(lambda d: isinstance(d, str))]
+        missing = missing_basics(folder, food.fdc_id)
+        catalog += [{"fdc_id": r.fdc_id, "desc": r.description, "guess": guess_form(r.description),
+                     "state": guess_state(r.description), "source": DATASETS[r.data_type],
+                     "missing": missing.get(r.fdc_id, [])}
+                    for r in food.itertuples()]
 
     wanted = pd.read_csv(a.wanted, dtype=str, encoding="utf-8-sig").fillna("")
     for col in ("food_name_ar", "food_name_en"):
@@ -272,25 +316,38 @@ def cmd_suggest(a):
                 fit = fit_form(target, c["guess"])
                 if fit:
                     fits.append({**c, "form_code": fit[0], "form_note": fit[1]})
-            fits.sort(key=lambda c: (-c["score"], c["fdc_id"]))
             if not fits:
                 out.append({"pick": "", "hint": "", "food_name_ar": w["food_name_ar"],
                             "food_name_en": w["food_name_en"], "target_form": target, "food_form_code": "", "fdc_id": "",
                             "description": "NO CANDIDATE FOUND - search manually or add the data yourself",
+                            "data_source": "", "missing": "",
                             "match": "", "form_note": "", "score": "", "rank": ""})
-            gap = (fits[0]["score"] - fits[1]["score"]) if len(fits) > 1 else None
-            for rank, c in enumerate(fits[: a.top], start=1):
-                strong = c["match"] in ("exact", "alias")
-                clear = gap is None or gap >= a.min_gap
-                confident = rank == 1 and strong and clear
-                hint = ""
-                if rank == 1 and not confident:
-                    hint = "weak name match: check" if not strong else "several similar candidates: choose one"
-                out.append({"pick": "yes" if confident else "", "hint": hint, "food_name_ar": w["food_name_ar"],
-                            "food_name_en": w["food_name_en"], "target_form": target,
-                            "food_form_code": c["form_code"], "fdc_id": c["fdc_id"],
-                            "description": c["desc"], "match": c["match"], "form_note": c["form_note"],
-                            "score": c["score"], "rank": rank})
+            # Each release is ranked on its own: the best Foundation item AND the best SR Legacy
+            # item can both be picked. The import keeps them side by side for the same food and
+            # form; recipes use the higher-priority one and borrow what it lacks from the other.
+            for source in sorted({c["source"] for c in fits}, key=lambda x: list(DATASETS.values()).index(x)):
+                group = sorted((c for c in fits if c["source"] == source), key=lambda c: (-c["score"], c["fdc_id"]))
+                gap = (group[0]["score"] - group[1]["score"]) if len(group) > 1 else None
+                for rank, c in enumerate(group[: a.top], start=1):
+                    strong = c["match"] in ("exact", "alias")
+                    clear = gap is None or gap >= a.min_gap
+                    lacks_macros = [m for m in c["missing"] if m != "energy"]
+                    confident = rank == 1 and strong and clear and not lacks_macros
+                    hint = ""
+                    if rank == 1 and not confident:
+                        if not strong:
+                            hint = "weak name match: check"
+                        elif not clear:
+                            hint = "several similar candidates: choose one"
+                        else:
+                            hint = "incomplete analysis: no " + ", ".join(lacks_macros)
+                    out.append({"pick": "yes" if confident else "", "hint": hint, "food_name_ar": w["food_name_ar"],
+                                "food_name_en": w["food_name_en"], "target_form": target,
+                                "food_form_code": c["form_code"], "fdc_id": c["fdc_id"],
+                                "description": c["desc"], "data_source": source,
+                                "missing": ", ".join(c["missing"]),
+                                "match": c["match"], "form_note": c["form_note"],
+                                "score": c["score"], "rank": rank})
 
     df = pd.DataFrame(out)
     # build accepts one food per USDA item: never pre-mark the same fdc_id twice
@@ -303,12 +360,18 @@ def cmd_suggest(a):
         else:
             first[key] = f"{df.at[i, 'food_name_ar']} ({df.at[i, 'target_form']})"
     df.to_csv(a.out, index=False, encoding="utf-8-sig")  # BOM so Excel shows Arabic correctly
-    top = df[df["rank"].astype(str) == "1"]
-    marked = int((top.pick == "yes").sum())
-    empty = int((df.fdc_id == "").sum())
+    pairs = df.groupby(["food_name_ar", "target_form"], sort=False)
+    total = pairs.ngroups
+    covered = int(pairs.pick.apply(lambda p: (p == "yes").any()).sum())
+    empty = int(pairs.fdc_id.apply(lambda f: (f == "").all()).sum())
     print(f"draft: {len(df)} rows for {len(wanted)} foods -> {a.out}")
-    print(f"  clear best guess pre-marked yes: {marked} of {len(top) + empty} wanted food/form pairs")
-    print(f"  you must choose: {len(top) - marked} (several similar candidates or weak match) | no candidate at all: {empty}")
+    print(f"  food/form pairs with a pre-marked pick: {covered} of {total} | you must choose: {total - covered - empty}"
+          f" | no candidate at all: {empty}")
+    for source, n in df[df.pick == "yes"].data_source.value_counts().items():
+        print(f"  pre-marked from {source}: {n}")
+    shaky = df[(df.pick == "yes") & (df.missing != "")]
+    if not shaky.empty:
+        print(f"  {len(shaky)} pick(s) lack energy only: it is computed from protein/fat/carbohydrate in recipes")
 
 
 
@@ -333,6 +396,7 @@ def load_nutrient_map(a, fdc_nutrient) -> pd.DataFrame:
 def cmd_build(a):
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
+    dirs = a.fdc_dir
 
     cw = pd.read_csv(a.crosswalk, dtype=str, encoding="utf-8-sig").fillna("")
     for col in ("fdc_id", "food_form_code"):
@@ -354,19 +418,29 @@ def cmd_build(a):
         sys.exit(f"Crosswalk rows without food_id or food_name_ar: fdc_id {bad.fdc_id.tolist()}")
     if cw.fdc_id.duplicated().any():
         sys.exit(f"Duplicate fdc_id in crosswalk: {cw.fdc_id[cw.fdc_id.duplicated()].tolist()}")
-    same = (cw.food_id.where(cw.food_id != "", cw.food_name_ar) + " | " + cw.food_form_code)
-    if same.duplicated().any():
-        sys.exit("More than one USDA item is picked for the same food and form (choose only one): "
-                 f"{sorted(set(same[same.duplicated(keep=False)]))}")
     wanted = set(cw.fdc_id)
 
-    # ---- records ----
-    food = read(a.fdc_dir, "food.csv", required=True,
-                usecols=["fdc_id", "data_type", "description", "publication_date"])
-    food = food[food.fdc_id.isin(wanted)]
+    # Which release each picked fdc_id lives in (fdc ids are unique across FoodData Central).
+    home, frames = {}, []
+    for folder in dirs:
+        f = read(folder, "food.csv", required=True, usecols=["fdc_id", "data_type", "description", "publication_date"])
+        f = f[f.fdc_id.isin(wanted - set(home))]
+        home.update({i: folder for i in f.fdc_id})
+        frames.append(f)
+    food = pd.concat(frames)
     missing = wanted - set(food.fdc_id)
     if missing:
-        sys.exit(f"fdc_id not found in food.csv: {sorted(missing)}")
+        sys.exit(f"fdc_id not found in food.csv of {', '.join(dirs)}: {sorted(missing)}")
+
+    # One item per food, form AND release: a Foundation and an SR Legacy pick for the same
+    # food and form are both kept (recipes borrow missing nutrients between them).
+    src = cw.fdc_id.map(dict(zip(food.fdc_id, food.data_type))).map(DATASETS).fillna("")
+    same = cw.food_id.where(cw.food_id != "", cw.food_name_ar) + " | " + cw.food_form_code + " | " + src
+    if same.duplicated().any():
+        sys.exit("More than one USDA item of the same release is picked for the same food and form "
+                 f"(choose only one): {sorted(set(same[same.duplicated(keep=False)]))}")
+
+    # ---- records ----
     unsupported = food[~food.data_type.isin(DATASETS)]
     if not unsupported.empty:
         sys.exit("Only Foundation / SR Legacy / FNDDS are accepted. Offending: "
@@ -385,16 +459,24 @@ def cmd_build(a):
     ds_of = dict(zip(rec_out.external_ref, rec_out.data_source_code))
 
     # ---- nutrient values ----
-    fdc_nutrient = read(a.fdc_dir, "nutrient.csv", required=True)
-    nmap = load_nutrient_map(a, fdc_nutrient)
-
-    path = Path(a.fdc_dir) / "food_nutrient.csv"
-    header = pd.read_csv(path, nrows=0).columns
     cols = ["fdc_id", "nutrient_id", "amount", "data_points", "derivation_id", "min", "max"]
-    chunks = [
-        ch[ch.fdc_id.isin(wanted) & ch.nutrient_id.isin(set(nmap.code))]
-        for ch in pd.read_csv(path, dtype=str, usecols=[c for c in cols if c in header], chunksize=500_000)
-    ]
+    chunks, nmap, der_map = [], None, {}
+    for folder in dirs:
+        ids = {i for i, d in home.items() if d == folder}
+        if not ids:
+            continue
+        m = load_nutrient_map(a, read(folder, "nutrient.csv", required=True))
+        nmap = m if nmap is None else pd.concat([nmap, m]).drop_duplicates(["nutrient_code", "code"])
+        path = Path(folder) / "food_nutrient.csv"
+        header = pd.read_csv(path, nrows=0).columns
+        chunks += [
+            ch[ch.fdc_id.isin(ids) & ch.nutrient_id.isin(set(m.code))]
+            for ch in pd.read_csv(path, dtype=str, usecols=[c for c in cols if c in header], chunksize=500_000)
+        ]
+        der = read(folder, "food_nutrient_derivation.csv")
+        if der is not None:
+            der = der.fillna("")
+            der_map.update(zip(der.id, der.code + ": " + der.description))
     vals = pd.concat(chunks).reindex(columns=cols)
     vals["amount"] = pd.to_numeric(vals.amount, errors="coerce")
     vals = vals.dropna(subset=["amount"])
@@ -419,11 +501,6 @@ def cmd_build(a):
         print(f"note: {before - len(vals)} value(s) had several source codes for one nutrient; "
               "kept the lowest priority number.", file=sys.stderr)
 
-    der = read(a.fdc_dir, "food_nutrient_derivation.csv")
-    der_map = {}
-    if der is not None:
-        der = der.fillna("")
-        der_map = dict(zip(der.id, der.code + ": " + der.description))
     nv = pd.DataFrame({
         "data_source_code": vals.fdc_id.map(ds_of), "external_ref": vals.fdc_id,
         "nutrient_code": vals.nutrient_code, "amount_per_100g": vals.amount, "unit": vals.unit,
@@ -435,11 +512,17 @@ def cmd_build(a):
 
     # ---- portions ----
     por_n = 0
-    por = read(a.fdc_dir, "food_portion.csv")
-    if por is not None and por.fdc_id.isin(wanted).any():  # skip cleanly when none of the foods has portions
-        mu = read(a.fdc_dir, "measure_unit.csv")
-        mu_name = dict(zip(mu.id, mu.name)) if mu is not None else {}
-        por = por[por.fdc_id.isin(wanted)].copy()
+    por_frames, mu_name = [], {}
+    for folder in dirs:
+        p = read(folder, "food_portion.csv")
+        if p is not None:
+            por_frames.append(p[p.fdc_id.isin({i for i, d in home.items() if d == folder})])
+        mu = read(folder, "measure_unit.csv")
+        if mu is not None:
+            mu_name.update(zip(mu.id, mu.name))
+    por = pd.concat(por_frames) if por_frames else None
+    if por is not None and not por.empty:  # skip cleanly when none of the foods has portions
+        por = por.copy()
         por["gram_weight"] = pd.to_numeric(por.gram_weight, errors="coerce")
         por = por.dropna(subset=["gram_weight"])
         unit = por.measure_unit_id.map(mu_name)
@@ -489,7 +572,8 @@ def main():
     s.set_defaults(fn=cmd_search)
 
     g = sub.add_parser("suggest")
-    g.add_argument("--fdc-dir", required=True)
+    g.add_argument("--fdc-dir", required=True, action="append",
+                   help="a release folder; repeat to search several (e.g. Foundation and SR Legacy)")
     g.add_argument("--wanted", required=True)
     g.add_argument("--out", default="draft_crosswalk.csv")
     g.add_argument("--top", type=int, default=3)
@@ -498,7 +582,8 @@ def main():
     g.set_defaults(fn=cmd_suggest)
 
     b = sub.add_parser("build")
-    b.add_argument("--fdc-dir", required=True)
+    b.add_argument("--fdc-dir", required=True, action="append",
+                   help="every release folder the crosswalk picks from; repeat for several")
     b.add_argument("--nutrients", required=True)
     b.add_argument("--source-codes", required=True)
     b.add_argument("--crosswalk", required=True)
