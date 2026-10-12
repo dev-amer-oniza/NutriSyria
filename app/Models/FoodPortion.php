@@ -15,6 +15,20 @@ class FoodPortion extends Model
         'is_default', 'valid_from', 'valid_to', 'evidence',
     ];
 
+    /**
+     * A portion entered on a source record's page belongs to that record's form. Store the form
+     * on the portion itself, so it stays "raw" even if the portion is later dissociated or the
+     * record deleted; otherwise it would turn form-less and apply to every form of the food.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (FoodPortion $portion) {
+            if ($portion->food_form_id === null && $portion->food_source_record_id !== null) {
+                $portion->food_form_id = FoodSourceRecord::whereKey($portion->food_source_record_id)->value('food_form_id');
+            }
+        });
+    }
+
     protected function casts(): array
     {
         return [

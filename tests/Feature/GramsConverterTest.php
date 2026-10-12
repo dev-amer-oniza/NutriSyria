@@ -112,6 +112,41 @@ class GramsConverterTest extends TestCase
         $this->assertEqualsWithDelta(12.0, $this->converter()->convert($rawLentils->id, $this->units['tbsp']->id, 1), 1e-6);
     }
 
+    public function test_a_portion_keeps_its_form_after_it_is_dissociated(): void
+    {
+        $lentils = Food::create(['name_ar' => 'عدس']);
+        $rawLentils = $this->record($lentils, $this->raw, '172420');
+        $boiledLentils = $this->record($lentils, $this->boiled, '172421');
+        // Created the way PortionsRelationManager does: linked to the record, no form given.
+        $portion = $this->portion($rawLentils, 'tbsp', 12, ['food_form_id' => null]);
+        $this->assertSame($this->raw->id, $portion->fresh()->food_form_id);
+
+        $portion->update(['food_source_record_id' => null]);   // the "Dissociate" action
+
+        $this->assertSame(GramsConversion::OTHER_FORM_ONLY,
+            $this->converter()->resolve($boiledLentils->id, $this->units['tbsp']->id, 1)->status);
+    }
+
+    public function test_a_size_word_kept_only_in_evidence_is_still_recognised(): void
+    {
+        $pepper = $this->record(Food::create(['name_ar' => 'فليفلة']), $this->raw, '170427');
+        $piece = MeasureUnit::create(['code' => 'piece', 'name_ar' => 'حبة', 'dimension' => 'count']);
+        MeasureUnitAlias::create(['measure_unit_id' => $piece->id, 'label' => 'small']);
+        // Older imports dropped "small" from the description; only evidence.modifier has it.
+        foreach ([['small', 74], ['medium', 119]] as [$size, $grams]) {
+            FoodPortion::create([
+                'food_id' => $pepper->food_id, 'measure_unit_id' => $piece->id, 'amount' => 1, 'gram_weight' => $grams,
+                'food_source_record_id' => $pepper->id, 'description' => $size === 'small' ? null : $size,
+                'evidence' => ['import_batch_id' => 1, 'modifier' => $size],
+            ]);
+        }
+
+        $c = $this->converter()->resolve($pepper->id, $piece->id, 3);
+
+        $this->assertSame(GramsConversion::AMBIGUOUS_PORTION, $c->status);
+        $this->assertStringContainsString('«small»', $c->message);
+    }
+
     public function test_alias_labels_make_a_described_portion_plain(): void
     {
         $this->portion($this->boiledChickpeas, 'cup', 246, ['description' => 'cup, mashed']);

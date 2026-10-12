@@ -223,6 +223,62 @@ class PortionResolverTest extends TestCase
         $this->assertSame(GramsConversion::AMBIGUOUS_PORTION, $this->convert('piece', 1, $portions)->status);
     }
 
+    public function test_bare_size_words_are_not_plain_so_sizes_are_never_picked_silently(): void
+    {
+        // Green pepper, SR Legacy 170427: "small" alone used to win as a "plain" piece (74 g).
+        $portions = [
+            $this->portion('piece', 74, ['description' => 'small']),
+            $this->portion('piece', 119, ['description' => 'medium (approx 2-3/4" long, 2-1/2" dia)']),
+            $this->portion('piece', 164, ['description' => 'large (2-1/4 per lb, approx 3-3/4" long, 3" dia)']),
+        ];
+
+        $c = $this->convert('piece', 3, $portions);
+
+        $this->assertNull($c->grams);
+        $this->assertSame(GramsConversion::AMBIGUOUS_PORTION, $c->status);
+        $this->assertStringContainsString('«small»', $c->message);
+    }
+
+    public function test_arabic_size_words_are_not_plain_either(): void
+    {
+        $portions = [
+            $this->portion('piece', 38, ['description' => 'صغيرة']),
+            $this->portion('piece', 56, ['description' => 'كبيرة']),
+        ];
+
+        $this->assertSame(GramsConversion::AMBIGUOUS_PORTION, $this->convert('piece', 1, $portions)->status);
+    }
+
+    public function test_a_plain_piece_beats_size_variants(): void
+    {
+        $portions = [
+            $this->portion('piece', 38, ['description' => 'small']),
+            $this->portion('piece', 50, ['description' => '1 piece']),
+        ];
+
+        $this->assertEqualsWithDelta(100.0, $this->convert('piece', 2, $portions)->grams, 1e-9);
+    }
+
+    public function test_the_default_size_settles_the_choice(): void
+    {
+        $portions = [
+            $this->portion('piece', 74, ['description' => 'small']),
+            $this->portion('piece', 119, ['description' => 'medium', 'is_default' => true]),
+        ];
+
+        $this->assertEqualsWithDelta(357.0, $this->convert('piece', 3, $portions)->grams, 1e-9);
+    }
+
+    public function test_size_word_detection(): void
+    {
+        foreach (['small', 'Large', ' extra large ', 'كبيرة', 'وسط'] as $word) {
+            $this->assertTrue(PortionResolver::isSizeWord($word), $word);
+        }
+        foreach (['cup', 'piece', 'large (3" dia)', 'كوب'] as $word) {
+            $this->assertFalse(PortionResolver::isSizeWord($word), $word);
+        }
+    }
+
     public function test_portions_with_the_same_weight_are_not_ambiguous(): void
     {
         $portions = [

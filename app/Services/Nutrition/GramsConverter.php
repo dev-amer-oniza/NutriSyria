@@ -85,7 +85,9 @@ final class GramsConverter
                 ])),
                 'amount' => (float) $p->amount,
                 'gram_weight' => (float) $p->gram_weight,
-                'description' => $p->description,
+                // Imports used to drop a bare size word ("small") because it is also a unit alias;
+                // the source label survives in evidence.modifier.
+                'description' => $p->description ?? ($p->evidence['modifier'] ?? null),
                 'food_source_record_id' => $recordId !== null ? (int) $recordId : null,
                 'food_form_id' => $formId !== null ? (int) $formId : null,
                 'form_name_ar' => $formName,

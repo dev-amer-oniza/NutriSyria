@@ -41,6 +41,16 @@ final class PortionResolver
     private const MAX_LISTED_OPTIONS = 6;
 
     /**
+     * Size words name a VARIANT of a unit, not the unit itself: "small" and "large" are both
+     * aliases of "piece", but a small pepper is 74 g and a medium one 119 g. A portion described
+     * only by a size word is therefore never "plain".
+     */
+    private const SIZE_WORDS = [
+        'extra small', 'small', 'medium', 'large', 'extra large', 'jumbo', 'whole',
+        'صغير', 'صغيره', 'وسط', 'متوسط', 'متوسطه', 'كبير', 'كبيره', 'كامل', 'كامله',
+    ];
+
+    /**
      * @param  array{id:int, code:string, name_ar:string, dimension:?string, base_factor:?float}  $unit
      * @param  array{id:int, food_form_id:?int, food_name_ar:?string, form_name_ar:?string}|null  $record
      *     the ingredient's food_source_record, or null when it does not exist
@@ -231,10 +241,22 @@ final class PortionResolver
             return true;
         }
 
+        if (self::isSizeWord($text)) {
+            return false;
+        }
+
         $labels = array_map(fn (string $l) => ArabicNormalizer::normalize($l), $p['unit_labels'] ?? []);
 
         return in_array($text, $labels, true)
             || (str_ends_with($text, 's') && in_array(substr($text, 0, -1), $labels, true)); // "2 cups"
+    }
+
+    /** True for "small", "Large", "كبيرة"…: a size of the unit rather than the unit itself. */
+    public static function isSizeWord(string $label): bool
+    {
+        $text = trim(ArabicNormalizer::normalize($label), " \t,.");
+
+        return in_array($text, self::SIZE_WORDS, true);
     }
 
     private static function sameWeight(array $set): bool
