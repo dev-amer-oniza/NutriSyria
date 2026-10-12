@@ -16,7 +16,7 @@ final class RecipeCalculator
      *     grams: ?float,
      *     problem?: ?string,
      *     is_added_after_cooking: bool,
-     *     nutrients: array<int, array{amount: float, unit: string}>,
+     *     nutrients: array<int, array{amount: float, unit: string, origin?: array{type: string, source?: string}}>,
      * }>  $ingredients  one entry per recipe line, nutrients keyed by nutrient_id,
      *     amount is the source's amount_per_100g (not yet scaled by grams). grams is null when
      *     the line could not be converted to grams; problem says why
@@ -51,6 +51,8 @@ final class RecipeCalculator
             $sum = 0.0;
             $hasAnyValue = false;
             $missingFrom = [];
+            $borrowed = [];   // ingredient label => data source the value was borrowed from
+            $computed = [];   // ingredient labels whose energy was computed from its macronutrients
 
             foreach ($ingredients as $line) {
                 if ($line['grams'] === null || $line['grams'] <= 0) {
@@ -64,6 +66,12 @@ final class RecipeCalculator
                 }
                 $hasAnyValue = true;
                 $sum += ($line['grams'] / 100) * $value['amount'];
+
+                match ($value['origin']['type'] ?? null) {
+                    'borrowed' => $borrowed[$line['label']] = $value['origin']['source'] ?? '',
+                    'computed' => $computed[] = $line['label'],
+                    default => null,
+                };
             }
 
             $totals[$def['id']] = [
@@ -71,6 +79,8 @@ final class RecipeCalculator
                 // No ingredient reported this nutrient at all: unknown, not zero.
                 'amount' => $hasAnyValue ? round($sum, 6) : null,
                 'missing_from' => $missingFrom,
+                'borrowed' => $borrowed,
+                'computed' => array_values(array_unique($computed)),
             ];
         }
 

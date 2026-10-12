@@ -153,6 +153,25 @@ class RecipeCalculatorTest extends TestCase
         $this->assertTrue($r->canSaveOfficialValue());
     }
 
+    public function test_borrowed_and_computed_values_are_counted_and_named(): void
+    {
+        $ingredients = [
+            ['label' => 'زبدة', 'grams' => 10, 'is_added_after_cooking' => false,
+                'nutrients' => [1 => ['amount' => 717, 'unit' => 'kcal', 'origin' => ['type' => 'borrowed', 'source' => 'USDA SR Legacy']]]],
+            ['label' => 'أرز', 'grams' => 100, 'is_added_after_cooking' => false,
+                'nutrients' => [1 => ['amount' => 360, 'unit' => 'kcal', 'origin' => ['type' => 'computed']], 2 => ['amount' => 7, 'unit' => 'g']]],
+        ];
+
+        $r = $this->calc()->calculate($ingredients, $this->nutrientDefs, null, 100, 1);
+
+        $this->assertEqualsWithDelta(71.7 + 360, $r->totals[1]['amount'], 1e-9);
+        $this->assertSame(['زبدة' => 'USDA SR Legacy'], $r->totals[1]['borrowed']);
+        $this->assertSame(['أرز'], $r->totals[1]['computed']);
+        $this->assertSame([], $r->totals[2]['borrowed']);
+        $this->assertSame(2, $r->filledValueCount());
+        $this->assertTrue($r->canSaveOfficialValue());   // filled values never block approval
+    }
+
     public function test_cannot_save_official_value_without_after_cooking_weight(): void
     {
         $r = $this->calc()->calculate([], $this->nutrientDefs, 200, null, 1);

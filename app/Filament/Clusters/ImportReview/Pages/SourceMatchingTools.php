@@ -76,6 +76,21 @@ class SourceMatchingTools extends Page implements HasForms
             ->all();
     }
 
+    /** "--fdc-dir <folder>" once per chosen release, limited to folders that really exist. */
+    private function releaseArgs(string $adapterKey, array|string $releases): array
+    {
+        $adapter = config("source_adapters.{$adapterKey}");
+        $known = array_keys($this->releaseOptions($adapterKey));
+        $args = [];
+        foreach ((array) $releases as $release) {
+            if (in_array($release, $known, true)) {
+                array_push($args, '--fdc-dir', base_path($adapter['releases_path'] . '/' . $release));
+            }
+        }
+
+        return $args;
+    }
+
     public function makeMatchForm(): Schema
     {
         return Schema::make($this)
@@ -92,13 +107,14 @@ class SourceMatchingTools extends Page implements HasForms
                             ->native(false)
                             ->afterStateUpdated(fn($set) => $set('release', null)),
                         Select::make('release')
-                            ->label('النسخة/الإصدار')
+                            ->label('النسخ/الإصدارات')
+                            ->multiple()
                             ->options(fn(Get $get) => $this->releaseOptions($get('adapter')))
                             ->required()
                             ->native(false)
                             ->helperText(fn(Get $get) => empty($this->releaseOptions($get('adapter')))
                                     ? 'لا توجد أي نسخة مفكوكة الضغط لهذا المصدر بعد'
-                                    : null),
+                                    : 'يمكن اختيار أكثر من نسخة (مثلاً Foundation وSR Legacy): يُقترح الأفضل من كل منها، والوصفات تأخذ من الأعلى أولوية وتكمل الناقص من الأخرى'),
                         FileUpload::make('wanted_file')
                             ->label('ملف الأغذية المطلوبة')
                             ->disk('local')
@@ -130,13 +146,14 @@ class SourceMatchingTools extends Page implements HasForms
                             ->native(false)
                             ->afterStateUpdated(fn($set) => $set('release', null)),
                         Select::make('release')
-                            ->label('النسخة/الإصدار')
+                            ->label('النسخ/الإصدارات')
+                            ->multiple()
                             ->options(fn(Get $get) => $this->releaseOptions($get('adapter')))
                             ->required()
                             ->native(false)
                             ->helperText(fn(Get $get) => empty($this->releaseOptions($get('adapter')))
                                     ? 'لا توجد أي نسخة مفكوكة الضغط لهذا المصدر بعد'
-                                    : null),
+                                    : 'يمكن اختيار أكثر من نسخة (مثلاً Foundation وSR Legacy): يُقترح الأفضل من كل منها، والوصفات تأخذ من الأعلى أولوية وتكمل الناقص من الأخرى'),
                         FileUpload::make('crosswalk_file')
                             ->label('ملف المطابقة المراجَع')
                             ->disk('local')
@@ -157,11 +174,11 @@ class SourceMatchingTools extends Page implements HasForms
 
         $adapter = config("source_adapters.{$state['adapter']}");
 
-        $result = Process::run([
+        $result = Process::timeout(600)->run([
             env('PYTHON_BIN', 'python'),
             base_path('tools/' . $adapter['script']),
             'suggest',
-            '--fdc-dir', base_path($adapter['releases_path'] . '/' . $state['release']),
+            ...$this->releaseArgs($state['adapter'], $state['release']),
             '--wanted', $wantedPath,
             '--out', $outPath,
         ]);
@@ -192,11 +209,11 @@ class SourceMatchingTools extends Page implements HasForms
 
         $adapter = config("source_adapters.{$state['adapter']}");
 
-        $result = Process::run([
+        $result = Process::timeout(600)->run([
             env('PYTHON_BIN', 'python'),
             base_path('tools/' . $adapter['script']),
             'build',
-            '--fdc-dir', base_path($adapter['releases_path'] . '/' . $state['release']),
+            ...$this->releaseArgs($state['adapter'], $state['release']),
             '--nutrients', database_path('seeders/data/nutrients.csv'),
             '--source-codes', database_path('seeders/data/nutrient_source_codes.csv'),
             '--crosswalk', $crosswalkPath,

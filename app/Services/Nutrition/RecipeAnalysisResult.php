@@ -10,7 +10,7 @@ namespace App\Services\Nutrition;
 final readonly class RecipeAnalysisResult
 {
     /**
-     * @param  array<int, array{nutrient: array, amount: ?float, missing_from: string[]}>  $totals
+     * @param  array<int, array{nutrient: array, amount: ?float, missing_from: string[], borrowed: array<string, string>, computed: string[]}>  $totals
      *     absolute amount for the WHOLE recipe, keyed by nutrient_id
      */
     public function __construct(
@@ -47,6 +47,12 @@ final readonly class RecipeAnalysisResult
     public function perServing(): array
     {
         return $this->scale($this->servings > 0 ? 1 / $this->servings : null);
+    }
+
+    /** How many ingredient values were filled from another source or computed (energy from macronutrients). */
+    public function filledValueCount(): int
+    {
+        return array_sum(array_map(fn (array $row) => count($row['borrowed'] ?? []) + count($row['computed'] ?? []), $this->totals));
     }
 
     public function hasWeightAfterCooking(): bool
@@ -93,6 +99,7 @@ final readonly class RecipeAnalysisResult
             'servings'                => $this->servings,
             'weight_warning'          => $this->weightWarning,
             'unconverted_ingredients' => $this->unconvertedIngredients,
+            'filled_value_count'      => $this->filledValueCount(),
             'has_weight_after_cooking' => $this->hasWeightAfterCooking(),
             'can_save_official_value' => $this->canSaveOfficialValue(),
         ];

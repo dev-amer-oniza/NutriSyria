@@ -3,12 +3,15 @@
 namespace App\Services\Nutrition;
 
 use App\Enums\ConfidenceLevel;
+use App\Enums\FoodSourceStatus;
 use App\Enums\NutrientValueMethod;
 use App\Models\DataSource;
 use App\Models\FoodNutrientValue;
+use App\Models\FoodSourceRecord;
 use App\Models\Nutrient;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -26,6 +29,7 @@ final class RecipeAnalysisService
     public function __construct(
         private readonly RecipeCalculator $calculator = new RecipeCalculator(),
         private readonly GramsConverter $gramsConverter = new GramsConverter(),
+        private readonly NutrientGapFiller $gapFiller = new NutrientGapFiller(),
     ) {
     }
 
@@ -42,12 +46,16 @@ final class RecipeAnalysisService
         }
 
         $sourceRecordIds = $ingredientModels->pluck('food_source_record_id')->unique()->values();
+        $donorsByRecord = $this->donorsFor($ingredientModels->pluck('ingredientRecord')->filter()->unique('id'));
 
         $valuesByRecord = FoodNutrientValue::query()
-            ->whereIn('food_source_record_id', $sourceRecordIds)
+            ->whereIn('food_source_record_id', $sourceRecordIds->merge($donorsByRecord->flatten(1)->pluck('id'))->unique())
             ->whereNotNull('amount_per_100g')
             ->get()
             ->groupBy('food_source_record_id');
+        $valuesOf = fn (int $recordId) => $valuesByRecord->get($recordId, collect())
+            ->mapWithKeys(fn (FoodNutrientValue $v) => [$v->nutrient_id => ['amount' => (float) $v->amount_per_100g, 'unit' => $v->unit]])
+            ->all();
 
         $nutrientDefs = Nutrient::query()
             ->where('is_active', true)
@@ -69,13 +77,15 @@ final class RecipeAnalysisService
 
             $label = $ingredient->ingredientRecord?->food?->name_ar ?? "سجل #{$ingredient->food_source_record_id}";
 
-            $nutrientValues = [];
-            foreach ($valuesByRecord->get($ingredient->food_source_record_id, collect()) as $value) {
-                $nutrientValues[$value->nutrient_id] = [
-                    'amount' => (float) $value->amount_per_100g,
-                    'unit' => $value->unit,
-                ];
-            }
+            // The chosen record's own values; what it does not report is filled from the same
+            // food and form in the other approved sources (see NutrientGapFiller).
+            $nutrientValues = $this->gapFiller->fill(
+                $valuesOf($ingredient->food_source_record_id),
+                $donorsByRecord->get($ingredient->food_source_record_id, collect())
+                    ->map(fn (array $d) => ['source' => $d['source'], 'values' => $valuesOf($d['id'])])
+                    ->all(),
+                collect($nutrientDefs)->pluck('id', 'code')->all(),
+            );
 
             $lines[] = [
                 'label' => $label,
@@ -95,6 +105,62 @@ final class RecipeAnalysisService
             weightAfterCookingG: $recipe->weight_after_cooking_g !== null ? (float) $recipe->weight_after_cooking_g : null,
             servings: (int) $recipe->servings,
         );
+    }
+
+    /**
+     * For each chosen record: the OTHER approved records of the same food in the same form
+     * (both form-less counts as the same form), best data source first. Never another form:
+     * boiled chickpeas do not borrow from raw ones.
+     *
+     * @param  SupportCollection<int, FoodSourceRecord>  $records
+     * @return SupportCollection<int, SupportCollection<int, array{id: int, source: string}>>
+     */
+    private function donorsFor(SupportCollection $records): SupportCollection
+    {
+        if ($records->isEmpty()) {
+            return collect();
+        }
+
+        $candidates = FoodSourceRecord::query()
+            ->join('data_sources', 'data_sources.id', '=', 'food_source_records.data_source_id')
+            ->whereIn('food_source_records.food_id', $records->pluck('food_id')->unique())
+            ->where('food_source_records.status', FoodSourceStatus::Active->value)
+            ->where('data_sources.is_active', true)
+            ->orderBy('data_sources.priority')
+            ->orderBy('food_source_records.id')
+            ->get(['food_source_records.id', 'food_source_records.food_id', 'food_source_records.food_form_id', 'data_sources.name as source_name']);
+
+        return $records->mapWithKeys(fn (FoodSourceRecord $r) => [$r->id => $candidates
+            ->filter(fn ($c) => (int) $c->id !== (int) $r->id
+                && (int) $c->food_id === (int) $r->food_id
+                && self::formKey($c->food_form_id) === self::formKey($r->food_form_id))
+            ->map(fn ($c) => ['id' => (int) $c->id, 'source' => (string) $c->source_name])
+            ->values()]);
+    }
+
+    /** Where the stored number's parts came from, for anyone reading the product's values later. */
+    private static function provenanceNote(array $row): ?string
+    {
+        $parts = [];
+        if ($row['missing_from']) {
+            $parts[] = 'ناقص من: '.implode('، ', array_unique($row['missing_from']));
+        }
+        if ($row['borrowed'] ?? []) {
+            $parts[] = 'مستعار من مصدر آخر لنفس الغذاء والشكل: '.implode('، ', array_map(
+                fn (string $label, string $source) => "{$label} ({$source})",
+                array_keys($row['borrowed']), $row['borrowed'],
+            ));
+        }
+        if ($row['computed'] ?? []) {
+            $parts[] = 'سعرات محسوبة من البروتين والدهون والكربوهيدرات (4/9/4): '.implode('، ', $row['computed']);
+        }
+
+        return $parts ? implode(' | ', $parts) : null;
+    }
+
+    private static function formKey(mixed $formId): ?int
+    {
+        return $formId === null ? null : (int) $formId;
     }
 
     /**
@@ -127,9 +193,7 @@ final class RecipeAnalysisService
                 'unit' => $row['nutrient']['unit'],
                 'method' => NutrientValueMethod::Calculated->value,
                 'confidence_level' => ConfidenceLevel::Calculated->value,
-                'notes' => $row['missing_from']
-                    ? 'ناقص من: '.implode('، ', array_unique($row['missing_from']))
-                    : null,
+                'notes' => self::provenanceNote($row),
                 'created_at' => now(),
                 'updated_at' => now(),
             ])
