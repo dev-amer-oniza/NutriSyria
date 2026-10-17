@@ -73,6 +73,7 @@ final class RecipeAnalysisService
                 $ingredient->food_source_record_id,
                 $ingredient->measure_unit_id,
                 (float) $ingredient->amount,
+                $ingredient->food_portion_id !== null ? (int) $ingredient->food_portion_id : null,
             );
 
             $label = $ingredient->ingredientRecord?->food?->name_ar ?? "سجل #{$ingredient->food_source_record_id}";

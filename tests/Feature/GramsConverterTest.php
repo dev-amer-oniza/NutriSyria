@@ -226,4 +226,45 @@ class GramsConverterTest extends TestCase
         $service->approve($product, $fixed);
         $this->assertSame(1, FoodNutrientValue::where('product_id', $product->id)->count());
     }
+    public function test_a_recipe_line_can_choose_the_portion_size(): void
+    {
+        $energy = Nutrient::create(['code' => 'energy_kcal', 'name_ar' => 'الطاقة', 'name_en' => 'Energy', 'unit' => 'kcal', 'group' => 'energy', 'is_core' => true]);
+        DataSource::create(['code' => 'internal_product_recipes', 'name' => 'وصفات المنتجات', 'type' => 'internal_product_recipes']);
+
+        $onion = $this->record(Food::create(['name_ar' => 'بصل']), $this->raw, '170000');
+        FoodNutrientValue::create(['food_source_record_id' => $onion->id, 'nutrient_id' => $energy->id, 'amount_per_100g' => 40, 'unit' => 'kcal']);
+        $piece = MeasureUnit::create(['code' => 'piece', 'name_ar' => 'حبة', 'dimension' => 'count']);
+        $sizes = [];
+        foreach (['small' => 70, 'medium (2-1/2" dia)' => 110, 'large (3" dia)' => 150] as $description => $grams) {
+            $sizes[$grams] = FoodPortion::create([
+                'food_id' => $onion->food_id, 'measure_unit_id' => $piece->id, 'amount' => 1, 'gram_weight' => $grams,
+                'food_source_record_id' => $onion->id, 'description' => $description,
+            ]);
+        }
+
+        $choices = $this->converter()->choices($onion->id, $piece->id);
+        $this->assertSame([$sizes[70]->id, $sizes[110]->id, $sizes[150]->id], array_column($choices, 'id'));
+        $this->assertStringStartsWith('كبيرة', $choices[2]['label']);
+        $this->assertSame([], $this->converter()->choices($onion->id, $this->units['g']->id));
+
+        $product = Product::create(['brand_id' => Brand::create(['name' => 'مطعم'])->id, 'name' => 'بصل مشوي']);
+        $recipe = ProductRecipe::create(['product_id' => $product->id, 'servings' => 1, 'weight_after_cooking_g' => 250]);
+        $line = ProductRecipeIngredient::create([
+            'product_recipe_id' => $recipe->id, 'food_source_record_id' => $onion->id,
+            'measure_unit_id' => $piece->id, 'food_portion_id' => $sizes[150]->id, 'amount' => 2, 'sort_order' => 1,
+        ]);
+
+        $service = new RecipeAnalysisService();
+        $result = $service->analyze($product);
+        $this->assertSame(300.0, $result->gramsTotal);
+        $this->assertEqualsWithDelta(120.0, $result->totals[$energy->id]['amount'], 1e-6);
+        $this->assertTrue($result->canSaveOfficialValue());
+
+        // The chosen size is deleted: the line falls back to the usual rules, which cannot pick a size.
+        $sizes[150]->delete();
+        $this->assertNull($line->fresh()->food_portion_id);
+        $fallback = $service->analyze($product->fresh());
+        $this->assertCount(1, $fallback->unconvertedIngredients);
+        $this->assertFalse($fallback->canSaveOfficialValue());
+    }
 }

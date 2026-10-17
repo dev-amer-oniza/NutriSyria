@@ -14,7 +14,7 @@ class ProductRecipeIngredient extends Model
 {
     protected $fillable = [
         'product_recipe_id', 'food_source_record_id', 'food_form_id', 'measure_unit_id',
-        'amount', 'is_added_after_cooking', 'sort_order',
+        'food_portion_id', 'amount', 'is_added_after_cooking', 'sort_order',
     ];
 
     protected function casts(): array
@@ -44,5 +44,11 @@ class ProductRecipeIngredient extends Model
     public function measureUnit(): BelongsTo
     {
         return $this->belongsTo(MeasureUnit::class);
+    }
+
+    /** The portion size picked on this line ("large"); null = the usual portion rules. */
+    public function foodPortion(): BelongsTo
+    {
+        return $this->belongsTo(FoodPortion::class);
     }
 }
