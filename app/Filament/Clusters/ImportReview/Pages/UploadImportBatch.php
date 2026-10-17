@@ -163,7 +163,7 @@ class UploadImportBatch extends Page implements HasForms
 
             Notification::make()
                 ->title('تم الحفظ بنجاح')
-                ->body("جديدة: {$stats['records_created']} | محدَّثة: {$stats['records_updated']} | لم تتغيّر: {$stats['records_unchanged']} (موجودة مسبقاً بنفس القيم) | محجوبة: {$stats['records_skipped']}")->success()
+                ->body("جديدة: {$stats['records_created']} | محدَّثة: {$stats['records_updated']} | لم تتغيّر: {$stats['records_unchanged']} (موجودة مسبقاً بنفس القيم) | محجوبة: {$stats['records_skipped']}".(($stats['notes_updated'] ?? 0) ? " | أُضيفت ملاحظة لـ{$stats['notes_updated']}" : ''))->success()
                 ->send();
 
             $this->redirect(ImportBatchResource::getUrl('edit', ['record' => $this->batchId]));

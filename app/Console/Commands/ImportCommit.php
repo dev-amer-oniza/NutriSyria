@@ -26,6 +26,9 @@ class ImportCommit extends Command
 
         $this->info("Batch #{$batchId} committed. Everything is saved as pending_review (it does not count until approved).");
         $this->line("Records:  {$s['records_created']} created | {$s['records_updated']} updated | {$s['records_unchanged']} unchanged | {$s['records_skipped']} skipped (blocked)");
+        if ($s['notes_updated'] ?? 0) {
+            $this->line("Notes:    {$s['notes_updated']} unchanged record(s) got the new note from the bundle");
+        }
         $this->line("Foods:    {$s['foods_created']} new (inactive until approved)");
         $this->line("Values:   {$s['values_written']} written | {$s['values_unchanged']} unchanged");
         $this->line("Portions: {$s['portions_written']} new | {$s['portions_updated']} updated in place | {$s['portions_kept']} kept (your default or corrected weight)");
