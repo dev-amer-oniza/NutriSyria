@@ -1,0 +1,423 @@
+﻿pick,hint,food_name_ar,food_name_en,target_form,food_form_code,fdc_id,description,note,data_source,missing,match,form_note,score,rank
+yes,,أرز,Rice,raw,raw,2512381,"Rice, white, long grain, unenriched, raw",,usda_fdc_foundation,,exact,,49.0,1
+yes,,أرز,Rice,raw,raw,169756,"Rice, white, long-grain, regular, raw, unenriched",,usda_fdc_sr_legacy,,exact,,47.6,1
+yes,,أرز,Rice,cooked,cooked,169757,"Rice, white, long-grain, regular, unenriched, cooked without salt",,usda_fdc_sr_legacy,,exact,,53.2,1
+,,أرز,Rice,cooked,cooked,168935,"Rice, white, long-grain, regular, cooked, unenriched, with salt",,usda_fdc_sr_legacy,,exact,,20.6,2
+yes,,برغل,Bulgur wheat,raw,raw,2710820,"Bulgur, dry, raw",,usda_fdc_foundation,,exact,,57.6,1
+yes,,برغل,Bulgur wheat,raw,raw,170688,"Bulgur, dry",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,58.4,1
+yes,,برغل,Bulgur wheat,cooked,cooked,170287,"Bulgur, cooked",,usda_fdc_sr_legacy,,exact,,57.9,1
+,,فريكة,Freekeh,raw,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+,,فريكة,Freekeh,cooked,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+yes,,قمح,Wheat,raw,raw,169721,"Wheat, durum",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,53.2,1
+yes,,طحين قمح,Wheat flour,any,as_sold,169761,"Wheat flour, white, all-purpose, unenriched",,usda_fdc_sr_legacy,,exact,,48.5,1
+yes,,خبز عربي,Pita bread,any,as_sold,172816,"Bread, pita, white, unenriched",مقاربة: خبز بيتا الأمريكي بدل الخبز العربي,usda_fdc_sr_legacy,,exact,,50.5,1
+,several similar candidates: choose one,شوفان,Oats,raw,raw,2346397,"Oats, whole grain, steel cut",,usda_fdc_foundation,,exact,form not stated by USDA; assumed from your wanted list,55.8,1
+,,شوفان,Oats,raw,raw,2346396,"Oats, whole grain, rolled, old fashioned",,usda_fdc_foundation,,exact,form not stated by USDA; assumed from your wanted list,54.0,2
+,,شوفان,Oats,raw,raw,2257046,"Oat milk, unsweetened, plain, refrigerated",,usda_fdc_foundation,,starts-with,form not stated by USDA; assumed from your wanted list,23.7,3
+yes,,شوفان,Oats,raw,raw,169705,Oats (Includes foods for USDA's Food Distribution Program),,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,51.3,1
+,,شوفان,Oats,raw,raw,169741,"Oat flour, partially debranned",,usda_fdc_sr_legacy,,starts-with,form not stated by USDA; assumed from your wanted list,25.5,2
+,,شوفان,Oats,raw,raw,173576,"Oil, oat",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,8.8,3
+yes,,شوفان,Oats,cooked,cooked,173905,"Cereals, oats, regular and quick, unenriched, cooked with water (includes boiling and microwaving), without salt",,usda_fdc_sr_legacy,,exact,,46.2,1
+,,شوفان,Oats,cooked,roasted,168138,"Cereals ready-to-eat, POST, HONEY BUNCHES OF OATS, honey roasted",,usda_fdc_sr_legacy,,loose,,0.4,2
+yes,,شعير,Barley,raw,raw,170284,"Barley, pearled, raw",,usda_fdc_sr_legacy,,exact,,57.0,1
+yes,,شعير,Barley,cooked,cooked,170285,"Barley, pearled, cooked",,usda_fdc_sr_legacy,,exact,,56.5,1
+yes,,ذرة,Corn,raw,raw,169998,"Corn, sweet, yellow, raw",,usda_fdc_sr_legacy,,exact,,54.4,1
+yes,,ذرة,Corn,cooked,boiled,169999,"Corn, sweet, yellow, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,57.3,1
+,,ذرة,Corn,cooked,boiled,168525,"Corn, sweet, yellow, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,24.8,2
+yes,,دخن,Millet,raw,raw,2512379,"Millet, whole grain",,usda_fdc_foundation,,exact,form not stated by USDA; assumed from your wanted list,57.1,1
+yes,,دخن,Millet,raw,raw,169702,"Millet, raw",,usda_fdc_sr_legacy,,exact,,58.4,1
+yes,,دخن,Millet,cooked,cooked,168871,"Millet, cooked",,usda_fdc_sr_legacy,,exact,,57.9,1
+yes,,كينوا,Quinoa,raw,raw,168874,"Quinoa, uncooked",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,57.6,1
+yes,,كينوا,Quinoa,cooked,cooked,168917,"Quinoa, cooked",,usda_fdc_sr_legacy,,exact,,57.9,1
+yes,,سميد,Semolina,any,as_sold,168933,"Semolina, unenriched",,usda_fdc_sr_legacy,,exact,,57.0,1
+yes,,كسكس,Couscous,raw,raw,169699,"Couscous, dry",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,58.0,1
+yes,,كسكس,Couscous,cooked,cooked,169700,"Couscous, cooked",,usda_fdc_sr_legacy,,exact,,57.6,1
+yes,,معكرونة,Pasta,raw,raw,168927,"Pasta, dry, unenriched",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,56.7,1
+,,معكرونة,Pasta,raw,raw,168954,"Pasta mix, classic beef, unprepared",,usda_fdc_sr_legacy,,starts-with,form not stated by USDA; assumed from your wanted list,24.8,2
+,,معكرونة,Pasta,raw,raw,168955,"Pasta mix, Italian lasagna, unprepared",,usda_fdc_sr_legacy,,starts-with,form not stated by USDA; assumed from your wanted list,24.3,3
+yes,,معكرونة,Pasta,cooked,cooked,168928,"Pasta, cooked, unenriched, without added salt",,usda_fdc_sr_legacy,,exact,,53.2,1
+,not picked: same USDA item as معكرونة; use pasta in recipes,شعيرية,Vermicelli,raw,raw,168927,"Pasta, dry, unenriched",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,56.7,1
+,not picked: same USDA item as معكرونة; use pasta in recipes,شعيرية,Vermicelli,raw,raw,168954,"Pasta mix, classic beef, unprepared",,usda_fdc_sr_legacy,,starts-with,form not stated by USDA; assumed from your wanted list,24.8,2
+,not picked: same USDA item as معكرونة; use pasta in recipes,شعيرية,Vermicelli,raw,raw,168955,"Pasta mix, Italian lasagna, unprepared",,usda_fdc_sr_legacy,,starts-with,form not stated by USDA; assumed from your wanted list,24.3,3
+,not picked: same USDA item as معكرونة; use pasta in recipes,شعيرية,Vermicelli,cooked,cooked,168928,"Pasta, cooked, unenriched, without added salt",,usda_fdc_sr_legacy,,exact,,53.2,1
+yes,,دقيق ذرة,Cornmeal,any,as_sold,169697,"Cornmeal, whole-grain, yellow",,usda_fdc_sr_legacy,,exact,,55.6,1
+yes,,عدس,Lentils,raw,raw,2644283,"Lentils, dry",,usda_fdc_foundation,,exact,form not stated by USDA; assumed from your wanted list,58.2,1
+yes,,عدس,Lentils,raw,raw,172420,"Lentils, raw",,usda_fdc_sr_legacy,,exact,,58.2,1
+yes,,عدس,Lentils,boiled,boiled,172421,"Lentils, mature seeds, cooked, boiled, without salt",,usda_fdc_sr_legacy,,exact,,60.4,1
+,,عدس,Lentils,boiled,boiled,175254,"Lentils, mature seeds, cooked, boiled, with salt",,usda_fdc_sr_legacy,,exact,,27.8,2
+yes,,حمص,Chickpeas,raw,raw,2644282,"Chickpeas, (garbanzo beans, bengal gram), dry",,usda_fdc_foundation,,exact,form not stated by USDA; assumed from your wanted list,53.2,1
+yes,,حمص,Chickpeas,raw,raw,173756,"Chickpeas (garbanzo beans, bengal gram), mature seeds, raw",,usda_fdc_sr_legacy,,exact,,51.3,1
+yes,,حمص,Chickpeas,boiled,boiled,173757,"Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, without salt",,usda_fdc_sr_legacy,,exact,,55.5,1
+,,حمص,Chickpeas,boiled,boiled,173799,"Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, with salt",,usda_fdc_sr_legacy,,exact,,23.0,2
+,weak name match: check,فاصولياء بيضاء,White beans,raw,raw,747442,"Beans, Dry, Small White (0% moisture)",,usda_fdc_foundation,"energy, carbohydrate",loose,form not stated by USDA; assumed from your wanted list,4.5,1
+yes,,فاصولياء بيضاء,White beans,raw,raw,175202,"Beans, white, mature seeds, raw",,usda_fdc_sr_legacy,,exact,,50.4,1
+,,فاصولياء بيضاء,White beans,raw,raw,173749,"Beans, small white, mature seeds, raw",,usda_fdc_sr_legacy,,loose,,4.5,2
+yes,,فاصولياء بيضاء,White beans,boiled,boiled,175203,"Beans, white, mature seeds, cooked, boiled, without salt",,usda_fdc_sr_legacy,,exact,,54.6,1
+,,فاصولياء بيضاء,White beans,boiled,boiled,175249,"Beans, white, mature seeds, cooked, boiled, with salt",,usda_fdc_sr_legacy,,exact,,22.1,2
+,,فاصولياء بيضاء,White beans,boiled,boiled,173750,"Beans, small white, mature seeds, cooked, boiled, without salt",,usda_fdc_sr_legacy,,loose,,8.7,3
+yes,,فول,Fava beans,raw,raw,175205,"Broadbeans (fava beans), mature seeds, raw",,usda_fdc_sr_legacy,,exact,,53.7,1
+yes,,فول,Fava beans,boiled,boiled,173753,"Broadbeans (fava beans), mature seeds, cooked, boiled, without salt",,usda_fdc_sr_legacy,,exact,,58.0,1
+,,فول,Fava beans,boiled,boiled,173798,"Broadbeans (fava beans), mature seeds, cooked, boiled, with salt",,usda_fdc_sr_legacy,,exact,,25.4,2
+yes,,بازلاء,Green peas,raw,raw,170419,"Peas, green, raw",,usda_fdc_sr_legacy,,exact,,52.6,1
+yes,,بازلاء,Green peas,boiled,boiled,170420,"Peas, green, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,55.5,1
+,,بازلاء,Green peas,boiled,boiled,170102,"Peas, green, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,22.9,2
+yes,,لوبيا,Black-eyed peas,raw,raw,173758,"Cowpeas, common (blackeyes, crowder, southern), mature seeds, raw",,usda_fdc_sr_legacy,,exact,,50.2,1
+yes,,لوبيا,Black-eyed peas,boiled,boiled,173759,"Cowpeas, common (blackeyes, crowder, southern), mature seeds, cooked, boiled, without salt",,usda_fdc_sr_legacy,,exact,,54.5,1
+,,لوبيا,Black-eyed peas,boiled,boiled,175252,"Cowpeas, common (blackeyes, crowder, southern), mature seeds, cooked, boiled, with salt",,usda_fdc_sr_legacy,,exact,,22.0,2
+yes,,ترمس,Lupini beans,raw,raw,172423,"Lupins, mature seeds, raw",,usda_fdc_sr_legacy,,exact,,56.2,1
+yes,,ترمس,Lupini beans,boiled,boiled,172424,"Lupins, mature seeds, cooked, boiled, without salt",,usda_fdc_sr_legacy,,exact,,60.5,1
+,,ترمس,Lupini beans,boiled,boiled,173804,"Lupins, mature seeds, cooked, boiled, with salt",,usda_fdc_sr_legacy,,exact,,27.9,2
+yes,,فاصولياء خضراء,Green beans,raw,raw,2346400,"Beans, snap, green, raw",,usda_fdc_foundation,,exact,,54.5,1
+yes,,فاصولياء خضراء,Green beans,raw,raw,169961,"Beans, snap, green, raw",,usda_fdc_sr_legacy,,exact,,54.5,1
+yes,,فاصولياء خضراء,Green beans,cooked,boiled,169141,"Beans, snap, green, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,57.5,1
+,,فاصولياء خضراء,Green beans,cooked,boiled,169321,"Beans, snap, green, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,24.9,2
+yes,,بطاطا,Potatoes,raw,raw,170026,"Potatoes, flesh and skin, raw",,usda_fdc_sr_legacy,,exact,,50.6,1
+yes,,بطاطا,Potatoes,boiled,boiled,170440,"Potatoes, boiled, cooked without skin, flesh, without salt",,usda_fdc_sr_legacy,,exact,,57.3,1
+,,بطاطا,Potatoes,boiled,boiled,170520,"Potatoes, boiled, cooked without skin, flesh, with salt",,usda_fdc_sr_legacy,,exact,,24.8,2
+,several similar candidates: choose one,بندورة,Tomatoes,raw,raw,1999634,"Tomato, roma",,usda_fdc_foundation,,exact,form not stated by USDA; assumed from your wanted list,58.2,1
+,,بندورة,Tomatoes,raw,raw,321360,"Tomatoes, grape, raw",,usda_fdc_foundation,,exact,,57.0,2
+yes,,بندورة,Tomatoes,raw,raw,170457,"Tomatoes, red, ripe, raw, year round average",,usda_fdc_sr_legacy,,exact,,53.4,1
+,,بندورة,Tomatoes,raw,raw,169777,"Spanish rice mix, dry mix, prepared (with canola/vegetable oil blend or diced tomatoes and margarine)",,usda_fdc_sr_legacy,,alias,form not stated by USDA; assumed from your wanted list,34.9,2
+,,بندورة,Tomatoes,raw,raw,170461,Tomato powder,,usda_fdc_sr_legacy,,starts-with,form not stated by USDA; assumed from your wanted list,28.1,3
+,several similar candidates: choose one,بصل,Onions,raw,raw,790577,"Onions, red, raw",,usda_fdc_foundation,,exact,,57.6,1
+,,بصل,Onions,raw,raw,1104962,"Onions, white, raw",,usda_fdc_foundation,,exact,,57.3,2
+,,بصل,Onions,raw,raw,790646,"Onions, yellow, raw",,usda_fdc_foundation,,exact,,57.1,3
+yes,,بصل,Onions,raw,raw,170000,"Onions, raw",,usda_fdc_sr_legacy,,exact,,58.4,1
+,,بصل,Onions,raw,raw,174899,"Bagels, plain, enriched, with calcium propionate (includes onion, poppy, sesame)",,usda_fdc_sr_legacy,,alias,form not stated by USDA; assumed from your wanted list,38.0,2
+,,بصل,Onions,raw,raw,175050,"Bagels, plain, unenriched, with calcium propionate (includes onion, poppy, sesame)",,usda_fdc_sr_legacy,,alias,form not stated by USDA; assumed from your wanted list,37.7,3
+yes,,بصل,Onions,cooked,boiled,170001,"Onions, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.2,1
+,,بصل,Onions,cooked,boiled,170100,"Onions, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,28.7,2
+yes,,ثوم,Garlic,raw,raw,1104647,"Garlic, raw",,usda_fdc_foundation,,exact,,58.4,1
+yes,,ثوم,Garlic,raw,raw,169230,"Garlic, raw",,usda_fdc_sr_legacy,,exact,,58.4,1
+,,ثوم,Garlic,raw,raw,170789,"PIZZA HUT, breadstick, parmesan garlic",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,4.3,2
+,,ثوم,Garlic,raw,raw,168318,"HORMEL ALWAYS TENDER, Pork Loin Filets, Lemon Garlic-Flavored",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,0.8,3
+yes,,خيار,Cucumber,raw,raw,2346406,"Cucumber, with peel, raw",,usda_fdc_foundation,,exact,,56.4,1
+yes,,خيار,Cucumber,raw,raw,168409,"Cucumber, with peel, raw",,usda_fdc_sr_legacy,,exact,,56.4,1
+,,خيار,Cucumber,raw,raw,167618,"Sea cucumber, yane (Alaska Native)",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,4.9,2
+,weak name match: check,كوسا,Zucchini,raw,raw,2685568,"Squash, summer, green, zucchini, includes skin, raw",,usda_fdc_foundation,,loose,,2.4,1
+yes,,كوسا,Zucchini,raw,raw,169291,"Squash, summer, zucchini, includes skin, raw",,usda_fdc_sr_legacy,,exact,,51.4,1
+yes,,كوسا,Zucchini,cooked,boiled,169292,"Squash, summer, zucchini, includes skin, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,54.3,1
+,,كوسا,Zucchini,cooked,boiled,170534,"Squash, summer, zucchini, includes skin, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,21.8,2
+yes,,باذنجان,Eggplant,raw,raw,2685577,"Eggplant, raw",,usda_fdc_foundation,,exact,,58.0,1
+yes,,باذنجان,Eggplant,raw,raw,169228,"Eggplant, raw",,usda_fdc_sr_legacy,,exact,,58.0,1
+yes,,باذنجان,Eggplant,cooked,boiled,169229,"Eggplant, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.0,1
+,,باذنجان,Eggplant,cooked,boiled,169352,"Eggplant, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,28.4,2
+,several similar candidates: choose one,سبانخ,Spinach,raw,raw,1999632,"Spinach, baby",,usda_fdc_foundation,,exact,form not stated by USDA; assumed from your wanted list,58.0,1
+,,سبانخ,Spinach,raw,raw,1999633,"Spinach, mature",,usda_fdc_foundation,,exact,form not stated by USDA; assumed from your wanted list,57.8,2
+yes,,سبانخ,Spinach,raw,raw,168462,"Spinach, raw",,usda_fdc_sr_legacy,,exact,,58.2,1
+,,سبانخ,Spinach,raw,raw,168911,"Spaghetti, spinach, dry",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,6.6,2
+,,سبانخ,Spinach,raw,raw,168438,"Mustard spinach, (tendergreen), raw",,usda_fdc_sr_legacy,,loose,,4.8,3
+yes,,سبانخ,Spinach,cooked,boiled,168463,"Spinach, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.1,1
+,,سبانخ,Spinach,cooked,boiled,170531,"Spinach, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,28.6,2
+,,سبانخ,Spinach,cooked,boiled,168439,"Mustard spinach, (tendergreen), cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,loose,,7.7,3
+yes,,جزر,Carrots,raw,raw,2258586,"Carrots, mature, raw",,usda_fdc_foundation,,exact,,57.0,1
+yes,,جزر,Carrots,raw,raw,170393,"Carrots, raw",,usda_fdc_sr_legacy,,exact,,58.2,1
+,,جزر,Carrots,raw,raw,174932,"Cake, pudding-type, carrot, dry mix",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,4.8,2
+,,جزر,Carrots,raw,raw,171184,"SMART SOUP, Vietnamese Carrot Lemongrass",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,4.0,3
+yes,,جزر,Carrots,cooked,boiled,170394,"Carrots, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.1,1
+,,جزر,Carrots,cooked,boiled,169339,"Carrots, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,28.6,2
+yes,,ملفوف,Cabbage,raw,raw,2346407,"Cabbage, green, raw",,usda_fdc_foundation,,exact,,57.1,1
+yes,,ملفوف,Cabbage,raw,raw,169975,"Cabbage, raw",,usda_fdc_sr_legacy,,exact,,58.2,1
+yes,,ملفوف,Cabbage,cooked,boiled,169976,"Cabbage, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.1,1
+yes,,قرنبيط,Cauliflower,raw,raw,2685573,"Cauliflower, raw",,usda_fdc_foundation,,exact,,57.6,1
+yes,,قرنبيط,Cauliflower,raw,raw,169986,"Cauliflower, raw",,usda_fdc_sr_legacy,,exact,,57.6,1
+yes,,قرنبيط,Cauliflower,cooked,boiled,170397,"Cauliflower, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,60.5,1
+,,قرنبيط,Cauliflower,cooked,boiled,168520,"Cauliflower, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,27.9,2
+yes,,فلفل أخضر,Green pepper,raw,raw,170427,"Peppers, sweet, green, raw",,usda_fdc_sr_legacy,,exact,,54.1,1
+yes,,فلفل أخضر,Green pepper,cooked,boiled,170428,"Peppers, sweet, green, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,57.0,1
+,,فلفل أخضر,Green pepper,cooked,boiled,170109,"Peppers, sweet, green, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,24.5,2
+yes,,فلفل أحمر,Red pepper,raw,raw,170108,"Peppers, sweet, red, raw",,usda_fdc_sr_legacy,,exact,,54.4,1
+yes,,فلفل أحمر,Red pepper,cooked,boiled,170110,"Peppers, sweet, red, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,57.3,1
+,,فلفل أحمر,Red pepper,cooked,boiled,170515,"Peppers, sweet, red, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,24.8,2
+yes,,بامية,Okra,raw,raw,169260,"Okra, raw",,usda_fdc_sr_legacy,,exact,,58.6,1
+yes,,بامية,Okra,cooked,boiled,169261,"Okra, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.5,1
+,,بامية,Okra,cooked,boiled,170098,"Okra, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,29.0,2
+yes,,سلق,Chard,raw,raw,169991,"Chard, swiss, raw",,usda_fdc_sr_legacy,,exact,,57.5,1
+yes,,سلق,Chard,cooked,boiled,170401,"Chard, swiss, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,60.4,1
+,,سلق,Chard,cooked,boiled,169343,"Chard, swiss, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,27.8,2
+yes,,ملوخية,Mallow,raw,raw,168419,"Jute, potherb, raw",,usda_fdc_sr_legacy,,exact,,52.3,1
+yes,,ملوخية,Mallow,cooked,boiled,168420,"Jute, potherb, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,55.2,1
+,,ملوخية,Mallow,cooked,boiled,169354,"Jute, potherb, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,22.6,2
+,several similar candidates: choose one,خس,Lettuce,raw,raw,2346390,"Lettuce, leaf, red, raw",,usda_fdc_foundation,,exact,,56.5,1
+,,خس,Lettuce,raw,raw,2346391,"Lettuce, leaf, green, raw",,usda_fdc_foundation,,exact,,56.2,2
+yes,,خس,Lettuce,raw,raw,169249,"Lettuce, green leaf, raw",,usda_fdc_sr_legacy,,exact,,56.4,1
+,,خس,Lettuce,raw,raw,170316,"SUBWAY, tuna sub on white bread with lettuce and tomato",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,1.8,2
+,,خس,Lettuce,raw,raw,170315,"SUBWAY, cold cut sub on white bread with lettuce and tomato",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,1.2,3
+yes,,بقدونس,Parsley,raw,raw,170416,"Parsley, fresh",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,52.9,1
+yes,,كزبرة خضراء,Cilantro,raw,raw,169997,"Coriander (cilantro) leaves, raw",,usda_fdc_sr_legacy,,alias,,45.2,1
+yes,,نعنع,Mint,raw,raw,173475,"Spearmint, fresh",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,52.6,1
+yes,,ريحان,Basil,raw,raw,172232,"Basil, fresh",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,53.2,1
+yes,,زعتر أخضر,Thyme,raw,raw,173470,"Thyme, fresh",مقاربة: زعتر أوروبي أخضر (Thymus) بدل الزعتر البري السوري,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,53.2,1
+yes,,ورق عنب,Grape leaves,raw,raw,168575,"Grape leaves, raw",,usda_fdc_sr_legacy,,exact,,57.5,1
+yes,,ورق عنب,Grape leaves,canned,canned,169393,"Grape leaves, canned",,usda_fdc_sr_legacy,,exact,,57.0,1
+yes,,شمندر,Beetroot,raw,raw,2685576,"Beets, raw",,usda_fdc_foundation,,exact,,58.5,1
+yes,,شمندر,Beetroot,raw,raw,169145,"Beets, raw",,usda_fdc_sr_legacy,,exact,,58.5,1
+yes,,شمندر,Beetroot,cooked,boiled,169146,"Beets, cooked, boiled, drained",,usda_fdc_sr_legacy,,exact,,55.5,1
+,,شمندر,Beetroot,cooked,boiled,168506,"Beets, cooked, boiled. drained, with salt",,usda_fdc_sr_legacy,,exact,,28.9,2
+yes,,لفت,Turnip,raw,raw,2747674,"Turnips, raw",,usda_fdc_foundation,,exact,,58.2,1
+yes,,لفت,Turnip,raw,raw,170465,"Turnips, raw",,usda_fdc_sr_legacy,,exact,,58.2,1
+,,لفت,Turnip,raw,raw,169818,"Prairie Turnips, raw (Northern Plains Indians)",,usda_fdc_sr_legacy,,loose,,3.1,2
+yes,,لفت,Turnip,cooked,boiled,170058,"Turnips, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.1,1
+,,لفت,Turnip,cooked,boiled,170547,"Turnips, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,28.6,2
+,,لفت,Turnip,cooked,boiled,168996,"Prairie Turnips, boiled (Northern Plains Indians)",,usda_fdc_sr_legacy,,loose,,2.7,3
+yes,,فجل,Radish,raw,raw,2747665,"Radishes, red, raw",,usda_fdc_foundation,,exact,,57.3,1
+yes,,فجل,Radish,raw,raw,169276,"Radishes, raw",,usda_fdc_sr_legacy,,exact,,58.0,1
+,weak name match: check,تفاح,Apple,raw,raw,1750343,"Apples, honeycrisp, with skin, raw",,usda_fdc_foundation,,loose,,4.9,1
+yes,,تفاح,Apple,raw,raw,171688,"Apples, raw, with skin (Includes foods for USDA's Food Distribution Program)",,usda_fdc_sr_legacy,,exact,,46.6,1
+,,تفاح,Apple,raw,raw,168171,"Rose-apples, raw",,usda_fdc_sr_legacy,,loose,,7.6,2
+,,تفاح,Apple,raw,raw,169909,"Mammy-apple, (mamey), raw",,usda_fdc_sr_legacy,,loose,,6.2,3
+,weak name match: check,برتقال,Orange,raw,raw,2258591,"Peppers, bell, orange, raw",,usda_fdc_foundation,,loose,,6.1,1
+,,برتقال,Orange,raw,raw,2346404,"Sweet potatoes, orange flesh, without skin, raw",,usda_fdc_foundation,,loose,,3.0,2
+yes,,برتقال,Orange,raw,raw,169097,"Oranges, raw, all commercial varieties",,usda_fdc_sr_legacy,,exact,,49.3,1
+,,برتقال,Orange,raw,raw,170502,"Tomatoes, orange, raw",,usda_fdc_sr_legacy,,loose,,6.8,2
+,,برتقال,Orange,raw,raw,175133,"Fish, roughy, orange, raw",,usda_fdc_sr_legacy,,loose,,6.2,3
+yes,,ليمون,Lemon,raw,raw,167746,"Lemons, raw, without peel",,usda_fdc_sr_legacy,,exact,,54.2,1
+,several similar candidates: choose one,موز,Banana,raw,raw,1105073,"Bananas, overripe, raw",,usda_fdc_foundation,,exact,,56.7,1
+,,موز,Banana,raw,raw,1105314,"Bananas, ripe and slightly ripe, raw",,usda_fdc_foundation,,exact,,54.6,2
+,,موز,Banana,raw,raw,2747660,"Peppers, banana or Hungarian wax, seeded, raw",,usda_fdc_foundation,,loose,,3.2,3
+yes,,موز,Banana,raw,raw,173944,"Bananas, raw",,usda_fdc_sr_legacy,,exact,,58.2,1
+,,موز,Banana,raw,raw,169394,"Pepper, banana, raw",,usda_fdc_sr_legacy,,loose,,7.2,2
+,,موز,Banana,raw,raw,167629,"Melon, banana (Navajo)",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,6.7,3
+yes,,عنب,Grapes,raw,raw,174683,"Grapes, red or green (European type, such as Thompson seedless), raw",,usda_fdc_sr_legacy,,exact,,44.8,1
+yes,,رمان,Pomegranate,raw,raw,169134,"Pomegranates, raw",,usda_fdc_sr_legacy,,exact,,57.5,1
+,,رمان,Pomegranate,raw,raw,171909,"Beverages, OCEAN SPRAY, Cran Pomegranate",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,4.0,2
+,,رمان,Pomegranate,raw,raw,170913,"Yogurt, Greek, nonfat, Fruit on Bottom, Pomegranate, CHOBANI",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,1.0,3
+yes,,تين,Figs,raw,raw,173021,"Figs, raw",,usda_fdc_sr_legacy,,exact,,58.6,1
+,,تين,Figs,raw,raw,172721,"Cookies, fig bars",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,7.5,2
+yes,,مشمش,Apricots,raw,raw,2710815,"Apricot, with skin, raw",,usda_fdc_foundation,,exact,,56.5,1
+yes,,مشمش,Apricots,raw,raw,171697,"Apricots, raw",,usda_fdc_sr_legacy,,exact,,58.0,1
+,,مشمش,Apricots,raw,raw,171032,"Oil, apricot kernel",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,7.2,2
+,,مشمش,Apricots,raw,raw,170645,"Jams and preserves, apricot",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,6.0,3
+yes,,خوخ,Peaches,raw,raw,325430,"Peaches, yellow, raw",,usda_fdc_foundation,,exact,,57.0,1
+yes,,خوخ,Peaches,raw,raw,169928,"Peaches, yellow, raw",,usda_fdc_sr_legacy,,exact,,57.0,1
+yes,,كرز,Cherries,raw,raw,2346399,"Cherries, sweet, dark red, raw",,usda_fdc_foundation,,exact,,50.5,1
+yes,,كرز,Cherries,raw,raw,171719,"Cherries, sweet, raw",,usda_fdc_sr_legacy,,exact,,52.0,1
+,several similar candidates: choose one,بطيخ,Watermelon,raw,raw,2747676,"Watermelon, seedless, rind only, raw",,usda_fdc_foundation,,exact,,54.6,1
+,,بطيخ,Watermelon,raw,raw,2747675,"Watermelon, seedless, flesh only, raw",,usda_fdc_foundation,"energy, fat, carbohydrate",exact,,54.5,2
+yes,,بطيخ,Watermelon,raw,raw,167765,"Watermelon, raw",,usda_fdc_sr_legacy,,exact,,57.8,1
+yes,,شمام,Melon,raw,raw,746770,"Melons, cantaloupe, raw",,usda_fdc_foundation,,exact,,51.5,1
+yes,,شمام,Melon,raw,raw,169092,"Melons, cantaloupe, raw",,usda_fdc_sr_legacy,,exact,,51.5,1
+yes,,فراولة,Strawberry,raw,raw,2346409,"Strawberries, raw",,usda_fdc_foundation,,exact,,57.5,1
+yes,,فراولة,Strawberry,raw,raw,167762,"Strawberries, raw",,usda_fdc_sr_legacy,,exact,,57.5,1
+,,فراولة,Strawberry,raw,raw,173019,"Cereals ready-to-eat, POST, HONEY BUNCHES OF OATS, with real strawberries",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,-0.9,2
+yes,,كمثرى,Pear,raw,raw,169118,"Pears, raw",,usda_fdc_sr_legacy,,exact,,53.5,1
+,,كمثرى,Pear,raw,raw,167750,"Prickly pears, raw",,usda_fdc_sr_legacy,,loose,,7.3,2
+,,كمثرى,Pear,raw,raw,168393,"Balsam-pear (bitter gourd), pods, raw",,usda_fdc_sr_legacy,,loose,,4.5,3
+yes,,سفرجل,Quince,raw,raw,168163,"Quinces, raw",,usda_fdc_sr_legacy,,exact,,58.2,1
+yes,,يوسفي,Mandarin,raw,raw,169105,"Tangerines, (mandarin oranges), raw",,usda_fdc_sr_legacy,,exact,,54.8,1
+,"incomplete analysis: no protein, fat, carbohydrate",جريب فروت,Grapefruit,raw,raw,2758977,"Grapefruit, raw",,usda_fdc_foundation,"energy, protein, fat, carbohydrate",exact,,52.8,1
+,several similar candidates: choose one,جريب فروت,Grapefruit,raw,raw,174676,"Grapefruit, raw, white, all areas",,usda_fdc_sr_legacy,,exact,,50.0,1
+,,جريب فروت,Grapefruit,raw,raw,174673,"Grapefruit, raw, pink and red, all areas",,usda_fdc_sr_legacy,,exact,,49.0,2
+yes,reviewed: grapefruit: Foundation item has no protein/fat/carbohydrate,جريب فروت,Grapefruit,raw,raw,173033,"Grapefruit, raw, pink and red and white, all areas",,usda_fdc_sr_legacy,,exact,,47.5,3
+yes,,تمر,Dates,dried,dried,168191,"Dates, medjool",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,57.9,1
+,,تمر,Dates,dried,dried,169041,"Cereals ready-to-eat, POST, GREAT GRAINS, Raisin, Date & Pecan",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,0.7,2
+,,تمر,Dates,dried,dried,174625,"Cereals, QUAKER, Instant Oatmeal, raisins, dates and walnuts, dry",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,0.2,3
+,"incomplete analysis: no protein, fat, carbohydrate",زبيب أصفر,Golden raisins,dried,dried,2758979,"Raisins, golden, seedless",,usda_fdc_foundation,"energy, protein, fat, carbohydrate",exact,form not stated by USDA; assumed from your wanted list,51.2,1
+yes,,زبيب أصفر,Golden raisins,dried,dried,168164,"Raisins, golden, seedless",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,51.2,1
+,"incomplete analysis: no protein, fat, carbohydrate",زبيب أسود,Dark raisins,dried,dried,2758980,"Raisins, dark, seedless",,usda_fdc_foundation,"energy, protein, fat, carbohydrate",exact,form not stated by USDA; assumed from your wanted list,51.5,1
+yes,,زبيب أسود,Dark raisins,dried,dried,168165,"Raisins, dark, seedless (Includes foods for USDA's Food Distribution Program)",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,43.5,1
+yes,,مشمش مجفف,Dried apricots,dried,dried,173941,"Apricots, dried, sulfured, uncooked",,usda_fdc_sr_legacy,,exact,,49.8,1
+yes,,تين مجفف,Dried figs,dried,dried,746768,"Figs, dried, uncooked",,usda_fdc_foundation,,exact,,51.9,1
+yes,,تين مجفف,Dried figs,dried,dried,174665,"Figs, dried, uncooked",,usda_fdc_sr_legacy,,exact,,51.9,1
+,"incomplete analysis: no protein, fat, carbohydrate",قراصيا,Prunes,dried,dried,2758978,"Plums, dried (prunes), uncooked",,usda_fdc_foundation,"energy, protein, fat, carbohydrate",exact,,50.4,1
+yes,,قراصيا,Prunes,dried,dried,168162,"Plums, dried (prunes), uncooked",,usda_fdc_sr_legacy,,exact,,50.4,1
+yes,,خوخ مجفف,Dried peaches,dried,dried,169934,"Peaches, dried, sulfured, uncooked",,usda_fdc_sr_legacy,,exact,,49.9,1
+yes,,تفاح مجفف,Dried apples,dried,dried,171691,"Apples, dried, sulfured, uncooked",,usda_fdc_sr_legacy,,exact,,50.0,1
+yes,,زيتون,Olives,canned,canned,169094,"Olives, ripe, canned (small-extra large)",,usda_fdc_sr_legacy,,exact,,49.0,1
+yes,,مخلل,Pickles,any,as_sold,169379,"Pickles, cucumber, sour",مقاربة: مخلل خيار حامض أمريكي بدل المخلل السوري,usda_fdc_sr_legacy,,exact,,54.5,1
+,,مكدوس,Makdous,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+yes,,لحم غنم,Lamb,raw,raw,2727570,"Lamb, ground, raw",,usda_fdc_foundation,,exact,,52.5,1
+yes,,لحم غنم,Lamb,raw,raw,174370,"Lamb, ground, raw",,usda_fdc_sr_legacy,,exact,,52.5,1
+yes,,لحم غنم,Lamb,cooked,grilled,172544,"Lamb, ground, cooked, broiled",,usda_fdc_sr_legacy,,exact,,50.6,1
+yes,,لحم بقر,Beef,raw,raw,171796,"Beef, ground, 85% lean meat / 15% fat, raw (Includes foods for USDA's Food Distribution Program)",,usda_fdc_sr_legacy,,exact,,40.6,1
+,,لحم بقر,Beef,raw,raw,168608,"Beef, grass-fed, ground, raw",,usda_fdc_sr_legacy,,loose,,5.8,2
+,,لحم بقر,Beef,raw,raw,167657,"ON THE BORDER, soft taco with ground beef, cheese and lettuce",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,0.8,3
+,several similar candidates: choose one,لحم بقر,Beef,cooked,cooked,172161,"Beef, ground, unspecified fat content, cooked",,usda_fdc_sr_legacy,,exact,,48.2,1
+yes,reviewed,لحم بقر,Beef,cooked,cooked,174034,"Beef, ground, 85% lean meat / 15% fat, crumbles, cooked, pan-browned",,usda_fdc_sr_legacy,,exact,,44.8,2
+yes,reviewed,لحم عجل,Veal,raw,raw,175269,"Veal, leg (top round), separable lean only, raw",,usda_fdc_sr_legacy,,loose,,3.0,1
+yes,reviewed,لحم عجل,Veal,cooked,roasted,173822,"Veal, leg (top round), separable lean only, cooked, roasted",,usda_fdc_sr_legacy,,loose,,1.2,1
+,,لحم عجل,Veal,cooked,cooked,175270,"Veal, leg (top round), separable lean only, cooked, braised",,usda_fdc_sr_legacy,,loose,,1.2,2
+yes,,لحم ماعز,Goat,raw,raw,175303,"Game meat, goat, raw",,usda_fdc_sr_legacy,,exact,,52.0,1
+yes,,لحم ماعز,Goat,cooked,roasted,175304,"Game meat, goat, cooked, roasted",,usda_fdc_sr_legacy,,exact,,50.2,1
+yes,reviewed,دجاج,Chicken,raw,raw,171077,"Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",,usda_fdc_sr_legacy,,loose,,-0.5,1
+,,دجاج,Chicken,raw,raw,171509,"Chicken, broilers or fryers, breast, skinless, boneless, meat only, with added solution, raw",,usda_fdc_sr_legacy,,loose,,-3.8,2
+yes,reviewed,دجاج,Chicken,cooked,cooked,331960,"Chicken, broiler or fryers, breast, skinless, boneless, meat only, cooked, braised",,usda_fdc_foundation,,loose,,-2.3,1
+,several similar candidates: choose one,دجاج,Chicken,cooked,cooked,171478,"Chicken, broilers or fryers, breast, meat only, cooked, stewed",,usda_fdc_sr_legacy,,exact,,48.7,1
+,,دجاج,Chicken,cooked,roasted,171477,"Chicken, broilers or fryers, breast, meat only, cooked, roasted",,usda_fdc_sr_legacy,,exact,,48.5,2
+yes,"reviewed: same form as the Foundation pick, so gaps can be filled",دجاج,Chicken,cooked,cooked,171140,"Chicken, broiler or fryers, breast, skinless, boneless, meat only, cooked, braised",,usda_fdc_sr_legacy,,loose,,-2.3,3
+yes,reviewed,ديك رومي,Turkey,raw,raw,171480,"Turkey, whole, meat only, raw",,usda_fdc_sr_legacy,,exact,,53.6,1
+,,ديك رومي,Turkey,raw,raw,172868,"Turkey, whole, meat only, with added solution, raw",,usda_fdc_sr_legacy,,exact,,50.5,2
+,,ديك رومي,Turkey,raw,raw,171531,"Turkey, thigh, from whole bird, meat only, raw",,usda_fdc_sr_legacy,,loose,,3.1,3
+yes,reviewed,ديك رومي,Turkey,cooked,roasted,171481,"Turkey, whole, meat only, cooked, roasted",,usda_fdc_sr_legacy,,exact,,51.9,1
+,,ديك رومي,Turkey,cooked,roasted,172869,"Turkey, whole, meat only, with added solution, roasted",,usda_fdc_sr_legacy,,exact,,49.9,2
+,,ديك رومي,Turkey,cooked,roasted,171532,"Turkey, thigh, from whole bird, meat only, roasted",,usda_fdc_sr_legacy,,loose,,2.5,3
+yes,,بط,Duck,raw,raw,172410,"Duck, domesticated, meat only, raw",,usda_fdc_sr_legacy,,exact,,52.9,1
+yes,,بط,Duck,cooked,roasted,172411,"Duck, domesticated, meat only, cooked, roasted",,usda_fdc_sr_legacy,,exact,,51.1,1
+,several similar candidates: choose one,سمك,Fish,raw,raw,333374,"Fish, haddock, raw",,usda_fdc_foundation,,exact,,57.3,1
+,,سمك,Fish,raw,raw,333476,"Fish, pollock, raw",,usda_fdc_foundation,,exact,,57.3,2
+yes,reviewed: tilapia (بلطي) is the fish most sold in Syria,سمك,Fish,raw,raw,2684442,"Fish, tilapia, farm raised, raw",,usda_fdc_foundation,,exact,,55.4,3
+,several similar candidates: choose one,سمك,Fish,raw,raw,171952,"Fish, carp, raw",,usda_fdc_sr_legacy,,exact,,57.8,1
+,,سمك,Fish,raw,raw,171958,"Fish, cusk, raw",,usda_fdc_sr_legacy,,exact,,57.8,2
+,,سمك,Fish,raw,raw,173670,"Fish, ling, raw",,usda_fdc_sr_legacy,,exact,,57.8,3
+,several similar candidates: choose one,سمك,Fish,cooked,cooked,175178,"Fish, cod, Pacific, cooked",,usda_fdc_sr_legacy,,exact,,56.1,1
+,,سمك,Fish,cooked,cooked,171991,"Fish, cusk, cooked, dry heat",,usda_fdc_sr_legacy,,exact,,55.8,2
+,,سمك,Fish,cooked,cooked,174185,"Fish, carp, cooked, dry heat",,usda_fdc_sr_legacy,,exact,,55.8,3
+yes,"added by review: tilapia (بلطي), the fish most sold in Syria",سمك,Fish,raw,raw,175176,"Fish, tilapia, raw",,usda_fdc_sr_legacy,,exact,,,added
+yes,"added by review: tilapia (بلطي), the fish most sold in Syria",سمك,Fish,cooked,cooked,175177,"Fish, tilapia, cooked, dry heat",,usda_fdc_sr_legacy,,exact,,,added
+yes,,سلمون,Salmon,raw,raw,175167,"Fish, salmon, Atlantic, farmed, raw",,usda_fdc_sr_legacy,,exact,,52.8,1
+yes,,سلمون,Salmon,cooked,cooked,175168,"Fish, salmon, Atlantic, farmed, cooked, dry heat",,usda_fdc_sr_legacy,,exact,,50.8,1
+yes,,تونة,Tuna,raw,raw,175159,"Fish, tuna, fresh, yellowfin, raw",,usda_fdc_sr_legacy,,exact,,53.0,1
+yes,,تونة,Tuna,cooked,cooked,172006,"Fish, tuna, yellowfin, fresh, cooked, dry heat",,usda_fdc_sr_legacy,,exact,,51.1,1
+yes,,سردين,Sardines,canned,canned,175139,"Fish, sardine, Atlantic, canned in oil, drained solids with bone",,usda_fdc_sr_legacy,,exact,,48.4,1
+yes,,ماكريل,Mackerel,raw,raw,175119,"Fish, mackerel, Atlantic, raw",,usda_fdc_sr_legacy,,exact,,53.6,1
+yes,,ماكريل,Mackerel,cooked,cooked,175120,"Fish, mackerel, Atlantic, cooked, dry heat",,usda_fdc_sr_legacy,,exact,,51.7,1
+yes,,جمبري,Shrimp,raw,raw,2684443,"Crustaceans, shrimp, farm raised, raw",,usda_fdc_foundation,,exact,,49.5,1
+yes,,جمبري,Shrimp,raw,raw,175179,"Crustaceans, shrimp, raw",,usda_fdc_sr_legacy,,exact,,51.4,1
+yes,,جمبري,Shrimp,cooked,cooked,175180,"Crustaceans, shrimp, cooked",,usda_fdc_sr_legacy,,exact,,51.0,1
+yes,,كلمار,Squid,raw,raw,174223,"Mollusks, squid, mixed species, raw",,usda_fdc_sr_legacy,,exact,,49.8,1
+yes,,كلمار,Squid,fried,fried,171982,"Mollusks, squid, mixed species, cooked, fried",,usda_fdc_sr_legacy,,exact,,48.2,1
+,weak name match: check,بيض,Egg,raw,raw,748967,"Eggs, Grade A, Large, egg whole",,usda_fdc_foundation,,loose,form not stated by USDA; assumed from your wanted list,5.4,1
+yes,,بيض,Egg,raw,raw,171287,"Egg, whole, raw, fresh",,usda_fdc_sr_legacy,,exact,,51.7,1
+,,بيض,Egg,raw,raw,168773,"Egg custards, dry mix, prepared with whole milk",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,3.0,2
+yes,,بيض,Egg,boiled,boiled,173424,"Egg, whole, cooked, hard-boiled",,usda_fdc_sr_legacy,,exact,,50.4,1
+yes,,حليب,Milk,any,as_sold,746782,"Milk, whole, 3.25% milkfat, with added vitamin D",,usda_fdc_foundation,,exact,,47.8,1
+,,حليب,Milk,any,as_sold,2259793,"Yogurt, plain, whole milk",,usda_fdc_foundation,,loose,,6.2,2
+,,حليب,Milk,any,as_sold,746766,"Cheese, ricotta, whole milk",,usda_fdc_foundation,,loose,,6.0,3
+yes,,حليب,Milk,any,as_sold,171265,"Milk, whole, 3.25% milkfat, with added vitamin D",,usda_fdc_sr_legacy,,exact,,47.8,1
+,,حليب,Milk,any,as_sold,171284,"Yogurt, plain, whole milk",,usda_fdc_sr_legacy,,loose,,6.2,2
+,,حليب,Milk,any,as_sold,170851,"Cheese, ricotta, whole milk",,usda_fdc_sr_legacy,,loose,,6.0,3
+yes,,حليب مجفف,Milk powder,any,as_sold,170876,"Milk, dry, whole, with added vitamin D",,usda_fdc_sr_legacy,,exact,,52.3,1
+,,حليب مجفف,Milk powder,any,as_sold,168793,"Rennin, vanilla, dry mix, prepared with whole milk",,usda_fdc_sr_legacy,,loose,,2.5,2
+,,حليب مجفف,Milk powder,any,as_sold,169617,"Rennin, chocolate, dry mix, prepared with whole milk",,usda_fdc_sr_legacy,,loose,,2.2,3
+,several similar candidates: choose one,لبن,Yogurt,plain,as_sold,2647437,"Yogurt, plain, nonfat",,usda_fdc_foundation,,exact,,56.9,1
+,,لبن,Yogurt,plain,as_sold,2259793,"Yogurt, plain, whole milk",,usda_fdc_foundation,,exact,,56.2,2
+yes,,لبن,Yogurt,plain,as_sold,171284,"Yogurt, plain, whole milk",,usda_fdc_sr_legacy,,exact,,56.2,1
+,,لبن,Yogurt,plain,as_sold,175227,SILK Plain soy yogurt,,usda_fdc_sr_legacy,,loose,,6.8,2
+yes,,لبنة,Labneh,any,as_sold,2259794,"Yogurt, Greek, plain, whole milk",مقاربة: زبادي يوناني كامل الدسم بدل اللبنة,usda_fdc_foundation,,exact,,53.2,1
+yes,,لبنة,Labneh,any,as_sold,171304,"Yogurt, Greek, plain, whole milk",مقاربة: زبادي يوناني كامل الدسم بدل اللبنة,usda_fdc_sr_legacy,,exact,,53.2,1
+,,قيمر,Clotted cream,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+,"incomplete analysis: no protein, carbohydrate",زبدة,Butter,any,as_sold,789828,"Butter, stick, unsalted",,usda_fdc_foundation,"energy, protein, carbohydrate",exact,,64.5,1
+,,زبدة,Butter,any,as_sold,2262072,"Peanut butter, creamy",,usda_fdc_foundation,,loose,,6.8,2
+,,زبدة,Butter,any,as_sold,2262073,"Sesame butter, creamy",,usda_fdc_foundation,,loose,,6.8,3
+yes,,زبدة,Butter,any,as_sold,173430,"Butter, without salt",,usda_fdc_sr_legacy,,exact,,65.0,1
+,,زبدة,Butter,any,as_sold,169378,"Pickles, cucumber, sweet (includes bread and butter pickles)",,usda_fdc_sr_legacy,,alias,,41.0,2
+,,زبدة,Butter,any,as_sold,169380,"Pickles, cucumber, sweet, low sodium (includes bread and butter pickles)",,usda_fdc_sr_legacy,,alias,,39.2,3
+yes,,سمنة,Ghee,any,as_sold,171314,"Butter, Clarified butter (ghee)",مقاربة: زبدة مصفّاة (سمنة حيوانية)، لا تمثل السمنة النباتية,usda_fdc_sr_legacy,,exact,,50.4,1
+yes,,جبنة بيضاء,White cheese,any,as_sold,2259796,"Cheese, feta, whole milk, crumbled",مقاربة: جبنة فيتا بدل الجبنة البيضاء السورية,usda_fdc_foundation,,exact,,49.9,1
+yes,,جبنة بيضاء,White cheese,any,as_sold,173420,"Cheese, feta",مقاربة: جبنة فيتا بدل الجبنة البيضاء السورية,usda_fdc_sr_legacy,,exact,,53.2,1
+,,جبنة شلل,String cheese,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+,,جبنة حلوم,Halloumi,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+,,جبنة قشقوان,Kashkaval,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+yes,,جبنة موزاريلا,Mozzarella,any,as_sold,170845,"Cheese, mozzarella, whole milk",,usda_fdc_sr_legacy,,exact,,53.5,1
+,,جبنة نابلسي,Nabulsi cheese,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+,,جبنة عكاوي,Akkawi cheese,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+yes,,جبنة كريمية,Cream cheese,any,as_sold,2346385,"Cream cheese, full fat, block",,usda_fdc_foundation,,exact,,55.6,1
+yes,,جبنة كريمية,Cream cheese,any,as_sold,173418,"Cheese, cream",,usda_fdc_sr_legacy,,exact,,53.0,1
+,,جبنة كريمية,Cream cheese,any,as_sold,169081,"Cheese spread, cream cheese base",,usda_fdc_sr_legacy,,loose,,5.2,2
+,,جبنة كريمية,Cream cheese,any,as_sold,169619,"Frostings, cream cheese-flavor, ready-to-eat",,usda_fdc_sr_legacy,,loose,,3.4,3
+,several similar candidates: choose one,زيت زيتون,Olive oil,any,as_sold,1750351,"Oil, olive, extra light",,usda_fdc_foundation,"energy, protein, carbohydrate",exact,,51.5,1
+,,زيت زيتون,Olive oil,any,as_sold,748608,"Oil, olive, extra virgin",,usda_fdc_foundation,"energy, protein, carbohydrate",exact,,51.4,2
+,,زيت زيتون,Olive oil,any,canned,2747652,"Anchovies, canned in olive oil, with salt, drained",,usda_fdc_foundation,,loose,,-22.5,3
+yes,,زيت زيتون,Olive oil,any,as_sold,171413,"Oil, olive, salad or cooking",,usda_fdc_sr_legacy,,exact,,50.8,1
+,,زيت زيتون,Olive oil,any,as_sold,171443,"Mayonnaise, reduced fat, with olive oil",,usda_fdc_sr_legacy,,loose,,4.2,2
+yes,,زيت نباتي,Vegetable oil,any,as_sold,171411,"Oil, soybean, salad or cooking",مقاربة: زيت الصويا بدل الزيت النباتي (الخلطة تختلف حسب الماركة),usda_fdc_sr_legacy,,exact,,53.5,1
+,"incomplete analysis: no protein, carbohydrate",زيت ذرة,Corn oil,any,as_sold,748323,"Oil, corn",,usda_fdc_foundation,"energy, protein, carbohydrate",exact,,53.6,1
+yes,,زيت ذرة,Corn oil,any,as_sold,171029,"Oil, corn, industrial and retail, all purpose salad or cooking",,usda_fdc_sr_legacy,,exact,,48.7,1
+yes,reviewed,زيت دوار الشمس,Sunflower oil,any,as_sold,171017,"Oil, sunflower, linoleic (less than 60%)",,usda_fdc_sr_legacy,,loose,,4.0,1
+yes,,زيت جوز الهند,Coconut oil,any,as_sold,330458,"Oil, coconut",,usda_fdc_foundation,,exact,,53.2,1
+yes,,زيت جوز الهند,Coconut oil,any,as_sold,171412,"Oil, coconut",,usda_fdc_sr_legacy,,exact,,53.2,1
+,,زيت جوز الهند,Coconut oil,any,as_sold,172365,"Oil, industrial, coconut, confection fat, typical basis for ice cream coatings",,usda_fdc_sr_legacy,,loose,,-1.7,2
+,,زيت جوز الهند,Coconut oil,any,as_sold,173595,"Oil, industrial, coconut, principal uses candy coatings, oil sprays, roasting nuts",,usda_fdc_sr_legacy,,loose,,-2.3,3
+yes,,زيت سمسم,Sesame oil,any,as_sold,171016,"Oil, sesame, salad or cooking",,usda_fdc_sr_legacy,,exact,,50.6,1
+yes,,زيت بذر الكتان,Flaxseed oil,any,as_sold,167702,"Oil, flaxseed, cold pressed",,usda_fdc_sr_legacy,,exact,,54.0,1
+yes,,زيت اللوز,Almond oil,any,as_sold,171031,"Oil, almond",,usda_fdc_sr_legacy,,exact,,53.4,1
+,,زيت اللوز,Almond oil,any,roasted,170159,"Nuts, almonds, oil roasted, without salt added",,usda_fdc_sr_legacy,,loose,,11.1,2
+,,زيت اللوز,Almond oil,any,roasted,168602,"Nuts, almonds, oil roasted, lightly salted",,usda_fdc_sr_legacy,,loose,,3.7,3
+yes,,خل,Vinegar,any,as_sold,173469,"Vinegar, cider",,usda_fdc_sr_legacy,,exact,,52.9,1
+,,دبس الرمان,Pomegranate molasses,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+,,دبس الخرنوب,Carob molasses,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+,,دبس التمر,Date molasses,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+yes,,عسل طبيعي,Honey,any,as_sold,169640,Honey,,usda_fdc_sr_legacy,,exact,,59.2,1
+,,عسل طبيعي,Honey,any,as_sold,172945,"Oscar Mayer, Chicken Breast (honey glazed)",,usda_fdc_sr_legacy,,alias,,43.7,2
+,,عسل طبيعي,Honey,any,as_sold,167940,"Cinnamon buns, frosted (includes honey buns)",,usda_fdc_sr_legacy,,alias,,43.4,3
+yes,,مربى,Jam,any,as_sold,169641,Jams and preserves,,usda_fdc_sr_legacy,,exact,,57.3,1
+,,حلاوة طحينية,Halva,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+yes,,طحينة,Tahini,any,roasted,170189,"Seeds, sesame butter, tahini, from roasted and toasted kernels (most common type)",,usda_fdc_sr_legacy,,exact,,45.9,1
+,,كريمة تمر,Date paste,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+yes,,لوز,Almonds,raw,raw,2346393,"Nuts, almonds, whole, raw",,usda_fdc_foundation,,exact,,51.2,1
+yes,,لوز,Almonds,raw,raw,170567,"Nuts, almonds",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,53.0,1
+yes,,جوز,Walnuts,raw,raw,2346394,"Nuts, walnuts, English, halves, raw",,usda_fdc_foundation,,exact,,52.8,1
+yes,,جوز,Walnuts,raw,raw,170187,"Nuts, walnuts, english",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,54.7,1
+yes,,فستق حلبي,Pistachios,raw,raw,2515379,"Nuts, pistachio nuts, raw",,usda_fdc_foundation,,exact,,54.2,1
+yes,,فستق حلبي,Pistachios,raw,raw,170184,"Nuts, pistachio nuts, raw",,usda_fdc_sr_legacy,,exact,,54.2,1
+yes,,كاجو,Cashews,raw,raw,2515374,"Nuts, cashew nuts, raw",,usda_fdc_foundation,,exact,,54.7,1
+yes,,كاجو,Cashews,raw,raw,170162,"Nuts, cashew nuts, raw",,usda_fdc_sr_legacy,,exact,,54.7,1
+yes,,فول سوداني,Peanuts,raw,raw,2515376,"Peanuts, raw",,usda_fdc_foundation,,exact,,58.2,1
+yes,,فول سوداني,Peanuts,raw,raw,172430,"Peanuts, all types, raw",,usda_fdc_sr_legacy,,exact,,56.5,1
+,,فول سوداني,Peanuts,raw,raw,172457,"Peanut spread, reduced sugar",,usda_fdc_sr_legacy,,starts-with,form not stated by USDA; assumed from your wanted list,25.8,2
+,,فول سوداني,Peanuts,raw,raw,169585,"Candies, peanut bar",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,7.2,3
+yes,,بندق,Hazelnuts,raw,raw,2515375,"Nuts, hazelnuts or filberts, raw",,usda_fdc_foundation,,exact,,50.2,1
+yes,,بندق,Hazelnuts,raw,raw,170581,"Nuts, hazelnuts or filberts",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,51.0,1
+yes,,صنوبر,Pine nuts,any,raw,2346392,"Nuts, pine nuts, raw",,usda_fdc_foundation,,exact,,52.0,1
+yes,,صنوبر,Pine nuts,any,dried,170591,"Nuts, pine nuts, dried",,usda_fdc_sr_legacy,,exact,,51.7,1
+yes,,بذور يقطين,Pumpkin seeds,any,dried,170556,"Seeds, pumpkin and squash seed kernels, dried",,usda_fdc_sr_legacy,,exact,,51.2,1
+yes,,بذور دوار الشمس,Sunflower seeds,any,dried,170562,"Seeds, sunflower seed kernels, dried",,usda_fdc_sr_legacy,,exact,,52.6,1
+yes,,بذور كتان,Flaxseed,any,as_sold,169414,"Seeds, flaxseed",,usda_fdc_sr_legacy,,exact,,52.8,1
+yes,,سمسم,Sesame seeds,any,dried,170150,"Seeds, sesame seeds, whole, dried",,usda_fdc_sr_legacy,,exact,,53.0,1
+,,سمسم,Sesame seeds,any,as_sold,170561,"Seeds, sesame meal, partially defatted",,usda_fdc_sr_legacy,,loose,,4.3,2
+,,سمسم,Sesame seeds,any,as_sold,171006,"Salad dressing, sesame seed dressing, regular",,usda_fdc_sr_legacy,,loose,,3.2,3
+yes,,بذور الشيا,Chia seeds,any,raw,2710819,"Chia seeds, dry, raw",,usda_fdc_foundation,,exact,,57.0,1
+yes,,بذور الشيا,Chia seeds,any,dried,170554,"Seeds, chia seeds, dried",,usda_fdc_sr_legacy,,exact,,51.4,1
+yes,,بذور الخشخاش,Poppy seeds,raw,raw,171330,"Spices, poppy seed",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,52.3,1
+yes,,بذور اليانسون,Anise seeds,raw,raw,171316,"Spices, anise seed",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,52.3,1
+yes,,بذور الشمر,Fennel seeds,raw,raw,171323,"Spices, fennel seed",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,52.1,1
+yes,,بذور الحلبة,Fenugreek seeds,raw,raw,171324,"Spices, fenugreek seed",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,51.7,1
+yes,,بذور الخردل,Mustard seeds,raw,raw,170929,"Spices, mustard seed, ground",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,50.8,1
+yes,,برش جوز الهند,Coconut (shredded dried),dried,dried,170170,"Nuts, coconut meat, dried (desiccated), not sweetened",,usda_fdc_sr_legacy,,exact,,50.0,1
+yes,,كاكاو,Cocoa powder,any,as_sold,169593,"Cocoa, dry powder, unsweetened",,usda_fdc_sr_legacy,,exact,,53.5,1
+,,ماء الورد,Rose water,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+,,ماء الزهر,Orange blossom water,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+,,مستكة,Mastic,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+,,محلب,Mahlab,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+yes,,زعفران,Saffron,any,as_sold,170934,"Spices, saffron",,usda_fdc_sr_legacy,,exact,,52.8,1
+yes,,كركم,Turmeric,any,as_sold,172231,"Spices, turmeric, ground",,usda_fdc_sr_legacy,,exact,,51.4,1
+yes,,زنجبيل,Ginger,any,as_sold,170926,"Spices, ginger, ground",,usda_fdc_sr_legacy,,exact,,54.7,1
+yes,,جوزة الطيب,Nutmeg,any,as_sold,171326,"Spices, nutmeg, ground",,usda_fdc_sr_legacy,,exact,,51.7,1
+yes,,هيل,Cardamom,any,as_sold,170919,"Spices, cardamom",,usda_fdc_sr_legacy,,exact,,52.6,1
+yes,,قرنفل,Cloves,any,as_sold,171321,"Spices, cloves, ground",,usda_fdc_sr_legacy,,exact,,51.7,1
+yes,,قرفة,Cinnamon,any,as_sold,171320,"Spices, cinnamon, ground",,usda_fdc_sr_legacy,,exact,,51.4,1
+,,قرفة,Cinnamon,any,as_sold,174636,"Cereals, QUAKER, Instant Oatmeal, Cinnamon-Spice, dry",,usda_fdc_sr_legacy,,loose,,2.1,2
+,,قرفة,Cinnamon,any,as_sold,171664,"Cereals, oats, instant, fortified, with cinnamon and spice, dry",,usda_fdc_sr_legacy,,loose,,0.6,3
+yes,,كمون,Cumin,any,as_sold,170923,"Spices, cumin seed",,usda_fdc_sr_legacy,,exact,,52.3,1
+yes,,كزبرة,Coriander,any,as_sold,170922,"Spices, coriander seed",,usda_fdc_sr_legacy,,exact,,51.7,1
+yes,,فلفل أسود,Black pepper,any,as_sold,170931,"Spices, pepper, black",,usda_fdc_sr_legacy,,exact,,54.9,1
+yes,,فلفل أبيض,White pepper,any,as_sold,170933,"Spices, pepper, white",,usda_fdc_sr_legacy,,exact,,54.9,1
+yes,,فلفل أحمر مطحون,Paprika,any,as_sold,171329,"Spices, paprika",,usda_fdc_sr_legacy,,exact,,52.8,1
+,,فلفل حلبي,Aleppo pepper,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+,,سماق,Sumac,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+,,زعتر,Za'atar,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+yes,,نعنع مجفف,Dried mint,any,dried,172239,"Spearmint, dried",,usda_fdc_sr_legacy,,exact,,52.6,1
+,,بهارات,Seven spice,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
+,"incomplete analysis: no protein, fat, carbohydrate",ملح,Salt,any,as_sold,746775,"Salt, table, iodized",,usda_fdc_foundation,"protein, fat, carbohydrate",exact,,52.0,1
+yes,,ملح,Salt,any,as_sold,173468,"Salt, table",,usda_fdc_sr_legacy,,exact,,53.4,1
+yes,,سكر,Sugar,any,as_sold,746784,"Sugars, granulated",,usda_fdc_foundation,,exact,,52.3,1
+yes,,سكر,Sugar,any,as_sold,169655,"Sugars, granulated",,usda_fdc_sr_legacy,,exact,,52.3,1
+yes,,خميرة,Yeast,any,as_sold,175043,"Leavening agents, yeast, baker's, active dry",,usda_fdc_sr_legacy,,exact,,51.4,1
+yes,,بيكنج باودر,Baking powder,any,as_sold,172803,"Leavening agents, baking powder, double-acting, sodium aluminum sulfate",,usda_fdc_sr_legacy,,exact,,47.4,1
+yes,,صودا الخبز,Baking soda,any,as_sold,175040,"Leavening agents, baking soda",,usda_fdc_sr_legacy,,exact,,50.6,1
+yes,,نشاء,Starch,any,as_sold,169698,Cornstarch,,usda_fdc_sr_legacy,,exact,,58.5,1
+,,نشاء,Starch,any,as_sold,174806,"Snacks, Pretzels, gluten- free made with cornstarch and potato flour",,usda_fdc_sr_legacy,,loose,,-0.2,2
+yes,,فانيليا,Vanilla,any,as_sold,173471,Vanilla extract,,usda_fdc_sr_legacy,,exact,,57.8,1
+yes,reviewed,شوكولاتة,Chocolate,any,as_sold,170272,"Chocolate, dark, 60-69% cacao solids",,usda_fdc_sr_legacy,,exact,,52.6,1
+,,شوكولاتة,Chocolate,any,as_sold,170273,"Chocolate, dark, 70-85% cacao solids",,usda_fdc_sr_legacy,,exact,,52.6,2
+,,شوكولاتة,Chocolate,any,as_sold,170271,"Chocolate, dark, 45- 59% cacao solids",,usda_fdc_sr_legacy,,exact,,52.5,3
+yes,,شاي,Tea,any,as_sold,173227,"Beverages, tea, black, brewed, prepared with tap water",,usda_fdc_sr_legacy,,exact,,49.9,1
+yes,,قهوة,Coffee,any,as_sold,171890,"Beverages, coffee, brewed, prepared with tap water",,usda_fdc_sr_legacy,,exact,,50.5,1
+yes,,عصير ليمون,Lemon juice,raw,raw,167747,"Lemon juice, raw",,usda_fdc_sr_legacy,,exact,,52.6,1
+yes,,عدس أحمر,Red lentils,raw,raw,174284,"Lentils, pink or red, raw",,usda_fdc_sr_legacy,,exact,,51.2,1
+yes,,زيتون أخضر,Green olives,canned,canned,169096,"Olives, pickled, canned or bottled, green",,usda_fdc_sr_legacy,,exact,,48.9,1
+yes,,تونة معلبة,Canned tuna,canned,canned,334194,"Fish, tuna, light, canned in water, drained solids",,usda_fdc_foundation,,exact,,50.5,1
+,several similar candidates: choose one,تونة معلبة,Canned tuna,canned,canned,173708,"Fish, tuna, light, canned in oil, drained solids",,usda_fdc_sr_legacy,,exact,,50.8,1
+,,تونة معلبة,Canned tuna,canned,canned,173709,"Fish, tuna, light, canned in water, drained solids (Includes foods for USDA's Food Distribution Program)",,usda_fdc_sr_legacy,,exact,,42.4,2
+yes,,زعتر يابس,Dried wild thyme (oregano),dried,dried,171328,"Spices, oregano, dried",مطابقة نباتية: أوريغانو مجفف، والزعتر البري السوري (Origanum syriacum) من جنس الأوريغانو,usda_fdc_sr_legacy,,exact,,54.7,1
+,,حبة البركة,Nigella seeds,any,,,NO CANDIDATE FOUND - search manually or add the data yourself,,,,,,,
