@@ -45,6 +45,7 @@
 نعنع,Mint,raw,"spearmint, fresh",dried;flavored
 ريحان,Basil,raw,"basil, fresh",dried;pesto
 زعتر أخضر,Thyme,raw,"thyme, fresh",dried;ground
+زعتر يابس,Dried thyme,dried,"spices, thyme, dried",flavored
 ورق عنب,Grape leaves,raw;canned,grape leaves,stuffed
 شمندر,Beetroot,raw;cooked,beets,pickled;juice;canned;greens
 لفت,Turnip,raw;cooked,turnips,pickled;canned;greens;frozen
@@ -162,6 +163,7 @@
 فلفل حلبي,Aleppo pepper,any,aleppo pepper,flavored
 سماق,Sumac,any,sumac,ground;flavored
 زعتر,Za'atar,any,za'atar;zaatar,ground;flavored
+حبة البركة,Nigella seeds,any,nigella seed;black cumin;black seed;kalonji,oil;flavored;beans;bean;turtle
 نعنع مجفف,Dried mint,any,"spearmint, dried",flavored
 بهارات,Seven spice,any,seven spice;baharat,ground;flavored
 ملح,Salt,any,"salt, table",flavored
