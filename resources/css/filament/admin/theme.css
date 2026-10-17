@@ -3,54 +3,39 @@
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 
-/* Smooth inputs and visible colors */
-.fi-input,
-.fi-select-input,
-.fi-textarea {
-    border-radius: 0.75rem;
-    border-color: rgb(209 213 219);
-    background-color: rgb(250 250 249);
+/*
+ * NutriSyria admin theme. The palette itself (olive primary, stone greys, status colors) and the
+ * font are set in AdminPanelProvider, so they reach every Filament component in light and dark
+ * mode. This file only adjusts a few places, always through the palette (primary-*, gray-*),
+ * never with fixed colors that would read in one theme only.
+ */
+
+/* Desktop sidebar: a quiet panel edge instead of floating on the page. */
+.fi-sidebar {
+    @apply lg:border-e lg:border-gray-200/70 dark:lg:border-white/5;
 }
 
-.fi-input:focus,
-.fi-select-input:focus,
-.fi-textarea:focus {
-    border-color: rgb(16 185 129);
-    box-shadow: 0 0 0 1px rgb(16 185 129 / 0.3);
+/* Current page: an olive tint rather than plain grey. */
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    @apply bg-primary-50 dark:bg-primary-400/10;
+
+    & > .fi-sidebar-item-label {
+        @apply font-semibold text-primary-700 dark:text-primary-300;
+    }
+
+    & > .fi-icon {
+        @apply text-primary-600 dark:text-primary-300;
+    }
 }
 
-.dark .fi-input,
-.dark .fi-select-input,
-.dark .fi-textarea {
-    background-color: rgb(30 41 59 / 0.4);
+/* Numbers line up in tables and on the stat cards. */
+.fi-ta-text,
+.fi-wi-stats-overview-stat-value,
+.fi-in-text {
+    font-variant-numeric: tabular-nums;
 }
 
-.fi-section {
-    border-radius: 1rem;
+/* Stat cards: a little more weight on the number. */
+.fi-wi-stats-overview-stat-value {
+    @apply font-bold tracking-normal;
 }
-
-.fi-sidebar { background-color: #b3f7ce; }
-.dark .fi-sidebar{background-color: #24223a;}
-
-/* Dashboard */
-.fi-main {
-    background-color: rgb(255, 255, 255);
-}
-
-/* Dashboard sections / cards */
-.fi-section {
-    background-color: white;
-    border-radius: 1rem;
-    border: 1px solid rgb(226 232 240);
-}
-
-/* Dark mode */
-.dark .fi-main {
-    background-color: rgb(15 23 42);
-}
-
-.dark .fi-section {
-    background-color: rgb(30 41 59);
-    border-color: rgb(51 65 85);
-}
-
