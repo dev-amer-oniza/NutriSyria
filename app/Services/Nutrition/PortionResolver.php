@@ -24,6 +24,10 @@ use App\Services\Import\ArabicNormalizer;
  *     one at random: the admin marks a default portion once.
  *  4. Volume units with a base_factor (ml, l, fl oz) may also use a portion in ANOTHER volume
  *     unit of the same food and form: that portion gives the food's density.
+ *
+ * A recipe line may name its portion itself ("1 large onion", picked in the recipe form from
+ * choices()). That choice wins over rule 3 as long as it is still a valid portion of the line's
+ * unit for the ingredient (own record, same form or form-less); otherwise the rules above apply.
  */
 final class PortionResolver
 {
@@ -39,6 +43,12 @@ final class PortionResolver
     private const IGNORED_SOURCE_STATUSES = ['rejected', 'superseded'];
 
     private const MAX_LISTED_OPTIONS = 6;
+
+    /** Arabic for the size word a USDA portion description starts with ("large (3\" dia)"). */
+    private const SIZE_NAMES_AR = [
+        'extra small' => 'صغيرة جداً', 'extra large' => 'كبيرة جداً', 'small' => 'صغيرة',
+        'medium' => 'وسط', 'large' => 'كبيرة', 'jumbo' => 'ضخمة', 'whole' => 'كاملة',
+    ];
 
     /**
      * Size words name a VARIANT of a unit, not the unit itself: "small" and "large" are both
@@ -63,8 +73,9 @@ final class PortionResolver
      *     portion's effective form (its own, else its source record's); record_status is the
      *     status of its source record; unit_labels are every name its unit goes by (code, names,
      *     measure_unit_aliases), used to recognise a plain description such as "1 cup"
+     * @param  int|null  $chosenPortionId  the portion picked on the recipe line, if any
      */
-    public function resolve(array $unit, ?array $record, array $portions, float $amount): GramsConversion
+    public function resolve(array $unit, ?array $record, array $portions, float $amount, ?int $chosenPortionId = null): GramsConversion
     {
         if (! is_finite($amount) || $amount < 0) {
             return GramsConversion::failed(GramsConversion::INVALID_AMOUNT, 'الكمية غير صالحة.');
@@ -83,11 +94,22 @@ final class PortionResolver
             return GramsConversion::failed(GramsConversion::UNKNOWN_RECORD, 'سجل المكوّن غير موجود.');
         }
 
-        $usable = array_values(array_filter($portions, fn (array $p) => $p['amount'] > 0 && $p['gram_weight'] > 0
-            && ($p['food_source_record_id'] === $record['id']
-                || ! in_array($p['record_status'], self::IGNORED_SOURCE_STATUSES, true))));
-
+        $usable = $this->usable($record, $portions);
         $sameUnit = array_values(array_filter($usable, fn (array $p) => $p['measure_unit_id'] === $unit['id']));
+
+        if ($chosenPortionId !== null) {
+            foreach ($sameUnit as $p) {
+                if ($p['id'] === $chosenPortionId && $this->tierOf($p, $record) !== null) {
+                    return GramsConversion::converted(
+                        $amount / $p['amount'] * $p['gram_weight'],
+                        GramsConversion::METHOD_PORTION,
+                        'حسب الحصة المختارة: '.self::describe($p),
+                        $p['id'],
+                    );
+                }
+            }
+        }
+
         $direct = $this->pick($sameUnit, $record, fn (array $p) => $p['gram_weight'] / $p['amount']);
 
         if ($direct['status'] === 'ok') {
@@ -148,6 +170,88 @@ final class PortionResolver
         ));
     }
 
+    /**
+     * The portions a recipe line in this unit can choose between ("small", "medium", "large"),
+     * lightest first: those of the most specific tier that has any (same tiers as resolve()),
+     * one per distinct weight. Empty when there is nothing to choose, i.e. fewer than two
+     * different weights, or a mass unit.
+     *
+     * @return list<array{id:int, label:string, grams:float}>  grams per one unit
+     */
+    public function choices(array $unit, ?array $record, array $portions): array
+    {
+        if ($record === null || self::massFactor($unit) !== null) {
+            return [];
+        }
+
+        $tiers = [[], [], []];
+        foreach ($this->usable($record, $portions) as $p) {
+            $tier = $p['measure_unit_id'] === $unit['id'] ? $this->tierOf($p, $record) : null;
+            if ($tier !== null) {
+                $p['_weight'] = $p['gram_weight'] / $p['amount'];
+                $tiers[$tier][] = $p;
+            }
+        }
+        $set = current(array_filter($tiers)) ?: [];
+
+        usort($set, fn (array $a, array $b) => $a['_weight'] <=> $b['_weight']);
+        $distinct = [];
+        foreach ($set as $p) {
+            $last = end($distinct);
+            if ($last && $p['_weight'] - $last[0]['_weight'] <= $p['_weight'] * self::SAME_WEIGHT_TOLERANCE) {
+                $distinct[array_key_last($distinct)][] = $p;
+            } else {
+                $distinct[] = [$p];
+            }
+        }
+        if (count($distinct) < 2) {
+            return [];
+        }
+
+        return array_map(function (array $group) {
+            $p = self::best($group);
+            $size = self::sizeNameAr($p['description'] ?? null);
+
+            return [
+                'id' => $p['id'],
+                'label' => ($size !== null ? "{$size}: " : '').self::describe($p),
+                'grams' => $p['_weight'],
+            ];
+        }, $distinct);
+    }
+
+    /** "كبيرة" for "large (3\" dia)" or "كبيرة"; null when the description does not start with a size. */
+    public static function sizeNameAr(?string $description): ?string
+    {
+        $text = trim((string) $description);
+        if ($text === '') {
+            return null;
+        }
+        if (preg_match('/^(extra small|extra large|small|medium|large|jumbo|whole)\b/i', $text, $m)) {
+            return self::SIZE_NAMES_AR[strtolower($m[1])];
+        }
+
+        return self::isSizeWord($text) ? $text : null;
+    }
+
+    private function usable(array $record, array $portions): array
+    {
+        return array_values(array_filter($portions, fn (array $p) => $p['amount'] > 0 && $p['gram_weight'] > 0
+            && ($p['food_source_record_id'] === $record['id']
+                || ! in_array($p['record_status'], self::IGNORED_SOURCE_STATUSES, true))));
+    }
+
+    /** 0 = the ingredient's own record, 1 = same form, 2 = form-less, null = another form (never used). */
+    private function tierOf(array $p, array $record): ?int
+    {
+        return match (true) {
+            $p['food_source_record_id'] === $record['id'] => 0,
+            $p['food_form_id'] === null => 2,
+            $p['food_form_id'] === $record['food_form_id'] => 1,
+            default => null,
+        };
+    }
+
     /** Grams per one unit for mass units, or null when the unit is not a known mass unit. */
     public static function massFactor(array $unit): ?float
     {
@@ -173,14 +277,11 @@ final class PortionResolver
         $otherForms = [];
         foreach ($candidates as $p) {
             $p['_weight'] = $weightOf($p);
-            if ($p['food_source_record_id'] === $record['id']) {
-                $tiers[0][] = $p;
-            } elseif ($p['food_form_id'] === null) {
-                $tiers[2][] = $p;
-            } elseif ($p['food_form_id'] === $record['food_form_id']) {
-                $tiers[1][] = $p;
-            } else {
+            $tier = $this->tierOf($p, $record);
+            if ($tier === null) {
                 $otherForms[] = $p;
+            } else {
+                $tiers[$tier][] = $p;
             }
         }
 
@@ -222,7 +323,7 @@ final class PortionResolver
         $more = count($options) - count($listed);
 
         return GramsConversion::failed(GramsConversion::AMBIGUOUS_PORTION, sprintf(
-            'توجد عدة حصص بأوزان مختلفة تصلح لـ«%s» في %s: %s%s. حدّد إحداها كحصة افتراضية من صفحة سجل المصدر.',
+            'توجد عدة حصص بأوزان مختلفة تصلح لـ«%s» في %s: %s%s. اختر حجم الحصة في سطر المكوّن، أو حدّد إحداها كحصة افتراضية من صفحة سجل المصدر.',
             $unit['name_ar'], self::recordName($record), implode('؛ ', $listed), $more > 0 ? "؛ و{$more} غيرها" : '',
         ));
     }

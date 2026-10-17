@@ -426,4 +426,93 @@ class PortionResolverTest extends TestCase
         $this->assertStringContainsString('كوب', $c->message);
         $this->assertStringContainsString('حمص (مسلوق)', $c->message);
     }
+    // ------------------------------------------------------------------ portion chosen on the recipe line
+
+    private function onionSizes(): array
+    {
+        return [
+            $this->portion('piece', 110, ['description' => 'medium (2-1/2" dia)']),
+            $this->portion('piece', 70, ['description' => 'small']),
+            $this->portion('piece', 150, ['description' => 'large (3" dia)']),
+        ];
+    }
+
+    public function test_the_portion_chosen_on_the_line_settles_an_ambiguous_size(): void
+    {
+        $portions = $this->onionSizes();
+        $this->assertSame(GramsConversion::AMBIGUOUS_PORTION, $this->convert('piece', 2, $portions)->status);
+
+        $c = $this->resolver()->resolve(self::UNITS['piece'], $this->record(), $portions, 2, $portions[2]['id']);
+
+        $this->assertEqualsWithDelta(300.0, $c->grams, 1e-9);
+        $this->assertSame($portions[2]['id'], $c->portionId);
+        $this->assertStringContainsString('المختارة', $c->basis);
+    }
+
+    public function test_the_chosen_portion_wins_over_the_default(): void
+    {
+        $portions = $this->onionSizes();
+        $portions[0]['is_default'] = true;
+
+        $this->assertEqualsWithDelta(110.0, $this->convert('piece', 1, $portions)->grams, 1e-9);
+        $this->assertEqualsWithDelta(70.0, $this->resolver()->resolve(self::UNITS['piece'], $this->record(), $portions, 1, $portions[1]['id'])->grams, 1e-9);
+    }
+
+    public function test_a_chosen_portion_of_another_form_or_unit_is_ignored(): void
+    {
+        $rawCup = $this->portion('cup', 200, ['food_source_record_id' => 18, 'food_form_id' => self::RAW, 'form_name_ar' => 'نيء']);
+        $boiledCup = $this->portion('cup', 164);
+        $piece = $this->portion('piece', 5);
+        $portions = [$rawCup, $boiledCup, $piece];
+
+        $this->assertEqualsWithDelta(164.0, $this->resolver()->resolve(self::UNITS['cup'], $this->record(), $portions, 1, $rawCup['id'])->grams, 1e-9);
+        $this->assertEqualsWithDelta(164.0, $this->resolver()->resolve(self::UNITS['cup'], $this->record(), $portions, 1, $piece['id'])->grams, 1e-9);
+        // A portion that no longer exists: the usual rules again.
+        $this->assertEqualsWithDelta(164.0, $this->resolver()->resolve(self::UNITS['cup'], $this->record(), $portions, 1, 999999)->grams, 1e-9);
+    }
+
+    public function test_choices_list_each_size_once_lightest_first_with_arabic_names(): void
+    {
+        $portions = $this->onionSizes();
+        $portions[] = $this->portion('piece', 70.3, ['description' => 'small', 'confidence_level' => 'reviewed']); // same weight
+        $portions[] = $this->portion('cup', 160);                                                                    // other unit
+
+        $choices = $this->resolver()->choices(self::UNITS['piece'], $this->record(), $portions);
+
+        $this->assertSame([70.3, 110.0, 150.0], array_column($choices, 'grams'));
+        $this->assertSame($portions[3]['id'], $choices[0]['id']);   // the more confident of the two "small"
+        $this->assertStringStartsWith('صغيرة', $choices[0]['label']);
+        $this->assertStringStartsWith('وسط', $choices[1]['label']);
+        $this->assertStringStartsWith('كبيرة', $choices[2]['label']);
+        $this->assertStringContainsString('150 غ', $choices[2]['label']);
+    }
+
+    public function test_no_choices_when_there_is_nothing_to_choose(): void
+    {
+        $this->assertSame([], $this->resolver()->choices(self::UNITS['cup'], $this->record(), [$this->portion('cup', 164)]));
+        $this->assertSame([], $this->resolver()->choices(self::UNITS['g'], $this->record(), $this->onionSizes()));
+        $this->assertSame([], $this->resolver()->choices(self::UNITS['piece'], null, $this->onionSizes()));
+    }
+
+    public function test_choices_never_offer_another_form_and_prefer_the_own_record(): void
+    {
+        $otherForm = fn (float $g) => $this->portion('piece', $g, ['food_source_record_id' => 18, 'food_form_id' => self::RAW]);
+        $sameFormElsewhere = fn (float $g) => $this->portion('piece', $g, ['food_source_record_id' => 19]);
+
+        $this->assertSame([], $this->resolver()->choices(self::UNITS['piece'], $this->record(), [$otherForm(50), $otherForm(90)]));
+
+        $own = $this->onionSizes();
+        $choices = $this->resolver()->choices(self::UNITS['piece'], $this->record(), [...$own, $sameFormElsewhere(999)]);
+        $this->assertNotContains(999.0, array_column($choices, 'grams'));
+    }
+
+    public function test_size_names_in_arabic(): void
+    {
+        $this->assertSame('كبيرة', PortionResolver::sizeNameAr('large (3" dia)'));
+        $this->assertSame('صغيرة جداً', PortionResolver::sizeNameAr('Extra small'));
+        $this->assertSame('كبيرة', PortionResolver::sizeNameAr('كبيرة'));
+        $this->assertNull(PortionResolver::sizeNameAr('cup, chopped'));
+        $this->assertNull(PortionResolver::sizeNameAr(null));
+        $this->assertNull(PortionResolver::sizeNameAr('largely chopped'));
+    }
 }

@@ -23,16 +23,40 @@ final class GramsConverter
     }
 
     /** Grams, or null when the line cannot be converted (resolve() says why). */
-    public function convert(int $foodSourceRecordId, int $measureUnitId, float $amount): ?float
+    public function convert(int $foodSourceRecordId, int $measureUnitId, float $amount, ?int $chosenPortionId = null): ?float
     {
-        return $this->resolve($foodSourceRecordId, $measureUnitId, $amount)->grams;
+        return $this->resolve($foodSourceRecordId, $measureUnitId, $amount, $chosenPortionId)->grams;
     }
 
-    public function resolve(int $foodSourceRecordId, int $measureUnitId, float $amount): GramsConversion
+    public function resolve(int $foodSourceRecordId, int $measureUnitId, float $amount, ?int $chosenPortionId = null): GramsConversion
+    {
+        $loaded = $this->load($foodSourceRecordId, $measureUnitId);
+        if ($loaded === null) {
+            return GramsConversion::failed(GramsConversion::UNKNOWN_UNIT, 'وحدة القياس غير موجودة.');
+        }
+
+        return $this->resolver->resolve($loaded['unit'], $loaded['record'], $loaded['portions'], $amount, $chosenPortionId);
+    }
+
+    /**
+     * The portion sizes a recipe line can pick between for this ingredient and unit
+     * (see PortionResolver::choices()); empty when there is nothing to choose.
+     *
+     * @return list<array{id:int, label:string, grams:float}>
+     */
+    public function choices(int $foodSourceRecordId, int $measureUnitId): array
+    {
+        $loaded = $this->load($foodSourceRecordId, $measureUnitId);
+
+        return $loaded === null ? [] : $this->resolver->choices($loaded['unit'], $loaded['record'], $loaded['portions']);
+    }
+
+    /** @return array{unit: array, record: ?array, portions: list<array>}|null  null when the unit does not exist */
+    private function load(int $foodSourceRecordId, int $measureUnitId): ?array
     {
         $unit = MeasureUnit::find($measureUnitId);
         if (! $unit) {
-            return GramsConversion::failed(GramsConversion::UNKNOWN_UNIT, 'وحدة القياس غير موجودة.');
+            return null;
         }
 
         $unitData = [
@@ -45,12 +69,12 @@ final class GramsConverter
 
         // Mass units need no record and no portion.
         if (PortionResolver::massFactor($unitData) !== null) {
-            return $this->resolver->resolve($unitData, null, [], $amount);
+            return ['unit' => $unitData, 'record' => null, 'portions' => []];
         }
 
         $record = FoodSourceRecord::with(['food:id,name_ar', 'foodForm:id,name_ar'])->find($foodSourceRecordId);
         if (! $record) {
-            return $this->resolver->resolve($unitData, null, [], $amount);
+            return ['unit' => $unitData, 'record' => null, 'portions' => []];
         }
 
         $portions = FoodPortion::query()
@@ -97,11 +121,11 @@ final class GramsConverter
             ];
         })->all();
 
-        return $this->resolver->resolve($unitData, [
+        return ['unit' => $unitData, 'record' => [
             'id' => (int) $record->id,
             'food_form_id' => $record->food_form_id !== null ? (int) $record->food_form_id : null,
             'food_name_ar' => $record->food?->name_ar,
             'form_name_ar' => $record->foodForm?->name_ar,
-        ], $portionData, $amount);
+        ], 'portions' => $portionData];
     }
 }

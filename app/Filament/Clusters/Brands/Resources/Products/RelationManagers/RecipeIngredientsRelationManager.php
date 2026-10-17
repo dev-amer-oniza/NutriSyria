@@ -4,6 +4,7 @@ namespace App\Filament\Clusters\Brands\Resources\Products\RelationManagers;
 use App\Models\FoodSourceRecord;
 use App\Services\Nutrition\GramsConversion;
 use App\Services\Nutrition\GramsConverter;
+use App\Services\Nutrition\PortionResolver;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -15,6 +16,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -63,6 +65,7 @@ class RecipeIngredientsRelationManager extends RelationManager
                     ->searchable()
                     ->preload()
                     ->live()
+                    ->afterStateUpdated(fn (Get $get, Set $set) => $this->presetPortion($get, $set))
                     ->required(),
 
                 Select::make('measure_unit_id')
@@ -71,7 +74,19 @@ class RecipeIngredientsRelationManager extends RelationManager
                     ->required()
                     ->searchable()
                     ->live()
+                    ->afterStateUpdated(fn (Get $get, Set $set) => $this->presetPortion($get, $set))
                     ->preload()
+                    ->native(false),
+
+                // Shown only when the food has several sizes of this unit (small / medium / large).
+                Select::make('food_portion_id')
+                    ->label('حجم الحصة')
+                    ->options(fn (Get $get) => collect($this->choicesFor($get))->pluck('label', 'id')->all())
+                    ->visible(fn (Get $get) => $this->choicesFor($get) !== [])
+                    // Required only when the food has no default size that settles it.
+                    ->required(fn (Get $get) => $this->autoConversion($get)?->status === GramsConversion::AMBIGUOUS_PORTION)
+                    ->helperText('للغذاء أكثر من حجم لهذه الوحدة: اختر الحجم المستعمل في هذه الوصفة.')
+                    ->live()
                     ->native(false),
 
                 TextInput::make('amount')
@@ -90,7 +105,8 @@ class RecipeIngredientsRelationManager extends RelationManager
                         }
 
                         $conversion = app(GramsConverter::class)->resolve(
-                            (int) $get('food_source_record_id'), (int) $get('measure_unit_id'), (float) ($get('amount') ?? 0)
+                            (int) $get('food_source_record_id'), (int) $get('measure_unit_id'), (float) ($get('amount') ?? 0),
+                            $get('food_portion_id') ? (int) $get('food_portion_id') : null,
                         );
 
                         if (! $conversion->ok()) {
@@ -112,7 +128,7 @@ class RecipeIngredientsRelationManager extends RelationManager
     {
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query->with([
-                'ingredientRecord.food', 'ingredientRecord.foodForm', 'measureUnit',
+                'ingredientRecord.food', 'ingredientRecord.foodForm', 'measureUnit', 'foodPortion',
             ]))
             ->recordTitleAttribute('id')
             ->columns([
@@ -126,6 +142,12 @@ class RecipeIngredientsRelationManager extends RelationManager
                     ->label('الكمية'),
                 TextColumn::make('measureUnit.name_ar')
                     ->label('الوحدة')
+                    ->formatStateUsing(function (?string $state, Model $record) {
+                        $p = $record->foodPortion;
+                        $size = $p ? PortionResolver::sizeNameAr($p->description ?? ($p->evidence['modifier'] ?? null)) : null;
+
+                        return $size !== null ? "{$state} ({$size})" : $state;
+                    })
                     ->badge(),
                 TextColumn::make('grams')
                     ->label('الوزن بالغرام')
@@ -163,11 +185,45 @@ class RecipeIngredientsRelationManager extends RelationManager
 
     private function conversionFor(Model $record): GramsConversion
     {
-        $key = implode('|', [$record->getKey(), $record->food_source_record_id, $record->measure_unit_id, $record->amount]);
+        $key = implode('|', [$record->getKey(), $record->food_source_record_id, $record->measure_unit_id, $record->amount, $record->food_portion_id]);
 
         return $this->conversions[$key] ??= app(GramsConverter::class)->resolve(
-            (int) $record->food_source_record_id, (int) $record->measure_unit_id, (float) $record->amount
+            (int) $record->food_source_record_id, (int) $record->measure_unit_id, (float) $record->amount,
+            $record->food_portion_id !== null ? (int) $record->food_portion_id : null,
         );
+    }
+
+    /** @var array<string, list<array{id:int, label:string, grams:float}>> */
+    private array $choices = [];
+
+    /** @return list<array{id:int, label:string, grams:float}> */
+    private function choicesFor(Get $get): array
+    {
+        [$recordId, $unitId] = [(int) $get('food_source_record_id'), (int) $get('measure_unit_id')];
+        if (! $recordId || ! $unitId) {
+            return [];
+        }
+
+        return $this->choices["{$recordId}|{$unitId}"] ??= app(GramsConverter::class)->choices($recordId, $unitId);
+    }
+
+    /** What the usual rules give without a chosen size (null until record and unit are set). */
+    private function autoConversion(Get $get): ?GramsConversion
+    {
+        if (! $get('food_source_record_id') || ! $get('measure_unit_id')) {
+            return null;
+        }
+
+        return app(GramsConverter::class)->resolve((int) $get('food_source_record_id'), (int) $get('measure_unit_id'), 1);
+    }
+
+    /** A new ingredient or unit starts on the size the usual rules pick (the default), or empty. */
+    private function presetPortion(Get $get, Set $set): void
+    {
+        $ids = array_column($this->choicesFor($get), 'id');
+        $auto = $ids ? $this->autoConversion($get)?->portionId : null;
+
+        $set('food_portion_id', in_array($auto, $ids, true) ? $auto : null);
     }
 
     private static function labelFor(FoodSourceRecord $r): string
