@@ -19,7 +19,11 @@ class FoodResource extends Resource
 {
     protected static ?string $model = Food::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
+
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::QueueList;
+
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $cluster = FoodDatabaseCluster::class;
 

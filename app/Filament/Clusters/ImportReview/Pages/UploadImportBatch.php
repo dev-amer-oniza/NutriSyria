@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
+use Filament\Support\Icons\Heroicon;
 
 class UploadImportBatch extends Page implements HasForms
 {
@@ -28,7 +29,11 @@ class UploadImportBatch extends Page implements HasForms
 
     protected static ?string $cluster = ImportReviewCluster::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-arrow-up-tray';
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowUpTray;
+
+    protected static string|\BackedEnum|null $activeNavigationIcon = Heroicon::ArrowUpTray;
+
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'رفع دفعة جديدة';
 
