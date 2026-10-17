@@ -22,7 +22,7 @@ class ImportBatchForm
                             ->state(fn($record) => $record->original_filename),
                         TextEntry::make('user.name')
                             ->label('استوردها')
-                            ->state(fn($record) => $record->user?->name ?? '—'),
+                            ->state(fn($record) => $record->user?->name ?? 'سطر الأوامر'),
                         TextEntry::make('file_sha256')
                             ->label('بصمة الملف')
                             ->state(fn($record) => substr($record->file_sha256, 0, 16) . '…'),

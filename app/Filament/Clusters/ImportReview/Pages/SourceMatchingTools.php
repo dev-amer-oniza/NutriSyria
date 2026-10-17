@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
+use Filament\Support\Icons\Heroicon;
 
 class SourceMatchingTools extends Page implements HasForms
 {
@@ -28,7 +29,11 @@ class SourceMatchingTools extends Page implements HasForms
 
     protected static ?string $cluster = ImportReviewCluster::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-magnifying-glass';
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowsRightLeft;
+
+    protected static string|\BackedEnum|null $activeNavigationIcon = Heroicon::ArrowsRightLeft;
+
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationLabel = 'أدوات مطابقة المصادر';
 

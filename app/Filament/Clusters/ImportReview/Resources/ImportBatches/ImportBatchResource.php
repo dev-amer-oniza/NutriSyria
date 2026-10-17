@@ -18,7 +18,11 @@ class ImportBatchResource extends Resource
 {
     protected static ?string $model = ImportBatch::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
+
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::ClipboardDocumentCheck;
+
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $cluster = ImportReviewCluster::class;
 

@@ -13,6 +13,7 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 
 class CompareFoodSources extends Page implements HasForms
 {
@@ -22,7 +23,11 @@ class CompareFoodSources extends Page implements HasForms
 
     protected static ?string $cluster = FoodDatabaseCluster::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-scale';
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedScale;
+
+    protected static string|\BackedEnum|null $activeNavigationIcon = Heroicon::Scale;
+
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'مقارنة مصادر غذاء';
 

@@ -2,9 +2,11 @@
 namespace App\Enums;
 
 use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
+use Filament\Support\Icons\Heroicon;
 use Filament\Support\Contracts\HasLabel;
 
-enum ImportBatchStatus: string implements HasLabel, HasColor {
+enum ImportBatchStatus: string implements HasLabel, HasColor, HasIcon {
     case Uploaded  = 'uploaded';
     case Validated = 'validated';
     case Committed = 'committed';
@@ -22,9 +24,20 @@ enum ImportBatchStatus: string implements HasLabel, HasColor {
     public function getColor(): string
     {
         return match ($this) {
-            self::Uploaded, self::Validated => 'gray',
+            self::Uploaded  => 'gray',
+            self::Validated => 'info',
             self::Committed => 'success',
             self::Failed    => 'danger',
+        };
+    }
+
+    public function getIcon(): Heroicon
+    {
+        return match ($this) {
+            self::Uploaded  => Heroicon::OutlinedArrowUpTray,
+            self::Validated => Heroicon::OutlinedMagnifyingGlass,
+            self::Committed => Heroicon::OutlinedCheckCircle,
+            self::Failed    => Heroicon::OutlinedXCircle,
         };
     }
 }

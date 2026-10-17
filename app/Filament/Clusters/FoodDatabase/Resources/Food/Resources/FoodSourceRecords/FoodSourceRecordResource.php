@@ -19,7 +19,9 @@ class FoodSourceRecordResource extends Resource
 {
     protected static ?string $model = FoodSourceRecord::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
+
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::DocumentText;
 
     protected static ?string $parentResource = FoodResource::class;
 

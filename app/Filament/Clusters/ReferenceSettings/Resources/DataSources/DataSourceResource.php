@@ -18,7 +18,11 @@ class DataSourceResource extends Resource
 {
     protected static ?string $model = DataSource::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
+
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::BookOpen;
+
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $cluster = ReferenceSettingsCluster::class;
 
