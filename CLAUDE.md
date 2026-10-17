@@ -23,6 +23,7 @@
 | حساب الوصفة | `RecipeCalculator.php` (pure)، `RecipeAnalysisResult.php`، `RecipeAnalysisService.php` (analyze + approve)، `NutrientGapFiller.php` (تكميل الناقص، pure) |
 | الداشبورد | `app/Filament/Clusters/{FoodDatabase,ImportReview,Brands,ReferenceSettings}` |
 | صفحات مهمة | `ImportReview/Pages/SourceMatchingTools.php` (مطابقة USDA من الواجهة)، `UploadImportBatch.php`، `Brands/Pages/RecipeAnalysis.php` + `resources/views/filament/clusters/brands/pages/recipe-analysis.blade.php` |
+| الصفحة الرئيسية | `app/Filament/Widgets/{FoodDatabaseStats,DataSourcesOverview}.php`، والأرقام من `app/Services/Dashboard/DatabaseOverview.php`: أغذية معتمدة/للمراجعة (الغذاء يُعدّ مرة، وقد يظهر في الاثنين)، المصادر، الدفعات |
 | البذور | `database/seeders/data/*.csv` (nutrients، nutrient_source_codes، measure_units + aliases، food_forms، data_sources) |
 
 الأسلوب المتبع في الكود: المنطق الحسابي في كلاسات **pure** بلا قاعدة بيانات (Validator، Calculator، PortionResolver، GapFiller) لتُختبر بسهولة، وكلاس رفيع يقرأ من DB ويمرر لها arrays.
@@ -97,7 +98,6 @@
    - رفع ملف تالف (أعمدة ناقصة، فاصل `;`، ملف فارغ) يعيد 422 بلا أي رسالة، ويترك دفعات معلّقة.
    - سبب فشل التحويل لا يظهر في tooltip الجدول، لأن Filament يستخدم `emptyTooltip` عندما تكون القيمة null.
    - رسائل الفحص بالإنجليزية داخل واجهة عربية. واللوحة LTR لأن `APP_LOCALE=en`؛ Filament يدعم RTL مع `ar`.
-   - الصفحة الرئيسية بلا إحصائيات.
 5. **تحسينات صغيرة متفق عليها مبدئياً:**
    - الكربوهيدرات السالبة في USDA (لحوم) تُخزَّن صفراً بدل حذفها.
    - إضافة ربط `1085` (Total fat NLEA) و`2033` (Fiber AOAC) في `nutrient_source_codes.csv`.
