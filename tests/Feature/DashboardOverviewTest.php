@@ -85,7 +85,7 @@ class DashboardOverviewTest extends TestCase
             ->assertSee('أغذية معتمدة')
             ->assertSee('3 سجل معتمد')
             ->assertSee('USDA Foundation، USDA SR Legacy')
-            ->assertSee('آخر دفعة: 2026-10-17')
+            ->assertSee('2026-10-17')
             ->assertSee('1 لم تكتمل')
             ->assertSee('سجلات مرفوضة');
 

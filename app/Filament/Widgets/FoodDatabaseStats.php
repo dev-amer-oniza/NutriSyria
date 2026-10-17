@@ -59,7 +59,8 @@ class FoodDatabaseStats extends StatsOverviewWidget
     {
         $parts = [];
         if ($batches['last_committed_at']) {
-            $parts[] = 'آخر دفعة: '.Carbon::parse($batches['last_committed_at'])->format('Y-m-d');
+            // LTR isolate: inside Arabic text the date would otherwise read 17-10-2026.
+            $parts[] = "آخر دفعة: \u{2066}".Carbon::parse($batches['last_committed_at'])->format('Y-m-d')."\u{2069}";
         }
         if ($batches['unfinished']) {
             $parts[] = "{$batches['unfinished']} لم تكتمل";
