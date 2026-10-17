@@ -97,7 +97,6 @@
      - يجب أن تضع Foundation أولاً، وتُظهر إن كان السجل ناقصاً.
    - رفع ملف تالف (أعمدة ناقصة، فاصل `;`، ملف فارغ) يعيد 422 بلا أي رسالة، ويترك دفعات معلّقة.
    - سبب فشل التحويل لا يظهر في tooltip الجدول، لأن Filament يستخدم `emptyTooltip` عندما تكون القيمة null.
-   - رسائل الفحص بالإنجليزية داخل واجهة عربية (رسائل Laravel للتحقق: لا يوجد `lang/ar/validation.php`).
 5. **تحسينات صغيرة متفق عليها مبدئياً:**
    - الكربوهيدرات السالبة في USDA (لحوم) تُخزَّن صفراً بدل حذفها.
    - إضافة ربط `1085` (Total fat NLEA) و`2033` (Fiber AOAC) في `nutrient_source_codes.csv`.
@@ -112,7 +111,7 @@
 - **الخط:** IBM Plex Sans Arabic (Google Fonts).
 - **اللغة والاتجاه:** اللوحة عربية RTL دائماً عبر `App\Http\Middleware\UseArabicInPanel` (persistent)، أياً كان `APP_LOCALE`.
 - **الثيم الليلي** مفعّل؛ `resources/css/filament/admin/theme.css` يستعمل ألوان اللوحة فقط (primary-*/gray-*)، لا ألواناً ثابتة.
-- **المراحل:** 1) الألوان والخط والعربية (تم). 2) أيقونات Heroicons (outline، والمعبّأة للقسم الحالي)، مجموعات القائمة (البيانات الغذائية، المطاعم، الإعدادات)، الشعار `resources/views/filament/admin/brand.blade.php`، شارة السجلات المعلّقة على "الاستيراد والمراجعة" (تم). 3) تلميع الصفحات والجداول وألوان الحالات الموحدة.
+- **المراحل:** 1) الألوان والخط والعربية (تم). 2) أيقونات Heroicons (outline، والمعبّأة للقسم الحالي)، مجموعات القائمة (البيانات الغذائية، المطاعم، الإعدادات)، الشعار `resources/views/filament/admin/brand.blade.php`، شارة السجلات المعلّقة على "الاستيراد والمراجعة" (تم). 3) تلميع (تم): ألوان وأيقونات الحالات في الـ enums (`FoodSourceStatus`، `ImportBatchStatus`)، صور بديلة `App\Filament\Support\Placeholders`، إعدادات الجداول العامة في `AdminPanelProvider::boot` (صفوف مخططة، 25 بالصفحة، "لا" شرطة رمادية)، رسائل التحقق العربية `lang/ar/validation.php`.
 - **المعاينة:** صفحة الخيارات المعروضة عليه: https://claude.ai/artifact/TAeT2Eh9UczTrzxWBrPbPr
 
 ## معلومات تشغيل وتطوير

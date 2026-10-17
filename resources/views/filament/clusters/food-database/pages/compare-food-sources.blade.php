@@ -43,7 +43,7 @@
                             <div class="flex-1 h-6 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden">
                                 <div class="h-full rounded-full bg-emerald-500 dark:bg-emerald-400" style="width: {{ $pctA }}%"></div>
                             </div>
-                            <span class="w-20 shrink-0 text-sm font-bold text-left text-gray-900 dark:text-white">
+                            <span class="w-20 shrink-0 text-sm font-bold text-end text-gray-900 dark:text-white">
                                 {{ $row['a'] !== null ? number_format($row['a'], 2) : '—' }}
                             </span>
                         </div>
@@ -54,7 +54,7 @@
                             <div class="flex-1 h-6 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden">
                                 <div class="h-full rounded-full bg-sky-500 dark:bg-sky-400" style="width: {{ $pctB }}%"></div>
                             </div>
-                            <span class="w-20 shrink-0 text-sm font-bold text-left text-gray-900 dark:text-white">
+                            <span class="w-20 shrink-0 text-sm font-bold text-end text-gray-900 dark:text-white">
                                 {{ $row['b'] !== null ? number_format($row['b'], 2) : '—' }}
                             </span>
                         </div>

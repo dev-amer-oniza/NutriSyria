@@ -10,7 +10,7 @@
                     <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ $product->name }}</h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400">{{ $product->brand?->name }}</p>
                 </div>
-                <div class="text-sm text-gray-500 dark:text-gray-400 text-left">
+                <div class="text-sm text-gray-500 dark:text-gray-400 text-end">
                     <div>وزن المكونات: {{ number_format($result['grams_total'], 1) }} غ</div>
                     <div>الحصص: {{ $result['servings'] }}</div>
                 </div>
@@ -50,7 +50,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="text-right border-b border-gray-200 dark:border-white/10">
+                        <tr class="text-start border-b border-gray-200 dark:border-white/10">
                             <th class="py-2 pe-4">المغذي</th>
                             <th class="py-2 px-3">الإجمالي</th>
                             <th class="py-2 px-3">لكل 100غ (قبل الطبخ)</th>

@@ -53,7 +53,7 @@
             @if (! empty($report['issues']))
                 <table class="w-full text-sm border-t">
                     <thead>
-                        <tr class="text-right">
+                        <tr class="text-start">
                             <th class="py-2">الصفحة</th>
                             <th class="py-2">السطر</th>
                             <th class="py-2">النوع</th>

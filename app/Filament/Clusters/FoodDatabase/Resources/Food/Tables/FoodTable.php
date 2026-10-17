@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
+use App\Filament\Support\Placeholders;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -21,7 +22,7 @@ class FoodTable
                 ImageColumn::make('img')
                     ->label('')
                     ->circular()
-                    ->defaultImageUrl(url('https://share.google/tcLbRSvrvPpCdgY4J')),
+                    ->defaultImageUrl(Placeholders::image('food')),
                 TextColumn::make('name_ar')
                     ->label('الاسم بالعربية')
                     ->searchable()

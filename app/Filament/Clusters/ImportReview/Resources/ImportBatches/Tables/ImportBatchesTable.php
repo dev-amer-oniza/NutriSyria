@@ -21,14 +21,15 @@ class ImportBatchesTable
                 TextColumn::make('status')
                     ->label('الحالة')
                     ->badge(),
-                TextColumn::make('foodSourceRecords_count')
+                TextColumn::make('food_source_records_count')
                     ->label('عدد السجلات')
                     ->counts('foodSourceRecords')
                     ->badge()
                     ->color('gray'),
                 TextColumn::make('user.name')
                     ->label('استوردها')
-                    ->placeholder('—'),
+                    // no user: imported with php artisan import:bundle
+                    ->placeholder('سطر الأوامر'),
                 TextColumn::make('committed_at')
                     ->label('تاريخ الحفظ')
                     ->dateTime('Y-m-d H:i')
