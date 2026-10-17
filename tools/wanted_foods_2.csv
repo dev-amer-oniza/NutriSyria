@@ -1,182 +1,182 @@
-﻿food_name_ar,food_name_en,forms,search_terms,exclude
-أرز,Rice,raw;cooked,"rice, white",brown;wild;flour;bran;instant;precooked;parboiled;noodle;cake;cracker;cereal;pudding;milk;vinegar;syrup;seasoned;flavored;mix;dessert;glutinous;short-grain;medium-grain;enriched
-برغل,Bulgur wheat,raw;cooked,bulgur,
-فريكة,Freekeh,raw;cooked,freekeh;roasted green wheat,
-قمح,Wheat,raw,"wheat, durum",flour;bran;germ;sprouted;bread;cereal;pasta;cracker;bulgur;gluten;starch;malt;protein
-طحين قمح,Wheat flour,any,"wheat flour, white",self-rising;cake;pastry;bread;semolina;tortilla;bran;gluten;germ;sprouted;industrial;enriched;whole-grain
-خبز عربي,Pita bread,any,"bread, pita",crumbs;pudding;stuffing;whole-wheat;enriched
-شوفان,Oats,raw;cooked,"cereals, oats;oats",instant;flavored;sweetened;granola;cereal bar;cookie;bran;fortified;maple;brown sugar;cinnamon
-شعير,Barley,raw;cooked,"barley, pearled;barley",flour;malt;germ;bran;soup;hulled
-ذرة,Corn,raw;cooked,"corn, sweet, yellow",flour;starch;syrup;oil;chips;snack;navajo;succotash;white;canned;frozen
-دخن,Millet,raw;cooked,millet,flour;puffed;flakes
-كينوا,Quinoa,raw;cooked,quinoa,flour;puffed;flakes
-سميد,Semolina,any,semolina,pasta;flour;cake;pastry;bread;enriched
-كسكس,Couscous,raw;cooked,couscous,flavored;instant;boxed
-معكرونة,Pasta,raw;cooked,"pasta;pasta, dry;pasta, cooked",with added salt;flavored;instant;sauce;canned;gluten-free;corn;homemade;whole;spinach;vegetable;fresh-refrigerated;protein-fortified;enriched;rice
-شعيرية,Vermicelli,raw;cooked,"pasta;pasta, dry;pasta, cooked",with added salt;flavored;instant;sauce;canned;gluten-free;corn;homemade;whole;spinach;vegetable;fresh-refrigerated;protein-fortified;enriched;rice
-دقيق ذرة,Cornmeal,any,"cornmeal, whole-grain, yellow;cornmeal",navajo;self-rising;flavored;blue;white;degermed
-عدس,Lentils,raw;boiled,lentils,sprouted;soup;mix;pink;red
-حمص,Chickpeas,raw;boiled,chickpeas;garbanzo beans,flour;hummus;falafel;canned;salted;roasted;snack
-فاصولياء بيضاء,White beans,raw;boiled,white beans,sprouted;baked;soup;salad
-فول,Fava beans,raw;boiled,fava beans;broadbeans,immature;sprouted;in pod
-بازلاء,Green peas,raw;boiled,green peas;peas green,split;edible-podded;sprouted;soup;pod
-لوبيا,Black-eyed peas,raw;boiled,"cowpeas, common;black-eyed peas;cowpeas",sprouted;canned;seasoned;leafy;young pods;catjang;immature
-ترمس,Lupini beans,raw;boiled,lupini beans;lupin,salted;pickled;snack
-فاصولياء خضراء,Green beans,raw;cooked,"beans, snap, green;green beans",canned;frozen;flavored;microwaved;yellow
-بطاطا,Potatoes,raw;boiled,"potatoes, flesh and skin;potatoes, boiled, cooked without skin, flesh",dehydrated;flakes;puree;mashed;au gratin;hash;scalloped;salad;pancakes;flour;chips;patty;tots;instant;stuffed;sticks;o'brien;microwaved;russet;red;white;french fried;cooked in skin;bread;sweet potato
-بندورة,Tomatoes,raw,tomatoes,green;sun-dried;orange;yellow;paste;sauce;puree;juice;crushed;stewed;soup;ketchup;products
-بصل,Onions,raw;cooked,onions,dehydrated;flakes;powder;rings;spring;welsh;young;sweet;sauteed;frozen;canned
-ثوم,Garlic,raw,garlic,powder;bread
-خيار,Cucumber,raw,"cucumber, with peel;cucumber",pickle;pickles;kosher;peeled
-كوسا,Zucchini,raw;cooked,"squash, summer, zucchini;zucchini",baby;italian style;frozen;canned
-باذنجان,Eggplant,raw;cooked,eggplant,pickled;dip
-سبانخ,Spinach,raw;cooked,spinach,souffle;creamed;new zealand
-جزر,Carrots,raw;cooked,carrots,baby;juice
-ملفوف,Cabbage,raw;cooked,cabbage,chinese;red;savoy;kimchi;japanese;mustard;celery;swamp;napa;pe-tsai;bok;common
-قرنبيط,Cauliflower,raw;cooked,cauliflower,flavored;frozen;battered;green;pickles;chowchow
-فلفل أخضر,Green pepper,raw;cooked,"peppers, sweet, green",stuffed;pickled;roasted;sauteed;frozen;canned;hot
-فلفل أحمر,Red pepper,raw;cooked,"peppers, sweet, red",stuffed;pickled;roasted;paste;sauteed;frozen;canned;hot
-بامية,Okra,raw;cooked,okra,frozen;canned;pickled
-سلق,Chard,raw;cooked,chard;swiss chard,canned;flavored
-ملوخية,Mallow,raw;cooked,"jute, potherb",frozen;dried;powder
-خس,Lettuce,raw,"lettuce, green leaf;lettuce",iceberg;romaine;butterhead;red leaf;taco;cos
-بقدونس,Parsley,raw,"parsley, fresh",dried;flakes;freeze-dried
-كزبرة خضراء,Cilantro,raw,"coriander (cilantro) leaves, raw;cilantro",dried;paste
-نعنع,Mint,raw,"spearmint, fresh",dried;flavored
-ريحان,Basil,raw,"basil, fresh",dried;pesto
-زعتر أخضر,Thyme,raw,"thyme, fresh",dried;ground
-زعتر يابس,Dried wild thyme (oregano),dried,"spices, oregano, dried",flavored
-ورق عنب,Grape leaves,raw;canned,grape leaves,stuffed
-شمندر,Beetroot,raw;cooked,beets,pickled;juice;canned;greens
-لفت,Turnip,raw;cooked,turnips,pickled;canned;greens;frozen
-فجل,Radish,raw,radishes,pickled;oriental;hawaiian;white icicle;seeds;sprouted;dried
-تفاح,Apple,raw,"apples, raw, with skin;apples, raw",applesauce;juice;pie;strudel;candied;crab;without skin;golden;gala;fuji;granny;red delicious
-برتقال,Orange,raw,"oranges, raw",juice;peel;drink;marmalade;sherbet;grapefruit;tangerine;florida;california;navels;valencias
-ليمون,Lemon,raw,"lemons, raw, without peel",pie;cake;pudding;drink;grass;lemonade;lemon-lime;concentrate;canned;bottled;juice
-موز,Banana,raw,bananas,chips;plantain;bread;flour;cake;pudding;powder
-عنب,Grapes,raw,"grapes, red or green",raisins;juice;wine;jelly;muscadine;american
-رمان,Pomegranate,raw,pomegranates,juice;molasses;syrup
-تين,Figs,raw,figs,dried;canned;jam
-مشمش,Apricots,raw,apricots,dried;canned;jam;nectar
-خوخ,Peaches,raw,peaches,dried;canned;jam;nectar
-كرز,Cherries,raw,"cherries, sweet",dried;canned;jam;juice;sour;frozen
-بطيخ,Watermelon,raw,watermelon,juice;candied
-شمام,Melon,raw,"melons, cantaloupe",juice;candied
-فراولة,Strawberry,raw,strawberries,jam;juice;frozen
-كمثرى,Pear,raw,"pears, raw",canned;juice;jam;asian;anjou;bartlett;bosc;green;red
-سفرجل,Quince,raw,quinces,jam;jelly;paste
-يوسفي,Mandarin,raw,tangerines,canned;juice
-جريب فروت,Grapefruit,raw,"grapefruit, raw",juice;canned;florida;california;arizona
-تمر,Dates,dried,"dates, medjool;dates",sugar;spread;deglet;cookies;cereal
-زبيب أصفر,Golden raisins,dried,"raisins, golden",chocolate-covered;yogurt-covered;sugared;cooked
-زبيب أسود,Dark raisins,dried,"raisins, dark",chocolate-covered;yogurt-covered;sugared;cooked;seeded
-مشمش مجفف,Dried apricots,dried,"apricots, dried",sweetened;glazed;chocolate-covered;cooked;stewed;oil;jams;yogurt
-تين مجفف,Dried figs,dried,"figs, dried",sweetened;glazed;chocolate-covered;cooked;stewed;cookies
-قراصيا,Prunes,dried,"plums, dried",sweetened;glazed;chocolate-covered;stewed;dehydrated
-خوخ مجفف,Dried peaches,dried,"peaches, dried",sweetened;glazed;stewed
-تفاح مجفف,Dried apples,dried,"apples, dried",sweetened;glazed;stewed;dehydrated
-زيتون,Olives,canned,"olives, ripe",stuffed;flavored;jumbo;loaf
-مخلل,Pickles,any,"pickles, cucumber, sour",flavored;sweetened;low sodium
-مكدوس,Makdous,any,makdous;stuffed eggplant,commercial;flavored
-لحم غنم,Lamb,raw;cooked,"lamb, ground",variety meats;kidney;liver;heart;brain;tongue;spleen;lung;new zealand;australian
-لحم بقر,Beef,raw;cooked,"beef, ground",liver;heart;tongue;dried;canned;patty;patties;loaf;95;93;97;90;80;75;70;frozen
-لحم عجل,Veal,raw;cooked,"veal, leg (top round), separable lean only",ground;liver;heart;tongue;lean and fat;cutlet;cap off
-لحم ماعز,Goat,raw;cooked,"game meat, goat",ground;liver;heart;tongue;cheese
-دجاج,Chicken,raw;cooked,"chicken, broilers or fryers, breast, meat only",liver;gizzard;heart;feet;neck;giblets;skin only;stewing;capons;cornish;guinea;ground;luncheon;sausage;frankfurter;breakfast;salad;soup;coating;batter;spread;nuggets;patty;fried;rotisserie;roasting;meatless
-ديك رومي,Turkey,raw;cooked,"turkey, whole, meat only",ground;liver;heart;deli;smoked;giblets;light;dark;skin;neck;back;wing;breast;leg
-بط,Duck,raw;cooked,"duck, domesticated, meat only",liver;ground;smoked;wild;young duckling
-سمك,Fish,raw;cooked,"fish, cod, atlantic;fish",smoked;canned;dried;flavored;surimi;oil
-سلمون,Salmon,raw;cooked,"fish, salmon, atlantic, farmed",smoked;canned;flavored;oil;nuggets
-تونة,Tuna,raw;cooked,"fish, tuna, fresh, yellowfin;fish, tuna, yellowfin, fresh;fish, tuna",canned;flavored;salad;bluefin;skipjack
-سردين,Sardines,canned,"fish, sardine, atlantic","oil, sardine;flavored"
-ماكريل,Mackerel,raw;cooked,"fish, mackerel, atlantic;fish, mackerel",smoked;canned;salted;king;spanish;pacific
-جمبري,Shrimp,raw;cooked,"crustaceans, shrimp",breaded;fried;canned;snacks;cracker;imitation;may contain
-كلمار,Squid,raw;fried,"mollusks, squid",breaded
-بيض,Egg,raw;boiled,"egg, whole",substitute;yolk;white;dried;duck;goose;quail;turkey;omelet;scrambled;fried;poached;custard;noodles;salad;nog;beverage;bread;frozen;pasteurized
-حليب,Milk,any,"milk, whole",flavored;chocolate;condensed;evaporated;powder;dry;without added vitamin;sheep;goat;buttermilk;imitation;low sodium
-حليب مجفف,Milk powder,any,"milk, dry, whole",flavored;sweetened;without added vitamin d;custards;puddings
-لبن,Yogurt,plain,"yogurt, plain, whole milk;yogurt",fruit;vanilla;frozen;drink;chocolate;greek;low fat;skim
-لبنة,Labneh,any,"yogurt, greek, plain, whole milk;labneh;strained yogurt",flavored;commercial;nonfat;lowfat;fruit;vanilla;strawberry
-قيمر,Clotted cream,any,clotted cream;qaimar,flavored;sweetened
-زبدة,Butter,any,"butter, without salt;butter",salted;light;whipped;ghee;oil;replacement
-سمنة,Ghee,any,"butter, clarified butter",vegetable;flavored
-جبنة بيضاء,White cheese,any,"cheese, feta",flavored;processed
-جبنة شلل,String cheese,any,string cheese;chechil,flavored;processed
-جبنة حلوم,Halloumi,any,halloumi,grilled;fried;flavored
-جبنة قشقوان,Kashkaval,any,kashkaval;kasseri,smoked;flavored
-جبنة موزاريلا,Mozzarella,any,"cheese, mozzarella, whole milk",smoked;flavored;processed;low moisture;sticks;substitute
-جبنة نابلسي,Nabulsi cheese,any,nabulsi cheese,flavored;processed
-جبنة عكاوي,Akkawi cheese,any,akkawi cheese,flavored;processed
-جبنة كريمية,Cream cheese,any,"cheese, cream",flavored;whipped;low fat;fat free;frosting
-زيت زيتون,Olive oil,any,"oil, olive",hydrogenated;fractionated;flavored;refined;corn
-زيت نباتي,Vegetable oil,any,"oil, soybean, salad or cooking",hydrogenated;flavored;palm;natreon;lecithin;cottonseed
-زيت ذرة,Corn oil,any,"oil, corn, industrial and retail, all purpose salad or cooking;oil, corn",hydrogenated;flavored;peanut;canola
-زيت دوار الشمس,Sunflower oil,any,"oil, sunflower, linoleic (less than 60%)",hydrogenated;flavored;high oleic;mid-oleic;approx;seeds
-زيت جوز الهند,Coconut oil,any,"oil, coconut",hydrogenated;fractionated;flavored
-زيت سمسم,Sesame oil,any,"oil, sesame",hydrogenated;flavored
-زيت بذر الكتان,Flaxseed oil,any,"oil, flaxseed, cold pressed",hydrogenated;flavored
-زيت اللوز,Almond oil,any,"oil, almond",hydrogenated;flavored
-خل,Vinegar,any,"vinegar, cider",flavored;balsamic
-دبس الرمان,Pomegranate molasses,any,pomegranate molasses,sweetened;flavored
-دبس الخرنوب,Carob molasses,any,carob molasses,sweetened;flavored
-دبس التمر,Date molasses,any,date molasses,sweetened;flavored
-عسل طبيعي,Honey,any,honey,flavored;whipped;comb;crystallized;processed;sausage;roll;roasted
-مربى,Jam,any,jams and preserves,flavored;low-sugar;no sugar;reduced sugar;sweetened with fruit juice;apricot
-حلاوة طحينية,Halva,any,halva;halawa,chocolate;flavored;nuts
-طحينة,Tahini,any,"seeds, sesame butter, tahini, from roasted and toasted kernels;seeds, sesame butter, tahini",sweetened;flavored;chocolate;halva;paste;unroasted;stone ground;unspecified
-كريمة تمر,Date paste,any,date paste;date spread,sweetened;flavored;chocolate;added sugar
-لوز,Almonds,raw,"nuts, almonds",salted;roasted;blanched;sliced;flour;butter;oil;milk;paste;candy;nougat;candies;honey
-جوز,Walnuts,raw,"nuts, walnuts, english",salted;roasted;candied;butter;oil;flour;glazed;black
-فستق حلبي,Pistachios,raw,"nuts, pistachio nuts, raw;nuts, pistachio nuts",salted;roasted;shelled;flavored;candy;butter;paste
-كاجو,Cashews,raw,"nuts, cashew nuts, raw;nuts, cashew nuts",salted;roasted;flavored;butter;oil;milk
-فول سوداني,Peanuts,raw,"peanuts, all types, raw;peanuts",salted;roasted;butter;oil;flour;candy;snack;spanish;valencia;virginia
-بندق,Hazelnuts,raw,"nuts, hazelnuts or filberts",salted;roasted;butter;oil;flour;candy;blanched
-صنوبر,Pine nuts,any,"nuts, pine nuts",salted;roasted;butter;oil;pinyon
-بذور يقطين,Pumpkin seeds,any,"seeds, pumpkin and squash seed kernels, dried",salted;roasted;flavored;candy;butter;fish
-بذور دوار الشمس,Sunflower seeds,any,"seeds, sunflower seed kernels, dried",salted;roasted;flavored;butter;oil;toasted;flour
-بذور كتان,Flaxseed,any,"seeds, flaxseed",ground;meal;oil;salted;roasted
-سمسم,Sesame seeds,any,"seeds, sesame seeds, whole, dried;seeds, sesame seeds",toasted;roasted;salted;oil;tahini;paste;flour;rice cakes;butter;kernels
-بذور الشيا,Chia seeds,any,"seeds, chia seeds",flavored
-بذور الخشخاش,Poppy seeds,raw,"spices, poppy seed",flavored
-بذور اليانسون,Anise seeds,raw,"spices, anise seed",flavored
-بذور الشمر,Fennel seeds,raw,"spices, fennel seed",flavored
-بذور الحلبة,Fenugreek seeds,raw,"spices, fenugreek seed",flavored
-بذور الخردل,Mustard seeds,raw,"spices, mustard seed",flavored
-برش جوز الهند,Coconut (shredded dried),dried,"nuts, coconut meat, dried",creamed;shredded;flaked;packaged;toasted;flour;milk;oil;butter;water;cookies;soup;frostings;raw
-كاكاو,Cocoa powder,any,"cocoa, dry powder, unsweetened",alkali;hershey;hi-fat;beverage;mix
-ماء الورد,Rose water,any,rose water,flavored;sweetened
-ماء الزهر,Orange blossom water,any,orange blossom water,flavored;sweetened
-مستكة,Mastic,any,mastic;mastic gum,flavored
-محلب,Mahlab,any,mahlab;mahleb,ground;flavored
-زعفران,Saffron,any,"spices, saffron",flavored
-كركم,Turmeric,any,"spices, turmeric",flavored
-زنجبيل,Ginger,any,"spices, ginger, ground",flavored;pickled;ale;beverages
-جوزة الطيب,Nutmeg,any,"spices, nutmeg",flavored;butter
-هيل,Cardamom,any,"spices, cardamom",flavored
-قرنفل,Cloves,any,"spices, cloves",flavored
-قرفة,Cinnamon,any,"spices, cinnamon",flavored
-كمون,Cumin,any,"spices, cumin seed",flavored
-كزبرة,Coriander,any,"spices, coriander seed",flavored
-فلفل أسود,Black pepper,any,"spices, pepper, black",flavored
-فلفل أبيض,White pepper,any,"spices, pepper, white",flavored
-فلفل أحمر مطحون,Paprika,any,"spices, paprika",flavored
-فلفل حلبي,Aleppo pepper,any,aleppo pepper,flavored
-سماق,Sumac,any,sumac,ground;flavored
-زعتر,Za'atar,any,za'atar;zaatar,ground;flavored
-حبة البركة,Nigella seeds,any,nigella seed;black cumin;black seed;kalonji,oil;flavored;beans;bean;turtle
-نعنع مجفف,Dried mint,any,"spearmint, dried",flavored
-بهارات,Seven spice,any,seven spice;baharat,ground;flavored
-ملح,Salt,any,"salt, table",flavored
-سكر,Sugar,any,"sugars, granulated",flavored;brown;powdered;maple;turbinado
-خميرة,Yeast,any,"leavening agents, yeast, baker's, active dry",extract
-بيكنج باودر,Baking powder,any,"leavening agents, baking powder, double-acting, sodium aluminum sulfate",flavored;low-sodium;straight phosphate
-صودا الخبز,Baking soda,any,"leavening agents, baking soda",flavored
-نشاء,Starch,any,cornstarch,flavored
-فانيليا,Vanilla,any,vanilla extract,imitation
-شوكولاتة,Chocolate,any,"chocolate, dark, 60-69% cacao solids;chocolate, dark",flavored;milk;white
-شاي,Tea,any,"beverages, tea, black, brewed, prepared with tap water",flavored;herbal;decaffeinated;instant;ready-to-drink;sweetened;tundra
-قهوة,Coffee,any,"beverages, coffee, brewed, prepared with tap water",flavored;instant;decaffeinated;espresso;mix;cream
-عصير ليمون,Lemon juice,raw,"lemon juice, raw",concentrate;canned;bottled
-عدس أحمر,Red lentils,raw,"lentils, pink or red",sprouted;soup;mix
-زيتون أخضر,Green olives,canned,"olives, pickled",stuffed;flavored
-تونة معلبة,Canned tuna,canned,"fish, tuna, light, canned in water;fish, tuna, light, canned in oil",salad;without salt
+﻿food_name_ar,food_name_en,forms,search_terms,exclude,note
+أرز,Rice,raw;cooked,"rice, white",brown;wild;flour;bran;instant;precooked;parboiled;noodle;cake;cracker;cereal;pudding;milk;vinegar;syrup;seasoned;flavored;mix;dessert;glutinous;short-grain;medium-grain;enriched,
+برغل,Bulgur wheat,raw;cooked,bulgur,,
+فريكة,Freekeh,raw;cooked,freekeh;roasted green wheat,,
+قمح,Wheat,raw,"wheat, durum",flour;bran;germ;sprouted;bread;cereal;pasta;cracker;bulgur;gluten;starch;malt;protein,
+طحين قمح,Wheat flour,any,"wheat flour, white",self-rising;cake;pastry;bread;semolina;tortilla;bran;gluten;germ;sprouted;industrial;enriched;whole-grain,
+خبز عربي,Pita bread,any,"bread, pita",crumbs;pudding;stuffing;whole-wheat;enriched,مقاربة: خبز بيتا الأمريكي بدل الخبز العربي
+شوفان,Oats,raw;cooked,"cereals, oats;oats",instant;flavored;sweetened;granola;cereal bar;cookie;bran;fortified;maple;brown sugar;cinnamon,
+شعير,Barley,raw;cooked,"barley, pearled;barley",flour;malt;germ;bran;soup;hulled,
+ذرة,Corn,raw;cooked,"corn, sweet, yellow",flour;starch;syrup;oil;chips;snack;navajo;succotash;white;canned;frozen,
+دخن,Millet,raw;cooked,millet,flour;puffed;flakes,
+كينوا,Quinoa,raw;cooked,quinoa,flour;puffed;flakes,
+سميد,Semolina,any,semolina,pasta;flour;cake;pastry;bread;enriched,
+كسكس,Couscous,raw;cooked,couscous,flavored;instant;boxed,
+معكرونة,Pasta,raw;cooked,"pasta;pasta, dry;pasta, cooked",with added salt;flavored;instant;sauce;canned;gluten-free;corn;homemade;whole;spinach;vegetable;fresh-refrigerated;protein-fortified;enriched;rice,
+شعيرية,Vermicelli,raw;cooked,"pasta;pasta, dry;pasta, cooked",with added salt;flavored;instant;sauce;canned;gluten-free;corn;homemade;whole;spinach;vegetable;fresh-refrigerated;protein-fortified;enriched;rice,
+دقيق ذرة,Cornmeal,any,"cornmeal, whole-grain, yellow;cornmeal",navajo;self-rising;flavored;blue;white;degermed,
+عدس,Lentils,raw;boiled,lentils,sprouted;soup;mix;pink;red,
+حمص,Chickpeas,raw;boiled,chickpeas;garbanzo beans,flour;hummus;falafel;canned;salted;roasted;snack,
+فاصولياء بيضاء,White beans,raw;boiled,white beans,sprouted;baked;soup;salad,
+فول,Fava beans,raw;boiled,fava beans;broadbeans,immature;sprouted;in pod,
+بازلاء,Green peas,raw;boiled,green peas;peas green,split;edible-podded;sprouted;soup;pod,
+لوبيا,Black-eyed peas,raw;boiled,"cowpeas, common;black-eyed peas;cowpeas",sprouted;canned;seasoned;leafy;young pods;catjang;immature,
+ترمس,Lupini beans,raw;boiled,lupini beans;lupin,salted;pickled;snack,
+فاصولياء خضراء,Green beans,raw;cooked,"beans, snap, green;green beans",canned;frozen;flavored;microwaved;yellow,
+بطاطا,Potatoes,raw;boiled,"potatoes, flesh and skin;potatoes, boiled, cooked without skin, flesh",dehydrated;flakes;puree;mashed;au gratin;hash;scalloped;salad;pancakes;flour;chips;patty;tots;instant;stuffed;sticks;o'brien;microwaved;russet;red;white;french fried;cooked in skin;bread;sweet potato,
+بندورة,Tomatoes,raw,tomatoes,green;sun-dried;orange;yellow;paste;sauce;puree;juice;crushed;stewed;soup;ketchup;products,
+بصل,Onions,raw;cooked,onions,dehydrated;flakes;powder;rings;spring;welsh;young;sweet;sauteed;frozen;canned,
+ثوم,Garlic,raw,garlic,powder;bread,
+خيار,Cucumber,raw,"cucumber, with peel;cucumber",pickle;pickles;kosher;peeled,
+كوسا,Zucchini,raw;cooked,"squash, summer, zucchini;zucchini",baby;italian style;frozen;canned,
+باذنجان,Eggplant,raw;cooked,eggplant,pickled;dip,
+سبانخ,Spinach,raw;cooked,spinach,souffle;creamed;new zealand,
+جزر,Carrots,raw;cooked,carrots,baby;juice,
+ملفوف,Cabbage,raw;cooked,cabbage,chinese;red;savoy;kimchi;japanese;mustard;celery;swamp;napa;pe-tsai;bok;common,
+قرنبيط,Cauliflower,raw;cooked,cauliflower,flavored;frozen;battered;green;pickles;chowchow,
+فلفل أخضر,Green pepper,raw;cooked,"peppers, sweet, green",stuffed;pickled;roasted;sauteed;frozen;canned;hot,
+فلفل أحمر,Red pepper,raw;cooked,"peppers, sweet, red",stuffed;pickled;roasted;paste;sauteed;frozen;canned;hot,
+بامية,Okra,raw;cooked,okra,frozen;canned;pickled,
+سلق,Chard,raw;cooked,chard;swiss chard,canned;flavored,
+ملوخية,Mallow,raw;cooked,"jute, potherb",frozen;dried;powder,
+خس,Lettuce,raw,"lettuce, green leaf;lettuce",iceberg;romaine;butterhead;red leaf;taco;cos,
+بقدونس,Parsley,raw,"parsley, fresh",dried;flakes;freeze-dried,
+كزبرة خضراء,Cilantro,raw,"coriander (cilantro) leaves, raw;cilantro",dried;paste,
+نعنع,Mint,raw,"spearmint, fresh",dried;flavored,
+ريحان,Basil,raw,"basil, fresh",dried;pesto,
+زعتر أخضر,Thyme,raw,"thyme, fresh",dried;ground,مقاربة: زعتر أوروبي أخضر (Thymus) بدل الزعتر البري السوري
+زعتر يابس,Dried wild thyme (oregano),dried,"spices, oregano, dried",flavored,مطابقة نباتية: أوريغانو مجفف، والزعتر البري السوري (Origanum syriacum) من جنس الأوريغانو
+ورق عنب,Grape leaves,raw;canned,grape leaves,stuffed,
+شمندر,Beetroot,raw;cooked,beets,pickled;juice;canned;greens,
+لفت,Turnip,raw;cooked,turnips,pickled;canned;greens;frozen,
+فجل,Radish,raw,radishes,pickled;oriental;hawaiian;white icicle;seeds;sprouted;dried,
+تفاح,Apple,raw,"apples, raw, with skin;apples, raw",applesauce;juice;pie;strudel;candied;crab;without skin;golden;gala;fuji;granny;red delicious,
+برتقال,Orange,raw,"oranges, raw",juice;peel;drink;marmalade;sherbet;grapefruit;tangerine;florida;california;navels;valencias,
+ليمون,Lemon,raw,"lemons, raw, without peel",pie;cake;pudding;drink;grass;lemonade;lemon-lime;concentrate;canned;bottled;juice,
+موز,Banana,raw,bananas,chips;plantain;bread;flour;cake;pudding;powder,
+عنب,Grapes,raw,"grapes, red or green",raisins;juice;wine;jelly;muscadine;american,
+رمان,Pomegranate,raw,pomegranates,juice;molasses;syrup,
+تين,Figs,raw,figs,dried;canned;jam,
+مشمش,Apricots,raw,apricots,dried;canned;jam;nectar,
+خوخ,Peaches,raw,peaches,dried;canned;jam;nectar,
+كرز,Cherries,raw,"cherries, sweet",dried;canned;jam;juice;sour;frozen,
+بطيخ,Watermelon,raw,watermelon,juice;candied,
+شمام,Melon,raw,"melons, cantaloupe",juice;candied,
+فراولة,Strawberry,raw,strawberries,jam;juice;frozen,
+كمثرى,Pear,raw,"pears, raw",canned;juice;jam;asian;anjou;bartlett;bosc;green;red,
+سفرجل,Quince,raw,quinces,jam;jelly;paste,
+يوسفي,Mandarin,raw,tangerines,canned;juice,
+جريب فروت,Grapefruit,raw,"grapefruit, raw",juice;canned;florida;california;arizona,
+تمر,Dates,dried,"dates, medjool;dates",sugar;spread;deglet;cookies;cereal,
+زبيب أصفر,Golden raisins,dried,"raisins, golden",chocolate-covered;yogurt-covered;sugared;cooked,
+زبيب أسود,Dark raisins,dried,"raisins, dark",chocolate-covered;yogurt-covered;sugared;cooked;seeded,
+مشمش مجفف,Dried apricots,dried,"apricots, dried",sweetened;glazed;chocolate-covered;cooked;stewed;oil;jams;yogurt,
+تين مجفف,Dried figs,dried,"figs, dried",sweetened;glazed;chocolate-covered;cooked;stewed;cookies,
+قراصيا,Prunes,dried,"plums, dried",sweetened;glazed;chocolate-covered;stewed;dehydrated,
+خوخ مجفف,Dried peaches,dried,"peaches, dried",sweetened;glazed;stewed,
+تفاح مجفف,Dried apples,dried,"apples, dried",sweetened;glazed;stewed;dehydrated,
+زيتون,Olives,canned,"olives, ripe",stuffed;flavored;jumbo;loaf,
+مخلل,Pickles,any,"pickles, cucumber, sour",flavored;sweetened;low sodium,مقاربة: مخلل خيار حامض أمريكي بدل المخلل السوري
+مكدوس,Makdous,any,makdous;stuffed eggplant,commercial;flavored,
+لحم غنم,Lamb,raw;cooked,"lamb, ground",variety meats;kidney;liver;heart;brain;tongue;spleen;lung;new zealand;australian,
+لحم بقر,Beef,raw;cooked,"beef, ground",liver;heart;tongue;dried;canned;patty;patties;loaf;95;93;97;90;80;75;70;frozen,
+لحم عجل,Veal,raw;cooked,"veal, leg (top round), separable lean only",ground;liver;heart;tongue;lean and fat;cutlet;cap off,
+لحم ماعز,Goat,raw;cooked,"game meat, goat",ground;liver;heart;tongue;cheese,
+دجاج,Chicken,raw;cooked,"chicken, broilers or fryers, breast, meat only",liver;gizzard;heart;feet;neck;giblets;skin only;stewing;capons;cornish;guinea;ground;luncheon;sausage;frankfurter;breakfast;salad;soup;coating;batter;spread;nuggets;patty;fried;rotisserie;roasting;meatless,
+ديك رومي,Turkey,raw;cooked,"turkey, whole, meat only",ground;liver;heart;deli;smoked;giblets;light;dark;skin;neck;back;wing;breast;leg,
+بط,Duck,raw;cooked,"duck, domesticated, meat only",liver;ground;smoked;wild;young duckling,
+سمك,Fish,raw;cooked,"fish, cod, atlantic;fish",smoked;canned;dried;flavored;surimi;oil,
+سلمون,Salmon,raw;cooked,"fish, salmon, atlantic, farmed",smoked;canned;flavored;oil;nuggets,
+تونة,Tuna,raw;cooked,"fish, tuna, fresh, yellowfin;fish, tuna, yellowfin, fresh;fish, tuna",canned;flavored;salad;bluefin;skipjack,
+سردين,Sardines,canned,"fish, sardine, atlantic","oil, sardine;flavored",
+ماكريل,Mackerel,raw;cooked,"fish, mackerel, atlantic;fish, mackerel",smoked;canned;salted;king;spanish;pacific,
+جمبري,Shrimp,raw;cooked,"crustaceans, shrimp",breaded;fried;canned;snacks;cracker;imitation;may contain,
+كلمار,Squid,raw;fried,"mollusks, squid",breaded,
+بيض,Egg,raw;boiled,"egg, whole",substitute;yolk;white;dried;duck;goose;quail;turkey;omelet;scrambled;fried;poached;custard;noodles;salad;nog;beverage;bread;frozen;pasteurized,
+حليب,Milk,any,"milk, whole",flavored;chocolate;condensed;evaporated;powder;dry;without added vitamin;sheep;goat;buttermilk;imitation;low sodium,
+حليب مجفف,Milk powder,any,"milk, dry, whole",flavored;sweetened;without added vitamin d;custards;puddings,
+لبن,Yogurt,plain,"yogurt, plain, whole milk;yogurt",fruit;vanilla;frozen;drink;chocolate;greek;low fat;skim,
+لبنة,Labneh,any,"yogurt, greek, plain, whole milk;labneh;strained yogurt",flavored;commercial;nonfat;lowfat;fruit;vanilla;strawberry,مقاربة: زبادي يوناني كامل الدسم بدل اللبنة
+قيمر,Clotted cream,any,clotted cream;qaimar,flavored;sweetened,
+زبدة,Butter,any,"butter, without salt;butter",salted;light;whipped;ghee;oil;replacement,
+سمنة,Ghee,any,"butter, clarified butter",vegetable;flavored,مقاربة: زبدة مصفّاة (سمنة حيوانية)، لا تمثل السمنة النباتية
+جبنة بيضاء,White cheese,any,"cheese, feta",flavored;processed,مقاربة: جبنة فيتا بدل الجبنة البيضاء السورية
+جبنة شلل,String cheese,any,string cheese;chechil,flavored;processed,
+جبنة حلوم,Halloumi,any,halloumi,grilled;fried;flavored,
+جبنة قشقوان,Kashkaval,any,kashkaval;kasseri,smoked;flavored,
+جبنة موزاريلا,Mozzarella,any,"cheese, mozzarella, whole milk",smoked;flavored;processed;low moisture;sticks;substitute,
+جبنة نابلسي,Nabulsi cheese,any,nabulsi cheese,flavored;processed,
+جبنة عكاوي,Akkawi cheese,any,akkawi cheese,flavored;processed,
+جبنة كريمية,Cream cheese,any,"cheese, cream",flavored;whipped;low fat;fat free;frosting,
+زيت زيتون,Olive oil,any,"oil, olive",hydrogenated;fractionated;flavored;refined;corn,
+زيت نباتي,Vegetable oil,any,"oil, soybean, salad or cooking",hydrogenated;flavored;palm;natreon;lecithin;cottonseed,مقاربة: زيت الصويا بدل الزيت النباتي (الخلطة تختلف حسب الماركة)
+زيت ذرة,Corn oil,any,"oil, corn, industrial and retail, all purpose salad or cooking;oil, corn",hydrogenated;flavored;peanut;canola,
+زيت دوار الشمس,Sunflower oil,any,"oil, sunflower, linoleic (less than 60%)",hydrogenated;flavored;high oleic;mid-oleic;approx;seeds,
+زيت جوز الهند,Coconut oil,any,"oil, coconut",hydrogenated;fractionated;flavored,
+زيت سمسم,Sesame oil,any,"oil, sesame",hydrogenated;flavored,
+زيت بذر الكتان,Flaxseed oil,any,"oil, flaxseed, cold pressed",hydrogenated;flavored,
+زيت اللوز,Almond oil,any,"oil, almond",hydrogenated;flavored,
+خل,Vinegar,any,"vinegar, cider",flavored;balsamic,
+دبس الرمان,Pomegranate molasses,any,pomegranate molasses,sweetened;flavored,
+دبس الخرنوب,Carob molasses,any,carob molasses,sweetened;flavored,
+دبس التمر,Date molasses,any,date molasses,sweetened;flavored,
+عسل طبيعي,Honey,any,honey,flavored;whipped;comb;crystallized;processed;sausage;roll;roasted,
+مربى,Jam,any,jams and preserves,flavored;low-sugar;no sugar;reduced sugar;sweetened with fruit juice;apricot,
+حلاوة طحينية,Halva,any,halva;halawa,chocolate;flavored;nuts,
+طحينة,Tahini,any,"seeds, sesame butter, tahini, from roasted and toasted kernels;seeds, sesame butter, tahini",sweetened;flavored;chocolate;halva;paste;unroasted;stone ground;unspecified,
+كريمة تمر,Date paste,any,date paste;date spread,sweetened;flavored;chocolate;added sugar,
+لوز,Almonds,raw,"nuts, almonds",salted;roasted;blanched;sliced;flour;butter;oil;milk;paste;candy;nougat;candies;honey,
+جوز,Walnuts,raw,"nuts, walnuts, english",salted;roasted;candied;butter;oil;flour;glazed;black,
+فستق حلبي,Pistachios,raw,"nuts, pistachio nuts, raw;nuts, pistachio nuts",salted;roasted;shelled;flavored;candy;butter;paste,
+كاجو,Cashews,raw,"nuts, cashew nuts, raw;nuts, cashew nuts",salted;roasted;flavored;butter;oil;milk,
+فول سوداني,Peanuts,raw,"peanuts, all types, raw;peanuts",salted;roasted;butter;oil;flour;candy;snack;spanish;valencia;virginia,
+بندق,Hazelnuts,raw,"nuts, hazelnuts or filberts",salted;roasted;butter;oil;flour;candy;blanched,
+صنوبر,Pine nuts,any,"nuts, pine nuts",salted;roasted;butter;oil;pinyon,
+بذور يقطين,Pumpkin seeds,any,"seeds, pumpkin and squash seed kernels, dried",salted;roasted;flavored;candy;butter;fish,
+بذور دوار الشمس,Sunflower seeds,any,"seeds, sunflower seed kernels, dried",salted;roasted;flavored;butter;oil;toasted;flour,
+بذور كتان,Flaxseed,any,"seeds, flaxseed",ground;meal;oil;salted;roasted,
+سمسم,Sesame seeds,any,"seeds, sesame seeds, whole, dried;seeds, sesame seeds",toasted;roasted;salted;oil;tahini;paste;flour;rice cakes;butter;kernels,
+بذور الشيا,Chia seeds,any,"seeds, chia seeds",flavored,
+بذور الخشخاش,Poppy seeds,raw,"spices, poppy seed",flavored,
+بذور اليانسون,Anise seeds,raw,"spices, anise seed",flavored,
+بذور الشمر,Fennel seeds,raw,"spices, fennel seed",flavored,
+بذور الحلبة,Fenugreek seeds,raw,"spices, fenugreek seed",flavored,
+بذور الخردل,Mustard seeds,raw,"spices, mustard seed",flavored,
+برش جوز الهند,Coconut (shredded dried),dried,"nuts, coconut meat, dried",creamed;shredded;flaked;packaged;toasted;flour;milk;oil;butter;water;cookies;soup;frostings;raw,
+كاكاو,Cocoa powder,any,"cocoa, dry powder, unsweetened",alkali;hershey;hi-fat;beverage;mix,
+ماء الورد,Rose water,any,rose water,flavored;sweetened,
+ماء الزهر,Orange blossom water,any,orange blossom water,flavored;sweetened,
+مستكة,Mastic,any,mastic;mastic gum,flavored,
+محلب,Mahlab,any,mahlab;mahleb,ground;flavored,
+زعفران,Saffron,any,"spices, saffron",flavored,
+كركم,Turmeric,any,"spices, turmeric",flavored,
+زنجبيل,Ginger,any,"spices, ginger, ground",flavored;pickled;ale;beverages,
+جوزة الطيب,Nutmeg,any,"spices, nutmeg",flavored;butter,
+هيل,Cardamom,any,"spices, cardamom",flavored,
+قرنفل,Cloves,any,"spices, cloves",flavored,
+قرفة,Cinnamon,any,"spices, cinnamon",flavored,
+كمون,Cumin,any,"spices, cumin seed",flavored,
+كزبرة,Coriander,any,"spices, coriander seed",flavored,
+فلفل أسود,Black pepper,any,"spices, pepper, black",flavored,
+فلفل أبيض,White pepper,any,"spices, pepper, white",flavored,
+فلفل أحمر مطحون,Paprika,any,"spices, paprika",flavored,
+فلفل حلبي,Aleppo pepper,any,aleppo pepper,flavored,
+سماق,Sumac,any,sumac,ground;flavored,
+زعتر,Za'atar,any,za'atar;zaatar,ground;flavored,
+حبة البركة,Nigella seeds,any,nigella seed;black cumin;black seed;kalonji,oil;flavored;beans;bean;turtle,
+نعنع مجفف,Dried mint,any,"spearmint, dried",flavored,
+بهارات,Seven spice,any,seven spice;baharat,ground;flavored,
+ملح,Salt,any,"salt, table",flavored,
+سكر,Sugar,any,"sugars, granulated",flavored;brown;powdered;maple;turbinado,
+خميرة,Yeast,any,"leavening agents, yeast, baker's, active dry",extract,
+بيكنج باودر,Baking powder,any,"leavening agents, baking powder, double-acting, sodium aluminum sulfate",flavored;low-sodium;straight phosphate,
+صودا الخبز,Baking soda,any,"leavening agents, baking soda",flavored,
+نشاء,Starch,any,cornstarch,flavored,
+فانيليا,Vanilla,any,vanilla extract,imitation,
+شوكولاتة,Chocolate,any,"chocolate, dark, 60-69% cacao solids;chocolate, dark",flavored;milk;white,
+شاي,Tea,any,"beverages, tea, black, brewed, prepared with tap water",flavored;herbal;decaffeinated;instant;ready-to-drink;sweetened;tundra,
+قهوة,Coffee,any,"beverages, coffee, brewed, prepared with tap water",flavored;instant;decaffeinated;espresso;mix;cream,
+عصير ليمون,Lemon juice,raw,"lemon juice, raw",concentrate;canned;bottled,
+عدس أحمر,Red lentils,raw,"lentils, pink or red",sprouted;soup;mix,
+زيتون أخضر,Green olives,canned,"olives, pickled",stuffed;flavored,
+تونة معلبة,Canned tuna,canned,"fish, tuna, light, canned in water;fish, tuna, light, canned in oil",salad;without salt,

@@ -213,7 +213,7 @@ final class BundleImporter
         $stats = [
             'records_created' => 0, 'records_updated' => 0, 'records_unchanged' => 0, 'records_skipped'  => 0,
             'foods_created'   => 0, 'values_written'  => 0, 'values_unchanged'  => 0, 'portions_written' => 0,
-            'portions_updated' => 0, 'portions_kept' => 0,
+            'portions_updated' => 0, 'portions_kept' => 0, 'notes_updated' => 0,
             'changed_values'  => [],
         ];
 
@@ -390,6 +390,16 @@ final class BundleImporter
         } else {
             $recordId = $existing->id;
             $stats['records_unchanged']++;
+
+            // A note is not data: no new review. It is only written when it keeps the current
+            // text and adds to it ("مقاربة: … | FDC: …" after "FDC: …"), so a note the admin
+            // rewrote is never lost.
+            $notes = trim((string) ($raw['notes'] ?? ''));
+            $current = trim((string) $existing->notes);
+            if ($notes !== '' && $notes !== $current && ($current === '' || str_ends_with($notes, $current))) {
+                DB::table('food_source_records')->where('id', $recordId)->update(['notes' => $notes, 'updated_at' => $now]);
+                $stats['notes_updated']++;
+            }
         }
 
         // ---- values

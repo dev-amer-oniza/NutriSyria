@@ -28,13 +28,15 @@ Commands
   template     empty hand-entry header (record columns + nutrient codes)
 
 Crosswalk (usda_crosswalk.csv) - the one human decision per USDA record:
-  fdc_id, food_form_code, food_id OR food_name_ar, [food_name_en, category_path]
+  fdc_id, food_form_code, food_id OR food_name_ar, [food_name_en, category_path, note]
   If the file has a `pick` column (a suggest draft), build keeps only rows marked yes/y/x/1.
 
-Wanted-foods list (for suggest): food_name_ar, food_name_en, forms, [search_terms], [exclude]
+Wanted-foods list (for suggest): food_name_ar, food_name_en, forms, [search_terms], [exclude], [note]
   forms = semicolon list of raw;cooked;boiled;fried;canned;dried;plain;any
   search_terms = semicolon list of alternative English names (default: food_name_en)
   exclude = semicolon list of words/phrases that remove a candidate (e.g. liver;yolk;green)
+  note = free text for the admin, e.g. "مقاربة: زبادي يوناني بدل اللبنة". suggest copies it into
+         the draft; build puts it in front of the record's notes ("<note> | FDC: ...").
   A candidate described as frozen/canned/dried/pickled is skipped unless that is the wanted form.
 """
 import argparse
@@ -356,7 +358,7 @@ def cmd_suggest(a):
                 out.append({"pick": "", "hint": "", "food_name_ar": w["food_name_ar"],
                             "food_name_en": w["food_name_en"], "target_form": target, "food_form_code": "", "fdc_id": "",
                             "description": "NO CANDIDATE FOUND - search manually or add the data yourself",
-                            "data_source": "", "missing": "",
+                            "note": w.get("note", ""), "data_source": "", "missing": "",
                             "match": "", "form_note": "", "score": "", "rank": ""})
             # Each release is ranked on its own: the best Foundation item AND the best SR Legacy
             # item can both be picked. The import keeps them side by side for the same food and
@@ -380,7 +382,7 @@ def cmd_suggest(a):
                     out.append({"pick": "yes" if confident else "", "hint": hint, "food_name_ar": w["food_name_ar"],
                                 "food_name_en": w["food_name_en"], "target_form": target,
                                 "food_form_code": c["form_code"], "fdc_id": c["fdc_id"],
-                                "description": c["desc"], "data_source": source,
+                                "description": c["desc"], "note": w.get("note", ""), "data_source": source,
                                 "missing": ", ".join(c["missing"]),
                                 "match": c["match"], "form_note": c["form_note"],
                                 "score": c["score"], "rank": rank})
@@ -443,12 +445,12 @@ def cmd_build(a):
         if cw.empty:
             sys.exit("No rows have pick = yes in the crosswalk.")
     cw = cw[cw.fdc_id != ""].reset_index(drop=True)
-    for col in ("food_id", "food_name_ar", "food_name_en", "category_path"):
+    for col in ("food_id", "food_name_ar", "food_name_en", "category_path", "note"):
         if col not in cw.columns:
             cw[col] = ""
     # A reviewed `suggest` draft carries extra columns (description, score, hint...). Keep only
     # what build needs, otherwise they clash with the same-named columns in USDA's food.csv.
-    cw = cw[["fdc_id", "food_form_code", "food_id", "food_name_ar", "food_name_en", "category_path"]].copy()
+    cw = cw[["fdc_id", "food_form_code", "food_id", "food_name_ar", "food_name_en", "category_path", "note"]].copy()
     bad = cw[(cw.food_id == "") & (cw.food_name_ar == "")]
     if not bad.empty:
         sys.exit(f"Crosswalk rows without food_id or food_name_ar: fdc_id {bad.fdc_id.tolist()}")
@@ -491,6 +493,10 @@ def cmd_build(a):
         "external_ref": rec.fdc_id,
         "notes": "FDC: " + rec.description.fillna("") + " (published " + rec.publication_date.fillna("?") + ")",
     })[RECORD_COLS]
+    # The supervisor's note (e.g. a proxy) comes first; the FDC text stays at the end, so a
+    # re-import can add the note to an existing record without losing what is there.
+    note = rec.note.str.strip()
+    rec_out["notes"] = note.where(note == "", note + " | ") + rec_out.notes
     rec_out.to_csv(out / "records.csv", index=False)
     ds_of = dict(zip(rec_out.external_ref, rec_out.data_source_code))
 

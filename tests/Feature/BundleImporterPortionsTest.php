@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\DataSource;
 use App\Models\FoodForm;
 use App\Models\FoodPortion;
+use App\Models\FoodSourceRecord;
 use App\Models\MeasureUnit;
 use App\Models\MeasureUnitAlias;
 use App\Models\Nutrient;
@@ -44,7 +45,7 @@ class BundleImporterPortionsTest extends TestCase
     }
 
     /** Writes a tomato bundle and runs stage -> validate -> commit. */
-    private function import(?array $portions, float $kcal = 18): array
+    private function import(?array $portions, float $kcal = 18, string $notes = ''): array
     {
         File::deleteDirectory($this->dir);
         File::ensureDirectoryExists($this->dir);
@@ -58,7 +59,7 @@ class BundleImporterPortionsTest extends TestCase
 
         $csv('records.csv', [
             ['food_id', 'food_name_ar', 'food_name_en', 'category_path', 'food_form_code', 'data_source_code', 'external_ref', 'notes'],
-            ['', 'بندورة', 'Tomato', '', 'raw', 'usda_fdc_sr_legacy', '170457', ''],
+            ['', 'بندورة', 'Tomato', '', 'raw', 'usda_fdc_sr_legacy', '170457', $notes],
         ]);
         $csv('nutrient_values.csv', [
             ['data_source_code', 'external_ref', 'nutrient_code', 'amount_per_100g', 'unit', 'method'],
@@ -151,5 +152,28 @@ class BundleImporterPortionsTest extends TestCase
         $this->import([['cup, chopped', 180]]);
 
         $this->assertSame(1, FoodPortion::where('description', 'كوب مطبخنا')->count());
+    }
+
+    public function test_a_re_import_adds_a_new_note_without_a_new_review_and_keeps_the_admins_note(): void
+    {
+        $fdc = 'FDC: Tomatoes, red, ripe, raw (published 2019-04-01)';
+        $this->import(null, 18, $fdc);
+        $record = FoodSourceRecord::sole();
+        $record->update(['status' => 'active']);
+
+        // Same values, the bundle now puts a note in front of the FDC text.
+        $stats = $this->import(null, 18, "مقاربة: تجربة | {$fdc}");
+
+        $this->assertSame(1, $stats['records_unchanged']);
+        $this->assertSame(1, $stats['notes_updated']);
+        $this->assertSame("مقاربة: تجربة | {$fdc}", $record->fresh()->notes);
+        $this->assertSame('active', $record->fresh()->status->value);
+
+        // The admin rewrote the note: a bundle that would drop that text leaves it alone.
+        $record->update(['notes' => 'ملاحظة المشرف']);
+        $stats = $this->import(null, 18, "مقاربة: نص آخر | {$fdc}");
+
+        $this->assertSame(0, $stats['notes_updated']);
+        $this->assertSame('ملاحظة المشرف', $record->fresh()->notes);
     }
 }
