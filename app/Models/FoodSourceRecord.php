@@ -32,6 +32,7 @@ class FoodSourceRecord extends Model
             'valid_from' => 'datetime',
             'valid_to' => 'datetime',
             'imported_at' => 'datetime',
+            'reviewed_at' => 'datetime',
         ];
     }
 
@@ -88,5 +89,11 @@ class FoodSourceRecord extends Model
     protected function pendingReview(Builder $query): void
     {
         $query->where('status', FoodSourceStatus::PendingReview);
+    }
+
+    /** Who approved or rejected this record (set by RecordReview). */
+    public function reviewedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 }

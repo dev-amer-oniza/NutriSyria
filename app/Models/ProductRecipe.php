@@ -25,6 +25,7 @@ class ProductRecipe extends Model
             'weight_before_cooking_g' => 'decimal:2',
             'weight_after_cooking_g' => 'decimal:2',
             'status' => RecipeStatus::class,
+            'nutrition_approved_at' => 'datetime',
         ];
     }
 
@@ -36,5 +37,11 @@ class ProductRecipe extends Model
     public function ingredients(): HasMany
     {
         return $this->hasMany(ProductRecipeIngredient::class)->orderBy('sort_order');
+    }
+
+    /** Who saved the current official nutrition values (set by RecipeAnalysisService::approve). */
+    public function nutritionApprovedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'nutrition_approved_by');
     }
 }
