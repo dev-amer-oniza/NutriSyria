@@ -16,6 +16,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 /**
@@ -135,6 +136,13 @@ class ReviewNotesPanel extends Component implements HasActions, HasSchemas
     private function openNote(array $arguments): ProductReviewNote
     {
         return $this->product->reviewNotes()->open()->findOrFail((int) ($arguments['note'] ?? 0));
+    }
+
+    /** A note sent or closed from another tab shows up when the user comes back to this one. */
+    #[On('databaseNotificationsSent')]
+    public function refreshNotes(): void
+    {
+        $this->changed();
     }
 
     private function changed(): void
