@@ -103,7 +103,11 @@
                 </table>
             </div>
 
-            @if ($result['can_save_official_value'] && $this->canApprove())
+            @if ($result['can_save_official_value'] && $this->hasOpenNotes())
+                <p class="mt-6 text-sm text-danger-600 dark:text-danger-400">
+                    على هذا المنتج ملاحظة مفتوحة (في الأسفل): يُعتمد التحليل بعد أن يعدّل صاحب البراند، أو بعد إغلاق الملاحظة.
+                </p>
+            @elseif ($result['can_save_official_value'] && $this->canApprove())
                 <div class="mt-6">
                     <x-filament::button wire:click="approveAnalysis" color="success">
                         اعتماد هذا التحليل كقيمة رسمية
@@ -114,6 +118,12 @@
                     التحليل جاهز. يعتمده أخصائي التغذية كقيمة رسمية بعد مراجعته.
                 </p>
             @endif
+        </x-filament::section>
+    @endif
+
+    @if ($product)
+        <x-filament::section heading="ملاحظات المراجعة" icon="heroicon-o-chat-bubble-left-right">
+            @livewire(\App\Livewire\ReviewNotesPanel::class, ['productId' => $product->id], key('review-notes-'.$product->id))
         </x-filament::section>
     @endif
 </x-filament-panels::page>

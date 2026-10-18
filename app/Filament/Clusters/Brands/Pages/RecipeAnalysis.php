@@ -6,6 +6,7 @@ use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
 use App\Models\Product;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use App\Services\Nutrition\RecipeAnalysisService;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -46,6 +47,17 @@ class RecipeAnalysis extends Page
         }
 
         $this->runAnalysis();
+    }
+
+    public function hasOpenNotes(): bool
+    {
+        return $this->product !== null && $this->product->reviewNotes()->open()->exists();
+    }
+
+    /** A note was sent or closed in the notes panel below: show or hide the approve button. */
+    #[On('review-notes-changed')]
+    public function refreshNotes(): void
+    {
     }
 
     public function canApprove(): bool

@@ -4,6 +4,8 @@ namespace App\Filament\Clusters\Brands\Resources\Products\Schemas;
 
 use App\Auth\BrandScope;
 use App\Enums\RecipeStatus;
+use App\Livewire\ReviewNotesPanel;
+use Filament\Schemas\Components\Livewire;
 use Illuminate\Validation\Rule;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -21,6 +23,14 @@ class ProductForm
         return $schema
             ->columns(1)
             ->components([
+                // First on the page, so a brand owner opening it from a notification sees it at once.
+                Section::make('ملاحظات المراجعة')
+                    ->icon('heroicon-o-chat-bubble-left-right')
+                    ->visible(fn ($record) => $record
+                        && ($record->reviewNotes()->exists() || auth()->user()?->can('sendReviewNote', $record)))
+                    ->components([
+                        Livewire::make(ReviewNotesPanel::class, fn ($record) => ['productId' => $record->id]),
+                    ]),
                 Section::make('بيانات المنتج')
                     ->columns(2)
                     ->components([

@@ -79,6 +79,9 @@ class AdminPanelProvider extends PanelProvider
             ->font('IBM Plex Sans Arabic', provider: GoogleFontProvider::class)
             ->darkMode()
             ->sidebarCollapsibleOnDesktop()
+            // The bell: review notes reach brand owners and nutritionists here.
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             // Deny by default: a model without a policy, or a policy without the asked ability,
             // is an error instead of silently allowed (see App\Policies\Concerns\DeniesByDefault).
             ->strictAuthorization()

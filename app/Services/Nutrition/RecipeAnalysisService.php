@@ -180,6 +180,9 @@ final class RecipeAnalysisService
         if (! $result->canSaveOfficialValue()) {
             throw new RuntimeException('لا يمكن اعتماد التحليل بلا إدخال الوزن بعد الطبخ.');
         }
+        if ($product->reviewNotes()->open()->exists()) {
+            throw new RuntimeException('على هذا المنتج ملاحظة مفتوحة: ينتظر تعديل صاحب البراند، أو أغلق الملاحظة أولاً.');
+        }
 
         $dataSource = DataSource::where('code', 'internal_product_recipes')->first();
         if (! $dataSource) {
