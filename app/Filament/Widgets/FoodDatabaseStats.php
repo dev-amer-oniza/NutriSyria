@@ -15,13 +15,13 @@ class FoodDatabaseStats extends StatsOverviewWidget
 
     protected ?string $heading = 'قاعدة بيانات الأغذية';
 
-    /** Database-wide numbers: for those who work on the food data or its imports, not brand owners. */
+    /** Database-wide numbers: for those who build the food database; the other roles get their own widgets. */
     public static function canView(): bool
     {
         $user = auth()->user();
 
         return $user !== null
-            && ($user->allows(Access::FOODS_VIEW) || $user->allows(Access::FOODS_MANAGE) || $user->allows(Access::IMPORTS_VIEW));
+            && ($user->allows(Access::FOODS_VIEW) || $user->allows(Access::FOODS_MANAGE) || $user->allows(Access::IMPORTS_UPLOAD));
     }
 
     protected function getStats(): array

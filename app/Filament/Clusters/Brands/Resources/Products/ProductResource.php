@@ -5,8 +5,8 @@ use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\CreateProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\ListProducts;
+use App\Filament\Clusters\Brands\Resources\Products\Pages\ViewProduct;
 use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
-use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeRelationManager;
 use App\Filament\Clusters\Brands\Resources\Products\Schemas\ProductForm;
 use App\Filament\Clusters\Brands\Resources\Products\Tables\ProductsTable;
 use App\Auth\BrandScope;
@@ -67,6 +67,7 @@ class ProductResource extends Resource
             'index'  => ListProducts::route('/'),
             'create' => CreateProduct::route('/create'),
             'edit'   => EditProduct::route('/{record}/edit'),
+            'view'   => ViewProduct::route('/{record}'),
         ];
     }
 }

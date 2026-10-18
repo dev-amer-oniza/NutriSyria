@@ -43,7 +43,7 @@ class FoodSourceRecordsRelationManager extends RelationManager
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query->with([
                 'food', 'foodForm', 'dataSource',
-                'nutrientValues.nutrient',
+                'nutrientValues.nutrient', 'reviewedBy',
             ]))
             ->recordTitleAttribute('external_ref')
             ->columns([
@@ -77,6 +77,10 @@ class FoodSourceRecordsRelationManager extends RelationManager
                 TextColumn::make('status')
                     ->label('الحالة')
                     ->badge(),
+                TextColumn::make('reviewedBy.name')
+                    ->label('راجعه')
+                    ->placeholder('—')
+                    ->toggleable(),
                 TextColumn::make('nutrient_values_count')
                     ->label('كل القيم')
                     ->counts('nutrientValues')
@@ -91,9 +95,23 @@ class FoodSourceRecordsRelationManager extends RelationManager
                     ->default(FoodSourceStatus::PendingReview->value),
             ])
             ->recordActions([
+                // Details in a side panel: the reviewer stays on the batch, and needs no
+                // food-database rights to see what they are approving.
                 Action::make('viewFullDetails')
                     ->label('كل القيم')
                     ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->slideOver()
+                    ->modalHeading(fn ($record) => $record->food?->name_ar)
+                    ->modalContent(fn ($record) => view('filament.clusters.import-review.components.record-details', ['record' => $record]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('إغلاق'),
+
+                Action::make('openRecord')
+                    ->label('فتح السجل')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->color('gray')
+                    ->authorize('update')
                     ->url(fn($record) => FoodSourceRecordResource::getUrl('edit', [
                         'food' => $record->food_id,
                         'record' => $record->id,

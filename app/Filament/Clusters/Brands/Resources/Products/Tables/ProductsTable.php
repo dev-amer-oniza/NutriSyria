@@ -3,21 +3,26 @@
 namespace App\Filament\Clusters\Brands\Resources\Products\Tables;
 
 use App\Auth\BrandScope;
+use App\Enums\NutritionApprovalStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use App\Filament\Support\Placeholders;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => NutritionApprovalStatus::withApprovalData($query))
             ->columns([
                 ImageColumn::make('img')
                     ->label('')
@@ -33,13 +38,10 @@ class ProductsTable
                     ->badge()
                     ->color('gray')
                     ->sortable(),
-                IconColumn::make('is_analyzed')
-                    ->label('التحليل الغذائي')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-badge')
-                    ->falseIcon('heroicon-o-exclamation-triangle')
-                    ->trueColor('success')
-                    ->falseColor('warning'),
+                TextColumn::make('nutrition_status')
+                    ->label('القيم الغذائية')
+                    ->state(fn ($record) => NutritionApprovalStatus::of($record))
+                    ->badge(),
                 IconColumn::make('is_active')
                     ->label('نشط')
                     ->boolean(),
@@ -50,8 +52,13 @@ class ProductsTable
                     ->label('البراند')
                     ->relationship('brand', 'name', modifyQueryUsing: fn ($query) => BrandScope::brands($query, readOnly: true))
                     ->searchable(),
+                Filter::make('awaiting')
+                    ->label('تنتظر اعتماد الأخصائي')
+                    ->query(fn (Builder $query) => $query->has('recipeIngredients')->doesntHave('nutrientValues')),
             ])
             ->recordActions([
+                // Read-only for whoever may see but not change the product (the nutritionist).
+                ViewAction::make()->hidden(fn ($record) => auth()->user()?->can('update', $record)),
                 EditAction::make(),
             ])
             ->toolbarActions([
