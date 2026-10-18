@@ -74,12 +74,7 @@ class DashboardOverviewTest extends TestCase
 
     public function test_the_widgets_render(): void
     {
-        // Users and permissions live on the fixed "central" connection: point it at the test database.
-        config(['database.connections.central' => config('database.connections.sqlite')]);
-        DB::purge('central');
-        DB::connection('central')->setPdo(DB::connection()->getPdo());
-        $this->actingAs(User::forceCreate(['name' => 'admin', 'email' => 'admin@example.test', 'password' => 'x']));
-        Filament::setCurrentPanel('admin');
+        $this->signInAs();
 
         Livewire::test(FoodDatabaseStats::class)
             ->assertSee('أغذية معتمدة')

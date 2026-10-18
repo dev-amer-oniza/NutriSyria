@@ -10,6 +10,7 @@ use App\Models\FoodNutrientValue;
 use App\Models\FoodSourceRecord;
 use App\Models\Nutrient;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
@@ -170,7 +171,7 @@ final class RecipeAnalysisService
      * food_source_record_id. Replaces whatever was stored before (a product has exactly one
      * current analysis, never a history of competing ones — see the design discussion).
      */
-    public function approve(Product $product, RecipeAnalysisResult $result): void
+    public function approve(Product $product, RecipeAnalysisResult $result, ?User $approvedBy = null): void
     {
         if ($result->unconvertedIngredients) {
             throw new RuntimeException('لا يمكن اعتماد التحليل: مكوّنات لم يمكن تحويلها إلى غرام: '
@@ -205,9 +206,15 @@ final class RecipeAnalysisService
             throw new RuntimeException('لا توجد قيم قابلة للاعتماد (كل النتائج فارغة).');
         }
 
-        DB::transaction(function () use ($product, $rows) {
+        DB::transaction(function () use ($product, $rows, $approvedBy) {
             FoodNutrientValue::where('product_id', $product->id)->delete();
             FoodNutrientValue::insert($rows);
+            // Who made these the official values, and when.
+            // Set here only, never through a form (not in $fillable).
+            $product->recipe?->forceFill([
+                'nutrition_approved_by' => $approvedBy?->getKey(),
+                'nutrition_approved_at' => now(),
+            ])->save();
         });
     }
 }

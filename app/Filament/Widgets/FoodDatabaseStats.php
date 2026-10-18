@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Auth\Access;
 use App\Filament\Clusters\ImportReview\Resources\ImportBatches\ImportBatchResource;
 use App\Services\Dashboard\DatabaseOverview;
 use Filament\Widgets\StatsOverviewWidget;
@@ -13,6 +14,15 @@ class FoodDatabaseStats extends StatsOverviewWidget
     protected static ?int $sort = 1;
 
     protected ?string $heading = 'قاعدة بيانات الأغذية';
+
+    /** Database-wide numbers: for those who work on the food data or its imports, not brand owners. */
+    public static function canView(): bool
+    {
+        $user = auth()->user();
+
+        return $user !== null
+            && ($user->allows(Access::FOODS_VIEW) || $user->allows(Access::FOODS_MANAGE) || $user->allows(Access::IMPORTS_VIEW));
+    }
 
     protected function getStats(): array
     {

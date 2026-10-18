@@ -2,7 +2,9 @@
 
 namespace App\Filament\Clusters\Brands\Resources\Products\Schemas;
 
+use App\Auth\BrandScope;
 use App\Enums\RecipeStatus;
+use Illuminate\Validation\Rule;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -24,7 +26,9 @@ class ProductForm
                     ->components([
                         Select::make('brand_id')
                             ->label('البراند')
-                            ->relationship('brand', 'name')
+                            // Only brands the user manages are offered, and only those are accepted.
+                            ->relationship('brand', 'name', modifyQueryUsing: fn ($query) => BrandScope::brands($query))
+                            ->rules(fn () => ($ids = BrandScope::brandIds(auth()->user())) === null ? [] : [Rule::in($ids)])
                             ->required()
                             ->searchable()
                             ->preload()

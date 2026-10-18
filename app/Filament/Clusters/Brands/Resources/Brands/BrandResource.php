@@ -8,12 +8,14 @@ use App\Filament\Clusters\Brands\Resources\Brands\Pages\ListBrands;
 use App\Filament\Clusters\Brands\Resources\Brands\RelationManagers\ProductsRelationManager;
 use App\Filament\Clusters\Brands\Resources\Brands\Schemas\BrandForm;
 use App\Filament\Clusters\Brands\Resources\Brands\Tables\BrandsTable;
+use App\Auth\BrandScope;
 use App\Models\Brand;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class BrandResource extends Resource
 {
@@ -34,6 +36,12 @@ class BrandResource extends Resource
     protected static ?string $modelLabel = 'براند';
 
     protected static ?string $pluralModelLabel = 'البراندات';
+
+    /** Brand owners get their own brands only: in the list, on record pages and in search. */
+    public static function getEloquentQuery(): Builder
+    {
+        return BrandScope::brands(parent::getEloquentQuery());
+    }
 
     public static function form(Schema $schema): Schema
     {

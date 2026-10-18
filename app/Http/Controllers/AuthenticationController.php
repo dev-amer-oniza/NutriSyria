@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 
 
 
-use App\Http\Requests\AuthenticationRequest\SetPasswordRequest;
 use App\Http\Requests\SendOtpRequest;
 use App\Http\Requests\VerifyOtpRequest;
 use App\Models\User;
@@ -160,17 +159,6 @@ class AuthenticationController extends Controller
     }
 
 
-    public function setPassword(SetPasswordRequest $request)
-    {
-        $data = $request->validated();
-
-        $user = $this->authService->resetPassword($data);
-        if ($user) {
-            return self::success(['user' => $user], 'Password has been reset successfully.', 201);
-        } else {
-            return self::error('Invalid or expired token.', 403);
-        }
-    }
 
     public function setPhone(Request $request)
     {

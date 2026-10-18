@@ -6,7 +6,6 @@ namespace App\Services\Auth;
 use App\Models\OtpCode;
 use App\Models\PasswordResetToken;
 use App\Models\User;
-use App\Notifications\PasswordChangedNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -85,22 +84,6 @@ class AuthenticateService
     }
 
 
-    public function resetPassword(array $data)
-    {
-        $user = User::where('email', $data['email'])->firstOrFail();
-
-        if(!$user->hasVerifiedEmail()){
-            return null ;
-        }
-
-        $user->update([
-            'password' => Hash::make($data['new_password']),
-        ]);
-
-        $user->notify(new PasswordChangedNotification());
-
-        return $user;
-    }
 
     /**
      * Generate token with expiration time.

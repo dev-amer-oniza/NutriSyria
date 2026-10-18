@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Clusters\ImportReview\Pages;
 
+use App\Auth\Access;
 use App\Filament\Clusters\ImportReview\ImportReviewCluster;
 use App\Services\Import\BundleImporter;
 use Filament\Forms\Components\FileUpload;
@@ -24,6 +25,12 @@ use Filament\Support\Icons\Heroicon;
 class SourceMatchingTools extends Page implements HasForms
 {
     use InteractsWithForms;
+
+    /** Matching runs tools on the server and builds import files: upload rights only. */
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->allows(Access::IMPORTS_UPLOAD);
+    }
 
     protected string $view = 'filament.clusters.import-review.pages.source-matching-tools';
 

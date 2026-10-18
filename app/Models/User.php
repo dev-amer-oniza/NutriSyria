@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Auth\Access;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,11 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
-use Modules\Deliveries\Models\Delivery;
-use Modules\Orders\Models\Order;
-use Modules\Restaurants\Models\Restaurant;
-use Modules\UserDietSection\Models\UserHealthProfile;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
@@ -36,6 +34,7 @@ class User extends Authenticatable implements FilamentUser
         'latitude',
         'longitude',
         'email_verified_at',
+        'is_active',
     ];
 
     protected $connection = 'central';
@@ -60,17 +59,53 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
 
-    public function canAccessPanel(Panel $panel): bool{
-        if($panel->getId() == 'admin'){
-            return $this->hasRole('super-admin');
-        }
-        if($panel->getId() == 'app'){
-            return $this->hasRole('restaurant-owner');
-        }
-        return false ;
+    /**
+     * Only active accounts with one of the three panel roles get in. Filament asks on every
+     * request, so deactivating a user or removing their role locks them out immediately.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $panel->getId() === 'admin'
+            && $this->is_active !== false
+            && $this->hasAnyRole(Access::PANEL_ROLES);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole(Access::SUPER_ADMIN);
+    }
+
+    /** A permission check that never throws for an unknown permission; the super-admin has all. */
+    public function allows(string $permission): bool
+    {
+        return $this->isSuperAdmin() || $this->checkPermissionTo($permission);
+    }
+
+    public function brands(): BelongsToMany
+    {
+        return $this->belongsToMany(Brand::class, 'brand_user')->withTimestamps();
+    }
+
+    /** @var list<int>|null ids of the brands this user manages, loaded once per request */
+    private ?array $managedBrandIds = null;
+
+    /** @return list<int> */
+    public function managedBrandIds(): array
+    {
+        return $this->managedBrandIds ??= DB::table('brand_user')
+            ->where('user_id', $this->getKey())
+            ->pluck('brand_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
+    public function managesBrand(?int $brandId): bool
+    {
+        return $brandId !== null && in_array($brandId, $this->managedBrandIds(), true);
     }
 }

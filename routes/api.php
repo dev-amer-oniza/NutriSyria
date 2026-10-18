@@ -35,9 +35,6 @@ Route::post('/request-otp', [AuthenticationController::class, 'sendOtp']);
 Route::post('/verify-otp-email', [AuthenticationController::class, 'verifyOtp']);
 
 
-// Reset password (only after email is verified)
-Route::post('/set-password', [AuthenticationController::class, 'setPassword'])
-    ->middleware('throttle:5,1');
 
 
 /*

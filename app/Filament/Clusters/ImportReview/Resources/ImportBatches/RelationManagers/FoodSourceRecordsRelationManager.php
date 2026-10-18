@@ -2,6 +2,7 @@
 namespace App\Filament\Clusters\ImportReview\Resources\ImportBatches\RelationManagers;
 
 use App\Enums\FoodSourceStatus;
+use App\Services\Import\RecordReview;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Resources\FoodSourceRecords\FoodSourceRecordResource;
 use App\Models\Nutrient;
 use Filament\Actions\Action;
@@ -103,15 +104,13 @@ class FoodSourceRecordsRelationManager extends RelationManager
                     ->label('اعتماد')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn($record) => $record->status === FoodSourceStatus::PendingReview)
+                    // Hidden AND refused on the server for anyone without the review permission.
+                    ->authorize('review')
                     ->requiresConfirmation()
                     ->modalHeading('اعتماد هذا السجل')
                     ->modalDescription('سيصبح هذا السجل نشطاً، ويُحتسب في نتائج النظام. هل أنت متأكد؟')
                     ->action(function ($record) {
-                        $record->update(['status' => FoodSourceStatus::Active]);
-                        if (! $record->food->is_active) {
-                            $record->food->update(['is_active' => true]);
-                        }
+                        app(RecordReview::class)->approve($record, auth()->user());
                         Notification::make()->title('تم الاعتماد')->success()->send();
                     }),
 
@@ -119,18 +118,19 @@ class FoodSourceRecordsRelationManager extends RelationManager
                     ->label('رفض')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn($record) => $record->status === FoodSourceStatus::PendingReview)
+                    ->authorize('review')
                     ->requiresConfirmation()
                     ->modalHeading('رفض هذا السجل')
                     ->modalDescription('سيبقى السجل في القاعدة كسجل تاريخي، لكنه لن يُحتسب أبداً.')
                     ->form([
-                        Textarea::make('reason')->label('سبب الرفض')->required(),
+                        Textarea::make('reason')
+                            ->label('سبب الرفض')
+                            ->helperText('يُحفظ في ملاحظات السجل مع اسمك، ليعرف الفريق سبب الرفض.')
+                            ->required()
+                            ->maxLength(RecordReview::MAX_REASON_LENGTH),
                     ])
                     ->action(function ($record, array $data) {
-                        $record->update([
-                            'status' => FoodSourceStatus::Rejected,
-                            'notes'  => trim(($record->notes ? $record->notes . "\n" : '') . "رُفض: {$data['reason']}"),
-                        ]);
+                        app(RecordReview::class)->reject($record, auth()->user(), $data['reason']);
                         Notification::make()->title('تم الرفض')->danger()->send();
                     }),
             ])
@@ -140,17 +140,12 @@ class FoodSourceRecordsRelationManager extends RelationManager
                         ->label('اعتماد المحدد')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
+                        ->authorize('reviewAny')
                         ->requiresConfirmation()
                         ->modalDescription('سيُعتمد كل سجل محدد بحالة "قيد المراجعة" فقط، وتُفعَّل أغذيته الجديدة.')
                         ->action(function (Collection $records) {
-                            $count = 0;
-                            $records->where('status', FoodSourceStatus::PendingReview)->each(function (Model $record) use (&$count) {
-                                $record->update(['status' => FoodSourceStatus::Active]);
-                                if (! $record->food->is_active) {
-                                    $record->food->update(['is_active' => true]);
-                                }
-                                $count++;
-                            });
+                            $review = app(RecordReview::class);
+                            $count = $records->filter(fn (Model $record) => $review->approve($record, auth()->user()))->count();
                             Notification::make()->title("تم اعتماد {$count} سجلاً")->success()->send();
                         })
                         ->deselectRecordsAfterCompletion(),

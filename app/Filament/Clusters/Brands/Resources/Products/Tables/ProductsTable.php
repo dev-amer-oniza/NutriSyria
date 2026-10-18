@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\Brands\Resources\Products\Tables;
 
+use App\Auth\BrandScope;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -47,7 +48,7 @@ class ProductsTable
             ->filters([
                 SelectFilter::make('brand_id')
                     ->label('البراند')
-                    ->relationship('brand', 'name')
+                    ->relationship('brand', 'name', modifyQueryUsing: fn ($query) => BrandScope::brands($query, readOnly: true))
                     ->searchable(),
             ])
             ->recordActions([

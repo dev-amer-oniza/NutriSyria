@@ -9,12 +9,14 @@ use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngre
 use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeRelationManager;
 use App\Filament\Clusters\Brands\Resources\Products\Schemas\ProductForm;
 use App\Filament\Clusters\Brands\Resources\Products\Tables\ProductsTable;
+use App\Auth\BrandScope;
 use App\Models\Product;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductResource extends Resource
 {
@@ -35,6 +37,12 @@ class ProductResource extends Resource
     protected static ?string $modelLabel = 'منتج';
 
     protected static ?string $pluralModelLabel = 'المنتجات';
+
+    /** Brand owners get their brands' products only; the nutritionist sees all (read-only). */
+    public static function getEloquentQuery(): Builder
+    {
+        return BrandScope::products(parent::getEloquentQuery());
+    }
 
     public static function form(Schema $schema): Schema
     {

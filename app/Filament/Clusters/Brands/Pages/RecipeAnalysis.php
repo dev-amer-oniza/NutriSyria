@@ -3,6 +3,8 @@ namespace App\Filament\Clusters\Brands\Pages;
 
 use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Models\Product;
+use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\Locked;
 use App\Services\Nutrition\RecipeAnalysisService;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -18,24 +20,36 @@ class RecipeAnalysis extends Page
 
     protected static ?string $title = 'تحليل الوصفة';
 
+    /** Set once in mount() after the access check; the browser cannot swap it for another product. */
+    #[Locked]
     public ?Product $product = null;
 
     public ?array $result = null;
 
     public ?string $errorMessage = null;
 
+    /** Brand owners, the nutritionist and admins; which product is checked in mount(). */
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->can('viewAny', Product::class);
+    }
+
     public function mount(): void
     {
         $productId     = (int) request()->query('product');
         $this->product = Product::with('brand')->find($productId);
 
-        if (! $this->product) {
-            $this->errorMessage = 'لم يُحدَّد منتج صالح.';
-
-            return;
+        // Another brand's product answers exactly like a missing one: no hint that it exists.
+        if (! $this->product || ! Gate::allows('view', $this->product)) {
+            abort(404);
         }
 
         $this->runAnalysis();
+    }
+
+    public function canApprove(): bool
+    {
+        return $this->product !== null && Gate::allows('approveNutrition', $this->product);
     }
 
     public function runAnalysis(): void
@@ -51,9 +65,12 @@ class RecipeAnalysis extends Page
     }
     public function approveAnalysis(): void
     {
+        // Checked again here, not only by hiding the button.
+        abort_unless($this->canApprove(), 403);
+
         try {
             $freshResult = app(RecipeAnalysisService::class)->analyze($this->product);
-            app(RecipeAnalysisService::class)->approve($this->product, $freshResult);
+            app(RecipeAnalysisService::class)->approve($this->product, $freshResult, auth()->user());
 
             Notification::make()
                 ->title('تم اعتماد التحليل')

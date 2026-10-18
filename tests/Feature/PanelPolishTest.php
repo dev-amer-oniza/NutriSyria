@@ -24,12 +24,7 @@ class PanelPolishTest extends TestCase
 
     public function test_the_batch_list_counts_records_and_names_cli_imports(): void
     {
-        // Users and permissions live on the fixed "central" connection: point it at the test database.
-        config(['database.connections.central' => config('database.connections.sqlite')]);
-        DB::purge('central');
-        DB::connection('central')->setPdo(DB::connection()->getPdo());
-        $this->actingAs(User::forceCreate(['name' => 'admin', 'email' => 'admin@example.test', 'password' => 'x']));
-        Filament::setCurrentPanel('admin');
+        $this->signInAs();
 
         $batch = ImportBatch::create(['original_filename' => 'usda.zip', 'file_path' => 'x', 'file_sha256' => str_repeat('a', 64), 'status' => 'committed']);
         $source = DataSource::create(['code' => 'usda_fdc_sr_legacy', 'name' => 'USDA SR Legacy', 'type' => 'usda_fdc']);

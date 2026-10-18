@@ -79,6 +79,9 @@ class AdminPanelProvider extends PanelProvider
             ->font('IBM Plex Sans Arabic', provider: GoogleFontProvider::class)
             ->darkMode()
             ->sidebarCollapsibleOnDesktop()
+            // Deny by default: a model without a policy, or a policy without the asked ability,
+            // is an error instead of silently allowed (see App\Policies\Concerns\DeniesByDefault).
+            ->strictAuthorization()
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->brandName('NutriSyria')
             ->brandLogo(fn () => view('filament.admin.brand'))
