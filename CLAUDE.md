@@ -109,9 +109,11 @@
 ## هوية اللوحة (اختيار صاحب المشروع)
 - **الألوان:** "زيتون وزعتر": أساسي زيتوني (`AdminPanelProvider::OLIVE`، مدرّج يدوياً بـ OKLCH لأن `Color::hex` يعطي أخضر ليموني)، ورماديات `Stone` الدافئة. ألوان الحالة ثابتة: أخضر معتمد، كهرماني للمراجعة، أحمر مرفوض.
 - **الخط:** IBM Plex Sans Arabic (Google Fonts).
+- **الشعار الأساسي** (من صاحب المشروع): `public/images/brand/nutrisyria-logo.jpg`. علامة ابتسامة + نقطة ليمونية على أسود مخضر. الألوان: أسود `#0a1310`، أبيض `#f2f4ef`، ليموني `#c8f164` (نفس درجة لون الزيتوني تقريباً). مرسومة SVG في `public/images/brand/nutrisyria-mark.svg` (favicon) و`resources/views/filament/admin/brand.blade.php`. في الوضع النهاري تُكتب "Syria" بالزيتوني لأن الليموني لا يُقرأ على الأبيض.
 - **اللغة والاتجاه:** اللوحة عربية RTL دائماً عبر `App\Http\Middleware\UseArabicInPanel` (persistent)، أياً كان `APP_LOCALE`.
+- **الوضع الليلي يتبع الشعار** (طلب صاحب المشروع): رماديات خضراء-سوداء (خلفية `#0a1310`) والليموني أساسي، عبر `html.dark { --gray-*; --primary-* }` في `theme.css`، مع نص داكن على الأزرار الأساسية وعلامة الصح. النهاري يبقى زيتونياً وحجرياً.
 - **الثيم الليلي** مفعّل؛ `resources/css/filament/admin/theme.css` يستعمل ألوان اللوحة فقط (primary-*/gray-*)، لا ألواناً ثابتة.
-- **المراحل:** 1) الألوان والخط والعربية (تم). 2) أيقونات Heroicons (outline، والمعبّأة للقسم الحالي)، مجموعات القائمة (البيانات الغذائية، المطاعم، الإعدادات)، الشعار `resources/views/filament/admin/brand.blade.php`، شارة السجلات المعلّقة على "الاستيراد والمراجعة" (تم). 3) تلميع (تم): ألوان وأيقونات الحالات في الـ enums (`FoodSourceStatus`، `ImportBatchStatus`)، صور بديلة `App\Filament\Support\Placeholders`، إعدادات الجداول العامة في `AdminPanelProvider::boot` (صفوف مخططة، 25 بالصفحة، "لا" شرطة رمادية)، رسائل التحقق العربية `lang/ar/validation.php`.
+- **المراحل:** 1) الألوان والخط والعربية (تم). 2) أيقونات Heroicons (outline، والمعبّأة للقسم الحالي)، مجموعات القائمة (البيانات الغذائية، المطاعم، الإعدادات)، شارة السجلات المعلّقة على "الاستيراد والمراجعة" (تم). 3) تلميع (تم): ألوان وأيقونات الحالات في الـ enums (`FoodSourceStatus`، `ImportBatchStatus`)، صور بديلة `App\Filament\Support\Placeholders`، إعدادات الجداول العامة في `AdminPanelProvider::boot` (صفوف مخططة، 25 بالصفحة، "لا" شرطة رمادية)، رسائل التحقق العربية `lang/ar/validation.php`.
 - **المعاينة:** صفحة الخيارات المعروضة عليه: https://claude.ai/artifact/TAeT2Eh9UczTrzxWBrPbPr
 
 ## معلومات تشغيل وتطوير
