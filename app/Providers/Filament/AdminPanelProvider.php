@@ -12,6 +12,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Table;
@@ -81,7 +82,16 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             // The bell: review notes reach brand owners and nutritionists here.
             ->databaseNotifications()
-            ->databaseNotificationsPolling('30s')
+            ->databaseNotificationsPolling('10s')
+            // Livewire nearly stops polling in a background tab, so a note sent meanwhile would wait
+            // minutes. Check again the moment the user comes back to the tab.
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): string => <<<'HTML'
+                <script>
+                    document.addEventListener('visibilitychange', () => {
+                        if (! document.hidden) window.Livewire?.dispatch('databaseNotificationsSent')
+                    })
+                </script>
+                HTML)
             // Deny by default: a model without a policy, or a policy without the asked ability,
             // is an error instead of silently allowed (see App\Policies\Concerns\DeniesByDefault).
             ->strictAuthorization()
