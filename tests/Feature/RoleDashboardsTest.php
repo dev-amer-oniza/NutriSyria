@@ -150,4 +150,23 @@ class RoleDashboardsTest extends TestCase
         $this->assertStringContainsString('342', $details);
         $this->assertStringContainsString('170285', $details);
     }
+
+    public function test_after_approving_the_nutritionist_lands_on_a_page_they_may_open(): void
+    {
+        $nutritionist = $this->signInAs(Access::NUTRITIONIST);
+        DataSource::create(['code' => 'internal_product_recipes', 'name' => 'وصفات المنتجات', 'type' => 'internal_product_recipes']);
+        $energy = Nutrient::create(['code' => 'energy_kcal', 'name_ar' => 'الطاقة', 'name_en' => 'Energy', 'unit' => 'kcal', 'group' => 'energy', 'is_core' => true]);
+        FoodNutrientValue::create(['food_source_record_id' => $this->lentils->id, 'nutrient_id' => $energy->id, 'amount_per_100g' => 352, 'unit' => 'kcal']);
+        $product = $this->product($this->theirs, 'مجدرة');
+        $product->recipe->update(['weight_after_cooking_g' => 250]);
+
+        Livewire::withQueryParams(['product' => $product->id])
+            ->test(\App\Filament\Clusters\Brands\Pages\RecipeAnalysis::class)
+            ->call('approveAnalysis')
+            ->assertRedirect(ProductResource::getUrl('view', ['record' => $product]));
+
+        $this->assertSame($nutritionist->id, (int) $product->recipe->fresh()->nutrition_approved_by);
+        $this->assertSame(1, FoodNutrientValue::where('product_id', $product->id)->count());
+        $this->get(ProductResource::getUrl('view', ['record' => $product]))->assertOk()->assertSee('اعتمدها');
+    }
 }

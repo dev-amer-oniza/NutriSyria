@@ -2,6 +2,7 @@
 namespace App\Filament\Clusters\Brands\Pages;
 
 use App\Filament\Clusters\Brands\BrandsCluster;
+use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
 use App\Models\Product;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Locked;
@@ -78,9 +79,8 @@ class RecipeAnalysis extends Page
                 ->success()
                 ->send();
 
-            $this->redirect(\App\Filament\Clusters\Brands\Resources\Products\ProductResource::getUrl('edit', [
-                'record' => $this->product->id,
-            ]));
+            // The nutritionist may approve but not edit: back to the page they may open.
+            $this->redirect(ProductResource::pageUrlFor($this->product));
         } catch (Throwable $e) {
             Notification::make()
                 ->title('تعذّر الاعتماد')
