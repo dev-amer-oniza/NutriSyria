@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Clusters\FoodDatabase\Resources\Food;
 
+use App\Filament\Support\ArabicGlobalSearch;
 use App\Filament\Clusters\FoodDatabase\FoodDatabaseCluster;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Pages\CreateFood;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Pages\EditFood;
@@ -17,6 +18,8 @@ use Filament\Tables\Table;
 
 class FoodResource extends Resource
 {
+    use ArabicGlobalSearch;
+
     protected static ?string $model = Food::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
@@ -28,6 +31,11 @@ class FoodResource extends Resource
     protected static ?string $cluster = FoodDatabaseCluster::class;
 
     protected static ?string $recordTitleAttribute = 'name_ar';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name_ar', 'name_en'];
+    }
     protected static ?string $navigationLabel      = 'الأغذية';
 
     protected static ?string $modelLabel = 'غذاء';

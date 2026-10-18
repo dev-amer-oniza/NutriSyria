@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\Brands\Resources\Products\Tables;
 
+use App\Support\ArabicSearch;
 use App\Auth\BrandScope;
 use App\Enums\NutritionApprovalStatus;
 use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
@@ -34,7 +35,7 @@ class ProductsTable
                     ->defaultImageUrl(Placeholders::image('product')),
                 TextColumn::make('name')
                     ->label('الاسم')
-                    ->searchable()
+                    ->searchable(query: ArabicSearch::column('name'))
                     ->sortable()
                     ->weight('bold'),
                 TextColumn::make('brand.name')

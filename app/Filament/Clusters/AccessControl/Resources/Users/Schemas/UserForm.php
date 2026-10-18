@@ -80,6 +80,7 @@ class UserForm
                         Select::make('brands')
                             ->label('البراندات التي يديرها')
                             ->relationship('brands', 'name')
+                            ->arabicSearch()
                             ->multiple()
                             ->preload()
                             ->searchable()

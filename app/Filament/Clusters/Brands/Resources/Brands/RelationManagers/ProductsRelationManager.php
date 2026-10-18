@@ -11,6 +11,10 @@ class ProductsRelationManager extends RelationManager
 {
     protected static string $relationship = 'products';
 
+    protected static ?string $modelLabel = 'منتج';
+
+    protected static ?string $pluralModelLabel = 'المنتجات';
+
     protected static ?string $relatedResource = ProductResource::class;
 
     public function table(Table $table): Table

@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Clusters\ImportReview\Resources\ImportBatches\RelationManagers;
 
+use App\Support\ArabicSearch;
 use App\Enums\FoodSourceStatus;
 use App\Services\Import\RecordReview;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Resources\FoodSourceRecords\FoodSourceRecordResource;
@@ -22,6 +23,10 @@ use Illuminate\Database\Eloquent\Model;
 class FoodSourceRecordsRelationManager extends RelationManager
 {
     protected static string $relationship = 'foodSourceRecords';
+
+    protected static ?string $modelLabel = 'سجل';
+
+    protected static ?string $pluralModelLabel = 'السجلات';
 
     protected static ?string $title = 'سجلات هذه الدفعة';
 
@@ -50,7 +55,9 @@ class FoodSourceRecordsRelationManager extends RelationManager
                 TextColumn::make('food.name_ar')
                     ->label('الغذاء')
                     ->weight('bold')
-                    ->searchable(),
+                    ->searchable(query: fn (Builder $query, string $search) => $query->whereHas(
+                        'food', fn (Builder $food) => ArabicSearch::constrain($food, ['name_ar', 'name_en'], $search),
+                    )),
                 TextColumn::make('foodForm.name_ar')
                     ->label('الشكل')
                     ->badge(),

@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Clusters\Brands\Resources\Brands;
 
+use App\Filament\Support\ArabicGlobalSearch;
 use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\CreateBrand;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\EditBrand;
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class BrandResource extends Resource
 {
+    use ArabicGlobalSearch;
+
     protected static ?string $model = Brand::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;

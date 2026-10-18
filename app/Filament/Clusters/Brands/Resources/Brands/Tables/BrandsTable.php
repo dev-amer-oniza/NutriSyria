@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\Brands\Resources\Brands\Tables;
 
+use App\Support\ArabicSearch;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -25,7 +26,7 @@ class BrandsTable
                     ->defaultImageUrl(Placeholders::image('brand')),
                 TextColumn::make('name')
                     ->label('الاسم')
-                    ->searchable()
+                    ->searchable(query: ArabicSearch::column('name'))
                     ->sortable()
                     ->weight('bold'),
                 TextColumn::make('products_count')
