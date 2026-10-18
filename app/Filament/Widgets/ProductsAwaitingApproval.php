@@ -45,7 +45,7 @@ class ProductsAwaitingApproval extends TableWidget
             ])
             ->recordUrl(fn (Product $record) => auth()->user()?->can('approveNutrition', $record)
                 ? RecipeAnalysis::getUrl().'?product='.$record->id
-                : ProductResource::getUrl(auth()->user()?->can('update', $record) ? 'edit' : 'view', ['record' => $record]))
+                : ProductResource::pageUrlFor($record))
             ->emptyStateHeading('لا شيء ينتظر')
             ->emptyStateDescription('كل المنتجات التي لها وصفة معتمدة قيمها، ولم تتغير بعد الاعتماد.')
             ->defaultSort('updated_at', 'desc')

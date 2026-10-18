@@ -44,6 +44,12 @@ class ProductResource extends Resource
         return BrandScope::products(parent::getEloquentQuery());
     }
 
+    /** The product's page for the signed-in user: edit when they may change it, else the read-only view. */
+    public static function pageUrlFor(Product $product): string
+    {
+        return static::getUrl(auth()->user()?->can('update', $product) ? 'edit' : 'view', ['record' => $product]);
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ProductForm::configure($schema);
