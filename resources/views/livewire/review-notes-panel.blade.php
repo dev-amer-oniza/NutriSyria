@@ -7,7 +7,10 @@
                 ملاحظات أخصائي التغذية على التحليل، الأحدث أولاً.
             @endif
         </p>
-        {{ $this->sendNoteAction }}
+        {{-- Filament draws an action even when visible() says no, so each button checks itself. --}}
+        @if ($this->sendNoteAction->isVisible())
+            {{ $this->sendNoteAction }}
+        @endif
     </div>
 
     @foreach ($this->notes as $note)
@@ -38,8 +41,12 @@
 
             @if ($note->isOpen())
                 <div class="flex flex-wrap items-center gap-3">
-                    {{ ($this->resolveNoteAction)(['note' => $note->id]) }}
-                    {{ ($this->withdrawNoteAction)(['note' => $note->id]) }}
+                    @foreach ([$this->resolveNoteAction, $this->withdrawNoteAction] as $action)
+                        @php($action = $action(['note' => $note->id]))
+                        @if ($action->isVisible())
+                            {{ $action }}
+                        @endif
+                    @endforeach
                 </div>
             @endif
         </article>
