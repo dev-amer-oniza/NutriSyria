@@ -132,12 +132,19 @@ class ReviewNotesTest extends TestCase
             ->assertActionHidden('sendNote')
             ->assertActionHidden(TestAction::make('withdrawNote')->arguments(['note' => $note->id]))
             ->assertActionVisible(TestAction::make('resolveNote')->arguments(['note' => $note->id]))
-            ->assertSee('الوزن بعد الطبخ ناقص.');
+            ->assertSee('الوزن بعد الطبخ ناقص.')
+            // What the page draws, not only what the action says about itself.
+            ->assertSee('تم التعديل')
+            ->assertDontSee('إرسال ملاحظة لصاحب البراند')
+            ->assertDontSee('إغلاق بلا تعديل');
 
         $this->signInAs(Access::NUTRITIONIST);
         Livewire::test(ReviewNotesPanel::class, ['productId' => $this->product->id])
             ->assertActionVisible('sendNote')
             ->assertActionHidden(TestAction::make('resolveNote')->arguments(['note' => $note->id]))
+            ->assertSee('إرسال ملاحظة لصاحب البراند')
+            ->assertSee('إغلاق بلا تعديل')
+            ->assertDontSee('تم التعديل')
             ->callAction(TestAction::make('withdrawNote')->arguments(['note' => $note->id]));
         $this->assertFalse($note->fresh()->isOpen());
     }
