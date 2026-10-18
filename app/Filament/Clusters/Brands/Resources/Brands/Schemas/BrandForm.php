@@ -52,6 +52,7 @@ class BrandForm
                         FileUpload::make('logo')
                             ->label('شعار البراند')
                             ->image()
+                            ->disk('public')
                             ->directory('brands')
                             ->imageEditor()
                             ->avatar(),

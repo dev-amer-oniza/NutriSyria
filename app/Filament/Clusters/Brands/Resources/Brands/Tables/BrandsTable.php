@@ -19,6 +19,7 @@ class BrandsTable
         return $table
             ->columns([
                 ImageColumn::make('logo')
+                    ->disk('public')
                     ->label('')
                     ->circular()
                     ->defaultImageUrl(Placeholders::image('brand')),

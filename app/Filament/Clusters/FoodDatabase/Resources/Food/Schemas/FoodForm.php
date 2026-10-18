@@ -42,6 +42,7 @@ class FoodForm
                         FileUpload::make('img')
                             ->label('صورة الغذاء')
                             ->image()
+                            ->disk('public')
                             ->directory('foods')
                             ->imageEditor(),
                         Toggle::make('is_active')

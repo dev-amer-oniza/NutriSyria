@@ -28,6 +28,7 @@ class ProductsTable
             ->recordUrl(fn ($record) => ProductResource::pageUrlFor($record))
             ->columns([
                 ImageColumn::make('img')
+                    ->disk('public')
                     ->label('')
                     ->circular()
                     ->defaultImageUrl(Placeholders::image('product')),

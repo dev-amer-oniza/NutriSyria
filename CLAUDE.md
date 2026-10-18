@@ -137,6 +137,7 @@
 - **التثبيت:**
   - `composer install` قد يحتاج `--ignore-platform-req=ext-redis` في بعض البيئات.
   - اللوحة تحتاج `npm ci && npm run build` (viteTheme).
+- **الصور** (شعار البراند، صورة المنتج والغذاء) على قرص `public` بـ `->disk('public')` في الحقل والعمود، ورابطها نسبي `/storage/...` (لا يعتمد على `APP_URL`)، ويخدمها Laravel حتى بلا `storage:link`. ملفات الاستيراد تبقى على `local` الخاص.
 - **الاستيراد من سطر الأوامر:** `php artisan import:bundle <dir>` ← `import:commit <batch>` ← `import:review <batch>` ← `import:approve <batch>`.
 - **المطابقة من سطر الأوامر:**
   `python3 tools/usda_to_template.py suggest --fdc-dir tools/fdc/FoodData_Central_foundation_food_csv_2026-04-30 --fdc-dir tools/fdc/sr_legacy --wanted tools/wanted_foods_2.csv --out draft.csv`

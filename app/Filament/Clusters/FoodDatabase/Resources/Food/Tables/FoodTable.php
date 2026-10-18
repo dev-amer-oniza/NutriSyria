@@ -20,6 +20,7 @@ class FoodTable
         return $table
             ->columns([
                 ImageColumn::make('img')
+                    ->disk('public')
                     ->label('')
                     ->circular()
                     ->defaultImageUrl(Placeholders::image('food')),
