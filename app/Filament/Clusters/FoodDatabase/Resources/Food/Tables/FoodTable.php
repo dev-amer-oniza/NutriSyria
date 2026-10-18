@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\FoodDatabase\Resources\Food\Tables;
 
+use App\Support\ArabicSearch;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -26,7 +27,7 @@ class FoodTable
                     ->defaultImageUrl(Placeholders::image('food')),
                 TextColumn::make('name_ar')
                     ->label('الاسم بالعربية')
-                    ->searchable()
+                    ->searchable(query: ArabicSearch::column('name_ar'))
                     ->sortable()
                     ->weight('bold'),
                 TextColumn::make('name_en')

@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Clusters\Brands\Resources\Products;
 
+use App\Filament\Support\ArabicGlobalSearch;
 use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\CreateProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
@@ -21,6 +22,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductResource extends Resource
 {
+    use ArabicGlobalSearch;
+
     protected static ?string $model = Product::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;

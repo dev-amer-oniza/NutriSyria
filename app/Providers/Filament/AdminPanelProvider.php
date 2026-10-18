@@ -2,6 +2,10 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Components\Select;
+use Closure;
+use App\Support\ArabicSearch;
 use App\Http\Middleware\UseArabicInPanel;
 use Filament\FontProviders\GoogleFontProvider;
 use Filament\Http\Middleware\Authenticate;
@@ -58,6 +62,28 @@ class AdminPanelProvider extends PanelProvider
         IconColumn::configureUsing(fn (IconColumn $column) => $column
             ->falseIcon(Heroicon::OutlinedMinus)
             ->falseColor('gray'));
+
+        // Every dropdown opens with its choices already listed (owner's request), in forms and filters.
+        Select::configureUsing(fn (Select $select) => $select->preload());
+        SelectFilter::configureUsing(fn (SelectFilter $filter) => $filter->preload());
+
+        // Search a relationship dropdown whatever the Arabic spelling ("ارز" finds "أرز").
+        // Call after ->relationship(); $scope repeats its modifyQueryUsing, if it has one.
+        Select::macro('arabicSearch', function (?Closure $scope = null): Select {
+            /** @var Select $this */
+            return $this->getSearchResultsUsing(function (Select $component, string $search) use ($scope): array {
+                $related = $component->getRelationship()->getRelated();
+                $title = $component->getRelationshipTitleAttribute();
+                $query = $related->newQuery();
+                $query = $scope ? ($scope($query) ?? $query) : $query;
+
+                return ArabicSearch::constrain($query, [$title], $search)
+                    ->orderBy($title)
+                    ->limit(50)
+                    ->pluck($title, $related->getKeyName())
+                    ->all();
+            });
+        });
     }
 
     public function panel(Panel $panel): Panel

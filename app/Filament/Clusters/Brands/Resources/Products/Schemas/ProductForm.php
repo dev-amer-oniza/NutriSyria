@@ -39,6 +39,7 @@ class ProductForm
                             // Offered: the brands the user may see (the nutritionist reads every product's
                             // brand). Accepted on save: only the brands the user manages (rules below).
                             ->relationship('brand', 'name', modifyQueryUsing: fn ($query) => BrandScope::brands($query, readOnly: true))
+                            ->arabicSearch(fn ($query) => BrandScope::brands($query, readOnly: true))
                             ->rules(fn () => ($ids = BrandScope::brandIds(auth()->user())) === null ? [] : [Rule::in($ids)])
                             // A brand owner with a single brand does not have to pick it.
                             ->default(fn () => count($ids = BrandScope::brandIds(auth()->user()) ?? []) === 1 ? $ids[0] : null)

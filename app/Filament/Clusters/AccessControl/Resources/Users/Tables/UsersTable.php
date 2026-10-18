@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\AccessControl\Resources\Users\Tables;
 
+use App\Support\ArabicSearch;
 use App\Auth\Access;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -21,7 +22,7 @@ class UsersTable
             ->columns([
                 TextColumn::make('name')
                     ->label('الاسم')
-                    ->searchable()
+                    ->searchable(query: ArabicSearch::column('name'))
                     ->sortable()
                     ->weight('bold'),
                 TextColumn::make('email')

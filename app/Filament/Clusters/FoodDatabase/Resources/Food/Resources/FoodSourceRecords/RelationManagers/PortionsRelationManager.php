@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Clusters\FoodDatabase\Resources\Food\Resources\FoodSourceRecords\RelationManagers;
 
+use App\Support\ArabicSearch;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -34,6 +35,7 @@ class PortionsRelationManager extends RelationManager
                 Select::make('measure_unit_id')
                     ->label('وحدة القياس')
                     ->relationship('measureUnit', 'name_ar')
+                    ->arabicSearch()
                     ->required()
                     ->searchable()
                     ->preload()
@@ -80,7 +82,7 @@ class PortionsRelationManager extends RelationManager
                     ->suffix(' غ'),
                 TextColumn::make('description')
                     ->label('الوصف')
-                    ->searchable()
+                    ->searchable(query: ArabicSearch::column('description'))
                     ->placeholder('—'),
                 IconColumn::make('is_default')
                     ->label('افتراضية')

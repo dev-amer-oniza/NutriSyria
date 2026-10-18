@@ -9,6 +9,10 @@ class SourceRecordsRelationManager extends RelationManager
 {
     protected static string $relationship = 'sourceRecords';
 
+    protected static ?string $modelLabel = 'سجل مصدر';
+
+    protected static ?string $pluralModelLabel = 'سجلات المصادر';
+
     protected static ?string $relatedResource = FoodSourceRecordResource::class;
 
     protected static ?string $title = 'مصادر الغذاء';

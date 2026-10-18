@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\FoodDatabase\Pages;
 
+use App\Support\ArabicSearch;
 use App\Auth\Access;
 use App\Filament\Clusters\FoodDatabase\FoodDatabaseCluster;
 use App\Models\Food;
@@ -59,7 +60,9 @@ class CompareFoodSources extends Page implements HasForms
                     ->components([
                         Select::make('food_id')
                             ->label('الغذاء')
-                            ->options(fn () => Food::query()->pluck('name_ar', 'id'))
+                            ->options(fn () => Food::query()->orderBy('name_ar')->pluck('name_ar', 'id'))
+                            ->getSearchResultsUsing(fn (string $search) => ArabicSearch::constrain(Food::query(), ['name_ar', 'name_en'], $search)
+                                ->orderBy('name_ar')->limit(50)->pluck('name_ar', 'id')->all())
                             ->searchable()
                             ->live()
                             ->native(false)

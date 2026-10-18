@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Clusters\Brands\Resources\Products\RelationManagers;
 
+use App\Support\ArabicSearch;
 use App\Enums\FoodSourceStatus;
 use App\Models\FoodSourceRecord;
 use App\Services\Nutrition\GramsConversion;
@@ -30,6 +31,10 @@ class RecipeIngredientsRelationManager extends RelationManager
 {
     protected static string $relationship = 'recipeIngredients';
 
+    protected static ?string $modelLabel = 'مكوّن';
+
+    protected static ?string $pluralModelLabel = 'المكوّنات';
+
     protected static ?string $title = 'مكونات الوصفة';
 
     public function getRelationship(): Relation
@@ -44,24 +49,8 @@ class RecipeIngredientsRelationManager extends RelationManager
                 Select::make('food_source_record_id')
                     ->label('المكوّن')
                     // Approved records only: pending or rejected data never reaches a recipe.
-                    ->options(fn() => FoodSourceRecord::query()
-                            ->where('status', FoodSourceStatus::Active)
-                            ->with(['food', 'foodForm', 'dataSource'])
-                            ->orderByDesc('id')
-                            ->limit(50)
-                            ->get()
-                            ->mapWithKeys(fn(FoodSourceRecord $r) => [
-                                $r->id => self::labelFor($r),
-                            ]))
-                    ->getSearchResultsUsing(fn(string $search) => FoodSourceRecord::query()
-                            ->where('status', FoodSourceStatus::Active)
-                            ->whereHas('food', fn($q) => $q->where('name_ar', 'like', "%{$search}%"))
-                            ->with(['food', 'foodForm', 'dataSource'])
-                            ->limit(50)
-                            ->get()
-                            ->mapWithKeys(fn(FoodSourceRecord $r) => [
-                                $r->id => self::labelFor($r),
-                            ]))
+                    ->options(fn () => self::ingredientOptions())
+                    ->getSearchResultsUsing(fn (string $search) => self::ingredientOptions($search))
                     ->getOptionLabelUsing(function ($value) {
                         $r = FoodSourceRecord::with(['food', 'foodForm', 'dataSource'])->find($value);
 
@@ -78,6 +67,7 @@ class RecipeIngredientsRelationManager extends RelationManager
                 Select::make('measure_unit_id')
                     ->label('وحدة القياس')
                     ->relationship('measureUnit', 'name_ar')
+                    ->arabicSearch()
                     ->required()
                     ->searchable()
                     ->live()
@@ -232,6 +222,29 @@ class RecipeIngredientsRelationManager extends RelationManager
         $auto = $ids ? $this->autoConversion($get)?->portionId : null;
 
         $set('food_portion_id', in_array($auto, $ids, true) ? $auto : null);
+    }
+
+    /**
+     * Approved records by food name. A search matches the Arabic and English names and the
+     * food's aliases, whatever the spelling ("ارز" finds "أرز", "جبنه" finds "جبنة").
+     *
+     * @return array<int, string>
+     */
+    private static function ingredientOptions(?string $search = null): array
+    {
+        return FoodSourceRecord::query()
+            ->join('foods', 'foods.id', '=', 'food_source_records.food_id')
+            ->where('food_source_records.status', FoodSourceStatus::Active)
+            ->when(filled($search), fn (Builder $query) => $query->where(fn (Builder $query) => ArabicSearch::constrain($query, ['foods.name_ar', 'foods.name_en'], $search)
+                ->orWhereHas('food.aliases', fn (Builder $alias) => ArabicSearch::constrain($alias, ['name_ar', 'name_en'], $search))))
+            ->orderBy('foods.name_ar')
+            ->orderBy('food_source_records.id')
+            ->select('food_source_records.*')
+            ->with(['food', 'foodForm', 'dataSource'])
+            ->limit(filled($search) ? 50 : 1000)
+            ->get()
+            ->mapWithKeys(fn (FoodSourceRecord $r) => [$r->id => self::labelFor($r)])
+            ->all();
     }
 
     private static function labelFor(FoodSourceRecord $r): string

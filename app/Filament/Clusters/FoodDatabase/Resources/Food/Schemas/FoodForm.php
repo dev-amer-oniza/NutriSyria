@@ -29,6 +29,7 @@ class FoodForm
                         Select::make('food_category_id')
                             ->label('التصنيف')
                             ->relationship('category', 'name_ar')
+                            ->arabicSearch()
                             ->searchable()
                             ->native(false),
                         TextInput::make('scientific_name')
