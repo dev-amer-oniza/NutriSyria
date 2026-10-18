@@ -41,7 +41,9 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL') . '/storage',
+            // Relative, so images open on whatever address the panel is browsed at
+            // (127.0.0.1:8000 while APP_URL says localhost). Served by Laravel even without storage:link.
+            'url' => '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

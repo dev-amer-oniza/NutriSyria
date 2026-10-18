@@ -90,6 +90,7 @@ class ProductForm
                         FileUpload::make('img')
                             ->label('صورة المنتج')
                             ->image()
+                            ->disk('public')
                             ->directory('products')
                             ->imageEditor(),
                     ]),
