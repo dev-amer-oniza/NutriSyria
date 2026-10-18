@@ -169,4 +169,18 @@ class RoleDashboardsTest extends TestCase
         $this->assertSame(1, FoodNutrientValue::where('product_id', $product->id)->count());
         $this->get(ProductResource::getUrl('view', ['record' => $product]))->assertOk()->assertSee('اعتمدها');
     }
+
+    public function test_a_brand_owner_never_lands_on_the_read_only_product_page(): void
+    {
+        $this->signInAs(Access::BRAND_OWNER)->brands()->attach($this->mine->id);
+        $product = $this->product($this->mine, 'سندويشة فلافل');
+        $edit = ProductResource::getUrl('edit', ['record' => $product]);
+
+        $this->assertSame($edit, ProductResource::pageUrlFor($product));
+        $this->assertSame($edit, ProductResource::getGlobalSearchResultUrl($product));
+        Livewire::test(\App\Filament\Clusters\Brands\Resources\Products\Pages\ListProducts::class)
+            ->assertTableActionHidden('view', $product);
+        Livewire::test(\App\Filament\Clusters\Brands\Resources\Products\Pages\ViewProduct::class, ['record' => $product->getRouteKey()])
+            ->assertRedirect($edit);
+    }
 }

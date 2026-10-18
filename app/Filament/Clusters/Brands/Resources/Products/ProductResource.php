@@ -17,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class ProductResource extends Resource
 {
@@ -48,6 +49,11 @@ class ProductResource extends Resource
     public static function pageUrlFor(Product $product): string
     {
         return static::getUrl(auth()->user()?->can('update', $product) ? 'edit' : 'view', ['record' => $product]);
+    }
+
+    public static function getGlobalSearchResultUrl(Model $record): string
+    {
+        return static::pageUrlFor($record);
     }
 
     public static function form(Schema $schema): Schema
