@@ -18,6 +18,7 @@ use Illuminate\Support\Carbon;
 enum NutritionApprovalStatus: string implements HasLabel, HasColor, HasIcon
 {
     case NoRecipe = 'no_recipe';
+    case ChangesRequested = 'changes_requested';
     case Awaiting = 'awaiting';
     case Changed = 'changed';
     case Approved = 'approved';
@@ -28,11 +29,16 @@ enum NutritionApprovalStatus: string implements HasLabel, HasColor, HasIcon
             ->with('recipe')
             ->withCount('recipeIngredients')
             ->withExists('nutrientValues as has_official_values')
+            ->withExists(['reviewNotes as has_open_notes' => fn (Builder $q) => $q->whereNull('resolved_at')])
             ->withMax('recipeIngredients as ingredients_changed_at', 'product_recipe_ingredients.updated_at');
     }
 
     public static function of(Product $product): self
     {
+        // The nutritionist asked for a change: the brand owner's turn, whatever else holds.
+        if ($product->has_open_notes) {
+            return self::ChangesRequested;
+        }
         if ((int) $product->recipe_ingredients_count === 0) {
             return self::NoRecipe;
         }
@@ -52,6 +58,7 @@ enum NutritionApprovalStatus: string implements HasLabel, HasColor, HasIcon
     {
         return match ($this) {
             self::NoRecipe => 'بلا وصفة',
+            self::ChangesRequested => 'مطلوب تعديل',
             self::Awaiting => 'ينتظر اعتماد الأخصائي',
             self::Changed => 'تغيّرت الوصفة بعد الاعتماد',
             self::Approved => 'قيم رسمية معتمدة',
@@ -62,6 +69,7 @@ enum NutritionApprovalStatus: string implements HasLabel, HasColor, HasIcon
     {
         return match ($this) {
             self::NoRecipe => 'gray',
+            self::ChangesRequested => 'danger',
             self::Awaiting, self::Changed => 'warning',
             self::Approved => 'success',
         };
@@ -71,6 +79,7 @@ enum NutritionApprovalStatus: string implements HasLabel, HasColor, HasIcon
     {
         return match ($this) {
             self::NoRecipe => Heroicon::OutlinedMinusCircle,
+            self::ChangesRequested => Heroicon::OutlinedChatBubbleLeftEllipsis,
             self::Awaiting => Heroicon::OutlinedClock,
             self::Changed => Heroicon::OutlinedExclamationTriangle,
             self::Approved => Heroicon::OutlinedCheckBadge,

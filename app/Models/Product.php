@@ -52,4 +52,10 @@ class Product extends Model
             'product_recipe_id', // العمود في product_recipe_ingredients الذي يشير للوصفة
         );
     }
+
+    /** The nutritionist's notes on this product's analysis, newest first. */
+    public function reviewNotes(): HasMany
+    {
+        return $this->hasMany(ProductReviewNote::class)->latest();
+    }
 }

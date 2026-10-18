@@ -56,6 +56,15 @@ class ProductsWorkStats extends StatsOverviewWidget
 
         $waiting = $count(NutritionApprovalStatus::Awaiting, NutritionApprovalStatus::Changed);
 
+        // Products with an open review note: the brand owner's move.
+        if ($requested = $count(NutritionApprovalStatus::ChangesRequested)) {
+            $stats[] = Stat::make($user->can('create', Product::class) ? 'مطلوب منك تعديل' : 'تنتظر تعديل صاحب البراند', number_format($requested))
+                ->description('ملاحظات أخصائي التغذية مفتوحة')
+                ->icon('heroicon-o-chat-bubble-left-ellipsis')
+                ->color('danger')
+                ->url($productsUrl);
+        }
+
         return [
             ...$stats,
             Stat::make('المنتجات', number_format($statuses->count()))

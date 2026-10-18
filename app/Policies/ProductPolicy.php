@@ -56,4 +56,16 @@ class ProductPolicy
     {
         return $user->allows(Access::NUTRITION_APPROVE) && $this->view($user, $product);
     }
+
+    /** Send the brand owner a note about the analysis: whoever may approve it. */
+    public function sendReviewNote(User $user, Product $product): bool
+    {
+        return $this->approveNutrition($user, $product);
+    }
+
+    /** Mark a note as fixed: whoever may change the product (its brand owner). */
+    public function resolveReviewNote(User $user, Product $product): bool
+    {
+        return $this->update($user, $product);
+    }
 }
