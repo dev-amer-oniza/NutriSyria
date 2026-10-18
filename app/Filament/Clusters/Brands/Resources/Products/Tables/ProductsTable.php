@@ -4,6 +4,7 @@ namespace App\Filament\Clusters\Brands\Resources\Products\Tables;
 
 use App\Auth\BrandScope;
 use App\Enums\NutritionApprovalStatus;
+use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -23,6 +24,8 @@ class ProductsTable
     {
         return $table
             ->modifyQueryUsing(fn (Builder $query) => NutritionApprovalStatus::withApprovalData($query))
+            // Filament would open the read-only page first; whoever may edit goes straight to editing.
+            ->recordUrl(fn ($record) => ProductResource::pageUrlFor($record))
             ->columns([
                 ImageColumn::make('img')
                     ->label('')
