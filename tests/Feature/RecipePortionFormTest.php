@@ -29,12 +29,7 @@ class RecipePortionFormTest extends TestCase
 
     public function test_the_size_field_appears_and_is_saved(): void
     {
-        // Users and permissions live on the fixed "central" connection: point it at the test database.
-        config(['database.connections.central' => config('database.connections.sqlite')]);
-        DB::purge('central');
-        DB::connection('central')->setPdo(DB::connection()->getPdo());
-        $this->actingAs(User::forceCreate(['name' => 'admin', 'email' => 'admin@example.test', 'password' => 'x']));
-        Filament::setCurrentPanel('admin');
+        $this->signInAs();
 
         $source = DataSource::create(['code' => 'usda_fdc_sr_legacy', 'name' => 'USDA SR Legacy', 'type' => 'usda_fdc']);
         $onion = FoodSourceRecord::create([

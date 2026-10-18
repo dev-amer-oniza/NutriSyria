@@ -103,12 +103,16 @@
                 </table>
             </div>
 
-            @if ($result['can_save_official_value'])
+            @if ($result['can_save_official_value'] && $this->canApprove())
                 <div class="mt-6">
                     <x-filament::button wire:click="approveAnalysis" color="success">
                         اعتماد هذا التحليل كقيمة رسمية
                     </x-filament::button>
                 </div>
+            @elseif ($result['can_save_official_value'])
+                <p class="mt-6 text-sm text-gray-500 dark:text-gray-400">
+                    التحليل جاهز. يعتمده أخصائي التغذية كقيمة رسمية بعد مراجعته.
+                </p>
             @endif
         </x-filament::section>
     @endif

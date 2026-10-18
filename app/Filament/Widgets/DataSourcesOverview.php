@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Auth\Access;
 use App\Services\Dashboard\DatabaseOverview;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -13,6 +14,15 @@ class DataSourcesOverview extends TableWidget
     protected static ?int $sort = 2;
 
     protected int | string | array $columnSpan = 'full';
+
+    /** Database-wide numbers: for those who work on the food data or its imports, not brand owners. */
+    public static function canView(): bool
+    {
+        $user = auth()->user();
+
+        return $user !== null
+            && ($user->allows(Access::FOODS_VIEW) || $user->allows(Access::FOODS_MANAGE) || $user->allows(Access::IMPORTS_VIEW));
+    }
 
     public function table(Table $table): Table
     {

@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Clusters\Brands\Resources\Products\RelationManagers;
 
+use App\Enums\FoodSourceStatus;
 use App\Models\FoodSourceRecord;
 use App\Services\Nutrition\GramsConversion;
 use App\Services\Nutrition\GramsConverter;
@@ -23,6 +24,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Validation\Rule;
 
 class RecipeIngredientsRelationManager extends RelationManager
 {
@@ -41,7 +43,9 @@ class RecipeIngredientsRelationManager extends RelationManager
             ->components([
                 Select::make('food_source_record_id')
                     ->label('المكوّن')
+                    // Approved records only: pending or rejected data never reaches a recipe.
                     ->options(fn() => FoodSourceRecord::query()
+                            ->where('status', FoodSourceStatus::Active)
                             ->with(['food', 'foodForm', 'dataSource'])
                             ->orderByDesc('id')
                             ->limit(50)
@@ -50,6 +54,7 @@ class RecipeIngredientsRelationManager extends RelationManager
                                 $r->id => self::labelFor($r),
                             ]))
                     ->getSearchResultsUsing(fn(string $search) => FoodSourceRecord::query()
+                            ->where('status', FoodSourceStatus::Active)
                             ->whereHas('food', fn($q) => $q->where('name_ar', 'like', "%{$search}%"))
                             ->with(['food', 'foodForm', 'dataSource'])
                             ->limit(50)
@@ -66,6 +71,8 @@ class RecipeIngredientsRelationManager extends RelationManager
                     ->preload()
                     ->live()
                     ->afterStateUpdated(fn (Get $get, Set $set) => $this->presetPortion($get, $set))
+                    // A searchable select accepts any id the browser sends: check it on the server.
+                    ->rules([Rule::exists('food_source_records', 'id')->where('status', FoodSourceStatus::Active->value)])
                     ->required(),
 
                 Select::make('measure_unit_id')
@@ -86,6 +93,7 @@ class RecipeIngredientsRelationManager extends RelationManager
                     // Required only when the food has no default size that settles it.
                     ->required(fn (Get $get) => $this->autoConversion($get)?->status === GramsConversion::AMBIGUOUS_PORTION)
                     ->helperText('للغذاء أكثر من حجم لهذه الوحدة: اختر الحجم المستعمل في هذه الوصفة.')
+                    ->rules(fn (Get $get) => [Rule::in(array_column($this->choicesFor($get), 'id'))])
                     ->live()
                     ->native(false),
 

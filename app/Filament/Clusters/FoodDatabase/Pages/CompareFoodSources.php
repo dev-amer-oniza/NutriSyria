@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\FoodDatabase\Pages;
 
+use App\Auth\Access;
 use App\Filament\Clusters\FoodDatabase\FoodDatabaseCluster;
 use App\Models\Food;
 use App\Models\FoodSourceRecord;
@@ -18,6 +19,14 @@ use Filament\Support\Icons\Heroicon;
 class CompareFoodSources extends Page implements HasForms
 {
     use InteractsWithForms;
+
+    /** Reads the food database. */
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        return $user !== null && ($user->allows(Access::FOODS_VIEW) || $user->allows(Access::FOODS_MANAGE));
+    }
 
     protected string $view = 'filament.clusters.food-database.pages.compare-food-sources';
 

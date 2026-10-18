@@ -36,6 +36,8 @@ class BrandForm
                             ->label('يقدّم توصيلاً')
                             ->default(false),
                         Toggle::make('is_active')
+                            // Activating a brand is the admin's call, not the owner's.
+                            ->disabled(fn () => ! auth()->user()?->allows(\App\Auth\Access::BRANDS_MANAGE_ALL))
                             ->label('نشط')
                             ->default(true)
                             ->helperText('البراند غير النشط لا يظهر للمستخدمين'),

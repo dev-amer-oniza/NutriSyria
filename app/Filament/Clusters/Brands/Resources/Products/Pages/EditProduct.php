@@ -18,7 +18,8 @@ class EditProduct extends EditRecord
                 ->label('تحليل الوصفة')
                 ->icon('heroicon-o-calculator')
                 ->color('success')
-                ->url(fn() => RecipeAnalysis::getUrl() . '?product=' . $this->record->id),
+                ->url(fn() => RecipeAnalysis::getUrl() . '?product=' . $this->record->id)
+                ->visible(fn () => auth()->user()?->can('view', $this->record) ?? false),
                 
             DeleteAction::make(),
         ];

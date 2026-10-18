@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Clusters\ImportReview\Pages;
 
+use App\Auth\Access;
 use App\Filament\Clusters\ImportReview\ImportReviewCluster;
 use App\Filament\Clusters\ImportReview\Resources\ImportBatches\ImportBatchResource;
 use App\Services\Import\BundleImporter;
@@ -24,6 +25,12 @@ use Filament\Support\Icons\Heroicon;
 class UploadImportBatch extends Page implements HasForms
 {
     use InteractsWithForms;
+
+    /** Uploading and saving batches: upload rights only. */
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->allows(Access::IMPORTS_UPLOAD);
+    }
 
     protected string $view = 'filament.clusters.import-review.pages.upload-import-batch';
 
