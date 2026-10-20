@@ -1,0 +1,142 @@
+/* Shared components. One block per Blade partial in resources/views/site/components. */
+@layer components {
+    /* ---------- Logo lockup (partials/logo) ---------- */
+    .ns-logo { display: inline-flex; align-items: center; gap: 10px; direction: ltr; color: var(--pine); text-decoration: none; border-radius: var(--radius-sm); }
+    .ns-logo svg { width: 34px; height: 34px; flex: none; }
+    .ns-logo__word { font-family: var(--font-latin); font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+    .ns-logo--on-pine .ns-logo__word { color: var(--on-pine); }
+    .ns-mark .petal { fill: var(--pine); }
+    .ns-mark .origin { fill: var(--terracotta); }
+    .ns-logo--on-pine .ns-mark .petal { fill: var(--on-pine); }
+
+    /* ---------- Button ---------- */
+    .ns-btn { font: inherit; font-family: var(--font-arabic); font-size: 15px; line-height: 24px; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); height: 48px; padding: 0 var(--space-5); border-radius: var(--radius-md); border: 1px solid transparent; background: transparent; color: var(--ink); cursor: pointer; text-decoration: none; white-space: nowrap; transition: background-color .15s ease, border-color .15s ease, color .15s ease; }
+    .ns-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    .ns-btn--primary { background: var(--pine); color: var(--on-pine); }
+    .ns-btn--primary:hover { background: var(--pine-strong); }
+    .ns-btn--secondary { border-color: var(--pine); color: var(--pine); }
+    .ns-btn--secondary:hover { background: var(--pine-soft); }
+    .ns-btn--ghost:hover { background: var(--sand); }
+    .ns-btn--on-pine { background: var(--on-pine); color: var(--pine); }
+    .ns-btn--on-pine:hover { background: var(--sand); }
+    .ns-btn--on-pine:focus-visible { box-shadow: var(--focus-ring-on-pine); }
+    .ns-btn--sm { height: 40px; padding: 0 var(--space-4); }
+    .ns-btn--icon { width: 40px; height: 40px; padding: 0; }
+
+    /* ---------- Link & eyebrow ---------- */
+    .ns-link { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--pine); font-size: 15px; line-height: 24px; font-weight: 600; text-decoration: none; white-space: nowrap; border-radius: var(--radius-sm); }
+    .ns-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+    .ns-eyebrow { display: inline-flex; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-3); font-size: 14px; line-height: 22px; font-weight: 600; color: var(--pine); }
+    .ns-eyebrow::before { content: ""; width: 12px; height: 12px; background: var(--pine); border-top-right-radius: var(--radius-arc); }
+    .ns-eyebrow--on-pine { color: var(--sage); }
+    .ns-eyebrow--on-pine::before { background: var(--sage); }
+
+    /* ---------- Search field (components/search-field) ---------- */
+    .ns-search { display: flex; align-items: center; gap: var(--space-3); height: 64px; padding: var(--space-2); padding-inline-start: var(--space-5); background: var(--surface-raised); border: 1px solid var(--line-strong); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); color: var(--ink-muted); }
+    .ns-search:focus-within { border-color: var(--pine); box-shadow: var(--focus-ring); }
+    .ns-search__input { flex: 1; min-width: 0; height: 100%; border: 0; outline: none; background: transparent; font: inherit; font-family: var(--font-arabic); font-size: 17px; color: var(--ink); }
+    .ns-search__input::placeholder { color: var(--ink-muted); opacity: 1; }
+    .ns-search .ns-btn { height: 48px; }
+
+    /* ---------- Chip ---------- */
+    .ns-chip { font: inherit; font-family: var(--font-arabic); display: inline-flex; align-items: center; gap: var(--space-2); height: 36px; padding: 0 var(--space-4); border-radius: var(--radius-full); border: 1px solid var(--line); background: var(--surface-raised); color: var(--ink); font-size: 14px; line-height: 20px; font-weight: 500; cursor: pointer; text-decoration: none; white-space: nowrap; transition: border-color .15s ease, background-color .15s ease; }
+    .ns-chip:hover { border-color: var(--pine); }
+    .ns-chip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    .ns-chip[aria-pressed="true"], .ns-chip[aria-checked="true"] { background: var(--pine); border-color: var(--pine); color: var(--on-pine); }
+    .ns-chip .ns-icon { width: 18px; height: 18px; }
+
+    /* ---------- Verification badge (components/verify-badge) ---------- */
+    .ns-verify { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px 0 8px; border-radius: var(--radius-sm); font-family: var(--font-arabic); font-size: 13px; line-height: 20px; font-weight: 500; white-space: nowrap; }
+    .ns-verify svg { width: 12px; height: 12px; flex: none; }
+    .ns-verify--verified { background: var(--pine-soft); color: var(--pine); }
+    .ns-verify--verified svg path { fill: currentColor; }
+    .ns-verify--calculated { background: var(--sand); color: var(--ink); }
+    .ns-verify--calculated svg path { fill: currentColor; }
+    .ns-verify--estimated { background: var(--terracotta-soft); color: var(--terracotta-ink); }
+    .ns-verify--estimated svg path { fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* ---------- Nutrient stat (components/nutrient-stat) ---------- */
+    .ns-stat { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .ns-stat__label { font-size: 13px; line-height: 20px; color: var(--ink-muted); display: inline-flex; align-items: center; gap: 6px; }
+    .ns-stat__key { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+    .ns-stat__value { display: inline-flex; align-items: baseline; gap: 4px; }
+    .ns-stat__value .ns-num { font-size: 24px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+    .ns-stat__unit { font-size: 13px; color: var(--ink-muted); }
+
+    /* ---------- Macro bar ---------- */
+    .ns-macrobar { display: flex; height: 12px; border-radius: var(--radius-full); overflow: hidden; gap: 2px; background: var(--surface-raised); }
+    .ns-macrobar span { display: block; height: 100%; transition: flex-grow .5s cubic-bezier(.2,.7,.2,1); }
+    .ns-key-protein { background: var(--pine); }
+    .ns-key-carbs { background: var(--sage); }
+    .ns-key-fat { background: var(--pine-soft); box-shadow: inset 0 0 0 1.5px var(--pine); }
+
+    /* ---------- Dish card (components/dish-card) ---------- */
+    .ns-dish { display: flex; flex-direction: column; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; color: inherit; text-decoration: none; transition: box-shadow .2s ease, transform .2s ease; }
+    .ns-dish:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .ns-dish:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    .ns-dish__cover { position: relative; height: 144px; background: var(--sand); overflow: hidden; }
+    .ns-dish__cover .ns-chain { position: absolute; inset-inline-start: 0; top: 0; }
+    .ns-dish__cover img { width: 100%; height: 100%; object-fit: cover; }
+    .ns-dish__body { flex: 1; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-5); }
+    .ns-dish__meta { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-1); font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-dish__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+    .ns-dish__name { margin: 0; font-size: 22px; line-height: 34px; font-weight: 600; color: var(--ink); }
+    .ns-dish__kcal { display: inline-flex; align-items: baseline; gap: 4px; flex: none; font-size: 13px; color: var(--ink-muted); }
+    .ns-dish__kcal .ns-num { font-size: 20px; line-height: 28px; font-weight: 600; color: var(--pine); }
+    .ns-dish__desc { margin: 0; min-height: 44px; font-size: 14px; line-height: 22px; color: var(--ink-muted); }
+    .ns-dish__macros { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); margin: auto 0 0; padding-top: var(--space-4); border-top: 1px solid var(--line); }
+    .ns-dish__macros div { display: flex; flex-direction: column; gap: 2px; }
+    .ns-dish__macros dt { font-size: 12px; line-height: 18px; color: var(--ink-muted); }
+    .ns-dish__macros dd { margin: 0; font-size: 12px; color: var(--ink-muted); }
+    .ns-dish__macros dd .ns-num { font-size: 18px; line-height: 24px; font-weight: 600; color: var(--ink); }
+
+    /* ---------- Feature tile (components/feature-tile) ---------- */
+    .ns-feature { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); color: inherit; text-decoration: none; transition: border-color .15s ease, box-shadow .2s ease; }
+    .ns-feature:hover { border-color: var(--pine); }
+    .ns-feature:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    .ns-feature__icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: var(--radius-md); background: var(--pine-soft); color: var(--pine); }
+    .ns-feature__title { margin: 0; font-size: 18px; line-height: 28px; font-weight: 600; color: var(--ink); display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+    .ns-feature__title .ns-icon { color: var(--ink-muted); width: 18px; height: 18px; transition: transform .2s ease; }
+    .ns-feature:hover .ns-feature__title .ns-icon { transform: translateX(-4px); color: var(--pine); }
+    .ns-feature__text { margin: 0; font-size: 14px; line-height: 24px; color: var(--ink-muted); }
+
+    /* ---------- Chain-reaction tiles (components/chain-tiles) ---------- */
+    .ns-chain { display: grid; grid-template-columns: repeat(var(--cols, 4), var(--tile, var(--tile-unit))); grid-auto-rows: var(--tile, var(--tile-unit)); direction: ltr; }
+    .ns-tile { display: block; width: 100%; height: 100%; background: var(--pine); transition: border-radius .5s cubic-bezier(.2,.7,.2,1), background-color .3s ease, transform .5s cubic-bezier(.2,.7,.2,1); }
+    .ns-tile--sage { background: var(--sage); }
+    .ns-tile--terracotta { background: var(--terracotta); }
+    .ns-tile--sand { background: var(--sand); }
+    .ns-tile--surface { background: var(--surface-raised); }
+    .ns-tile--empty { background: transparent; }
+    .ns-tile--q-tl { border-top-left-radius: var(--radius-arc); }
+    .ns-tile--q-tr { border-top-right-radius: var(--radius-arc); }
+    .ns-tile--q-bl { border-bottom-left-radius: var(--radius-arc); }
+    .ns-tile--q-br { border-bottom-right-radius: var(--radius-arc); }
+    .ns-tile--p-a { border-top-left-radius: var(--radius-arc); border-bottom-right-radius: var(--radius-arc); }
+    .ns-tile--p-b { border-top-right-radius: var(--radius-arc); border-bottom-left-radius: var(--radius-arc); }
+
+    /* ---------- Fit verdict (components/fit-verdict) ----------
+       Four calm levels for how a meal fits one person. The meter is four
+       small tiles; no loud red: the lowest level is ink on surface. */
+    .ns-verdict { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); transition: background-color .3s ease, color .3s ease; }
+    .ns-verdict__label { font-size: 17px; line-height: 26px; font-weight: 600; }
+    .ns-verdict__meter { display: grid; grid-template-columns: repeat(4, 14px); gap: 3px; flex: none; }
+    .ns-verdict__meter i { height: 14px; background: color-mix(in srgb, currentColor 22%, transparent); border-top-right-radius: var(--radius-arc); transition: background-color .3s ease; }
+    .ns-verdict[data-level="4"] { background: var(--pine-soft); color: var(--pine); }
+    .ns-verdict[data-level="3"] { background: var(--sand); color: var(--ink); }
+    .ns-verdict[data-level="2"] { background: var(--terracotta-soft); color: var(--terracotta-ink); }
+    .ns-verdict[data-level="1"] { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line-strong); }
+    .ns-verdict[data-level="4"] .ns-verdict__meter i:nth-child(-n+4),
+    .ns-verdict[data-level="3"] .ns-verdict__meter i:nth-child(-n+3),
+    .ns-verdict[data-level="2"] .ns-verdict__meter i:nth-child(-n+2),
+    .ns-verdict[data-level="1"] .ns-verdict__meter i:nth-child(-n+1) { background: currentColor; }
+
+    /* ---------- Share of daily needs (components/daily-share) ---------- */
+    .ns-share { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); margin: 0; }
+    .ns-share div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .ns-share dt { font-size: 12px; line-height: 18px; color: var(--ink-muted); }
+    .ns-share dd { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+    .ns-share dd .ns-num { font-size: 18px; line-height: 24px; font-weight: 600; color: var(--ink); }
+    .ns-share__track { height: 6px; border-radius: var(--radius-full); background: var(--sand); overflow: hidden; }
+    .ns-share__fill { display: block; height: 100%; background: var(--pine); border-radius: inherit; transition: width .5s cubic-bezier(.2,.7,.2,1); }
+}

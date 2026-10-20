@@ -1,0 +1,67 @@
+/* Identity tokens. The five brand colours come first; everything after is a tint or role. */
+:root {
+    --pine: #0f3d32;
+    --terracotta: #c15b3f;
+    --sage: #a7b89f;
+    --sand: #e8e1d6;
+    --charcoal: #1f1f1f;
+
+    --pine-strong: #0a2e25;
+    --surface: #f4f0e9;
+    --surface-raised: #fbf9f5;
+    --line: #ddd4c6;
+    --line-strong: #7d8a82;
+    --ink: var(--charcoal);
+    --ink-muted: #56615a;
+    --on-pine: #f4f0e9;
+    --pine-soft: #dfe6dc;
+    --terracotta-ink: #9e4329;
+    --terracotta-soft: #f3dfd6;
+
+    --font-arabic: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, sans-serif;
+    --font-latin: Sora, 'IBM Plex Sans Arabic', 'Segoe UI', sans-serif;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-8: 48px;
+    --space-10: 64px;
+    --space-12: 96px;
+    --tile-unit: 48px;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --radius-full: 9999px;
+    --radius-arc: 100%;
+
+    --shadow-sm: 0 1px 2px #0f3d320f, 0 2px 8px #0f3d320d;
+    --shadow-md: 0 2px 6px #0f3d3214, 0 16px 40px -12px #0f3d3233;
+    --focus-ring: 0 0 0 2px #fbf9f5, 0 0 0 4px #0f3d32;
+    --focus-ring-on-pine: 0 0 0 2px #0f3d32, 0 0 0 4px #f4f0e9;
+}
+
+/* The same tokens as Tailwind utilities (bg-pine, text-ink-muted, font-arabic...). */
+@theme inline {
+    --color-pine: var(--pine);
+    --color-pine-strong: var(--pine-strong);
+    --color-pine-soft: var(--pine-soft);
+    --color-terracotta: var(--terracotta);
+    --color-terracotta-ink: var(--terracotta-ink);
+    --color-terracotta-soft: var(--terracotta-soft);
+    --color-sage: var(--sage);
+    --color-sand: var(--sand);
+    --color-ink: var(--ink);
+    --color-ink-muted: var(--ink-muted);
+    --color-surface: var(--surface);
+    --color-surface-raised: var(--surface-raised);
+    --color-line: var(--line);
+    --color-line-strong: var(--line-strong);
+    --color-on-pine: var(--on-pine);
+    --font-arabic: var(--font-arabic);
+    --font-latin: var(--font-latin);
+}

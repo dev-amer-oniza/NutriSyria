@@ -1,0 +1,14 @@
+/*
+ * NutriSyria public site. Entry point: tokens first, then base,
+ * shared components, page chrome, and finally page sections.
+ * The admin panel keeps its own theme (filament/admin/theme.css).
+ */
+@import 'tailwindcss' source(none);
+@source '../views/site';
+@source '../js/site.js';
+
+@import './site/tokens.css';
+@import './site/base.css';
+@import './site/components.css';
+@import './site/chrome.css';
+@import './site/home.css';

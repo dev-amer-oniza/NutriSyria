@@ -1,0 +1,22 @@
+<section class="ns-trust" aria-labelledby="trust-title">
+    <div class="ns-wrap ns-trust__in">
+        <div>
+            <p class="ns-eyebrow ns-eyebrow--on-pine">الشفافية</p>
+            <h2 class="t-title" id="trust-title">أرقام تعرف مصدرها</h2>
+            <p class="t-lead ns-trust__lead">كل قيمة في NutriSyria تظهر مع مستوى التحقق منها، لتعرف مقدار الثقة الذي يمكنك أن تضعه فيها.</p>
+
+            <ul class="ns-levels">
+                @foreach (config('site.verification') as $level => $v)
+                    <li class="ns-level">
+                        @include('site.components.verify-badge', ['level' => $level])
+                        <p>{{ $v['text'] }}</p>
+                    </li>
+                @endforeach
+            </ul>
+
+            <a class="ns-btn ns-btn--on-pine" href="{{ \App\Support\Site\SiteLink::url('site.method') }}">اقرأ منهجية التحقق</a>
+        </div>
+
+        @include('site.components.chain-tiles', ['pattern' => 'trust', 'tile' => 72, 'class' => 'ns-trust__art'])
+    </div>
+</section>
