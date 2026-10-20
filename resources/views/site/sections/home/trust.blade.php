@@ -14,7 +14,7 @@
                 @endforeach
             </ul>
 
-            <a class="ns-btn ns-btn--on-pine" href="{{ \App\Support\Site\SiteLink::url('site.method') }}">اقرأ منهجية التحقق</a>
+            <a class="ns-btn ns-btn--on-pine" href="{{ route('site.method') }}">اقرأ منهجية التحقق</a>
         </div>
 
         @include('site.components.chain-tiles', ['pattern' => 'trust', 'tile' => 72, 'class' => 'ns-trust__art'])

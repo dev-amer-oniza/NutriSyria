@@ -11,7 +11,7 @@
                     <h3 class="ns-foot__h">{{ $heading }}</h3>
                     <ul>
                         @foreach ($links as $link)
-                            <li><a href="{{ \App\Support\Site\SiteLink::url($link['route']) }}">{{ $link['label'] }}</a></li>
+                            <li><a href="{{ route($link['route']) }}">{{ $link['label'] }}</a></li>
                         @endforeach
                     </ul>
                 </div>

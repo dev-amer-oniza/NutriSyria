@@ -6,7 +6,7 @@
     ['icon' => 'leaf', 'label' => 'ألياف أكثر'],
     ['icon' => 'bowl', 'label' => 'وجبات متوازنة'],
 ])
-@php($register = \App\Support\Site\SiteLink::url('register'))
+@php($register = route('site.register'))
 
 <section class="ns-section" aria-labelledby="goals-title">
     <div class="ns-wrap">
@@ -29,7 +29,7 @@
                 <p class="t-body ns-muted">أدخل بياناتك مرة واحدة، فنحسب لك مدى مناسبة كل وجبة والحصة الأنسب لك. بياناتك الصحية لك وحدك، ويمكنك حذفها متى شئت.</p>
                 <div class="ns-cta__actions">
                     <a class="ns-btn ns-btn--primary" href="{{ $register }}">أنشئ حسابك</a>
-                    <a class="ns-btn ns-btn--secondary" href="{{ \App\Support\Site\SiteLink::url('site.meals') }}">تصفّح الوجبات أولاً</a>
+                    <a class="ns-btn ns-btn--secondary" href="{{ route('site.meals') }}">تصفّح الوجبات أولاً</a>
                 </div>
             </div>
             @include('site.components.chain-tiles', ['pattern' => 'cta', 'tile' => 72, 'class' => 'ns-cta__art'])

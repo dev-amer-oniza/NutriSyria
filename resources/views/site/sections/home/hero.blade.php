@@ -9,7 +9,7 @@
             @include('site.components.search-field', [
                 'id' => 'q',
                 'placeholder' => 'ابحث عن وجبة أو مطعم…',
-                'action' => \App\Support\Site\SiteLink::url('site.meals'),
+                'action' => route('site.meals'),
                 'model' => 'q',
             ])
 

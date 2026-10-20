@@ -7,7 +7,7 @@
                 <h2 class="t-title" id="dishes-title">وجبات نعرفها، بأرقام نعرف مصدرها</h2>
                 <p class="t-lead ns-muted">القيم لكل حصة، ومع كل وجبة مستوى التحقق من أرقامها.</p>
             </div>
-            <a class="ns-link" href="{{ \App\Support\Site\SiteLink::url('site.meals') }}">كل الوجبات@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
+            <a class="ns-link" href="{{ route('site.meals') }}">كل الوجبات@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
         </div>
 
         <div class="ns-dishes">

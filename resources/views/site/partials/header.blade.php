@@ -12,8 +12,8 @@
             <a class="ns-btn ns-btn--ghost ns-btn--icon" href="{{ route('home') }}#search" aria-label="بحث">
                 @include('site.partials.icon', ['name' => 'search'])
             </a>
-            <a class="ns-btn ns-btn--ghost ns-btn--sm" href="{{ \App\Support\Site\SiteLink::url('login') }}">تسجيل الدخول</a>
-            <a class="ns-btn ns-btn--primary ns-btn--sm" href="{{ \App\Support\Site\SiteLink::url('register') }}">أنشئ حسابك</a>
+            <a class="ns-btn ns-btn--ghost ns-btn--sm" href="{{ route('site.login') }}">تسجيل الدخول</a>
+            <a class="ns-btn ns-btn--primary ns-btn--sm" href="{{ route('site.register') }}">أنشئ حسابك</a>
             <button class="ns-btn ns-btn--ghost ns-btn--icon ns-header__menu" type="button"
                     aria-controls="site-drawer" :aria-expanded="open" aria-expanded="false" aria-label="القائمة"
                     @click="open = ! open">

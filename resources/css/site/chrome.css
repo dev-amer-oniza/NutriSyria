@@ -59,3 +59,10 @@
         .ns-foot__base { flex-direction: column; }
     }
 }
+
+@layer components {
+    /* Placeholder for pages not built yet (pages/soon). */
+    .ns-soon { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); min-height: 50vh; }
+    .ns-soon h1 { margin: 0 0 var(--space-3); }
+    .ns-soon .t-lead { margin: 0 0 var(--space-6); max-width: 560px; }
+}

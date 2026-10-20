@@ -59,6 +59,6 @@
     <p class="ns-panel__source">
         @include('site.partials.icon', ['name' => 'document', 'size' => 'sm'])
         <span>محسوبة من <span class="ns-num">{{ $meal['ingredients'] }}</span> مكوّنات موثّقة · اعتمدها أخصائي تغذية، {{ $meal['approved'] }}</span>
-        <a href="{{ \App\Support\Site\SiteLink::url('site.method') }}">المنهجية</a>
+        <a href="{{ route('site.method') }}">المنهجية</a>
     </p>
 </section>

@@ -2,7 +2,7 @@
 
 /*
  * Public site settings shared by the Blade views in resources/views/site.
- * Links name a route; until that page exists the link falls back to "#".
+ * Links name a route in routes/web.php.
  */
 return [
 

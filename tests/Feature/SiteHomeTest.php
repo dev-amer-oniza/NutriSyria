@@ -18,6 +18,18 @@ class SiteHomeTest extends TestCase
             ->assertSee(config('site.verification.estimated.label'));
     }
 
+    public function test_site_links_are_routes_in_web_php(): void
+    {
+        $this->withoutVite()
+            ->get(route('site.meals'))
+            ->assertOk()
+            ->assertSee('الوجبات');
+
+        $this->withoutVite()
+            ->get('/')
+            ->assertDontSee('href="#"', false);
+    }
+
     public function test_chain_patterns_parse_colour_shape_and_distance(): void
     {
         $tiles = ChainPatterns::get('step-1')['tiles'];

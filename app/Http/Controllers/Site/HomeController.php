@@ -73,10 +73,10 @@ class HomeController extends Controller
     private function sampleDishes(): array
     {
         return [
-            ['key' => 'mujaddara', 'name' => 'مجدّرة', 'brand' => 'مطعم تجريبي', 'description' => 'عدس وبرغل مع بصل محمّر', 'portion' => 300, 'kcal' => 416, 'protein' => 15, 'carbs' => 62, 'fat' => 12, 'verification' => 'calculated', 'image' => null, 'url' => '#'],
-            ['key' => 'tabbouleh', 'name' => 'تبولة', 'brand' => 'مطعم تجريبي', 'description' => 'بقدونس وبرغل وبندورة بزيت الزيتون', 'portion' => 200, 'kcal' => 187, 'protein' => 4, 'carbs' => 18, 'fat' => 12, 'verification' => 'calculated', 'image' => null, 'url' => '#'],
-            ['key' => 'kibbeh-labanieh', 'name' => 'كبة لبنية', 'brand' => 'مطعم تجريبي', 'description' => 'كبة بالبرغل واللحم في لبن مطبوخ', 'portion' => 350, 'kcal' => 446, 'protein' => 24, 'carbs' => 38, 'fat' => 22, 'verification' => 'estimated', 'image' => null, 'url' => '#'],
-            ['key' => 'foul', 'name' => 'فول مدمّس', 'brand' => 'مطعم تجريبي', 'description' => 'فول بالليمون والثوم وزيت الزيتون', 'portion' => 250, 'kcal' => 310, 'protein' => 16, 'carbs' => 34, 'fat' => 12, 'verification' => 'calculated', 'image' => null, 'url' => '#'],
+            ['key' => 'mujaddara', 'name' => 'مجدّرة', 'brand' => 'مطعم تجريبي', 'description' => 'عدس وبرغل مع بصل محمّر', 'portion' => 300, 'kcal' => 416, 'protein' => 15, 'carbs' => 62, 'fat' => 12, 'verification' => 'calculated', 'image' => null, 'url' => route('site.meals')],
+            ['key' => 'tabbouleh', 'name' => 'تبولة', 'brand' => 'مطعم تجريبي', 'description' => 'بقدونس وبرغل وبندورة بزيت الزيتون', 'portion' => 200, 'kcal' => 187, 'protein' => 4, 'carbs' => 18, 'fat' => 12, 'verification' => 'calculated', 'image' => null, 'url' => route('site.meals')],
+            ['key' => 'kibbeh-labanieh', 'name' => 'كبة لبنية', 'brand' => 'مطعم تجريبي', 'description' => 'كبة بالبرغل واللحم في لبن مطبوخ', 'portion' => 350, 'kcal' => 446, 'protein' => 24, 'carbs' => 38, 'fat' => 22, 'verification' => 'estimated', 'image' => null, 'url' => route('site.meals')],
+            ['key' => 'foul', 'name' => 'فول مدمّس', 'brand' => 'مطعم تجريبي', 'description' => 'فول بالليمون والثوم وزيت الزيتون', 'portion' => 250, 'kcal' => 310, 'protein' => 16, 'carbs' => 34, 'fat' => 12, 'verification' => 'calculated', 'image' => null, 'url' => route('site.meals')],
         ];
     }
 }

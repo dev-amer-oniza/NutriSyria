@@ -3,7 +3,31 @@
 use App\Http\Controllers\Site\HomeController;
 use Illuminate\Support\Facades\Route;
 
+/*
+| Public site. Pages that are not built yet share one placeholder view
+| until they get their own controller.
+*/
 Route::get('/', HomeController::class)->name('home');
+
+Route::name('site.')->group(function () {
+    $soon = [
+        'meals' => ['/meals', 'الوجبات'],
+        'brands' => ['/restaurants', 'المطاعم'],
+        'method' => ['/method', 'منهجية التحقق'],
+        'partners' => ['/for-restaurants', 'للمطاعم'],
+        'goals' => ['/goals', 'الأهداف الصحية'],
+        'sources' => ['/sources', 'المصادر'],
+        'about' => ['/about', 'من نحن'],
+        'contact' => ['/contact', 'تواصل معنا'],
+        'privacy' => ['/privacy', 'سياسة الخصوصية'],
+        'login' => ['/login', 'تسجيل الدخول'],
+        'register' => ['/register', 'أنشئ حسابك'],
+    ];
+
+    foreach ($soon as $name => [$uri, $title]) {
+        Route::view($uri, 'site.pages.soon', ['title' => $title])->name($name);
+    }
+});
 
 Route::get('/admin/import-templates/{type}', function (string $type) {
     $templates = [

@@ -100,7 +100,8 @@ class TenancyServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->bootEvents();
-        $this->mapRoutes();
+        // routes/tenant.php is not loaded: its routes belong to the old restaurant
+        // system and were shadowing the public site. Site routes live in routes/web.php.
 
         $this->makeTenancyMiddlewareHighestPriority();
     }

@@ -29,6 +29,10 @@ Route::middleware([
         return response('ROUTE HIT - Laravel is handling this', 200);
     })->where('path', '.*');
 
+    Route::get('/', function () {
+        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+    });
+
     Route::get('/debug-livewire-route', function () {
         return collect(\Route::getRoutes())->filter(function ($route) {
             return str_contains($route->uri(), 'livewire');
