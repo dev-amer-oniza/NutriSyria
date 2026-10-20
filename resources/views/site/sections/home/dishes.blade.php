@@ -10,10 +10,17 @@
             <a class="ns-link" href="{{ route('site.meals') }}">كل الوجبات@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
         </div>
 
-        <div class="ns-dishes">
-            @foreach ($dishes as $dish)
-                @include('site.components.dish-card', ['dish' => $dish])
-            @endforeach
-        </div>
+        @if ($dishes)
+            <div class="ns-dishes">
+                @foreach ($dishes as $dish)
+                    @include('site.components.dish-card', ['dish' => $dish])
+                @endforeach
+            </div>
+        @else
+            <div class="ns-empty">
+                @include('site.components.chain-tiles', ['pattern' => 'step-4', 'tile' => 40])
+                <p class="t-body ns-muted">قريباً تظهر هنا وجبات المطاعم بعد أن يراجع أخصائي التغذية قيمها ويعتمدها.</p>
+            </div>
+        @endif
     </div>
 </section>

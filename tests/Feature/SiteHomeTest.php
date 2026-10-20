@@ -3,17 +3,19 @@
 namespace Tests\Feature;
 
 use App\Support\Site\ChainPatterns;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class SiteHomeTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_home_page_renders_the_public_site(): void
     {
         $this->withoutVite()
             ->get('/')
             ->assertOk()
             ->assertSee('اعرف ما في وجبتك', false)
-            ->assertSee('class="ns-dish"', false)
             ->assertSee(config('site.fit_levels.3'))
             ->assertSee(config('site.verification.estimated.label'));
     }

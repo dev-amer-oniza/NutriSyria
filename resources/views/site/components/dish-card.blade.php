@@ -1,6 +1,6 @@
 {{--
     Meal card. Param $dish: name, brand, description, portion (g), kcal,
-    protein, carbs, fat, verification, image (url or null), url, key.
+    protein, carbs, fat (null when missing), verification, image (url or null), url, key.
     Shows the restaurant's photo when there is one, otherwise the identity tiles.
 --}}
 <a class="ns-dish" href="{{ $dish['url'] }}">
@@ -18,14 +18,14 @@
         </div>
         <div class="ns-dish__head">
             <h3 class="ns-dish__name">{{ $dish['name'] }}</h3>
-            <span class="ns-dish__kcal"><span class="ns-num">{{ $dish['kcal'] }}</span><span>سعرة</span></span>
+            <span class="ns-dish__kcal"><span class="ns-num">{{ $dish['kcal'] ?? '—' }}</span><span>سعرة</span></span>
         </div>
-        <p class="ns-dish__desc">{{ $dish['brand'] }} · {{ $dish['description'] }}</p>
+        <p class="ns-dish__desc">{{ $dish['brand'] }}@if ($dish['description']) · {{ $dish['description'] }}@endif</p>
         <dl class="ns-dish__macros">
             @foreach (['protein' => 'بروتين', 'carbs' => 'كربوهيدرات', 'fat' => 'دهون'] as $field => $label)
                 <div>
                     <dt>{{ $label }}</dt>
-                    <dd><span class="ns-num">{{ $dish[$field] }}</span> غ</dd>
+                    <dd><span class="ns-num">{{ $dish[$field] ?? '—' }}</span> غ</dd>
                 </div>
             @endforeach
         </dl>

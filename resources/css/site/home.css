@@ -103,3 +103,8 @@
 @layer components {
     .ns-fit__person { display: flex; flex-direction: column; gap: var(--space-4); }
 }
+
+@layer components {
+    .ns-empty { display: flex; align-items: center; gap: var(--space-5); padding: var(--space-6); border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); }
+    .ns-empty p { margin: 0; }
+}
