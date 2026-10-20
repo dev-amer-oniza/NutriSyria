@@ -126,6 +126,21 @@
 - **المراحل:** 1) الألوان والخط والعربية (تم). 2) أيقونات Heroicons (outline، والمعبّأة للقسم الحالي)، مجموعات القائمة (البيانات الغذائية، المطاعم، الإعدادات)، شارة السجلات المعلّقة على "الاستيراد والمراجعة" (تم). 3) تلميع (تم): ألوان وأيقونات الحالات في الـ enums (`FoodSourceStatus`، `ImportBatchStatus`)، صور بديلة `App\Filament\Support\Placeholders`، إعدادات الجداول العامة في `AdminPanelProvider::boot` (صفوف مخططة، 25 بالصفحة، "لا" شرطة رمادية)، رسائل التحقق العربية `lang/ar/validation.php`.
 - **المعاينة:** صفحة الخيارات المعروضة عليه: https://claude.ai/artifact/TAeT2Eh9UczTrzxWBrPbPr
 
+## واجهة المنصة العامة (Blade)
+- **الهوية:** غير هوية اللوحة. صنوبري `#0f3d32`، تيراكوتا `#c15b3f` (عنصر "أصل" واحد بكل مشهد، لا نص)، مريمية، رملي. خط IBM Plex Sans Arabic للعربي وSora للأرقام (`.ns-num`). الهوية: https://claude.ai/artifact/Xhz38DruntgMyqG1MQjV2a
+- **الملفات:** `resources/views/site/` فيها `layouts/app` (@yield)، و`partials/` (header، footer، logo، icon، nav-links)، و`components/` (dish-card، verify-badge، chain-tiles، fit-verdict، daily-share، nutrient-stat، macro-bar، feature-tile، search-field، كلها بـ @include ومعاملات)، و`sections/home/*`، و`pages/home`. الأنماط في `resources/css/site/` (tokens، base، components، chrome، home) عبر `site.css` (Tailwind 4)، والتفاعل Alpine.js في `resources/js/site.js`.
+- **الإعدادات المشتركة** في `config/site.php`: القائمة، والفوتر، ومستويات التحقق، ودرجات المناسبة الأربع. الروابط بأسماء routes، وكل routes المنصة في `routes/web.php` (`home` و`site.*`)؛ الصفحات غير المبنية بعد تعرض `site.pages.soon`.
+- **البلاطات** (ربع دائرة) في `App\Support\Site\ChainPatterns`. بطاقة الوجبة تعرض صورة المطعم إن وُجدت، وإلا البلاطات.
+- **مستويات التحقق** (قرار صاحب المشروع): موثّق = تحليل مخبري للطبق، محسوب = وجبة اعتمدها الأخصائي، تقديري = فيها مقاربة.
+- **الرئيسية** `/` ← `Site\HomeController`، والوجبات من `App\Services\Site\MealCatalog`:
+  - تظهر فقط المنتجات بحالة "قيم رسمية معتمدة" (لا "تغيّرت بعد الاعتماد" ولا "مطلوب تعديل")، والمنتج والبراند مفعّلان. الأحدث اعتماداً أولاً.
+  - القيم للحصة: `amount_per_100g` × (الوزن بعد الطبخ ÷ عدد الحصص) ÷ 100. إن نقص الوزن أو الحصص تُعرض لكل 100 غ.
+  - التحقق: موثّق إن كانت قيمة المنتج `method = laboratory`، تقديري إن استعمل مكوّن سجلاً ملاحظته تبدأ بـ "مقاربة"، وإلا محسوب.
+  - إن لم توجد وجبات معتمدة تظهر رسالة "قريباً"، وأزرار "جرّب" تأتي من أسماء الوجبات (أو قائمة ثابتة إن كانت أقل من 3).
+  - لوحة التأثير الشخصي في الأعلى **مثال توضيحي** (`App\Services\Site\FitExample`) حتى تُبنى قواعد المناسبة (عتبات يحددها الأخصائي من اللوحة).
+  - اختبارات: `tests/Feature/MealCatalogTest.php`، `SiteHomeTest.php`.
+- `routes/tenant.php` **لا يُحمَّل** (أُوقف في `TenancyServiceProvider::boot`)، لأن مساراته من النظام القديم وكان مسار `/` فيه يغطي الرئيسية بـ 404. الملف نفسه لم يُعدَّل.
+
 ## معلومات تشغيل وتطوير
 - **الاختبارات:** `php vendor/bin/phpunit` (SQLite في الذاكرة). فشل `Tests\Feature\ExampleTest` (404 على `/`) قديم ولا علاقة له.
 - **قاعدة البيانات:**
