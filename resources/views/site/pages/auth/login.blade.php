@@ -8,6 +8,7 @@
     <form class="ns-form" method="post" action="{{ route('site.login') }}" novalidate>
         @csrf
         @include('site.components.form.honeypot')
+        @include('site.components.form.google-button')
 
         @include('site.components.form.field', ['name' => 'email', 'label' => 'البريد الإلكتروني', 'type' => 'email', 'autocomplete' => 'username', 'inputmode' => 'email', 'dir' => 'ltr', 'autofocus' => true])
         @include('site.components.form.password', ['label' => 'كلمة المرور', 'autocomplete' => 'current-password'])

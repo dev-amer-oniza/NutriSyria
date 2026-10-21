@@ -10,6 +10,7 @@
         @csrf
         @include('site.components.form.honeypot')
         @include('site.components.form.account-type', ['types' => $accountTypes])
+        @include('site.components.form.google-button', ['withType' => true])
 
         @include('site.components.form.field', ['name' => 'name', 'label' => 'الاسم', 'autocomplete' => 'name', 'autofocus' => true])
         @include('site.components.form.field', ['name' => 'email', 'label' => 'البريد الإلكتروني', 'type' => 'email', 'autocomplete' => 'email', 'inputmode' => 'email', 'dir' => 'ltr', 'placeholder' => 'name@example.com'])

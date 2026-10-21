@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Site\Auth\EmailVerificationController;
+use App\Http\Controllers\Site\Auth\GoogleAuthController;
 use App\Http\Controllers\Site\Auth\LoginController;
 use App\Http\Controllers\Site\Auth\PasswordResetController;
 use App\Http\Controllers\Site\Auth\RegisterController;
@@ -50,6 +51,15 @@ Route::name('site.')->group(function () {
         Route::post('/forgot-password', [PasswordResetController::class, 'sendCode'])->middleware('throttle:auth-codes');
         Route::get('/reset-password', [PasswordResetController::class, 'edit'])->name('password.reset');
         Route::post('/reset-password', [PasswordResetController::class, 'update'])->middleware('throttle:auth-forms');
+
+        // "Continue with Google" (GoogleAuthService); a new brand owner or nutritionist
+        // gives a WhatsApp number on one extra page.
+        Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])
+            ->middleware('throttle:auth-forms')->name('google.redirect');
+        Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
+            ->middleware('throttle:auth-forms')->name('google.callback');
+        Route::get('/auth/google/whatsapp', [GoogleAuthController::class, 'whatsapp'])->name('google.whatsapp');
+        Route::post('/auth/google/whatsapp', [GoogleAuthController::class, 'storeWhatsapp'])->middleware('throttle:auth-forms');
     });
 
     Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');

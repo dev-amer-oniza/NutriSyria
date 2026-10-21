@@ -22,27 +22,6 @@ class RegisterRequest extends AuthFormRequest
         ]);
     }
 
-    /**
-     * To one international form (+9639XXXXXXXX): Arabic digits, spaces and dashes,
-     * a leading 00, and a Syrian local number (09XXXXXXXX) are all accepted.
-     */
-    public static function normalizeWhatsapp(mixed $number): ?string
-    {
-        $number = preg_replace('/[\s\-().]/u', '', self::latinDigits(trim((string) $number)));
-
-        if ($number === '') {
-            return null;
-        }
-        if (str_starts_with($number, '00')) {
-            return '+'.substr($number, 2);
-        }
-        if (preg_match('/^09\d{8}$/', $number)) {
-            return '+963'.substr($number, 1);
-        }
-
-        return $number;
-    }
-
     public function rules(): array
     {
         return [
@@ -52,7 +31,7 @@ class RegisterRequest extends AuthFormRequest
             'password' => $this->newPasswordRules(),
             'whatsapp' => [
                 Rule::requiredIf(fn () => AccountType::tryFrom((string) $this->input('account_type'))?->needsWhatsapp() ?? false),
-                'nullable', 'string', 'regex:/^\+[1-9]\d{7,14}$/', Rule::unique(User::class, 'phone'),
+                'nullable', ...$this->whatsappRules(),
             ],
             ...$this->honeypotRules(),
         ];
@@ -63,9 +42,6 @@ class RegisterRequest extends AuthFormRequest
         return parent::messages() + [
             'name.regex' => 'اكتب الاسم بالحروف فقط.',
             'email.unique' => 'هذا البريد مسجّل لدينا. سجّل الدخول، أو استعد كلمة المرور إن نسيتها.',
-            'whatsapp.required' => 'رقم واتساب مطلوب لصاحب المطعم وأخصائي التغذية، لنتواصل معك قبل تفعيل حسابك.',
-            'whatsapp.regex' => 'اكتب الرقم مع رمز الدولة، مثل 963912345678+ أو 0912345678.',
-            'whatsapp.unique' => 'هذا الرقم مسجّل في حساب آخر.',
         ];
     }
 

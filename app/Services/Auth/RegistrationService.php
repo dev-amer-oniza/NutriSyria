@@ -50,4 +50,12 @@ class RegistrationService
 
         return $result;
     }
+
+    /** What a new account sees once it is ready, whichever way it signed up. */
+    public static function welcomeMessage(User $user): string
+    {
+        return $user->requested_role
+            ? 'أصبح حسابك جاهزاً. طلبك قيد المراجعة، وسنتواصل معك عبر واتساب قبل تفعيل لوحة التحكم.'
+            : 'أصبح حسابك جاهزاً. أهلاً بك في NutriSyria.';
+    }
 }
