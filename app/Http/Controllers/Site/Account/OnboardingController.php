@@ -37,7 +37,8 @@ class OnboardingController extends Controller
                 OnboardingStep::Body => ['sexes' => Sex::cases()],
                 OnboardingStep::Activity => ['levels' => ActivityLevel::cases(), 'goals' => Goal::cases()],
                 OnboardingStep::Health => [
-                    'conditions' => array_filter(HealthCondition::cases(), fn ($c) => $c->appliesTo($profile->sex)),
+                    'conditions' => HealthCondition::inGroup(HealthCondition::GROUP_GENERAL, $profile->sex),
+                    'digestion' => HealthCondition::inGroup(HealthCondition::GROUP_DIGESTION, $profile->sex),
                     'allergens' => Allergen::cases(),
                 ],
             },

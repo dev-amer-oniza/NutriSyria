@@ -92,4 +92,43 @@ class CriteriaCalculatorTest extends TestCase
     {
         $this->assertSame(['sesame', 'eggs'], $this->calculate(['allergens' => ['sesame', 'eggs']])->allergens);
     }
+
+    public function test_gallbladder_and_fat_intolerance_lower_the_fat_per_day_and_per_meal(): void
+    {
+        $sheet = $this->calculate(['conditions' => ['gallbladder_removed']]);
+
+        $this->assertSame(75.0, $sheet->get('fat_g')->value);       // 30% of 2240 / 9, down from 35%
+        $this->assertSame(20.0, $sheet->get('meal_fat_g')->value);
+        $this->assertSame(20.0, $sheet->get('meal_fat_g')->perMeal($sheet->mealShare), 'a meal limit is not scaled');
+        $this->assertSame([], $sheet->advice);
+
+        $both = $this->calculate(['conditions' => ['gallbladder_removed', 'fat_intolerance']]);
+        $this->assertSame(15.0, $both->get('meal_fat_g')->value, 'the stricter meal limit wins');
+        $this->assertCount(1, $both->advice);
+    }
+
+    public function test_new_conditions_set_their_criteria(): void
+    {
+        $anemicWoman = $this->calculate(['sex' => 'female', 'conditions' => ['anemia']]);
+        $this->assertSame(18.0, $anemicWoman->get('iron_mg')->value, 'not rounded to 20');
+        $this->assertSame(8.0, $this->calculate(['conditions' => ['anemia']])->get('iron_mg')->value);
+        $this->assertSame(1200.0, $this->calculate(['conditions' => ['osteoporosis']])->get('calcium_mg')->value);
+
+        $sheet = $this->calculate(['conditions' => ['heart_disease', 'fatty_liver', 'insulin_resistance', 'reflux']]);
+        $this->assertSame(1500.0, $sheet->get('sodium_mg')->value);
+        $this->assertSame(15.0, $sheet->get('fat_sat_g')->value);       // heart 6% beats liver 7%
+        $this->assertSame(28.0, $sheet->get('sugars_g')->value);        // 5%
+        $this->assertSame(252.0, $sheet->get('carbohydrate_g')->value); // 45%
+        $this->assertSame(20.0, $sheet->get('meal_fat_g')->value);
+        $this->assertCount(1, $this->calculate(['conditions' => ['gout']])->advice);
+    }
+
+    public function test_criteria_without_a_condition_stay_off(): void
+    {
+        $sheet = $this->calculate();
+
+        foreach (['meal_fat_g', 'iron_mg', 'calcium_mg', 'meal_carbohydrate_g'] as $key) {
+            $this->assertNull($sheet->get($key), $key);
+        }
+    }
 }

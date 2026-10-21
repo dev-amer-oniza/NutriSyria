@@ -18,6 +18,11 @@
             'options' => collect($options['conditions'])->mapWithKeys(fn ($c) => [$c->value => ['label' => $c->label()]])->all(),
         ])
         @include('site.components.form.choice-cards', [
+            'name' => 'conditions', 'legend' => 'الهضم والدسم', 'multiple' => true, 'selected' => $checkedConditions, 'showErrors' => false,
+            'hint' => 'نخفّض لك حد الدهون في اليوم وفي الوجبة الواحدة.',
+            'options' => collect($options['digestion'])->mapWithKeys(fn ($c) => [$c->value => ['label' => $c->label()]])->all(),
+        ])
+        @include('site.components.form.choice-cards', [
             'name' => 'allergies', 'legend' => 'حساسيات', 'multiple' => true, 'cols' => 4, 'selected' => $checkedAllergies,
             'options' => collect($options['allergens'])->mapWithKeys(fn ($a) => [$a->value => ['label' => $a->label()]])->all(),
         ])

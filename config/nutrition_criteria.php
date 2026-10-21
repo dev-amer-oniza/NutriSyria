@@ -13,6 +13,7 @@
 |   energy_pct  a share of the daily calories, turned into grams with 'kcal_per_g'
 |   per_1000    grams per 1000 kcal of the daily target
 |   fixed       a fixed amount
+|   by_sex      a fixed amount per sex ('female' / 'male')
 */
 
 return [
@@ -107,6 +108,25 @@ return [
             'default' => null,
             'range' => [10, 200],
         ],
+        'meal_fat_g' => [
+            'label' => 'دهون الوجبة', 'unit' => 'غ', 'bound' => 'max', 'scope' => 'meal',
+            'nutrient' => 'fat_g',
+            'default' => null,
+            'range' => [5, 100],
+        ],
+        'iron_mg' => [
+            'label' => 'الحديد', 'unit' => 'ملغ', 'bound' => 'min', 'scope' => 'day',
+            'nutrient' => 'iron_mg',
+            'default' => null,
+            'range' => [5, 60],
+            'note' => 'للنساء بعد سن الخمسين يكفي غالباً 8 ملغ، ويحدده الأخصائي.',
+        ],
+        'calcium_mg' => [
+            'label' => 'الكالسيوم', 'unit' => 'ملغ', 'bound' => 'min', 'scope' => 'day',
+            'nutrient' => 'calcium_mg',
+            'default' => null,
+            'range' => [500, 2500],
+        ],
     ],
 
     /*
@@ -139,6 +159,62 @@ return [
             'criteria' => [],
             'no_deficit' => true,
             'see_nutritionist' => 'الحمل والرضاعة يغيّران احتياجك، فلا نقترح إنقاص الوزن. راجعي أخصائية تغذية.',
+        ],
+        // Heart disease: as for blood pressure and cholesterol together (American Heart Association).
+        'heart_disease' => [
+            'criteria' => [
+                'sodium_mg' => ['type' => 'fixed', 'value' => 1500],
+                'fat_sat_g' => ['type' => 'energy_pct', 'pct' => 6, 'kcal_per_g' => 9],
+            ],
+        ],
+        // Fatty liver: less sugar and saturated fat.
+        'fatty_liver' => [
+            'criteria' => [
+                'sugars_g' => ['type' => 'energy_pct', 'pct' => 5, 'kcal_per_g' => 4],
+                'fat_sat_g' => ['type' => 'energy_pct', 'pct' => 7, 'kcal_per_g' => 9],
+            ],
+        ],
+        // Insulin resistance or polycystic ovaries: fewer carbohydrates and sugars.
+        'insulin_resistance' => [
+            'criteria' => [
+                'carbohydrate_g' => ['type' => 'energy_pct', 'pct' => 45, 'kcal_per_g' => 4],
+                'sugars_g' => ['type' => 'energy_pct', 'pct' => 5, 'kcal_per_g' => 4],
+            ],
+        ],
+        // Gout: purines are not in our data, so fewer sugars (fructose) and a nutritionist.
+        'gout' => [
+            'criteria' => ['sugars_g' => ['type' => 'energy_pct', 'pct' => 5, 'kcal_per_g' => 4]],
+            'see_nutritionist' => 'النقرس يتأثر بالبيورينات (اللحوم الحمراء والأحشاء وبعض الأسماك)، وهي غير محسوبة عندنا بعد. يحددها لك أخصائي.',
+        ],
+        // Iron-deficiency anaemia: a daily iron floor (US recommended amounts, ages 19-50).
+        'anemia' => [
+            'criteria' => ['iron_mg' => ['type' => 'by_sex', 'female' => 18, 'male' => 8]],
+            'see_nutritionist' => 'فقر الدم له أسباب مختلفة، وعلاجه لا يكون بالغذاء وحده. راجع أخصائياً أو طبيباً.',
+        ],
+        // Osteoporosis: a daily calcium floor.
+        'osteoporosis' => [
+            'criteria' => ['calcium_mg' => ['type' => 'fixed', 'value' => 1200]],
+        ],
+        // Digestion and fat (the owner's request): a lower fat share and a ceiling per meal,
+        // since a large fatty meal is what causes the symptoms.
+        'gallbladder_removed' => [
+            'criteria' => [
+                'fat_g' => ['type' => 'energy_pct', 'pct' => 30, 'kcal_per_g' => 9],
+                'meal_fat_g' => ['type' => 'fixed', 'value' => 20],
+            ],
+        ],
+        'fat_intolerance' => [
+            'criteria' => [
+                'fat_g' => ['type' => 'energy_pct', 'pct' => 30, 'kcal_per_g' => 9],
+                'meal_fat_g' => ['type' => 'fixed', 'value' => 15],
+            ],
+            'see_nutritionist' => 'عدم تحمّل الدهون قد يكون له سبب يحتاج تشخيصاً (المرارة أو البنكرياس). راجع أخصائياً.',
+        ],
+        'reflux' => [
+            'criteria' => [
+                'fat_g' => ['type' => 'energy_pct', 'pct' => 30, 'kcal_per_g' => 9],
+                'meal_fat_g' => ['type' => 'fixed', 'value' => 20],
+            ],
         ],
     ],
 
