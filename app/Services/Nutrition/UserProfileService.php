@@ -4,6 +4,7 @@ namespace App\Services\Nutrition;
 
 use App\Enums\Allergen;
 use App\Enums\HealthCondition;
+use App\Enums\Sex;
 use App\Models\User;
 use App\Models\UserProfile;
 
@@ -24,9 +25,13 @@ class UserProfileService
     {
         $profile = $this->profileOf($user)->fill($body);
 
-        // Pregnancy and breastfeeding only apply to women.
-        if ($body['sex'] !== 'female' && $profile->health_conditions) {
-            $profile->health_conditions = array_values(array_diff($profile->health_conditions, [HealthCondition::PregnantOrBreastfeeding->value]));
+        // Pregnancy, gestational diabetes and menopause only apply to women.
+        if ($profile->health_conditions) {
+            $sex = Sex::from($body['sex']);
+            $profile->health_conditions = array_values(array_filter(
+                $profile->health_conditions,
+                fn (string $c) => HealthCondition::tryFrom($c)?->appliesTo($sex) ?? false,
+            ));
         }
 
         $profile->save();

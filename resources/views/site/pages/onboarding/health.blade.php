@@ -13,15 +13,15 @@
           x-data="{ any: @js((bool) ($checkedConditions || $checkedAllergies)) }"
           @change="any = $el.querySelectorAll('input[name$=\'[]\']:checked').length > 0">
         @csrf
-        @include('site.components.form.choice-cards', [
-            'name' => 'conditions', 'legend' => 'حالات صحية', 'multiple' => true, 'selected' => $checkedConditions,
-            'options' => collect($options['conditions'])->mapWithKeys(fn ($c) => [$c->value => ['label' => $c->label()]])->all(),
-        ])
-        @include('site.components.form.choice-cards', [
-            'name' => 'conditions', 'legend' => 'الهضم والدسم', 'multiple' => true, 'selected' => $checkedConditions, 'showErrors' => false,
-            'hint' => 'نخفّض لك حد الدهون في اليوم وفي الوجبة الواحدة.',
-            'options' => collect($options['digestion'])->mapWithKeys(fn ($c) => [$c->value => ['label' => $c->label()]])->all(),
-        ])
+        {{-- All groups post the same "conditions" list; errors show under the first one only. --}}
+        @foreach ($options['groups'] as $group)
+            @continue(empty($group['conditions']))
+            @include('site.components.form.choice-cards', [
+                'name' => 'conditions', 'legend' => $group['label'], 'multiple' => true,
+                'selected' => $checkedConditions, 'showErrors' => $loop->first,
+                'options' => collect($group['conditions'])->mapWithKeys(fn ($c) => [$c->value => ['label' => $c->label()]])->all(),
+            ])
+        @endforeach
         @include('site.components.form.choice-cards', [
             'name' => 'allergies', 'legend' => 'حساسيات', 'multiple' => true, 'cols' => 4, 'selected' => $checkedAllergies,
             'options' => collect($options['allergens'])->mapWithKeys(fn ($a) => [$a->value => ['label' => $a->label()]])->all(),

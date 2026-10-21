@@ -9,14 +9,17 @@ use App\Exceptions\CriterionLocked;
 use App\Models\User;
 use App\Models\UserCriterion;
 use App\Models\UserCriterionChange;
+use App\Models\UserDietTemplate;
 use App\Models\UserProfile;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
 /**
- * A person's final criteria. Each criterion is resolved on its own: the nutritionist's
- * value, else the person's own, else the default computed from the profile. A value set by
- * the nutritionist is locked for the person (the owner's decision). Every change is logged.
+ * A person's final criteria. The diet template is resolved first (the nutritionist's
+ * choice, else the person's, else the one their conditions bring), then each criterion on
+ * its own: the nutritionist's value, else the person's own, else the default computed from
+ * the profile and template. What the nutritionist set is locked for the person (the
+ * owner's decision). Every change is logged.
  */
 class PersonalCriteria
 {
@@ -32,7 +35,12 @@ class PersonalCriteria
             return null;
         }
 
-        $sheet = (new CriteriaCalculator(config('nutrition_criteria')))->calculate($this->asArray($profile));
+        $profileArray = $this->asArray($profile);
+        if ($chosen = $this->chosenTemplate($user)) {
+            $profileArray += ['template' => $chosen->template, 'template_source' => $chosen->source];
+        }
+
+        $sheet = (new CriteriaCalculator(config('nutrition_criteria')))->calculate($profileArray);
         $overrides = UserCriterion::where('user_id', $user->getKey())->get()->groupBy('criterion');
 
         foreach ($overrides as $key => $rows) {
@@ -51,6 +59,48 @@ class PersonalCriteria
         }
 
         return $sheet;
+    }
+
+    /** @return array<string, array> the templates a person may pick for themselves */
+    public static function selectableTemplates(): array
+    {
+        return array_filter(config('nutrition_criteria.templates'), fn (array $t) => $t['selectable'] ?? false);
+    }
+
+    public function chooseTemplateByUser(User $user, string $template): void
+    {
+        if (! array_key_exists($template, self::selectableTemplates())) {
+            throw new InvalidArgumentException("Template [$template] is not for a person to pick.");
+        }
+        if ($this->templateLockedFor($user)) {
+            throw new CriterionLocked;
+        }
+
+        $this->storeTemplate($user, CriterionSource::User, $template, null, $user);
+    }
+
+    public function resetTemplateByUser(User $user): void
+    {
+        if ($this->templateLockedFor($user)) {
+            throw new CriterionLocked;
+        }
+
+        $this->forgetTemplate($user, CriterionSource::User, $user);
+    }
+
+    /** For the nutritionist's page (next phase): any template from the library. */
+    public function setTemplateByNutritionist(User $user, string $template, User $nutritionist, ?string $note = null): void
+    {
+        if (! array_key_exists($template, config('nutrition_criteria.templates'))) {
+            throw new InvalidArgumentException("Unknown template [$template].");
+        }
+
+        $this->storeTemplate($user, CriterionSource::Nutritionist, $template, $note, $nutritionist);
+    }
+
+    public function templateLockedFor(User $user): bool
+    {
+        return UserDietTemplate::where('user_id', $user->getKey())->where('source', CriterionSource::Nutritionist)->exists();
     }
 
     public function setByUser(User $user, string $criterion, float $value): void
@@ -79,6 +129,8 @@ class PersonalCriteria
 
     public function clearNutritionist(User $user, ?User $by = null): void
     {
+        $this->forgetTemplate($user, CriterionSource::Nutritionist, $by);
+
         UserCriterion::where('user_id', $user->getKey())->where('source', CriterionSource::Nutritionist)
             ->pluck('criterion')
             ->each(fn (string $criterion) => $this->forget($user, $criterion, CriterionSource::Nutritionist, $by));
@@ -122,12 +174,45 @@ class PersonalCriteria
         }
     }
 
-    private function log(User $user, string $criterion, CriterionSource $source, ?float $old, ?float $new, ?User $by): void
+    private function log(User $user, string $criterion, CriterionSource $source, ?float $old, ?float $new, ?User $by, ?string $oldText = null, ?string $newText = null): void
     {
         UserCriterionChange::create([
             'user_id' => $user->getKey(), 'criterion' => $criterion, 'source' => $source,
-            'old_value' => $old, 'new_value' => $new, 'changed_by' => $by?->getKey(),
+            'old_value' => $old, 'new_value' => $new, 'old_text' => $oldText, 'new_text' => $newText,
+            'changed_by' => $by?->getKey(),
         ]);
+    }
+
+    private function chosenTemplate(User $user): ?UserDietTemplate
+    {
+        $rows = UserDietTemplate::where('user_id', $user->getKey())->get();
+
+        foreach (self::PRECEDENCE as $source) {
+            if ($row = $rows->first(fn (UserDietTemplate $r) => $r->source === $source)) {
+                return $row;
+            }
+        }
+
+        return null;
+    }
+
+    private function storeTemplate(User $user, CriterionSource $source, string $template, ?string $note, ?User $by): void
+    {
+        $row = UserDietTemplate::firstOrNew(['user_id' => $user->getKey(), 'source' => $source]);
+        $old = $row->exists ? $row->template : null;
+
+        $row->fill(['template' => $template, 'note' => $note, 'set_by' => $by?->getKey()])->save();
+        $this->log($user, 'template', $source, null, null, $by, $old, $template);
+    }
+
+    private function forgetTemplate(User $user, CriterionSource $source, ?User $by): void
+    {
+        $row = UserDietTemplate::where('user_id', $user->getKey())->where('source', $source)->first();
+
+        if ($row) {
+            $row->delete();
+            $this->log($user, 'template', $source, null, null, $by, $row->template, null);
+        }
     }
 
     /** @param  Collection<int, UserCriterion>  $rows */

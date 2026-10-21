@@ -18,8 +18,10 @@
                     </div>
                     <p class="ns-needs__meal">حصة الوجبة الرئيسية: <b class="ns-num">{{ number_format($meal) }}</b> سعرة (<span class="ns-num">{{ (int) ($sheet->mealShare * 100) }}%</span> من يومك).</p>
 
+                    @include('site.components.template-card', ['sheet' => $sheet])
+
                     <dl class="ns-needs__grid">
-                        @foreach (['protein_g', 'fiber_g', 'sodium_mg', 'sugars_g'] as $key)
+                        @foreach (['fiber_g', 'sodium_mg', 'sugars_g', 'fat_sat_g'] as $key)
                             @php $c = $sheet->get($key); @endphp
                             <div>
                                 <dt>{{ $c->label }} <small>{{ ['min' => 'على الأقل', 'max' => 'حتى', 'target' => ''][$c->bound] }}</small></dt>
