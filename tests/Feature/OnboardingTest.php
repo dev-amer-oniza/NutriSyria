@@ -176,4 +176,25 @@ class OnboardingTest extends TestCase
         $criteria->clearNutritionist($this->user, $nutritionist);
         $this->assertSame(110.0, $criteria->for($this->user->fresh())->get('protein_g')->value);
     }
+
+    public function test_the_health_step_offers_digestion_conditions_with_the_others(): void
+    {
+        $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1990, 'height_cm' => 178, 'weight_kg' => 80]);
+        $this->post('/onboarding/activity', ['activity_level' => 'moderate', 'goal' => 'maintain']);
+
+        $this->get('/onboarding/health')->assertOk()
+            ->assertSee('الهضم والدسم')
+            ->assertSee('استئصال المرارة')
+            ->assertSee('عدم تحمّل الدسم')
+            ->assertSee('فقر الدم')
+            ->assertDontSee('حامل أو مرضعة');
+
+        $this->post('/onboarding/health', ['conditions' => ['gallbladder_removed', 'anemia'], 'consent' => '1'])
+            ->assertRedirect('/onboarding/done');
+
+        $sheet = app(PersonalCriteria::class)->for($this->user->fresh());
+        $this->assertSame(20.0, $sheet->get('meal_fat_g')->value);
+        $this->assertSame(8.0, $sheet->get('iron_mg')->value);
+        $this->get('/account/criteria')->assertSee('دهون الوجبة')->assertSee('الحديد');
+    }
 }

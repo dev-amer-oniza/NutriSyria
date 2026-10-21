@@ -1,7 +1,8 @@
 {{--
     A set of choice cards (radio: one; checkbox: several). Params:
     $name, $legend, $options = [value => ['label' => ..., 'hint' => ...?]], $selected (value or list),
-    $multiple (false), $cols (3), $model (Alpine x-model, optional), $hint (under the legend, optional).
+    $multiple (false), $cols (3), $model (Alpine x-model, optional), $hint (under the legend, optional),
+    $showErrors (true; false when another set of cards shares the same name).
 --}}
 @php
     $multiple ??= false;
@@ -22,8 +23,10 @@
             </label>
         @endforeach
     </div>
-    @error($name)<p class="ns-field__error">{{ $message }}</p>@enderror
-    @if ($multiple)
-        @error($name.'.*')<p class="ns-field__error">{{ $message }}</p>@enderror
+    @if ($showErrors ?? true)
+        @error($name)<p class="ns-field__error">{{ $message }}</p>@enderror
+        @if ($multiple)
+            @error($name.'.*')<p class="ns-field__error">{{ $message }}</p>@enderror
+        @endif
     @endif
 </fieldset>

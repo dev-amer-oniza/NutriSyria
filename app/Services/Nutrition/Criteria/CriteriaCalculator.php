@@ -99,6 +99,7 @@ final class CriteriaCalculator
             'energy_pct' => [round($kcal * $rule['pct'] / 100 / $rule['kcal_per_g']), $rule['pct'].'% من سعراتك اليومية'],
             'per_1000' => [round($kcal / 1000 * $rule['value']), $rule['value'].' غ لكل 1000 سعرة'],
             'fixed' => [(float) $rule['value'], 'قيمة ثابتة موصى بها'],
+            'by_sex' => [(float) $rule[$profile['sex']], 'قيمة موصى بها حسب الجنس'],
             default => throw new InvalidArgumentException("Unknown criterion rule [{$rule['type']}]."),
         };
     }
@@ -120,7 +121,8 @@ final class CriteriaCalculator
             bound: $bound,
             scope: $definition['scope'],
             nutrient: $definition['nutrient'],
-            value: $definition['unit'] === 'ملغ' ? round($value / 10) * 10 : round($value),
+            // Large milligram amounts (sodium 2000) to the nearest ten; small ones (iron 18) as they are.
+            value: $definition['unit'] === 'ملغ' && $value >= 100 ? round($value / 10) * 10 : round($value),
             source: CriterionSource::Default,
             basis: $basis,
             note: $definition['note'] ?? null,
