@@ -40,4 +40,11 @@ return [
         'model' => env('OPENROUTER_MODEL', 'openai/gpt-4o-mini'),
     ],
 
+    /* "Continue with Google" on the public site (Laravel Socialite). Values live in .env only. */
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+    ],
+
 ];

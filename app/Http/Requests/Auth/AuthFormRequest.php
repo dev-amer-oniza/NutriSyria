@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use App\Rules\NotCommonPassword;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Email;
 use Illuminate\Validation\Rules\Password;
 
@@ -47,6 +49,33 @@ abstract class AuthFormRequest extends FormRequest
     public static function latinDigits(string $value): string
     {
         return str_replace(self::ARABIC_DIGITS, self::LATIN_DIGITS, $value);
+    }
+
+    /**
+     * To one international form (+9639XXXXXXXX): Arabic digits, spaces and dashes,
+     * a leading 00, and a Syrian local number (09XXXXXXXX) are all accepted.
+     */
+    public static function normalizeWhatsapp(mixed $number): ?string
+    {
+        $number = preg_replace('/[\s\-().]/u', '', self::latinDigits(trim((string) $number)));
+
+        if ($number === '') {
+            return null;
+        }
+        if (str_starts_with($number, '00')) {
+            return '+'.substr($number, 2);
+        }
+        if (preg_match('/^09\d{8}$/', $number)) {
+            return '+963'.substr($number, 1);
+        }
+
+        return $number;
+    }
+
+    /** An international number (after normalizeWhatsapp) not used by another account. */
+    protected function whatsappRules(): array
+    {
+        return ['string', 'regex:/^\+[1-9]\d{7,14}$/', Rule::unique(User::class, 'phone')];
     }
 
     /** A strict, well-formed address; in production its domain must also receive mail. */
@@ -98,6 +127,9 @@ abstract class AuthFormRequest extends FormRequest
             'email.email' => 'اكتب بريداً إلكترونياً صحيحاً، مثل name@example.com.',
             'password.different' => 'لا تجعل كلمة المرور مثل بريدك الإلكتروني.',
             'code.digits' => 'الرمز من 6 أرقام.',
+            'whatsapp.required' => 'رقم واتساب مطلوب لصاحب المطعم وأخصائي التغذية، لنتواصل معك قبل تفعيل حسابك.',
+            'whatsapp.regex' => 'اكتب الرقم مع رمز الدولة، مثل 963912345678+ أو 0912345678.',
+            'whatsapp.unique' => 'هذا الرقم مسجّل في حساب آخر.',
             self::HONEYPOT.'.prohibited' => 'تعذّر إرسال النموذج. حدّث الصفحة وحاول مرة أخرى.',
         ];
     }

@@ -53,9 +53,7 @@ class EmailVerificationController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('home')->with('status', $user->requested_role
-            ? 'تم تأكيد بريدك. طلبك قيد المراجعة، وسنتواصل معك عبر واتساب قبل تفعيل لوحة التحكم.'
-            : 'تم تأكيد بريدك، وأصبح حسابك جاهزاً.');
+        return redirect()->route('home')->with('status', RegistrationService::welcomeMessage($user));
     }
 
     public function resend(Request $request, AuthCodeService $codes): RedirectResponse
