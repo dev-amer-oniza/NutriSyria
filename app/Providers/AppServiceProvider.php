@@ -6,12 +6,14 @@ use App\Http\Middleware\InitializeTenancyIfTenantDomain;
 use App\Livewire\TenantDatabaseNotifications;
 use App\Models\Category;
 use App\Observers\CategoryObserver;
+use App\View\Composers\ProfileReminderComposer;
 use Filament\Notifications\Livewire\DatabaseNotifications;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Stancl\Tenancy\Events\TenancyInitialized;
@@ -27,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimits();
+        View::composer('site.layouts.app', ProfileReminderComposer::class);
 
         Livewire::setUpdateRoute(function ($handle) {
             return Route::post('/livewire/update', $handle)

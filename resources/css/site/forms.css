@@ -23,7 +23,7 @@
     .ns-check input { width: 18px; height: 18px; accent-color: var(--pine); }
 
     /* Account type: three cards, the chosen one in pine. */
-    .ns-types__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+    .ns-types__grid { display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: var(--space-2); }
     .ns-type { position: relative; display: flex; flex-direction: column; gap: 2px; padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-raised); cursor: pointer; transition: border-color .15s ease, background-color .15s ease; }
     .ns-type:hover { border-color: var(--pine); }
     .ns-type:has(:checked) { border-color: var(--pine); background: var(--pine-soft); box-shadow: inset 0 0 0 1px var(--pine); }

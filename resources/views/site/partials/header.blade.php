@@ -16,7 +16,7 @@
                 @if (auth()->user()->canAccessPanel(filament()->getPanel('admin')))
                     <a class="ns-btn ns-btn--ghost ns-btn--sm" href="{{ filament()->getPanel('admin')->getUrl() }}">لوحة التحكم</a>
                 @endif
-                <span class="ns-header__user">{{ auth()->user()->name }}</span>
+                <a class="ns-header__user" href="{{ route('site.criteria') }}" title="معاييري">{{ auth()->user()->name }}</a>
                 <form method="post" action="{{ route('site.logout') }}">
                     @csrf
                     <button class="ns-btn ns-btn--secondary ns-btn--sm" type="submit">خروج</button>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Site\Auth;
 
 use App\Enums\AuthCodeCheck;
 use App\Enums\AuthCodePurpose;
+use App\Enums\OnboardingStep;
 use App\Exceptions\CodeDeliveryFailed;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\VerifyEmailRequest;
@@ -53,7 +54,8 @@ class EmailVerificationController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('home')->with('status', RegistrationService::welcomeMessage($user));
+        return redirect()->route('site.onboarding.show', OnboardingStep::Body)
+            ->with('status', RegistrationService::welcomeMessage($user));
     }
 
     public function resend(Request $request, AuthCodeService $codes): RedirectResponse

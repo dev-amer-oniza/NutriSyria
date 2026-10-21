@@ -19,6 +19,10 @@
 
     @include('site.partials.header')
 
+    @if ($profileNextStep ?? null)
+        @include('site.partials.profile-reminder', ['nextStep' => $profileNextStep])
+    @endif
+
     <main id="main">
         {{-- Account pages show their messages inside the form instead. --}}
         @unless (View::hasSection('form'))
