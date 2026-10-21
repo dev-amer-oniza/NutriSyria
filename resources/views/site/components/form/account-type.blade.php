@@ -1,15 +1,8 @@
-{{-- Choice of account as three cards. Params: $types (AccountType cases); binds Alpine `type`. --}}
-<fieldset class="ns-field ns-types">
-    <legend class="ns-field__label">أنشئ حسابك بصفتك</legend>
-    <div class="ns-types__grid">
-        @foreach ($types as $type)
-            <label class="ns-type">
-                <input class="ns-type__radio" type="radio" name="account_type" value="{{ $type->value }}" x-model="type"
-                       @checked(old('account_type', 'member') === $type->value)>
-                <span class="ns-type__name">{{ $type->label() }}</span>
-                <span class="ns-type__hint">{{ $type->hint() }}</span>
-            </label>
-        @endforeach
-    </div>
-    @error('account_type')<p class="ns-field__error">{{ $message }}</p>@enderror
-</fieldset>
+{{-- Choice of account on the sign-up page. Params: $types (AccountType cases); binds Alpine `type`. --}}
+@include('site.components.form.choice-cards', [
+    'name' => 'account_type',
+    'legend' => 'أنشئ حسابك بصفتك',
+    'options' => collect($types)->mapWithKeys(fn ($t) => [$t->value => ['label' => $t->label(), 'hint' => $t->hint()]])->all(),
+    'selected' => 'member',
+    'model' => 'type',
+])

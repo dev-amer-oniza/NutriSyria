@@ -67,7 +67,7 @@ class GoogleAuthTest extends TestCase
     {
         $this->googleReturns();
 
-        $this->get('/auth/google/callback?state=x&code=y')->assertRedirect('/');
+        $this->get('/auth/google/callback?state=x&code=y')->assertRedirect('/onboarding/body');
 
         $user = User::sole();
         $this->assertAuthenticatedAs($user);
@@ -148,7 +148,7 @@ class GoogleAuthTest extends TestCase
 
         $this->get('/auth/google/whatsapp')->assertOk()->assertSee('ليلى حداد');
         $this->post('/auth/google/whatsapp', ['whatsapp' => 'abc'])->assertSessionHasErrors('whatsapp');
-        $this->post('/auth/google/whatsapp', ['whatsapp' => '٠٩٤٤ ١٢٣ ٤٥٦'])->assertRedirect('/');
+        $this->post('/auth/google/whatsapp', ['whatsapp' => '٠٩٤٤ ١٢٣ ٤٥٦'])->assertRedirect('/onboarding/body');
 
         $user = User::sole();
         $this->assertAuthenticatedAs($user);

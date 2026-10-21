@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Site\Account\CriteriaController;
+use App\Http\Controllers\Site\Account\OnboardingController;
 use App\Http\Controllers\Site\Auth\EmailVerificationController;
 use App\Http\Controllers\Site\Auth\GoogleAuthController;
 use App\Http\Controllers\Site\Auth\LoginController;
@@ -25,6 +27,7 @@ Route::name('site.')->group(function () {
         'about' => ['/about', 'من نحن'],
         'contact' => ['/contact', 'تواصل معنا'],
         'privacy' => ['/privacy', 'سياسة الخصوصية'],
+        'nutritionists' => ['/nutritionists', 'أخصائيو التغذية'],
     ];
 
     foreach ($soon as $name => [$uri, $title]) {
@@ -63,6 +66,26 @@ Route::name('site.')->group(function () {
     });
 
     Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+    /*
+    | The signed-in person's profile: the three-step set-up, the daily needs it gives, and
+    | "my criteria" (config/nutrition_criteria.php, App\Services\Nutrition\Criteria).
+    */
+    Route::middleware('auth')->group(function () {
+        Route::get('/onboarding/done', [OnboardingController::class, 'done'])->name('onboarding.done');
+        Route::get('/onboarding/{step}', [OnboardingController::class, 'show'])->name('onboarding.show');
+        Route::post('/onboarding/body', [OnboardingController::class, 'storeBody'])->name('onboarding.body');
+        Route::post('/onboarding/activity', [OnboardingController::class, 'storeActivity'])->name('onboarding.activity');
+        Route::post('/onboarding/health', [OnboardingController::class, 'storeHealth'])->name('onboarding.health');
+
+        $criteria = array_keys(config('nutrition_criteria.criteria'));
+        Route::get('/account/criteria', [CriteriaController::class, 'index'])->name('criteria');
+        Route::put('/account/criteria/{criterion}', [CriteriaController::class, 'update'])
+            ->whereIn('criterion', $criteria)->name('criteria.update');
+        Route::delete('/account/criteria/{criterion}', [CriteriaController::class, 'reset'])
+            ->whereIn('criterion', $criteria)->name('criteria.reset');
+        Route::delete('/account/health', [CriteriaController::class, 'destroyHealth'])->name('health.destroy');
+    });
 });
 
 Route::get('/admin/import-templates/{type}', function (string $type) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Site\Auth;
 use App\Data\Auth\SocialProfile;
 use App\Enums\AccountType;
 use App\Enums\GoogleSignIn;
+use App\Enums\OnboardingStep;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\GoogleRedirectRequest;
 use App\Http\Requests\Auth\GoogleWhatsappRequest;
@@ -55,7 +56,7 @@ class GoogleAuthController extends Controller
 
         return match ($google->signIn($profile, $type)) {
             GoogleSignIn::SignedIn => $this->signedIn($request, 'تم تسجيل الدخول. أهلاً بعودتك، '.$request->user()->name.'.'),
-            GoogleSignIn::Created => $this->signedIn($request, RegistrationService::welcomeMessage($request->user())),
+            GoogleSignIn::Created => $this->newAccount($request),
             GoogleSignIn::NeedsWhatsapp => $this->askForWhatsapp($request, $profile, $type),
             GoogleSignIn::Refused => redirect()->route('site.login')
                 ->with('error', 'تعذّر الدخول بهذا الحساب من Google. جرّب حساباً آخر، أو ادخل ببريدك وكلمة المرور.'),
@@ -92,7 +93,7 @@ class GoogleAuthController extends Controller
 
         return $result === GoogleSignIn::Refused
             ? redirect()->route('site.login')->with('error', 'تعذّر إكمال إنشاء الحساب. حاول مرة أخرى.')
-            : $this->signedIn($request, RegistrationService::welcomeMessage($request->user()));
+            : $this->newAccount($request);
     }
 
     private function askForWhatsapp(Request $request, SocialProfile $profile, AccountType $type): RedirectResponse
@@ -100,6 +101,15 @@ class GoogleAuthController extends Controller
         $request->session()->put(self::SESSION_PENDING, ['profile' => $profile->toArray(), 'type' => $type->value]);
 
         return redirect()->route('site.google.whatsapp');
+    }
+
+    /** A new account goes straight to the set-up. */
+    private function newAccount(Request $request): RedirectResponse
+    {
+        $request->session()->regenerate();
+
+        return redirect()->route('site.onboarding.show', OnboardingStep::Body)
+            ->with('status', RegistrationService::welcomeMessage($request->user()));
     }
 
     private function signedIn(Request $request, string $message): RedirectResponse

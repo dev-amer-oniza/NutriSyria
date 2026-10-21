@@ -84,7 +84,7 @@ class SiteAuthTest extends TestCase
         $this->assertNotSame($code, AuthCode::sole()->code_hash, 'the code is stored hashed');
 
         $this->post('/verify-email', ['code' => '١٢٣'])->assertSessionHasErrors('code');
-        $this->post('/verify-email', ['code' => $code])->assertRedirect('/');
+        $this->post('/verify-email', ['code' => $code])->assertRedirect('/onboarding/body');
 
         $this->assertAuthenticatedAs($user);
         $this->assertNotNull($user->fresh()->email_verified_at);
@@ -98,7 +98,7 @@ class SiteAuthTest extends TestCase
         $user = User::sole();
         $arabic = strtr($this->lastCode($user), ['0' => '٠', '1' => '١', '2' => '٢', '3' => '٣', '4' => '٤', '5' => '٥', '6' => '٦', '7' => '٧', '8' => '٨', '9' => '٩']);
 
-        $this->post('/verify-email', ['code' => $arabic])->assertRedirect('/');
+        $this->post('/verify-email', ['code' => $arabic])->assertRedirect('/onboarding/body');
         $this->assertAuthenticatedAs($user);
     }
 
@@ -234,7 +234,7 @@ class SiteAuthTest extends TestCase
         $this->post('/login', ['email' => 'rami@example.com', 'password' => 'olive-oil-9'])->assertRedirect('/verify-email');
 
         $this->assertGuest();
-        $this->post('/verify-email', ['code' => $this->lastCode($user)])->assertRedirect('/');
+        $this->post('/verify-email', ['code' => $this->lastCode($user)])->assertRedirect('/onboarding/body');
         $this->assertAuthenticatedAs($user);
     }
 
