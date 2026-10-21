@@ -1,0 +1,76 @@
+/* Forms and the account pages (layouts/auth, components/form/*). */
+@layer components {
+    /* ---------- Fields ---------- */
+    .ns-form { display: flex; flex-direction: column; gap: var(--space-5); }
+    .ns-field { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; margin: 0; padding: 0; border: 0; }
+    .ns-field__label { font-size: 15px; line-height: 24px; font-weight: 600; color: var(--ink); padding: 0; }
+    .ns-field__hint { margin: 0; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-field__error { margin: 0; font-size: 13px; line-height: 20px; font-weight: 500; color: var(--terracotta-ink); }
+    .ns-input { width: 100%; height: 52px; padding: 0 var(--space-4); border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: var(--surface-raised); color: var(--ink); font: inherit; font-size: 16px; transition: border-color .15s ease, box-shadow .15s ease; }
+    .ns-input[dir="ltr"] { text-align: right; }
+    .ns-input[dir="ltr"]:focus, .ns-input[dir="ltr"]:not(:placeholder-shown) { text-align: left; }
+    .ns-input::placeholder { color: var(--ink-muted); opacity: .7; }
+    .ns-input:focus { outline: none; border-color: var(--pine); box-shadow: var(--focus-ring); }
+    .ns-input[aria-invalid="true"] { border-color: var(--terracotta-ink); }
+    .ns-input--code { height: 60px; font-family: var(--font-latin); font-size: 26px; font-weight: 600; letter-spacing: .5em; text-align: center !important; }
+
+    .ns-password { position: relative; }
+    .ns-password .ns-input { padding-left: 84px; padding-right: var(--space-4); } /* the input is ltr; the button sits on the left */
+    .ns-password__toggle { position: absolute; top: 8px; left: 8px; height: 36px; padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm); background: var(--sand); color: var(--pine); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .ns-password__toggle:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+    .ns-check { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 14px; line-height: 22px; cursor: pointer; }
+    .ns-check input { width: 18px; height: 18px; accent-color: var(--pine); }
+
+    /* Account type: three cards, the chosen one in pine. */
+    .ns-types__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+    .ns-type { position: relative; display: flex; flex-direction: column; gap: 2px; padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-raised); cursor: pointer; transition: border-color .15s ease, background-color .15s ease; }
+    .ns-type:hover { border-color: var(--pine); }
+    .ns-type:has(:checked) { border-color: var(--pine); background: var(--pine-soft); box-shadow: inset 0 0 0 1px var(--pine); }
+    .ns-type:has(:focus-visible) { box-shadow: var(--focus-ring); }
+    .ns-type__radio { position: absolute; opacity: 0; pointer-events: none; }
+    .ns-type__name { font-size: 15px; line-height: 24px; font-weight: 600; color: var(--ink); }
+    .ns-type__hint { font-size: 12px; line-height: 18px; color: var(--ink-muted); }
+
+    .ns-form__submit { width: 100%; height: 52px; font-size: 16px; }
+    .ns-form__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+    .ns-form__aside { margin: 0; text-align: center; font-size: 15px; line-height: 24px; color: var(--ink-muted); }
+    .ns-form__fine { margin: calc(-1 * var(--space-3)) 0 0; text-align: center; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+
+    .ns-resend { display: flex; align-items: center; justify-content: center; gap: var(--space-2); margin-top: var(--space-5); font-size: 14px; color: var(--ink-muted); }
+    .ns-resend__btn { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; cursor: pointer; }
+    .ns-resend__btn:disabled { color: var(--ink-muted); cursor: default; text-decoration: none; }
+
+    .ns-hp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+    /* ---------- Messages ---------- */
+    .ns-alert { margin: 0 0 var(--space-5); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); font-size: 14px; line-height: 22px; }
+    .ns-alert--ok { background: var(--pine-soft); color: var(--pine); }
+    .ns-alert--error { background: var(--terracotta-soft); color: var(--terracotta-ink); }
+    .ns-flash { padding-top: var(--space-5); }
+    .ns-flash .ns-alert { margin: 0; }
+
+    /* ---------- Account pages ---------- */
+    .ns-auth { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 520px); min-height: calc(100vh - 77px); }
+    .ns-auth__main { display: flex; justify-content: center; padding: var(--space-10) var(--space-5); }
+    .ns-auth__box { width: 100%; max-width: 460px; }
+    .ns-auth__heading { margin: 0 0 var(--space-2); }
+    .ns-auth__lead { margin: 0 0 var(--space-6); }
+    .ns-auth__aside { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; padding: var(--space-10) var(--space-8); background: var(--pine); color: var(--on-pine); }
+    .ns-auth__art { position: absolute; top: 0; left: 0; opacity: .9; }
+    .ns-auth__story { position: relative; margin-top: 200px; }
+    .ns-auth__story h2 { margin: 0 0 var(--space-6); color: var(--on-pine); }
+    .ns-auth__people { list-style: none; margin: 0 0 var(--space-5); padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+    .ns-auth__people li { display: flex; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid color-mix(in srgb, var(--on-pine) 18%, transparent); border-radius: var(--radius-md); font-size: 15px; line-height: 24px; }
+    .ns-auth__people b { color: var(--sage); font-weight: 600; }
+    .ns-auth__note { margin: 0; font-size: 13px; line-height: 20px; color: var(--sage); }
+
+    @media (max-width: 1080px) {
+        .ns-auth { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+        .ns-auth__aside { display: none; }
+    }
+    @media (max-width: 640px) {
+        .ns-auth__main { padding: var(--space-6) var(--space-4) var(--space-8); }
+        .ns-types__grid { grid-template-columns: minmax(0, 1fr); }
+    }
+}

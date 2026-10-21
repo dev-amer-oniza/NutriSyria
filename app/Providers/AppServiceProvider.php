@@ -7,7 +7,10 @@ use App\Livewire\TenantDatabaseNotifications;
 use App\Models\Category;
 use App\Observers\CategoryObserver;
 use Filament\Notifications\Livewire\DatabaseNotifications;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -23,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
     }
     public function boot(): void
     {
+        $this->configureRateLimits();
+
         Livewire::setUpdateRoute(function ($handle) {
             return Route::post('/livewire/update', $handle)
                 ->middleware(['web']);
@@ -87,5 +92,18 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
         });
+    }
+
+    /**
+     * Per-visitor limits on the site's account forms. A blocked visitor is sent back to the
+     * form with a message instead of a bare 429 page.
+     */
+    private function configureRateLimits(): void
+    {
+        $tooMany = fn () => back()->withInput(request()->except('password'))
+            ->with('error', 'طلبات كثيرة خلال وقت قصير. انتظر دقيقة ثم حاول مجدداً.');
+
+        RateLimiter::for('auth-forms', fn (Request $request) => Limit::perMinute(10)->by($request->ip())->response($tooMany));
+        RateLimiter::for('auth-codes', fn (Request $request) => Limit::perMinute(3)->by($request->ip())->response($tooMany));
     }
 }

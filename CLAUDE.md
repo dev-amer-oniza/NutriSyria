@@ -141,8 +141,19 @@
   - اختبارات: `tests/Feature/MealCatalogTest.php`، `SiteHomeTest.php`.
 - `routes/tenant.php` **لا يُحمَّل** (أُوقف في `TenancyServiceProvider::boot`)، لأن مساراته من النظام القديم وكان مسار `/` فيه يغطي الرئيسية بـ 404. الملف نفسه لم يُعدَّل.
 
+## حسابات المنصة (تسجيل ودخول)
+- **القرارات** (صاحب المشروع): تأكيد البريد برمز 6 أرقام؛ خانة كلمة مرور واحدة مع "إظهار"؛ صاحب المطعم والأخصائي يسجّلان من الموقع ويبقيان "بانتظار موافقة المدير"؛ لا دخول قبل تأكيد البريد. كلمة المرور بسيطة: 8+ فقط، تُمنع الشائعة (`App\Rules\NotCommonPassword`) ومطابقة البريد.
+- **الطبقات:** Controllers في `app/Http/Controllers/Site/Auth` (توجيه فقط) ← FormRequests في `app/Http/Requests/Auth` (كل التحقق، أساسها `AuthFormRequest`: تنظيف البريد والأرقام العربية، honeypot `website`، قواعد البريد وكلمة المرور والرمز) ← Services في `app/Services/Auth` (`RegistrationService`، `LoginService`، `PasswordResetService`، `AuthCodeService`، `RoleRequestService`). DTO `App\Data\Auth\RegistrationData`، و`App\Enums\AccountType` يعرف الدور المطلوب ومن يحتاج واتساب.
+- **الرموز:** جدول `auth_codes` (مشفّرة، رمز حي واحد لكل مستخدم وغرض)، صالحة 10 دقائق، 5 محاولات، إعادة إرسال مرة بالدقيقة. الإيميل `App\Notifications\AuthCodeNotification` + `resources/views/mail/auth-code.blade.php`، يُرسل فوراً (لا queue). فشل الإرسال يعطي رسالة لطيفة (`CodeDeliveryFailed`).
+- **الحماية:** رسالة دخول واحدة لأي خطأ (بريد غير موجود، كلمة خطأ، حساب موقوف)، وقفل 5 محاولات لكل بريد+جهاز (`LoginRequest`)، وحد لكل زائر على النماذج (`auth-forms` 10/دقيقة، `auth-codes` 3/دقيقة في `AppServiceProvider`)، و"نسيت كلمة المرور" يجيب نفس الجواب لأي بريد. تغيير كلمة المرور ينهي الجلسات الأخرى.
+- **المستخدم العادي بلا دور** (فلا لوحة). طلب الدور في `users.requested_role` (ليس fillable)، والمدير يعتمده أو يرفضه من صفحة المستخدمين (عمود "طلب دور"، فلتر، شارة بعدد الطلبات، رابط واتساب). الاعتماد يعطي دوراً واحداً؛ لصاحب البراند يبقى ربطه ببراندِه من صفحة المستخدم.
+- **المسارات** (`site.*`): register، login، verify (+ verify.resend)، password.request، password.reset، logout. الضيف الذي يطلب صفحة محمية يذهب إلى `site.login` (`bootstrap/app.php`).
+- **الإيميل:** محلياً `MAIL_MAILER=log` (الرمز في `storage/logs/laravel.log`). صاحب المشروع يستعمل Gmail SMTP (كلمة مرور تطبيق في `.env` فقط، حد ~500/يوم)، والانتقال لاحقاً إلى Brevo مع الدومين.
+- **التالي:** الدخول بـ Google (Socialite)، ثم إعداد الحساب بـ 3 خطوات (الجسم، الهدف، الصحة).
+- اختبارات: `tests/Feature/SiteAuthTest.php`.
+
 ## معلومات تشغيل وتطوير
-- **الاختبارات:** `php vendor/bin/phpunit` (SQLite في الذاكرة). فشل `Tests\Feature\ExampleTest` (404 على `/`) قديم ولا علاقة له.
+- **الاختبارات:** `php vendor/bin/phpunit` (SQLite في الذاكرة). كلها تنجح.
 - **قاعدة البيانات:**
   - `User` ونماذج أخرى تستعمل اتصال `central` الثابت على MySQL. في سكربتات tinker على SQLite نفّذ أولاً: `config(['database.connections.central' => config('database.connections.sqlite')]);`
   - قيد CHECK في migration جدول `food_nutrient_values` يُطبَّق على MySQL/MariaDB فقط.

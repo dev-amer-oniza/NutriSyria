@@ -12,8 +12,19 @@
             <a class="ns-btn ns-btn--ghost ns-btn--icon" href="{{ route('home') }}#search" aria-label="بحث">
                 @include('site.partials.icon', ['name' => 'search'])
             </a>
-            <a class="ns-btn ns-btn--ghost ns-btn--sm" href="{{ route('site.login') }}">تسجيل الدخول</a>
-            <a class="ns-btn ns-btn--primary ns-btn--sm" href="{{ route('site.register') }}">أنشئ حسابك</a>
+            @auth
+                @if (auth()->user()->canAccessPanel(filament()->getPanel('admin')))
+                    <a class="ns-btn ns-btn--ghost ns-btn--sm" href="{{ filament()->getPanel('admin')->getUrl() }}">لوحة التحكم</a>
+                @endif
+                <span class="ns-header__user">{{ auth()->user()->name }}</span>
+                <form method="post" action="{{ route('site.logout') }}">
+                    @csrf
+                    <button class="ns-btn ns-btn--secondary ns-btn--sm" type="submit">خروج</button>
+                </form>
+            @else
+                <a class="ns-btn ns-btn--ghost ns-btn--sm" href="{{ route('site.login') }}">تسجيل الدخول</a>
+                <a class="ns-btn ns-btn--primary ns-btn--sm" href="{{ route('site.register') }}">أنشئ حسابك</a>
+            @endauth
             <button class="ns-btn ns-btn--ghost ns-btn--icon ns-header__menu" type="button"
                     aria-controls="site-drawer" :aria-expanded="open" aria-expanded="false" aria-label="القائمة"
                     @click="open = ! open">

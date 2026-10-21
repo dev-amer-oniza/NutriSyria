@@ -20,6 +20,12 @@
     @include('site.partials.header')
 
     <main id="main">
+        {{-- Account pages show their messages inside the form instead. --}}
+        @unless (View::hasSection('form'))
+            @if (session('status') || session('error'))
+                <div class="ns-wrap ns-flash">@include('site.partials.flash')</div>
+            @endif
+        @endunless
         @yield('content')
     </main>
 

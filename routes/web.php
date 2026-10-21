@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Site\Auth\EmailVerificationController;
+use App\Http\Controllers\Site\Auth\LoginController;
+use App\Http\Controllers\Site\Auth\PasswordResetController;
+use App\Http\Controllers\Site\Auth\RegisterController;
 use App\Http\Controllers\Site\HomeController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,13 +24,35 @@ Route::name('site.')->group(function () {
         'about' => ['/about', 'من نحن'],
         'contact' => ['/contact', 'تواصل معنا'],
         'privacy' => ['/privacy', 'سياسة الخصوصية'],
-        'login' => ['/login', 'تسجيل الدخول'],
-        'register' => ['/register', 'أنشئ حسابك'],
     ];
 
     foreach ($soon as $name => [$uri, $title]) {
         Route::view($uri, 'site.pages.soon', ['title' => $title])->name($name);
     }
+
+    /*
+    | Accounts. Form posts are rate limited per visitor (AppServiceProvider); sign-in also
+    | locks one email after 5 wrong passwords (LoginRequest), and each code allows 5 tries.
+    */
+    Route::middleware('guest')->group(function () {
+        Route::get('/register', [RegisterController::class, 'create'])->name('register');
+        Route::post('/register', [RegisterController::class, 'store'])->middleware('throttle:auth-forms');
+
+        Route::get('/login', [LoginController::class, 'create'])->name('login');
+        Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:auth-forms');
+
+        Route::get('/verify-email', [EmailVerificationController::class, 'show'])->name('verify');
+        Route::post('/verify-email', [EmailVerificationController::class, 'store'])->middleware('throttle:auth-forms');
+        Route::post('/verify-email/resend', [EmailVerificationController::class, 'resend'])
+            ->middleware('throttle:auth-codes')->name('verify.resend');
+
+        Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
+        Route::post('/forgot-password', [PasswordResetController::class, 'sendCode'])->middleware('throttle:auth-codes');
+        Route::get('/reset-password', [PasswordResetController::class, 'edit'])->name('password.reset');
+        Route::post('/reset-password', [PasswordResetController::class, 'update'])->middleware('throttle:auth-forms');
+    });
+
+    Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 });
 
 Route::get('/admin/import-templates/{type}', function (string $type) {
