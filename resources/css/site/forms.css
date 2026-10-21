@@ -43,13 +43,6 @@
 
     .ns-hp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
-    /* ---------- Messages ---------- */
-    .ns-alert { margin: 0 0 var(--space-5); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); font-size: 14px; line-height: 22px; }
-    .ns-alert--ok { background: var(--pine-soft); color: var(--pine); }
-    .ns-alert--error { background: var(--terracotta-soft); color: var(--terracotta-ink); }
-    .ns-flash { padding-top: var(--space-5); }
-    .ns-flash .ns-alert { margin: 0; }
-
     /* ---------- Account pages ---------- */
     .ns-auth { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 520px); min-height: calc(100vh - 77px); }
     .ns-auth__main { display: flex; justify-content: center; padding: var(--space-10) var(--space-5); }

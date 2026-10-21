@@ -43,7 +43,7 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home');
+        return redirect()->route('home')->with('status', 'تم تسجيل الخروج.');
     }
 
     private function toVerification(LoginRequest $request): RedirectResponse
@@ -60,6 +60,7 @@ class LoginController extends Controller
         $request->succeeded();
         $request->session()->regenerate();
 
-        return redirect()->intended(route('home'));
+        return redirect()->intended(route('home'))
+            ->with('status', 'تم تسجيل الدخول. أهلاً بعودتك، '.$request->user()->name.'.');
     }
 }

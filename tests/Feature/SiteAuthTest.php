@@ -289,4 +289,20 @@ class SiteAuthTest extends TestCase
         $this->get('/admin/access-control/users')->assertForbidden();
         $this->assertNull($applicant->fresh()->roles->first());
     }
+
+    public function test_messages_close_by_themselves_unless_they_are_errors(): void
+    {
+        $this->verifiedUser();
+
+        $this->post('/login', ['email' => 'rami@example.com', 'password' => 'olive-oil-9'])
+            ->assertSessionHas('status', 'تم تسجيل الدخول. أهلاً بعودتك، رامي.');
+
+        $this->get('/')
+            ->assertSee('class="ns-toasts"', false)
+            ->assertSee('x-data="flash(6000)"', false)
+            ->assertSee('aria-label="إغلاق الرسالة"', false);
+
+        $this->withSession(['error' => 'تعذّر الإرسال.'])->get('/')
+            ->assertSee('x-data="flash(0)"', false);
+    }
 }
