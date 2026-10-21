@@ -40,5 +40,45 @@ Alpine.data('fitDemo', () => ({
     },
 }));
 
+/**
+ * A message that closes itself after `timeout` ms (0 = stays until closed). Pointing at it
+ * or focusing inside it pauses the countdown, so it never vanishes while being read.
+ */
+Alpine.data('flash', (timeout) => ({
+    open: true,
+    paused: false,
+    remaining: timeout,
+    startedAt: 0,
+    timer: null,
+
+    init() {
+        if (timeout > 0) this.start();
+    },
+
+    start() {
+        this.startedAt = Date.now();
+        this.timer = setTimeout(() => this.close(), this.remaining);
+    },
+
+    pause() {
+        if (!this.timer) return;
+        clearTimeout(this.timer);
+        this.timer = null;
+        this.remaining -= Date.now() - this.startedAt;
+        this.paused = true;
+    },
+
+    resume() {
+        if (!this.open || !this.paused) return;
+        this.paused = false;
+        this.start();
+    },
+
+    close() {
+        clearTimeout(this.timer);
+        this.open = false;
+    },
+}));
+
 window.Alpine = Alpine;
 Alpine.start();

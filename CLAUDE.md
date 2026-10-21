@@ -150,6 +150,7 @@
 - **المسارات** (`site.*`): register، login، verify (+ verify.resend)، password.request، password.reset، logout. الضيف الذي يطلب صفحة محمية يذهب إلى `site.login` (`bootstrap/app.php`).
 - **الإيميل:** محلياً `MAIL_MAILER=log` (الرمز في `storage/logs/laravel.log`). صاحب المشروع يستعمل Gmail SMTP (كلمة مرور تطبيق في `.env` فقط، حد ~500/يوم)، والانتقال لاحقاً إلى Brevo مع الدومين.
 - **التالي:** الدخول بـ Google (Socialite)، ثم إعداد الحساب بـ 3 خطوات (الجسم، الهدف، الصحة).
+- **الرسائل** (`partials/flash` + `Alpine.data('flash')` في `site.js`، طلب صاحب المشروع): رسالة النجاح تختفي بعد 6 ثوانٍ مع خط يتناقص، وتتوقف عند المرور بالماوس أو التركيز عليها؛ رسالة الخطأ تبقى حتى تُغلق؛ لكل رسالة زر إغلاق. خارج صفحات الحساب تطفو تحت الهيدر (`ns-toasts`). الدخول والخروج يعطيان رسالة.
 - اختبارات: `tests/Feature/SiteAuthTest.php`.
 
 ## معلومات تشغيل وتطوير
