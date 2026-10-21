@@ -21,6 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // The site's own sign-in page; the admin panel keeps its own (Filament).
+        $middleware->redirectGuestsTo(fn () => route('site.login'));
+
         $middleware->alias([
             // Spatie role & permission middlewares
             'role' => RoleMiddleware::class,

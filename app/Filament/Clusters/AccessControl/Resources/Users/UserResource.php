@@ -35,6 +35,24 @@ class UserResource extends Resource
 
     protected static ?string $pluralModelLabel = 'المستخدمون';
 
+    /** Sign-ups waiting for the brand owner or nutritionist role. */
+    public static function getNavigationBadge(): ?string
+    {
+        $pending = User::whereNotNull('requested_role')->count();
+
+        return $pending > 0 ? (string) $pending : null;
+    }
+
+    public static function getNavigationBadgeColor(): string
+    {
+        return 'warning';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'طلبات أدوار تنتظر الموافقة';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return UserForm::configure($schema);
