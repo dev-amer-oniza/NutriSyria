@@ -35,10 +35,18 @@ return [
     'meal_share' => 0.30,
 
     /*
-    | How far a meal may stray from its share of a target before the verdict drops
-    | (phase 3, the meal analysis): within 10% suits, within 25% suits in moderation.
+    | How far a meal may go over its share of a limit before the verdict drops
+    | (App\Services\Nutrition\Fit\MealFitCalculator, the owner's decision 1a):
+    | up to 10% over = suits very well (4), up to 25% = in moderation (3),
+    | up to 50% = needs attention (2), more than 50% = not for you now (1).
     */
-    'fit_tolerance' => ['suits' => 10, 'moderate' => 25],
+    'fit_tolerance' => ['suits' => 10, 'moderate' => 25, 'unfit' => 50],
+
+    /*
+    | Targets whose overshoot counts like a limit when judging a meal. Every "max" counts;
+    | being under a target or a "min" (fibre, protein, iron) is only a note (decision 2a).
+    */
+    'fit_target_limits' => ['energy_kcal', 'carbohydrate_g', 'fat_g'],
 
     /* Physical activity level => multiplier of the resting energy (App\Enums\ActivityLevel). */
     'activity_factors' => [

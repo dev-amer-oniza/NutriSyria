@@ -42,7 +42,7 @@
     .ns-chip { font: inherit; font-family: var(--font-arabic); display: inline-flex; align-items: center; gap: var(--space-2); height: 36px; padding: 0 var(--space-4); border-radius: var(--radius-full); border: 1px solid var(--line); background: var(--surface-raised); color: var(--ink); font-size: 14px; line-height: 20px; font-weight: 500; cursor: pointer; text-decoration: none; white-space: nowrap; transition: border-color .15s ease, background-color .15s ease; }
     .ns-chip:hover { border-color: var(--pine); }
     .ns-chip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-    .ns-chip[aria-pressed="true"], .ns-chip[aria-checked="true"] { background: var(--pine); border-color: var(--pine); color: var(--on-pine); }
+    .ns-chip[aria-pressed="true"], .ns-chip[aria-checked="true"], .ns-chip[aria-current="page"] { background: var(--pine); border-color: var(--pine); color: var(--on-pine); }
     .ns-chip .ns-icon { width: 18px; height: 18px; }
 
     /* ---------- Verification badge (components/verify-badge) ---------- */
@@ -161,4 +161,13 @@
     @media (prefers-reduced-motion: reduce) {
         .ns-alert__timer { display: none; }
     }
+}
+
+/* A small verdict on meal cards, and the notes under a verdict (components/fit-result). */
+@layer components {
+    .ns-verdict--sm { gap: var(--space-2); padding: 4px var(--space-3); border-radius: var(--radius-full); width: fit-content; }
+    .ns-verdict--sm .ns-verdict__label { font-size: 13px; line-height: 20px; }
+    .ns-verdict--sm .ns-verdict__meter { grid-template-columns: repeat(4, 8px); gap: 2px; }
+    .ns-verdict--sm .ns-verdict__meter i { height: 8px; }
+    .ns-fit__notes { margin: 0; padding-inline-start: var(--space-5); font-size: 13px; line-height: 22px; color: var(--ink-muted); }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Filament\Clusters\FoodDatabase\Resources\Food\Schemas;
 
+use App\Enums\Allergen;
 use App\Models\FoodCategory;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -36,6 +38,17 @@ class FoodForm
                             ->label('الاسم العلمي')
                             ->helperText('اختياري — للنباتات والحيوانات فقط')
                             ->maxLength(255),
+                    ]),
+                Section::make('مسبّبات الحساسية')
+                    ->description('تُقيَّم بها الوجبات لمن عنده حساسية: وجبة فيها مسبّب حساسيته تظهر له "غير مناسبة لك الآن".')
+                    ->components([
+                        CheckboxList::make('allergens')
+                            ->label('يحتوي على')
+                            ->options(collect(Allergen::cases())->mapWithKeys(fn (Allergen $a) => [$a->value => $a->label()])->all())
+                            ->columns(4),
+                        Toggle::make('allergens_checked')
+                            ->label('تحققتُ من مسبّبات الحساسية لهذا الغذاء')
+                            ->helperText('فعّله حتى لو لم تحدد شيئاً، ليُعرف أن الغذاء خالٍ منها. ما لم يُفعَّل، تُنبَّه من عنده حساسية بأن الوجبة لم تُفحص.'),
                     ]),
                 Section::make('الصورة والحالة')
                     ->columns(2)

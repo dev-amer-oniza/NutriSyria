@@ -10,6 +10,7 @@ use App\Http\Controllers\Site\Auth\LoginController;
 use App\Http\Controllers\Site\Auth\PasswordResetController;
 use App\Http\Controllers\Site\Auth\RegisterController;
 use App\Http\Controllers\Site\HomeController;
+use App\Http\Controllers\Site\MealController;
 use App\Http\Controllers\Site\NutritionistController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,7 +22,6 @@ Route::get('/', HomeController::class)->name('home');
 
 Route::name('site.')->group(function () {
     $soon = [
-        'meals' => ['/meals', 'الوجبات'],
         'brands' => ['/restaurants', 'المطاعم'],
         'method' => ['/method', 'منهجية التحقق'],
         'partners' => ['/for-restaurants', 'للمطاعم'],
@@ -35,6 +35,10 @@ Route::name('site.')->group(function () {
     foreach ($soon as $name => [$uri, $title]) {
         Route::view($uri, 'site.pages.soon', ['title' => $title])->name($name);
     }
+
+    // The approved meals, each judged for the signed-in person (MealFitService).
+    Route::get('/meals', [MealController::class, 'index'])->name('meals');
+    Route::get('/meals/{meal}', [MealController::class, 'show'])->whereNumber('meal')->name('meals.show');
 
     // The nutritionist directory (only listed profiles: NutritionistProfile::isListed).
     Route::get('/nutritionists', [NutritionistController::class, 'index'])->name('nutritionists');
