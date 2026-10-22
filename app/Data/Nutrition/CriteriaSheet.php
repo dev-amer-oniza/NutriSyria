@@ -10,7 +10,7 @@ final readonly class CriteriaSheet
     /**
      * @param  array<string, CriterionValue>  $criteria  keyed by criterion key
      * @param  array{bmr: int, tdee: int, adjustment: int, floored: bool}  $energy
-     * @param  array{key: string, label: string, description: string, macros: array{carbs: int, protein: int, fat: int}, source: CriterionSource}  $template
+     * @param  array{key: string, label: string, description: string, macros: array{carbs: int, protein: int, fat: int}, source: CriterionSource, note?: string}  $template
      * @param  list<string>  $advice  reasons to see a nutritionist
      * @param  list<string>  $allergens  App\Enums\Allergen values to avoid
      */
@@ -26,6 +26,12 @@ final readonly class CriteriaSheet
     public function get(string $key): ?CriterionValue
     {
         return $this->criteria[$key] ?? null;
+    }
+
+    /** The note left with the chosen template (the nutritionist's "why"). */
+    public function withTemplateNote(string $note): self
+    {
+        return new self($this->criteria, $this->energy, $this->mealShare, [...$this->template, 'note' => $note], $this->advice, $this->allergens);
     }
 
     public function with(CriterionValue $value): self

@@ -150,13 +150,15 @@ class ConsultationService
     /**
      * Ends an accepted link, by the person or their nutritionist. The nutritionist's template
      * and criteria are removed, so the person's own values (or the calculated ones) apply again.
+     * The other side is told: the nutritionist in the panel, the person by email with the
+     * nutritionist's optional reason.
      */
-    public function end(User $by, ConsultationRequest $request): void
+    public function end(User $by, ConsultationRequest $request, ?string $reason = null): void
     {
         if ($request->user_id !== $by->getKey()) {
             $this->ensureAddressedTo($request, $by);
         }
-        if (! $request->isAccepted()) {
+        if (! $request->refresh()->isAccepted()) {
             throw ConsultationRefused::notAccepted();
         }
 
@@ -164,6 +166,7 @@ class ConsultationService
             'status' => ConsultationStatus::Ended,
             'ended_at' => now(),
             'ended_by' => $by->getKey(),
+            'end_reason' => filled($reason) ? trim($reason) : null,
         ])->save();
 
         $this->criteria->clearNutritionist($request->user, $by);
@@ -174,6 +177,8 @@ class ConsultationService
                 ->body('لم يعد سجله الصحي ومعاييره متاحة لك.')
                 ->icon('heroicon-o-link-slash')
                 ->sendToDatabase($request->nutritionist);
+        } else {
+            $this->mail($request->user, ConsultationNotification::endedByNutritionist($request));
         }
     }
 
@@ -217,7 +222,7 @@ class ConsultationService
     }
 
     /** Email is a courtesy: a mail server hiccup must not undo the step itself. */
-    private function mail(User $to, ConsultationNotification $notification): void
+    public function mail(User $to, ConsultationNotification $notification): void
     {
         rescue(fn () => $to->notify($notification), report: true);
     }

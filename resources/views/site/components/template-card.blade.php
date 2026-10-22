@@ -22,6 +22,9 @@
                 </span>
                 {{ $template['description'] }}
             </p>
+            @if (! empty($template['note']))
+                <p class="ns-field__hint">ملاحظة أخصائيّك: {{ $template['note'] }}</p>
+            @endif
         </div>
         @isset($selectable)
             @if ($locked)
