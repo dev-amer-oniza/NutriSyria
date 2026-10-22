@@ -1,0 +1,42 @@
+/* The nutritionist directory and pages (pages/nutritionists, components/nutritionist-card). */
+@layer components {
+    .ns-filters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-6); }
+    .ns-filters .ns-input { width: auto; min-width: 200px; height: 48px; }
+
+    .ns-nutris { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
+    .ns-nutri { display: flex; gap: var(--space-4); padding: var(--space-5); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); color: inherit; text-decoration: none; transition: box-shadow .2s ease, border-color .15s ease; }
+    .ns-nutri:hover { border-color: var(--pine); box-shadow: var(--shadow-sm); }
+    .ns-nutri:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    .ns-nutri__photo { flex: none; width: 80px; height: 80px; border-radius: var(--radius-full); overflow: hidden; background: var(--sand); }
+    .ns-nutri__photo img { width: 100%; height: 100%; object-fit: cover; }
+    .ns-nutri__name { margin: 0; font-size: 18px; line-height: 28px; font-weight: 600; }
+    .ns-nutri__meta { margin: 2px 0 var(--space-2); font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-nutri__tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+    .ns-nutri__tags li { padding: 2px 10px; border-radius: var(--radius-full); background: var(--pine-soft); color: var(--pine); font-size: 12px; line-height: 20px; }
+    .ns-nutri__free { margin: var(--space-2) 0 0; font-size: 13px; font-weight: 600; color: var(--terracotta-ink); }
+
+    .ns-nutri-page { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-8); align-items: start; }
+    .ns-nutri-page__head { display: flex; align-items: center; gap: var(--space-5); margin: var(--space-5) 0; }
+    .ns-nutri-page__head h1 { margin: 0 0 var(--space-2); }
+    .ns-nutri-page__photo { flex: none; width: 120px; height: 120px; border-radius: var(--radius-full); overflow: hidden; background: var(--sand); }
+    .ns-nutri-page__photo img { width: 100%; height: 100%; object-fit: cover; }
+    .ns-nutri-page__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-3); margin: 0 0 var(--space-6); padding: var(--space-4) 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .ns-nutri-page__facts dt { font-size: 13px; color: var(--ink-muted); }
+    .ns-nutri-page__facts dd { margin: 2px 0 0; font-size: 15px; font-weight: 600; }
+    .ns-nutri-page__bio { white-space: pre-line; }
+    .ns-nutri-page__book { position: sticky; top: 100px; padding: var(--space-5); background: var(--pine-soft); border-radius: var(--radius-lg); color: var(--pine); }
+    .ns-nutri-page__steps { margin: 0 0 var(--space-5); padding-inline-start: var(--space-5); font-size: 14px; line-height: 24px; color: var(--ink); }
+    .ns-nutri-page__cta { width: 100%; }
+    .ns-nutri-page__cta[aria-disabled="true"] { opacity: .6; cursor: default; }
+
+    @media (max-width: 1080px) {
+        .ns-nutris { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .ns-nutri-page { grid-template-columns: minmax(0, 1fr); }
+        .ns-nutri-page__book { position: static; }
+    }
+    @media (max-width: 640px) {
+        .ns-nutris { grid-template-columns: minmax(0, 1fr); }
+        .ns-filters .ns-input { flex: 1 1 100%; }
+        .ns-nutri-page__head { flex-direction: column; align-items: flex-start; }
+    }
+}
