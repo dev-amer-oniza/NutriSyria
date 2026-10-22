@@ -63,7 +63,7 @@
                             <span class="ns-book__who">{{ $past->nutritionist->nutritionistProfile?->display_name ?? $past->nutritionist->name }}</span>
                             <span @class(['ns-status', 'ns-status--'.$past->status->value])>{{ $past->status->getLabel() }}</span>
                             <span class="ns-book__when">{{ $past->created_at->format('Y-m-d') }}</span>
-                            @if ($past->decline_reason)<p class="ns-field__hint">{{ $past->decline_reason }}</p>@endif
+                            @if ($past->decline_reason ?? $past->end_reason)<p class="ns-field__hint">{{ $past->decline_reason ?? $past->end_reason }}</p>@endif
                         </li>
                     @endforeach
                 </ul>

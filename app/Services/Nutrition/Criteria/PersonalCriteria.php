@@ -41,6 +41,9 @@ class PersonalCriteria
         }
 
         $sheet = (new CriteriaCalculator(config('nutrition_criteria')))->calculate($profileArray);
+        if ($chosen?->note) {
+            $sheet = $sheet->withTemplateNote($chosen->note);
+        }
         $overrides = UserCriterion::where('user_id', $user->getKey())->get()->groupBy('criterion');
 
         foreach ($overrides as $key => $rows) {
@@ -88,7 +91,10 @@ class PersonalCriteria
         $this->forgetTemplate($user, CriterionSource::User, $user);
     }
 
-    /** For the nutritionist's page (next phase): any template from the library. */
+    /**
+     * The nutritionist's choice: any template from the library. Callers check the link first
+     * (App\Services\Consultations\ClientWorkspace); these rules never do.
+     */
     public function setTemplateByNutritionist(User $user, string $template, User $nutritionist, ?string $note = null): void
     {
         if (! array_key_exists($template, config('nutrition_criteria.templates'))) {
@@ -96,6 +102,12 @@ class PersonalCriteria
         }
 
         $this->storeTemplate($user, CriterionSource::Nutritionist, $template, $note, $nutritionist);
+    }
+
+    /** The nutritionist lets go of the template: the person's choice (or the automatic one) applies. */
+    public function resetTemplateByNutritionist(User $user, User $nutritionist): void
+    {
+        $this->forgetTemplate($user, CriterionSource::Nutritionist, $nutritionist);
     }
 
     public function templateLockedFor(User $user): bool
@@ -121,10 +133,16 @@ class PersonalCriteria
         $this->forget($user, $criterion, CriterionSource::User, $user);
     }
 
-    /** For the nutritionist's page (next phase); kept here so the rules live in one place. */
+    /** The nutritionist's value (ClientWorkspace checks the link and the range first). */
     public function setByNutritionist(User $user, string $criterion, float $value, User $nutritionist, ?string $note = null): void
     {
         $this->store($user, $criterion, CriterionSource::Nutritionist, $value, $note, $nutritionist);
+    }
+
+    /** Back to the person's own value, or the calculated one. */
+    public function resetByNutritionist(User $user, string $criterion, User $nutritionist): void
+    {
+        $this->forget($user, $criterion, CriterionSource::Nutritionist, $nutritionist);
     }
 
     public function clearNutritionist(User $user, ?User $by = null): void

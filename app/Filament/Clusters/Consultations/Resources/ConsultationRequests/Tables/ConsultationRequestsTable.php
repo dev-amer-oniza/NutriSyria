@@ -3,6 +3,7 @@
 namespace App\Filament\Clusters\Consultations\Resources\ConsultationRequests\Tables;
 
 use App\Enums\ConsultationStatus;
+use App\Filament\Clusters\Consultations\Resources\Clients\Pages\ViewClient;
 use App\Exceptions\ConsultationRefused;
 use App\Models\ConsultationRequest;
 use App\Services\Consultations\ConsultationService;
@@ -30,7 +31,7 @@ class ConsultationRequestsTable
                 TextColumn::make('user.name')
                     ->label('المراجع')
                     ->weight('bold')
-                    ->description(fn (ConsultationRequest $record) => self::about($record)),
+                    ->description(fn (ConsultationRequest $record) => $record->clientSummary()),
                 TextColumn::make('reason')
                     ->label('السبب')
                     ->wrap()
@@ -62,21 +63,15 @@ class ConsultationRequestsTable
             ->recordActions([
                 self::acceptAction(),
                 self::declineAction(),
+                Action::make('file')
+                    ->label('ملف المراجع')
+                    ->icon(Heroicon::OutlinedUser)
+                    ->color('gray')
+                    ->visible(fn (ConsultationRequest $record) => $record->isAccepted())
+                    ->url(fn (ConsultationRequest $record) => ViewClient::getUrl(['record' => $record])),
             ])
             ->emptyStateHeading('لا طلبات بعد')
             ->emptyStateDescription('تصلك الطلبات حين يكون ملفك ظاهراً في الموقع و"أستقبل مراجعين" مفعّلاً.');
-    }
-
-    /** What the nutritionist may know before accepting: age, sex and goal. */
-    private static function about(ConsultationRequest $record): ?string
-    {
-        $profile = $record->user->profile;
-
-        return implode('، ', array_filter([
-            $profile?->age() ? $profile->age().' سنة' : null,
-            $profile?->sex?->label(),
-            $profile?->goal?->label(),
-        ])) ?: null;
     }
 
     private static function acceptAction(): Action

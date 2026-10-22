@@ -25,6 +25,7 @@ class ConsultationRequest extends Model
             'expires_at' => 'datetime',
             'responded_at' => 'datetime',
             'ended_at' => 'datetime',
+            'client_notified_at' => 'datetime',
         ];
     }
 
@@ -58,6 +59,18 @@ class ConsultationRequest extends Model
     public function daysLeft(): int
     {
         return max(1, (int) ceil(now()->diffInHours($this->expires_at, false) / 24));
+    }
+
+    /** What the nutritionist may know before accepting: age, sex and goal ("34 سنة، أنثى، إنقاص الوزن"). */
+    public function clientSummary(): ?string
+    {
+        $profile = $this->user->profile;
+
+        return implode('، ', array_filter([
+            $profile?->age() ? $profile->age().' سنة' : null,
+            $profile?->sex?->label(),
+            $profile?->goal?->label(),
+        ])) ?: null;
     }
 
     /** A wa.me link for a number stored as +9639…, or null. */
