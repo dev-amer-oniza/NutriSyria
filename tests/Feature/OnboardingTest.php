@@ -184,10 +184,14 @@ class OnboardingTest extends TestCase
 
         $this->get('/onboarding/health')->assertOk()
             ->assertSee('الهضم والدسم')
+            ->assertSee('القلب والكلى')
             ->assertSee('استئصال المرارة')
             ->assertSee('عدم تحمّل الدسم')
+            ->assertSee('غسيل الكلى')
             ->assertSee('فقر الدم')
-            ->assertDontSee('حامل أو مرضعة');
+            ->assertDontSee('حامل أو مرضعة')
+            ->assertDontSee('سكري الحمل')
+            ->assertDontSee('سن الأمل');
 
         $this->post('/onboarding/health', ['conditions' => ['gallbladder_removed', 'anemia'], 'consent' => '1'])
             ->assertRedirect('/onboarding/done');
@@ -196,5 +200,51 @@ class OnboardingTest extends TestCase
         $this->assertSame(20.0, $sheet->get('meal_fat_g')->value);
         $this->assertSame(8.0, $sheet->get('iron_mg')->value);
         $this->get('/account/criteria')->assertSee('دهون الوجبة')->assertSee('الحديد');
+    }
+
+    public function test_a_person_picks_a_general_template_and_puts_it_back(): void
+    {
+        $this->completeSetUp();
+        $this->get('/onboarding/done')->assertSee('المتوازن (ADA)')->assertSee('اخترناه حسب حالتك');
+
+        $this->put('/account/template', ['template' => 'ckd'])->assertSessionHasErrors('template');
+        $this->put('/account/template', ['template' => 'mediterranean'])->assertSessionHas('status');
+
+        $sheet = app(PersonalCriteria::class)->for($this->user->fresh());
+        $this->assertSame('mediterranean', $sheet->template['key']);
+        $this->assertSame(CriterionSource::User, $sheet->template['source']);
+        $this->assertSame(84.0, $sheet->get('protein_g')->value);
+        $this->get('/account/criteria')->assertSee('حمية البحر المتوسط')->assertSee('اخترته أنت');
+
+        $this->delete('/account/template')->assertSessionHas('status');
+        $this->assertSame('balanced', app(PersonalCriteria::class)->for($this->user->fresh())->template['key']);
+        $this->assertSame(2, UserCriterionChange::where('criterion', 'template')->count());
+    }
+
+    public function test_a_nutritionist_template_is_locked_for_the_person(): void
+    {
+        $this->completeSetUp();
+        $nutritionist = User::forceCreate(['name' => 'د. ريم', 'email' => 'reem2@example.com', 'password' => 'x-secret-1', 'is_active' => true]);
+        $criteria = app(PersonalCriteria::class);
+
+        $criteria->setTemplateByNutritionist($this->user, 'dialysis', $nutritionist, 'حسب تحاليلك');
+        $this->assertSame('dialysis', $criteria->for($this->user->fresh())->template['key']);
+
+        $this->put('/account/template', ['template' => 'balanced'])->assertSessionHas('error');
+        $this->get('/account/criteria')->assertSee('غسيل الكلى')->assertSee('اختاره أخصائيّك');
+
+        $criteria->clearNutritionist($this->user, $nutritionist);
+        $this->assertSame('balanced', $criteria->for($this->user->fresh())->template['key']);
+    }
+
+    public function test_women_only_conditions_go_when_the_sex_changes(): void
+    {
+        $this->post('/onboarding/body', ['sex' => 'female', 'birth_year' => 1975, 'height_cm' => 160, 'weight_kg' => 65]);
+        $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'maintain']);
+        $this->post('/onboarding/health', ['conditions' => ['menopause', 'gout'], 'consent' => '1']);
+
+        $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1975, 'height_cm' => 160, 'weight_kg' => 65]);
+
+        $this->assertSame(['gout'], $this->user->fresh()->profile->health_conditions);
     }
 }

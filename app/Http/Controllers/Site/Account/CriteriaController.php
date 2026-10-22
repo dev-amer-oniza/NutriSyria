@@ -6,6 +6,7 @@ use App\Enums\OnboardingStep;
 use App\Exceptions\CriterionLocked;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Profile\CriterionRequest;
+use App\Http\Requests\Profile\TemplateRequest;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
 use App\Services\Nutrition\UserProfileService;
 use Illuminate\Contracts\View\View;
@@ -27,6 +28,8 @@ class CriteriaController extends Controller
         return view('site.pages.account.criteria', [
             'profile' => $profile,
             'sheet' => $criteria->for($request->user()),
+            'selectableTemplates' => PersonalCriteria::selectableTemplates(),
+            'templateLocked' => $criteria->templateLockedFor($request->user()),
         ]);
     }
 
@@ -50,6 +53,28 @@ class CriteriaController extends Controller
         }
 
         return back()->with('status', 'عاد المعيار إلى القيمة المحسوبة تلقائياً.');
+    }
+
+    public function chooseTemplate(TemplateRequest $request, PersonalCriteria $criteria): RedirectResponse
+    {
+        try {
+            $criteria->chooseTemplateByUser($request->user(), $request->validated('template'));
+        } catch (CriterionLocked) {
+            return back()->with('error', 'اختار أخصائيّك قالبك. تواصل معه إن أردت تغييره.');
+        }
+
+        return back()->with('status', 'تغيّر قالبك، وأُعيد حساب الكربوهيدرات والبروتين والدهون.');
+    }
+
+    public function resetTemplate(Request $request, PersonalCriteria $criteria): RedirectResponse
+    {
+        try {
+            $criteria->resetTemplateByUser($request->user());
+        } catch (CriterionLocked) {
+            return back()->with('error', 'اختار أخصائيّك قالبك. تواصل معه إن أردت تغييره.');
+        }
+
+        return back()->with('status', 'عاد قالبك إلى ما يناسب حالتك تلقائياً.');
     }
 
     public function destroyHealth(Request $request, UserProfileService $profiles): RedirectResponse

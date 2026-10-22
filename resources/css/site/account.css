@@ -75,3 +75,21 @@
         .ns-types__grid { grid-template-columns: minmax(0, 1fr) !important; }
     }
 }
+
+@layer components {
+    /* ---------- Diet template (components/template-card) ---------- */
+    .ns-template { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-5); margin-bottom: var(--space-5); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+    .ns-needs .ns-template { padding: var(--space-4) 0 0; margin: var(--space-4) 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; }
+    .ns-template__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+    .ns-template__kicker { margin: 0; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-template__name { margin: 0 0 var(--space-1); font-size: 20px; line-height: 30px; font-weight: 600; color: var(--pine); }
+    .ns-template__why { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-template__macros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin: 0; }
+    .ns-template__macros dt { display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-template__macros dd { margin: 2px 0 0; font-size: 13px; color: var(--ink-muted); }
+    .ns-template__macros dd .ns-num { font-size: 22px; line-height: 30px; font-weight: 600; color: var(--ink); }
+    .ns-template__choose { display: flex; flex-direction: column; gap: var(--space-3); padding-top: var(--space-4); border-top: 1px solid var(--line); }
+    @media (max-width: 640px) {
+        .ns-template__macros { grid-template-columns: minmax(0, 1fr); }
+    }
+}

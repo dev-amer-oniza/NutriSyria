@@ -84,6 +84,8 @@ Route::name('site.')->group(function () {
             ->whereIn('criterion', $criteria)->name('criteria.update');
         Route::delete('/account/criteria/{criterion}', [CriteriaController::class, 'reset'])
             ->whereIn('criterion', $criteria)->name('criteria.reset');
+        Route::put('/account/template', [CriteriaController::class, 'chooseTemplate'])->name('template.update');
+        Route::delete('/account/template', [CriteriaController::class, 'resetTemplate'])->name('template.reset');
         Route::delete('/account/health', [CriteriaController::class, 'destroyHealth'])->name('health.destroy');
     });
 });

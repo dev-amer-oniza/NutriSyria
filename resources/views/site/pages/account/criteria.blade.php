@@ -17,6 +17,8 @@
             @unless ($sheet)
                 <p class="ns-alert ns-alert--error">الحساب الشخصي متاح من عمر {{ config('nutrition_criteria.min_age') }} سنة.</p>
             @else
+                @include('site.components.template-card', ['sheet' => $sheet, 'selectable' => $selectableTemplates, 'locked' => $templateLocked])
+
                 <ul class="ns-criteria">
                     @foreach (config('nutrition_criteria.criteria') as $key => $definition)
                         @php $c = $sheet->get($key); @endphp
