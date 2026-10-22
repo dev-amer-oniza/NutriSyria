@@ -8,6 +8,7 @@ use App\Http\Controllers\Site\Auth\LoginController;
 use App\Http\Controllers\Site\Auth\PasswordResetController;
 use App\Http\Controllers\Site\Auth\RegisterController;
 use App\Http\Controllers\Site\HomeController;
+use App\Http\Controllers\Site\NutritionistController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,12 +28,15 @@ Route::name('site.')->group(function () {
         'about' => ['/about', 'من نحن'],
         'contact' => ['/contact', 'تواصل معنا'],
         'privacy' => ['/privacy', 'سياسة الخصوصية'],
-        'nutritionists' => ['/nutritionists', 'أخصائيو التغذية'],
     ];
 
     foreach ($soon as $name => [$uri, $title]) {
         Route::view($uri, 'site.pages.soon', ['title' => $title])->name($name);
     }
+
+    // The nutritionist directory (only listed profiles: NutritionistProfile::isListed).
+    Route::get('/nutritionists', [NutritionistController::class, 'index'])->name('nutritionists');
+    Route::get('/nutritionists/{profile}', [NutritionistController::class, 'show'])->whereNumber('profile')->name('nutritionists.show');
 
     /*
     | Accounts. Form posts are rate limited per visitor (AppServiceProvider); sign-in also

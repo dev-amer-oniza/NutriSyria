@@ -12,6 +12,7 @@ return [
         ['label' => 'الرئيسية', 'route' => 'home'],
         ['label' => 'الوجبات', 'route' => 'site.meals'],
         ['label' => 'المطاعم', 'route' => 'site.brands'],
+        ['label' => 'أخصائيو التغذية', 'route' => 'site.nutritionists'],
         ['label' => 'كيف نتحقق', 'route' => 'site.method'],
         ['label' => 'للمطاعم', 'route' => 'site.partners'],
     ],
@@ -20,6 +21,7 @@ return [
         'المنصة' => [
             ['label' => 'الوجبات', 'route' => 'site.meals'],
             ['label' => 'المطاعم', 'route' => 'site.brands'],
+            ['label' => 'أخصائيو التغذية', 'route' => 'site.nutritionists'],
             ['label' => 'الأهداف الصحية', 'route' => 'site.goals'],
         ],
         'المعرفة' => [

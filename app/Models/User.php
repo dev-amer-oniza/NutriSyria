@@ -103,6 +103,12 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasOne(UserProfile::class);
     }
 
+    /** A nutritionist's public profile on the site. */
+    public function nutritionistProfile(): HasOne
+    {
+        return $this->hasOne(NutritionistProfile::class);
+    }
+
     public function brands(): BelongsToMany
     {
         return $this->belongsToMany(Brand::class, 'brand_user')->withTimestamps();

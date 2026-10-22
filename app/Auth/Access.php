@@ -34,6 +34,9 @@ final class Access
     public const PRODUCTS_VIEW_ALL = 'products.view-all';
     public const NUTRITION_APPROVE = 'nutrition.approve';
 
+    // Consultations: a public profile on the site and clients who book (nutritionists).
+    public const CONSULTATIONS_PROVIDE = 'consultations.provide';
+
     // Accounts.
     public const USERS_MANAGE = 'users.manage';
 
@@ -50,6 +53,7 @@ final class Access
             self::BRANDS_MANAGE_OWN => 'إدارة براندات المستخدم ومنتجاتها ووصفاتها',
             self::PRODUCTS_VIEW_ALL => 'عرض منتجات كل البراندات ووصفاتها',
             self::NUTRITION_APPROVE => 'اعتماد القيم الغذائية الرسمية للمنتجات',
+            self::CONSULTATIONS_PROVIDE => 'بروفايل عام في الموقع واستقبال المراجعين',
             self::USERS_MANAGE => 'إدارة المستخدمين والأدوار والصلاحيات',
         ];
     }
@@ -75,7 +79,7 @@ final class Access
         return [
             self::SUPER_ADMIN => [],
             self::BRAND_OWNER => [self::BRANDS_MANAGE_OWN],
-            self::NUTRITIONIST => [self::IMPORTS_VIEW, self::IMPORTS_REVIEW, self::PRODUCTS_VIEW_ALL, self::NUTRITION_APPROVE],
+            self::NUTRITIONIST => [self::IMPORTS_VIEW, self::IMPORTS_REVIEW, self::PRODUCTS_VIEW_ALL, self::NUTRITION_APPROVE, self::CONSULTATIONS_PROVIDE],
         ];
     }
 }

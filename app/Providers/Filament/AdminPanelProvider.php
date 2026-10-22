@@ -126,7 +126,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(fn () => view('filament.admin.brand'))
             ->brandLogoHeight('2rem')
             ->favicon(asset('images/brand/nutrisyria-mark.svg'))
-            ->navigationGroups(['البيانات الغذائية', 'المطاعم', 'الإعدادات'])
+            ->navigationGroups(['البيانات الغذائية', 'المطاعم', 'الاستشارات', 'الإعدادات'])
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
