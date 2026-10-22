@@ -13,14 +13,20 @@
                 </div>
                 <div class="ns-criteria-page__links">
                     <a class="ns-link" href="{{ route('site.my-nutritionist') }}">أخصائيّي</a>
-                    <a class="ns-link" href="{{ route('site.onboarding.show', \App\Enums\OnboardingStep::Body) }}">عدّل بياناتي</a>
+                    @unless ($managed)
+                        <a class="ns-link" href="{{ route('site.onboarding.show', \App\Enums\OnboardingStep::Body) }}">عدّل بياناتي</a>
+                    @endunless
                 </div>
             </div>
+
+            @if ($managed)
+                <p class="ns-alert ns-alert--ok ns-managed">{{ \App\Http\Middleware\EnsureProfileUnlocked::MESSAGE }}</p>
+            @endif
 
             @unless ($sheet)
                 <p class="ns-alert ns-alert--error">الحساب الشخصي متاح من عمر {{ config('nutrition_criteria.min_age') }} سنة.</p>
             @else
-                @include('site.components.template-card', ['sheet' => $sheet, 'selectable' => $selectableTemplates, 'locked' => $templateLocked])
+                @include('site.components.template-card', ['sheet' => $sheet, 'selectable' => $selectableTemplates, 'locked' => $templateLocked || $managed])
 
                 <ul class="ns-criteria">
                     @foreach (config('nutrition_criteria.criteria') as $key => $definition)
@@ -47,7 +53,7 @@
                             </div>
 
                             <div class="ns-criterion__actions">
-                                @if ($c?->source === \App\Enums\CriterionSource::Nutritionist)
+                                @if ($managed || $c?->source === \App\Enums\CriterionSource::Nutritionist)
                                     <span class="ns-criterion__locked">يغيّره أخصائيّك فقط</span>
                                 @else
                                     <button class="ns-btn ns-btn--ghost ns-btn--sm" type="button" x-show="! editing" @click="editing = true">{{ $c ? 'تعديل' : 'تحديد' }}</button>
@@ -90,18 +96,22 @@
                     $allergies = collect($profile->allergies ?? [])->map(fn ($a) => \App\Enums\Allergen::from($a)->label());
                 @endphp
                 @if ($conditions->isEmpty() && $allergies->isEmpty())
-                    <p class="ns-muted">لم تحدد حالات صحية أو حساسيات. <a class="ns-link" href="{{ route('site.onboarding.show', \App\Enums\OnboardingStep::Health) }}">أضفها</a></p>
+                    <p class="ns-muted">لم تحدد حالات صحية أو حساسيات.
+                        @unless ($managed)<a class="ns-link" href="{{ route('site.onboarding.show', \App\Enums\OnboardingStep::Health) }}">أضفها</a>@endunless
+                    </p>
                 @else
                     <p>الحالات: {{ $conditions->join('، ') ?: 'لا شيء' }}</p>
                     <p>الحساسيات: {{ $allergies->join('، ') ?: 'لا شيء' }}</p>
-                    <div class="ns-form__row">
-                        <a class="ns-link" href="{{ route('site.onboarding.show', \App\Enums\OnboardingStep::Health) }}">تعديل</a>
-                        <form method="post" action="{{ route('site.health.destroy') }}" x-data
-                              @submit="if (! confirm('تُحذف حالاتك الصحية وحساسياتك نهائياً. متابعة؟')) $event.preventDefault()">
-                            @csrf @method('delete')
-                            <button class="ns-btn ns-btn--ghost ns-btn--sm" type="submit">احذف بياناتي الصحية</button>
-                        </form>
-                    </div>
+                    @unless ($managed)
+                        <div class="ns-form__row">
+                            <a class="ns-link" href="{{ route('site.onboarding.show', \App\Enums\OnboardingStep::Health) }}">تعديل</a>
+                            <form method="post" action="{{ route('site.health.destroy') }}" x-data
+                                  @submit="if (! confirm('تُحذف حالاتك الصحية وحساسياتك نهائياً. متابعة؟')) $event.preventDefault()">
+                                @csrf @method('delete')
+                                <button class="ns-btn ns-btn--ghost ns-btn--sm" type="submit">احذف بياناتي الصحية</button>
+                            </form>
+                        </div>
+                    @endunless
                 @endif
             </section>
         </div>

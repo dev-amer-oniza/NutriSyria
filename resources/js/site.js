@@ -80,5 +80,55 @@ Alpine.data('flash', (timeout) => ({
     },
 }));
 
+/**
+ * The notification bell: opens a list of the latest notices, refreshes every minute while
+ * the tab is visible (and when it comes back into view), and marks all as read.
+ */
+Alpine.data('bell', (initial, urls) => ({
+    open: false,
+    unread: initial.unread,
+    items: initial.items,
+    timer: null,
+
+    init() {
+        this.timer = setInterval(() => this.refresh(), 60000);
+        document.addEventListener('visibilitychange', () => this.refresh());
+    },
+
+    destroy() {
+        clearInterval(this.timer);
+    },
+
+    toggle() {
+        this.open = !this.open;
+        if (this.open) this.refresh();
+    },
+
+    async refresh() {
+        if (document.hidden) return;
+        try {
+            const response = await fetch(urls.feed, { headers: { Accept: 'application/json' } });
+            if (!response.ok) return;
+            const data = await response.json();
+            this.unread = data.unread;
+            this.items = data.items;
+        } catch {
+            // Offline for a moment: keep what is shown.
+        }
+    },
+
+    async readAll() {
+        const token = this.$root.querySelector('input[name=_token]')?.value;
+        const response = await fetch(urls.read, {
+            method: 'POST',
+            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': token },
+        });
+        if (response.ok) {
+            this.unread = 0;
+            this.items = this.items.map((item) => ({ ...item, read: true }));
+        }
+    },
+}));
+
 window.Alpine = Alpine;
 Alpine.start();

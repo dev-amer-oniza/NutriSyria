@@ -2,12 +2,17 @@
 
 namespace App\Services\Consultations;
 
+use App\Enums\Allergen;
 use App\Enums\ConsultationStatus;
+use App\Enums\HealthCondition;
+use App\Enums\Sex;
 use App\Models\ConsultationRequest;
 use App\Models\User;
-use App\Notifications\ConsultationNotification;
+use App\Notifications\SiteNotification;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
+use App\Services\Nutrition\UserProfileService;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use InvalidArgumentException;
 
 /**
@@ -16,9 +21,11 @@ use InvalidArgumentException;
  *  - see the profile and health record (read only: the person owns their data);
  *  - choose the diet template and set any criterion, each with an optional note the person
  *    sees; what they set is locked for the person (PersonalCriteria);
- *  - end the link, with an optional reason emailed to the person.
+ *  - update the person's profile and health record, which the person cannot change
+ *    while linked (the owner's later decision 3a);
+ *  - end the link, with an optional reason the person sees in their bell.
  * Every step checks the link is accepted and theirs; anything else is "not found". The person
- * gets one email per editing session (NOTIFY_EVERY_MINUTES), not one per criterion.
+ * gets one notice per editing session (NOTIFY_EVERY_MINUTES), not one per change.
  */
 class ClientWorkspace
 {
@@ -27,6 +34,7 @@ class ClientWorkspace
     public function __construct(
         private readonly PersonalCriteria $criteria,
         private readonly ConsultationService $consultations,
+        private readonly UserProfileService $profiles,
     ) {}
 
     /** The links this nutritionist has now (accepted, theirs). */
@@ -72,6 +80,33 @@ class ClientWorkspace
         $this->changed($link);
     }
 
+    /**
+     * The person's body, activity, goal and health record, as the nutritionist updates them
+     * (validated by the panel form). Women-only conditions are dropped for men.
+     *
+     * @param  array{sex: string, birth_year: int, height_cm: float, weight_kg: float, activity_level: string, goal: string, health_conditions?: list<string>, allergies?: list<string>}  $data
+     */
+    public function updateProfile(User $nutritionist, ConsultationRequest $link, array $data): void
+    {
+        $this->ensureLinked($nutritionist, $link);
+
+        $client = $link->user;
+        $sex = Sex::from($data['sex']);
+
+        $this->profiles->saveBody($client, Arr::only($data, ['sex', 'birth_year', 'height_cm', 'weight_kg']));
+        $this->profiles->saveActivity($client, Arr::only($data, ['activity_level', 'goal']));
+        $this->profiles->saveHealth(
+            $client,
+            array_values(array_filter(
+                array_map(fn (string $c) => HealthCondition::from($c), $data['health_conditions'] ?? []),
+                fn (HealthCondition $c) => $c->appliesTo($sex),
+            )),
+            array_map(fn (string $a) => Allergen::from($a), $data['allergies'] ?? []),
+        );
+
+        $this->changed($link);
+    }
+
     public function end(User $nutritionist, ConsultationRequest $link, ?string $reason = null): void
     {
         $this->ensureLinked($nutritionist, $link);
@@ -86,7 +121,7 @@ class ClientWorkspace
         );
     }
 
-    /** One email per editing session: none if the person was told in the last half hour. */
+    /** One notice per editing session: none if the person was told in the last half hour. */
     private function changed(ConsultationRequest $link): void
     {
         if ($link->client_notified_at?->gt(now()->subMinutes(self::NOTIFY_EVERY_MINUTES))) {
@@ -94,7 +129,7 @@ class ClientWorkspace
         }
 
         $link->forceFill(['client_notified_at' => now()])->save();
-        $this->consultations->mail($link->user, ConsultationNotification::criteriaUpdated($link));
+        $link->user->notify(SiteNotification::updatedByNutritionist($link));
     }
 
     private static function clean(?string $note): ?string

@@ -29,7 +29,7 @@
                     </div>
 
                     @if ($current->isPending())
-                        <p class="t-body">أُرسل طلبك يوم <span class="ns-num">{{ $current->created_at->format('Y-m-d') }}</span>. يصلك إيميل حين يرد، وينتهي الطلب إن لم يرد خلال <span class="ns-num">{{ $current->daysLeft() }}</span> أيام.</p>
+                        <p class="t-body">أُرسل طلبك يوم <span class="ns-num">{{ $current->created_at->format('Y-m-d') }}</span>. يصلك إشعار على الجرس حين يرد، وينتهي الطلب إن لم يرد خلال <span class="ns-num">{{ $current->daysLeft() }}</span> أيام.</p>
                         <p class="ns-book__reason">{{ $current->reason }}</p>
                         <form method="post" action="{{ route('site.consultations.cancel', $current->id) }}">
                             @csrf

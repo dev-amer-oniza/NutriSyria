@@ -33,6 +33,8 @@ class CriteriaController extends Controller
             'templateLocked' => $criteria->templateLockedFor($request->user()),
             // With a nutritionist (or a request out), the "choose a nutritionist" advice is not shown.
             'consultation' => $consultations->current($request->user()),
+            // Linked to a nutritionist: everything here is read only (EnsureProfileUnlocked).
+            'managed' => $consultations->isManaged($request->user()),
         ]);
     }
 

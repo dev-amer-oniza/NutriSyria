@@ -43,7 +43,7 @@ class ConsultationController extends Controller
         }
 
         return redirect()->route('site.my-nutritionist')
-            ->with('status', 'أُرسل طلبك. يصلك إيميل حين يرد الأخصائي.');
+            ->with('status', 'أُرسل طلبك. يصلك إشعار على الجرس حين يرد الأخصائي.');
     }
 
     public function show(Request $request, ConsultationService $consultations): View

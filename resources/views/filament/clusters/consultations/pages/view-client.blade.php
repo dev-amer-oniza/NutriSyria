@@ -19,7 +19,7 @@
     @endphp
 
     <div class="grid gap-6 lg:grid-cols-2">
-        <x-filament::section heading="عن المراجع" description="للقراءة فقط: يعدّلها المراجع من حسابه.">
+        <x-filament::section heading="عن المراجع" description="يعدّلها الأخصائي فقط ما دام الارتباط قائماً (زر تعديل بيانات المراجع).">
             <dl class="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 @foreach ($facts as $label => $value)
                     <div>
@@ -84,7 +84,7 @@
             </div>
         </x-filament::section>
 
-        <x-filament::section heading="المعايير" description="ما تحدده يبقى مقفولاً على المراجع حتى تغيّره أو ينتهي الارتباط. يصله إيميل واحد في كل جلسة تعديل.">
+        <x-filament::section heading="المعايير" description="ما تحدده يبقى مقفولاً على المراجع حتى تغيّره أو ينتهي الارتباط. يصله إشعار واحد في كل جلسة تعديل.">
             <div class="divide-y divide-gray-200 dark:divide-white/10">
                 @foreach (config('nutrition_criteria.criteria') as $key => $definition)
                     @php

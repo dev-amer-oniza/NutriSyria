@@ -71,3 +71,30 @@
     .ns-header__user { font-size: 14px; line-height: 22px; font-weight: 600; color: var(--ink); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     @media (max-width: 640px) { .ns-header__user { display: none; } }
 }
+
+/* The notification bell (partials/bell). */
+@layer components {
+    .ns-bell { position: relative; }
+    .ns-bell__button { position: relative; }
+    .ns-bell__count { position: absolute; top: 4px; inset-inline-end: 4px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: var(--radius-full); background: var(--pine); color: #fff; font-size: 11px; line-height: 18px; font-weight: 600; text-align: center; }
+    .ns-bell__panel { position: absolute; top: calc(100% + 8px); inset-inline-end: 0; z-index: 60; width: min(360px, calc(100vw - 32px)); max-height: 70vh; overflow: auto; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+    .ns-bell__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--line); }
+    .ns-bell__title { margin: 0; font-weight: 600; }
+    .ns-bell__all { padding: 0; border: 0; background: none; font: inherit; font-size: 13px; cursor: pointer; }
+    .ns-bell__empty { margin: 0; padding: var(--space-5) var(--space-4); color: var(--ink-muted); font-size: 14px; text-align: center; }
+    .ns-bell__list { list-style: none; margin: 0; padding: 0; }
+    .ns-bell__item { display: flex; gap: var(--space-3); padding: var(--space-3) var(--space-4); color: inherit; text-decoration: none; border-bottom: 1px solid var(--line); }
+    .ns-bell__item:hover, .ns-bell__item:focus-visible { background: var(--sand); outline: none; }
+    .ns-bell__item.is-unread { background: var(--pine-soft); }
+    .ns-bell__dot { flex: none; width: 8px; height: 8px; margin-top: 8px; border-radius: var(--radius-full); background: var(--sage); }
+    .ns-bell__dot--success { background: var(--pine); }
+    .ns-bell__dot--warning { background: var(--terracotta); }
+    .ns-bell__item-title { display: block; font-size: 14px; line-height: 22px; font-weight: 600; }
+    .ns-bell__item-body { display: block; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-bell__time { display: block; margin-top: 2px; font-size: 12px; color: var(--ink-muted); }
+
+    /* On a phone the list spans the screen under the header (16px gutters). */
+    @media (max-width: 640px) {
+        .ns-bell__panel { position: fixed; top: 68px; inset-inline: 16px; width: auto; }
+    }
+}

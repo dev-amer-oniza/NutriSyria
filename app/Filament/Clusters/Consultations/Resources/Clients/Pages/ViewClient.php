@@ -3,25 +3,35 @@
 namespace App\Filament\Clusters\Consultations\Resources\Clients\Pages;
 
 use App\Data\Nutrition\CriteriaSheet;
+use App\Enums\ActivityLevel;
+use App\Enums\Allergen;
 use App\Enums\CriterionSource;
+use App\Enums\Goal;
+use App\Enums\HealthCondition;
+use App\Enums\Sex;
 use App\Filament\Clusters\Consultations\Resources\Clients\ClientResource;
 use App\Models\ConsultationRequest;
 use App\Services\Consultations\ClientWorkspace;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
 use Filament\Actions\Action;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Arr;
 
 /**
- * One client's file: profile and health record (read only), daily needs, the diet template
- * and every criterion with where it comes from. The nutritionist changes the template and
- * criteria here (ClientWorkspace), or ends the link.
+ * One client's file: profile and health record, daily needs, the diet template and every
+ * criterion with where it comes from. While linked, the nutritionist (not the person) keeps
+ * the profile and health record current, changes the template and criteria here
+ * (ClientWorkspace), or ends the link.
  *
  * @property ConsultationRequest $record
  */
@@ -76,8 +86,45 @@ class ViewClient extends Page
                 ->color('gray')
                 ->visible(fn () => filled($this->record->user->phone))
                 ->url(fn () => ConsultationRequest::whatsappUrl($this->record->user->phone), shouldOpenInNewTab: true),
+            $this->editProfileAction(),
             $this->endLinkAction(),
         ];
+    }
+
+    /** The person cannot change these while linked; the nutritionist keeps them current. */
+    public function editProfileAction(): Action
+    {
+        $options = fn (array $cases) => collect($cases)->mapWithKeys(fn ($c) => [$c->value => $c->label()])->all();
+        $year = (int) now()->year;
+
+        return Action::make('editProfile')
+            ->label('تعديل بيانات المراجع')
+            ->icon(Heroicon::OutlinedUserCircle)
+            ->color('gray')
+            ->authorize('view', $this->record)
+            ->modalHeading(fn () => 'بيانات '.$this->record->user->name)
+            ->modalDescription('لا يستطيع المراجع تعديلها ما دام الارتباط قائماً. يصله إشعار بالتحديث.')
+            ->fillForm(fn () => Arr::only($this->record->user->profile?->attributesToArray() ?? [], [
+                'sex', 'birth_year', 'height_cm', 'weight_kg', 'activity_level', 'goal', 'health_conditions', 'allergies',
+            ]))
+            ->schema([
+                Grid::make(2)->schema([
+                    Select::make('sex')->label('الجنس')->options($options(Sex::cases()))->required()->live(),
+                    TextInput::make('birth_year')->label('سنة الميلاد')->integer()->required()->minValue($year - 100)->maxValue($year - 10),
+                    TextInput::make('height_cm')->label('الطول')->suffix('سم')->numeric()->required()->minValue(120)->maxValue(230),
+                    TextInput::make('weight_kg')->label('الوزن')->suffix('كغ')->numeric()->required()->minValue(30)->maxValue(300),
+                    Select::make('activity_level')->label('النشاط')->options($options(ActivityLevel::cases()))->required(),
+                    Select::make('goal')->label('الهدف')->options($options(Goal::cases()))->required(),
+                ]),
+                CheckboxList::make('health_conditions')->label('الحالات الصحية')
+                    ->options(fn (Get $get) => $options(array_filter(HealthCondition::cases(), fn (HealthCondition $c) => $c->appliesTo(Sex::tryFrom((string) $get('sex'))))))
+                    ->columns(3),
+                CheckboxList::make('allergies')->label('الحساسيات')->options($options(Allergen::cases()))->columns(4),
+            ])
+            ->action(function (array $data) {
+                app(ClientWorkspace::class)->updateProfile(auth()->user(), $this->record, $data);
+                Notification::make()->title('حُفظت البيانات، وأُعيد حساب معاييره.')->success()->send();
+            });
     }
 
     public function chooseTemplateAction(): Action
@@ -183,11 +230,11 @@ class ViewClient extends Page
             ->color('danger')
             ->authorize('view', $this->record)
             ->modalHeading(fn () => 'إنهاء الارتباط مع '.$this->record->user->name)
-            ->modalDescription('تُحذف كل المعايير والقالب الذي حددته، وتعود معاييره إلى قيمه هو. لن ترى ملفه بعدها، ويصله إيميل.')
+            ->modalDescription('تُحذف كل المعايير والقالب الذي حددته، وتعود معاييره إلى قيمه هو. لن ترى ملفه بعدها، ويصله إشعار.')
             ->modalSubmitActionLabel('إنهاء الارتباط')
             ->schema([
                 Textarea::make('reason')
-                    ->label('السبب (اختياري، يصله في الإيميل)')
+                    ->label('السبب (اختياري، يصله في الإشعار)')
                     ->rows(2)
                     ->maxLength(self::NOTE_MAX),
             ])
