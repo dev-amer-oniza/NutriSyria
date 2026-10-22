@@ -84,7 +84,7 @@ class ConsultationRequestsTable
             ->authorize('respond')
             ->requiresConfirmation()
             ->modalHeading(fn (ConsultationRequest $record) => 'قبول طلب '.$record->user->name)
-            ->modalDescription('يصله إيميل بالقبول، ويظهر لكما رقم واتساب الآخر. الاستشارة الأولى مجانية.')
+            ->modalDescription('يصله إشعار بالقبول، ويظهر لكما رقم واتساب الآخر. الاستشارة الأولى مجانية.')
             ->action(fn (ConsultationRequest $record) => self::run(
                 fn () => app(ConsultationService::class)->accept(auth()->user(), $record),
                 'قُبل الطلب. تواصل معه على واتساب.',
@@ -104,7 +104,7 @@ class ConsultationRequestsTable
             ->schema([
                 Textarea::make('reason')
                     ->label('السبب (اختياري)')
-                    ->helperText('يصله في الإيميل. مثلاً: "جدولي ممتلئ هذا الشهر".')
+                    ->helperText('يصله في الإشعار. مثلاً: "جدولي ممتلئ هذا الشهر".')
                     ->rows(3)
                     ->maxLength(300),
             ])

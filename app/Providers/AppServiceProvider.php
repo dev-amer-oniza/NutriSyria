@@ -6,6 +6,7 @@ use App\Http\Middleware\InitializeTenancyIfTenantDomain;
 use App\Livewire\TenantDatabaseNotifications;
 use App\Models\Category;
 use App\Observers\CategoryObserver;
+use App\View\Composers\NotificationBellComposer;
 use App\View\Composers\ProfileReminderComposer;
 use Filament\Notifications\Livewire\DatabaseNotifications;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -30,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureRateLimits();
         View::composer('site.layouts.app', ProfileReminderComposer::class);
+        View::composer('site.partials.header', NotificationBellComposer::class);
 
         Livewire::setUpdateRoute(function ($handle) {
             return Route::post('/livewire/update', $handle)

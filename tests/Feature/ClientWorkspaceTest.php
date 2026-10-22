@@ -8,7 +8,7 @@ use App\Enums\CriterionSource;
 use App\Filament\Clusters\Consultations\Resources\Clients\ClientResource;
 use App\Filament\Clusters\Consultations\Resources\Clients\Pages\ListClients;
 use App\Filament\Clusters\Consultations\Resources\Clients\Pages\ViewClient;
-use App\Notifications\ConsultationNotification;
+use App\Notifications\SiteNotification;
 use App\Services\Consultations\ClientWorkspace;
 use App\Services\Consultations\ConsultationService;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
@@ -119,7 +119,7 @@ class ClientWorkspaceTest extends TestCase
         $this->assertSame(CriterionSource::Nutritionist, $sheet->template['source']);
         $this->assertTrue(app(PersonalCriteria::class)->templateLockedFor($link->user));
 
-        Notification::assertSentTo($link->user, ConsultationNotification::class, fn ($n) => str_contains($n->subject, 'معاييرك'));
+        Notification::assertSentTo($link->user, SiteNotification::class, fn ($n) => str_contains($n->title, 'حدّث'));
 
         Livewire::test(ViewClient::class, ['record' => $link->id])
             ->callAction('resetTemplate')
@@ -157,8 +157,8 @@ class ClientWorkspaceTest extends TestCase
         $reem = $this->nutritionist();
         $link = $this->linked($this->client(), $reem);
         $workspace = app(ClientWorkspace::class);
-        $updates = fn () => Notification::sent($link->user, ConsultationNotification::class)
-            ->filter(fn ($n) => str_contains($n->subject, 'معاييرك'))->count();
+        $updates = fn () => Notification::sent($link->user, SiteNotification::class)
+            ->filter(fn ($n) => str_contains($n->title, 'حدّث'))->count();
 
         $workspace->setCriterion($reem->user, $link, 'sodium_mg', 1500);
         $workspace->setCriterion($reem->user, $link, 'fiber_g', 30);
@@ -203,7 +203,7 @@ class ClientWorkspaceTest extends TestCase
         $this->assertSame('أنهينا الخطة بنجاح.', $link->end_reason);
         $this->assertSame($reem->user_id, (int) $link->ended_by);
         $this->assertFalse(app(PersonalCriteria::class)->lockedFor($link->user, 'sodium_mg'));
-        Notification::assertSentTo($link->user, ConsultationNotification::class,
-            fn ($n) => in_array('السبب: أنهينا الخطة بنجاح.', $n->lines, true));
+        Notification::assertSentTo($link->user, SiteNotification::class,
+            fn ($n) => str_contains($n->title, 'أنهى') && $n->body === 'أنهينا الخطة بنجاح.');
     }
 }

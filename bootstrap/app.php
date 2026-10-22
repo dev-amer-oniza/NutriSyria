@@ -30,6 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             'phone_number_exist' => CheckPhoneNumber::class,
+            // A person linked to a nutritionist cannot change their profile or criteria.
+            'profile.unlocked' => \App\Http\Middleware\EnsureProfileUnlocked::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

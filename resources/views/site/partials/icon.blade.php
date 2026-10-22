@@ -7,6 +7,9 @@
         @case('arrow')
             <path d="M14.5 6 8.5 12l6 6"/>
             @break
+        @case('bell')
+            <path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15Z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/>
+            @break
         @case('menu')
             <path d="M4 7h16M4 12h16M4 17h16"/>
             @break

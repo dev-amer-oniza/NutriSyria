@@ -11,7 +11,7 @@ use App\Models\ConsultationRequest;
 use App\Models\NutritionistProfile;
 use App\Models\User;
 use App\Models\UserCriterion;
-use App\Notifications\ConsultationNotification;
+use App\Notifications\SiteNotification;
 use App\Services\Consultations\ConsultationService;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
 use Filament\Actions\Testing\TestAction;
@@ -61,9 +61,10 @@ class ConsultationTest extends TestCase
         $this->assertTrue($request->expires_at->between(now()->addDays(7)->subMinute(), now()->addDays(7)->addMinute()));
         $this->assertSame('+963912345678', $client->fresh()->phone, 'the number is kept for next time');
 
-        Notification::assertSentTo($profile->user, ConsultationNotification::class,
-            fn (ConsultationNotification $n) => str_contains($n->subject, 'سارة') && str_contains(implode(' ', $n->lines), '34 سنة'));
-        Notification::assertSentTo($profile->user, DatabaseNotification::class); // the panel bell
+        // The panel bell only: no email (the owner's decision).
+        Notification::assertSentTo($profile->user, DatabaseNotification::class);
+        Notification::assertSentTimes(DatabaseNotification::class, 1);
+        Notification::assertNothingSentTo($client);
 
         $this->get(route('site.my-nutritionist'))->assertOk()->assertSee('بانتظار الرد')->assertSee('إلغاء الطلب');
         $this->get(route('site.nutritionists.show', $profile))->assertSee('طلبك بانتظار الرد');
@@ -176,7 +177,7 @@ class ConsultationTest extends TestCase
             ->assertNotified('قُبل الطلب. تواصل معه على واتساب.');
 
         $this->assertSame(ConsultationStatus::Accepted, $request->fresh()->status);
-        Notification::assertSentTo($client, ConsultationNotification::class, fn ($n) => str_contains($n->subject, 'قبل'));
+        Notification::assertSentTo($client, SiteNotification::class, fn ($n) => str_contains($n->title, 'قبل') && $n->via($client) === ['database']);
 
         Livewire::test(ListConsultationRequests::class)->assertSee('+963912345678');
         $this->assertNull(ConsultationRequestResource::getNavigationBadge());
@@ -197,8 +198,8 @@ class ConsultationTest extends TestCase
         $request->refresh();
         $this->assertSame(ConsultationStatus::Declined, $request->status);
         $this->assertSame('جدولي ممتلئ هذا الشهر.', $request->decline_reason);
-        Notification::assertSentTo($client, ConsultationNotification::class,
-            fn ($n) => in_array('السبب: جدولي ممتلئ هذا الشهر.', $n->lines, true));
+        Notification::assertSentTo($client, SiteNotification::class,
+            fn ($n) => str_contains($n->title, 'اعتذر') && $n->body === 'جدولي ممتلئ هذا الشهر.');
     }
 
     public function test_only_the_addressed_nutritionist_answers(): void

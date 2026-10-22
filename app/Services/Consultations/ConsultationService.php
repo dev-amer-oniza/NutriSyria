@@ -8,7 +8,7 @@ use App\Filament\Clusters\Consultations\Resources\ConsultationRequests\Consultat
 use App\Models\ConsultationRequest;
 use App\Models\NutritionistProfile;
 use App\Models\User;
-use App\Notifications\ConsultationNotification;
+use App\Notifications\SiteNotification;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -18,8 +18,10 @@ use Illuminate\Support\Collection;
  * Booking a nutritionist (the owner's decisions):
  *  - a person sends a short request with their reason and WhatsApp number, agreeing to share
  *    their health record once accepted; one open request or link at a time;
- *  - the nutritionist is told by email and in the panel, and accepts or declines;
- *  - the person is told by email; once accepted, both see each other's WhatsApp;
+ *  - the nutritionist is told in the panel's bell, and accepts or declines;
+ *  - the person is told in the site's bell (no email: only sign-in and codes are emailed,
+ *    the owner's decision); once accepted, both see each other's WhatsApp, and the person's
+ *    profile and criteria are managed by the nutritionist (isManaged);
  *  - an unanswered request expires after 7 days (checked whenever requests are read);
  *  - either side can end the link, which gives the person back their own criteria.
  * The first consultation is free and there is no payment: nothing here charges anything.
@@ -58,6 +60,15 @@ class ConsultationService
             ->where('status', ConsultationStatus::Accepted)
             ->latest('id')
             ->first()?->nutritionist;
+    }
+
+    /**
+     * While a nutritionist is linked, they manage the person's profile, health record and
+     * criteria; the person sees them read only until the link ends (the owner's decision).
+     */
+    public function isManaged(User $client): bool
+    {
+        return $client->consultationRequests()->where('status', ConsultationStatus::Accepted)->exists();
     }
 
     /** Whether the person can send a request now, or why not (the reason as an exception). */
@@ -110,8 +121,6 @@ class ConsultationService
             ])
             ->sendToDatabase($nutritionist);
 
-        $this->mail($nutritionist, ConsultationNotification::requested($request));
-
         return $request;
     }
 
@@ -130,7 +139,7 @@ class ConsultationService
 
         $request->forceFill(['status' => ConsultationStatus::Accepted, 'responded_at' => now()])->save();
 
-        $this->mail($request->user, ConsultationNotification::accepted($request));
+        $request->user->notify(SiteNotification::accepted($request));
     }
 
     public function decline(User $nutritionist, ConsultationRequest $request, ?string $reason = null): void
@@ -144,13 +153,13 @@ class ConsultationService
             'responded_at' => now(),
         ])->save();
 
-        $this->mail($request->user, ConsultationNotification::declined($request));
+        $request->user->notify(SiteNotification::declined($request));
     }
 
     /**
      * Ends an accepted link, by the person or their nutritionist. The nutritionist's template
      * and criteria are removed, so the person's own values (or the calculated ones) apply again.
-     * The other side is told: the nutritionist in the panel, the person by email with the
+     * The other side is told: the nutritionist in the panel, the person in the site's bell with the
      * nutritionist's optional reason.
      */
     public function end(User $by, ConsultationRequest $request, ?string $reason = null): void
@@ -178,7 +187,7 @@ class ConsultationService
                 ->icon('heroicon-o-link-slash')
                 ->sendToDatabase($request->nutritionist);
         } else {
-            $this->mail($request->user, ConsultationNotification::endedByNutritionist($request));
+            $request->user->notify(SiteNotification::endedByNutritionist($request));
         }
     }
 
@@ -219,11 +228,5 @@ class ConsultationService
     private function ensureAddressedTo(ConsultationRequest $request, User $nutritionist): void
     {
         abort_unless($request->nutritionist_id === $nutritionist->getKey(), 404);
-    }
-
-    /** Email is a courtesy: a mail server hiccup must not undo the step itself. */
-    public function mail(User $to, ConsultationNotification $notification): void
-    {
-        rescue(fn () => $to->notify($notification), report: true);
     }
 }

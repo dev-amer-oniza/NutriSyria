@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Site\Account\ConsultationController;
 use App\Http\Controllers\Site\Account\CriteriaController;
+use App\Http\Controllers\Site\Account\NotificationController;
 use App\Http\Controllers\Site\Account\OnboardingController;
 use App\Http\Controllers\Site\Auth\EmailVerificationController;
 use App\Http\Controllers\Site\Auth\GoogleAuthController;
@@ -78,20 +79,30 @@ Route::name('site.')->group(function () {
     */
     Route::middleware('auth')->group(function () {
         Route::get('/onboarding/done', [OnboardingController::class, 'done'])->name('onboarding.done');
-        Route::get('/onboarding/{step}', [OnboardingController::class, 'show'])->name('onboarding.show');
-        Route::post('/onboarding/body', [OnboardingController::class, 'storeBody'])->name('onboarding.body');
-        Route::post('/onboarding/activity', [OnboardingController::class, 'storeActivity'])->name('onboarding.activity');
-        Route::post('/onboarding/health', [OnboardingController::class, 'storeHealth'])->name('onboarding.health');
-
-        $criteria = array_keys(config('nutrition_criteria.criteria'));
         Route::get('/account/criteria', [CriteriaController::class, 'index'])->name('criteria');
-        Route::put('/account/criteria/{criterion}', [CriteriaController::class, 'update'])
-            ->whereIn('criterion', $criteria)->name('criteria.update');
-        Route::delete('/account/criteria/{criterion}', [CriteriaController::class, 'reset'])
-            ->whereIn('criterion', $criteria)->name('criteria.reset');
-        Route::put('/account/template', [CriteriaController::class, 'chooseTemplate'])->name('template.update');
-        Route::delete('/account/template', [CriteriaController::class, 'resetTemplate'])->name('template.reset');
-        Route::delete('/account/health', [CriteriaController::class, 'destroyHealth'])->name('health.destroy');
+
+        // Everything that changes the profile or criteria is locked while a nutritionist is linked.
+        Route::middleware('profile.unlocked')->group(function () {
+            Route::get('/onboarding/{step}', [OnboardingController::class, 'show'])->name('onboarding.show');
+            Route::post('/onboarding/body', [OnboardingController::class, 'storeBody'])->name('onboarding.body');
+            Route::post('/onboarding/activity', [OnboardingController::class, 'storeActivity'])->name('onboarding.activity');
+            Route::post('/onboarding/health', [OnboardingController::class, 'storeHealth'])->name('onboarding.health');
+
+            $criteria = array_keys(config('nutrition_criteria.criteria'));
+            Route::put('/account/criteria/{criterion}', [CriteriaController::class, 'update'])
+                ->whereIn('criterion', $criteria)->name('criteria.update');
+            Route::delete('/account/criteria/{criterion}', [CriteriaController::class, 'reset'])
+                ->whereIn('criterion', $criteria)->name('criteria.reset');
+            Route::put('/account/template', [CriteriaController::class, 'chooseTemplate'])->name('template.update');
+            Route::delete('/account/template', [CriteriaController::class, 'resetTemplate'])->name('template.reset');
+            Route::delete('/account/health', [CriteriaController::class, 'destroyHealth'])->name('health.destroy');
+        });
+
+        // The bell (SiteNotifications): polled by the header, a notice opens its page.
+        Route::get('/account/notifications', [NotificationController::class, 'index'])->name('notifications');
+        Route::get('/account/notifications/{notification}', [NotificationController::class, 'open'])
+            ->whereUuid('notification')->name('notifications.open');
+        Route::post('/account/notifications/read', [NotificationController::class, 'readAll'])->name('notifications.read');
 
         // Booking a nutritionist (ConsultationService): one request or link at a time.
         Route::get('/nutritionists/{profile}/request', [ConsultationController::class, 'create'])
