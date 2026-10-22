@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Site\Account\ConsultationController;
 use App\Http\Controllers\Site\Account\CriteriaController;
 use App\Http\Controllers\Site\Account\OnboardingController;
 use App\Http\Controllers\Site\Auth\EmailVerificationController;
@@ -91,6 +92,17 @@ Route::name('site.')->group(function () {
         Route::put('/account/template', [CriteriaController::class, 'chooseTemplate'])->name('template.update');
         Route::delete('/account/template', [CriteriaController::class, 'resetTemplate'])->name('template.reset');
         Route::delete('/account/health', [CriteriaController::class, 'destroyHealth'])->name('health.destroy');
+
+        // Booking a nutritionist (ConsultationService): one request or link at a time.
+        Route::get('/nutritionists/{profile}/request', [ConsultationController::class, 'create'])
+            ->whereNumber('profile')->name('consultations.create');
+        Route::post('/nutritionists/{profile}/request', [ConsultationController::class, 'store'])
+            ->whereNumber('profile')->middleware('throttle:auth-forms');
+        Route::get('/account/nutritionist', [ConsultationController::class, 'show'])->name('my-nutritionist');
+        Route::post('/account/consultations/{consultation}/cancel', [ConsultationController::class, 'cancel'])
+            ->whereNumber('consultation')->name('consultations.cancel');
+        Route::post('/account/consultations/{consultation}/end', [ConsultationController::class, 'end'])
+            ->whereNumber('consultation')->name('consultations.end');
     });
 });
 

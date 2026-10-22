@@ -40,3 +40,38 @@
         .ns-nutri-page__head { flex-direction: column; align-items: flex-start; }
     }
 }
+
+/* Booking: the request form and "my nutritionist" (pages/consultations, components/nutritionist-person). */
+@layer components {
+    .ns-person { display: flex; align-items: center; gap: var(--space-3); }
+    .ns-person__photo { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--radius-full); overflow: hidden; background: var(--sand); }
+    .ns-person__photo img { width: 100%; height: 100%; object-fit: cover; }
+    .ns-person__name { display: block; font-size: 17px; line-height: 26px; font-weight: 600; color: var(--ink); text-decoration: none; }
+    a.ns-person__name:hover { color: var(--pine); }
+    .ns-person__meta { display: block; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+
+    .ns-book { max-width: 680px; }
+    .ns-book .t-title { margin: var(--space-3) 0 var(--space-5); }
+    .ns-book__form { margin-top: var(--space-6); }
+    .ns-textarea { height: auto; min-height: 120px; padding-block: var(--space-3); line-height: 26px; resize: vertical; }
+    .ns-book__note { margin: 0; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--pine-soft); color: var(--pine); font-size: 14px; line-height: 24px; }
+
+    .ns-book__card { display: grid; gap: var(--space-4); margin-bottom: var(--space-8); padding: var(--space-5); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+    .ns-book__card--accepted { border-color: var(--pine); box-shadow: inset 0 0 0 1px var(--pine); }
+    .ns-book__card .t-body { margin: 0; }
+    .ns-book__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
+    .ns-book__reason { margin: 0; padding: var(--space-3) var(--space-4); border-inline-start: 3px solid var(--line-strong); background: var(--sand); border-radius: var(--radius-sm); white-space: pre-line; font-size: 15px; line-height: 26px; }
+    .ns-book__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .ns-book__end { padding-top: var(--space-4); border-top: 1px solid var(--line); }
+    .ns-book__end .ns-field__hint { margin-top: var(--space-1); }
+
+    .ns-status { display: inline-flex; padding: 2px 12px; border-radius: var(--radius-full); font-size: 13px; line-height: 22px; font-weight: 600; background: var(--sand); color: var(--ink-muted); }
+    .ns-status--pending { background: var(--terracotta-soft); color: var(--terracotta-ink); }
+    .ns-status--accepted { background: var(--pine-soft); color: var(--pine); }
+
+    .ns-book__history { list-style: none; margin: var(--space-3) 0 0; padding: 0; }
+    .ns-book__history li { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--line); }
+    .ns-book__history .ns-field__hint { flex-basis: 100%; margin: 0; }
+    .ns-book__who { font-weight: 600; }
+    .ns-book__when { margin-inline-start: auto; font-family: var(--font-latin); font-size: 13px; color: var(--ink-muted); }
+}

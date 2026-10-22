@@ -7,6 +7,7 @@ use App\Exceptions\CriterionLocked;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Profile\CriterionRequest;
 use App\Http\Requests\Profile\TemplateRequest;
+use App\Services\Consultations\ConsultationService;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
 use App\Services\Nutrition\UserProfileService;
 use Illuminate\Contracts\View\View;
@@ -16,7 +17,7 @@ use Illuminate\Http\Request;
 /** "My criteria": see each one and where it comes from, change it, or put it back. */
 class CriteriaController extends Controller
 {
-    public function index(Request $request, PersonalCriteria $criteria): View|RedirectResponse
+    public function index(Request $request, PersonalCriteria $criteria, ConsultationService $consultations): View|RedirectResponse
     {
         $profile = $request->user()->profile;
 
@@ -30,6 +31,8 @@ class CriteriaController extends Controller
             'sheet' => $criteria->for($request->user()),
             'selectableTemplates' => PersonalCriteria::selectableTemplates(),
             'templateLocked' => $criteria->templateLockedFor($request->user()),
+            // With a nutritionist (or a request out), the "choose a nutritionist" advice is not shown.
+            'consultation' => $consultations->current($request->user()),
         ]);
     }
 

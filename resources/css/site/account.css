@@ -93,3 +93,7 @@
         .ns-template__macros { grid-template-columns: minmax(0, 1fr); }
     }
 }
+
+@layer components {
+    .ns-criteria-page__links { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+}
