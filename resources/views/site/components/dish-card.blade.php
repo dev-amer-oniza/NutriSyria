@@ -1,6 +1,7 @@
 {{--
     Meal card. Param $dish: name, brand, description, portion (g), kcal,
-    protein, carbs, fat (null when missing), verification, image (url or null), url, key.
+    protein, carbs, fat (null when missing), verification, image (url or null), url, key,
+    fit (the signed-in person's level 1..4, or null).
     Shows the restaurant's photo when there is one, otherwise the identity tiles.
 --}}
 <a class="ns-dish" href="{{ $dish['url'] }}">
@@ -20,6 +21,9 @@
             <h3 class="ns-dish__name">{{ $dish['name'] }}</h3>
             <span class="ns-dish__kcal"><span class="ns-num">{{ $dish['kcal'] ?? '—' }}</span><span>سعرة</span></span>
         </div>
+        @if ($dish['fit'] ?? null)
+            @include('site.components.fit-verdict', ['level' => $dish['fit'], 'compact' => true])
+        @endif
         <p class="ns-dish__desc">{{ $dish['brand'] }}@if ($dish['description']) · {{ $dish['description'] }}@endif</p>
         <dl class="ns-dish__macros">
             @foreach (['protein' => 'بروتين', 'carbs' => 'كربوهيدرات', 'fat' => 'دهون'] as $field => $label)

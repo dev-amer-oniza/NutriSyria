@@ -17,12 +17,12 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  */
 class Food extends Model
 {
-    protected $fillable = ['name_ar', 'name_en', 'scientific_name', 'food_category_id', 'img', 'is_active'];
+    protected $fillable = ['name_ar', 'name_en', 'scientific_name', 'food_category_id', 'img', 'is_active', 'allergens', 'allergens_checked'];
     protected $table = 'foods'; 
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
+        return ['is_active' => 'boolean', 'allergens' => 'array', 'allergens_checked' => 'boolean'];
     }
 
     public function category(): BelongsTo
