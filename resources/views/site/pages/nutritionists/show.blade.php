@@ -49,7 +49,18 @@
                     <li>يوافق الأخصائي، فتتواصلان على واتساب.</li>
                     <li>يختار لك القالب والمعايير، فتُقيَّم كل وجبة على أساسها.</li>
                 </ol>
-                <span class="ns-btn ns-btn--primary ns-nutri-page__cta" aria-disabled="true">طلب الاستشارة متاح قريباً</span>
+                @if (auth()->id() === $profile->user_id)
+                    <p class="ns-field__hint">هذه صفحتك كما يراها المراجعون.</p>
+                @elseif ($current?->nutritionist_id === $profile->user_id)
+                    <a class="ns-btn ns-btn--primary ns-nutri-page__cta" href="{{ route('site.my-nutritionist') }}">
+                        {{ $current->isAccepted() ? 'أخصائيّك الآن' : 'طلبك بانتظار الرد' }}
+                    </a>
+                @elseif ($current)
+                    <a class="ns-btn ns-btn--secondary ns-nutri-page__cta" href="{{ route('site.my-nutritionist') }}">لديك أخصائي أو طلب حالياً</a>
+                    <p class="ns-field__hint">الأخصائي واحد في كل مرة. أنهِ الارتباط أو ألغِ طلبك أولاً.</p>
+                @else
+                    <a class="ns-btn ns-btn--primary ns-nutri-page__cta" href="{{ route('site.consultations.create', $profile) }}">اطلب استشارة</a>
+                @endif
                 <p class="ns-field__hint">يمكنك إنهاء الارتباط متى شئت، فيتوقف وصول الأخصائي إلى سجلك.</p>
             </aside>
         </div>

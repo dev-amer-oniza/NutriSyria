@@ -73,9 +73,9 @@ abstract class AuthFormRequest extends FormRequest
     }
 
     /** An international number (after normalizeWhatsapp) not used by another account. */
-    protected function whatsappRules(): array
+    protected function whatsappRules(?User $owner = null): array
     {
-        return ['string', 'regex:/^\+[1-9]\d{7,14}$/', Rule::unique(User::class, 'phone')];
+        return ['string', 'regex:/^\+[1-9]\d{7,14}$/', Rule::unique(User::class, 'phone')->ignore($owner)];
     }
 
     /** A strict, well-formed address; in production its domain must also receive mail. */

@@ -11,7 +11,10 @@
                     <h1 class="t-title">معاييري</h1>
                     <p class="t-lead ns-muted">هذه الأرقام التي نقيّم عليها كل وجبة لك. غيّر ما تريد، أو أرجعه إلى المحسوب تلقائياً.</p>
                 </div>
-                <a class="ns-link" href="{{ route('site.onboarding.show', \App\Enums\OnboardingStep::Body) }}">عدّل بياناتي</a>
+                <div class="ns-criteria-page__links">
+                    <a class="ns-link" href="{{ route('site.my-nutritionist') }}">أخصائيّي</a>
+                    <a class="ns-link" href="{{ route('site.onboarding.show', \App\Enums\OnboardingStep::Body) }}">عدّل بياناتي</a>
+                </div>
             </div>
 
             @unless ($sheet)
@@ -75,7 +78,9 @@
                     @endforeach
                 </ul>
 
-                @include('site.components.nutritionist-cta', ['reasons' => $sheet->advice])
+                @unless ($consultation)
+                    @include('site.components.nutritionist-cta', ['reasons' => $sheet->advice])
+                @endunless
             @endunless
 
             <section class="ns-health" aria-labelledby="health-title">
