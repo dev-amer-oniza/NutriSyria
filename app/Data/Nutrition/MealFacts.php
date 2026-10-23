@@ -28,6 +28,7 @@ final readonly class MealFacts
         /** Every ingredient food has had its allergens checked. */
         public bool $allergensChecked = false,
         public array $ingredients = [],
+        public int $brandId = 0,
     ) {}
 
     /** The grams the values describe. */

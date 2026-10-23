@@ -7,7 +7,7 @@ use App\Enums\NutrientValueMethod;
 use App\Enums\NutritionApprovalStatus;
 use App\Models\Product;
 use App\Models\ProductRecipeIngredient;
-use App\Support\ArabicSearch;
+use App\Services\Import\ArabicNormalizer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Storage;
  */
 class MealCatalog
 {
+    public function __construct(private readonly PublicCatalogCache $cache) {}
+
     /** Nutrient codes read for a meal: what cards show and what meals are judged on. */
     public const NUTRIENTS = [
         'energy_kcal', 'protein_g', 'carbohydrate_g', 'fat_g', 'fiber_g',
@@ -40,31 +42,54 @@ class MealCatalog
 
     /**
      * Approved meals, newest approval first; optionally those whose name or restaurant
-     * matches a search (Arabic spelling variants aside).
+     * matches a search (Arabic spelling variants aside). Read from the shared cache.
      *
      * @return list<MealFacts>
      */
     public function meals(?int $limit = null, ?string $search = null): array
     {
-        return $this->approved($search)
-            ->when($limit, fn (Collection $c) => $c->take($limit))
-            ->map(fn (Product $product) => $this->facts($product))
-            ->values()
-            ->all();
+        $meals = $this->all();
+
+        if (filled($search)) {
+            $term = ArabicNormalizer::normalize($search);
+            $meals = array_values(array_filter($meals, fn (MealFacts $m) => str_contains(ArabicNormalizer::normalize($m->name), $term)
+                || str_contains(ArabicNormalizer::normalize($m->brand), $term)));
+        }
+
+        return $limit ? array_slice($meals, 0, $limit) : $meals;
     }
 
     /** One public meal, or null (unapproved, changed since approval, or hidden). */
     public function find(int $id): ?MealFacts
     {
-        $product = $this->approved(null, $id)->first();
+        foreach ($this->all() as $meal) {
+            if ($meal->id === $id) {
+                return $meal;
+            }
+        }
 
-        return $product ? $this->facts($product) : null;
+        return null;
+    }
+
+    /** @return list<MealFacts> a restaurant's approved meals, newest approval first */
+    public function ofBrand(int $brandId): array
+    {
+        return array_values(array_filter($this->all(), fn (MealFacts $m) => $m->brandId === $brandId));
+    }
+
+    /** @return list<MealFacts> every public meal, built once per catalog version */
+    private function all(): array
+    {
+        return $this->cache->remember('meals', fn () => $this->approved()
+            ->map(fn (Product $product) => $this->facts($product))
+            ->values()
+            ->all());
     }
 
     /** @return Collection<int, Product> */
-    private function approved(?string $search = null, ?int $id = null): Collection
+    private function approved(): Collection
     {
-        return NutritionApprovalStatus::withApprovalData($this->publicProducts($search, $id))
+        return NutritionApprovalStatus::withApprovalData($this->publicProducts())
             ->with([
                 'brand:id,name',
                 'nutrientValues' => fn ($q) => $q->with('nutrient:id,code')
@@ -79,14 +104,11 @@ class MealCatalog
             ->sortByDesc(fn (Product $product) => $product->recipe?->nutrition_approved_at);
     }
 
-    private function publicProducts(?string $search, ?int $id): Builder
+    private function publicProducts(): Builder
     {
         return Product::query()
             ->where('products.is_active', true)
-            ->whereHas('brand', fn (Builder $q) => $q->where('is_active', true))
-            ->when($id, fn (Builder $q) => $q->whereKey($id))
-            ->when(filled($search), fn (Builder $q) => $q->where(fn (Builder $w) => ArabicSearch::constrain($w, ['products.name'], $search)
-                ->orWhereHas('brand', fn (Builder $b) => ArabicSearch::constrain($b, ['brands.name'], $search))));
+            ->whereHas('brand', fn (Builder $q) => $q->where('is_active', true));
     }
 
     private function facts(Product $product): MealFacts
@@ -112,6 +134,7 @@ class MealCatalog
             allergens: $foods->flatMap(fn ($food) => $food->allergens ?? [])->unique()->values()->all(),
             allergensChecked: $foods->isNotEmpty() && $foods->every(fn ($food) => $food->allergens_checked),
             ingredients: $foods->pluck('name_ar')->values()->all(),
+            brandId: $product->brand_id,
         );
     }
 
