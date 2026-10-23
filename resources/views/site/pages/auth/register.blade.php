@@ -6,10 +6,10 @@
 
 @section('form')
     <form class="ns-form" method="post" action="{{ route('site.register') }}" novalidate
-          x-data="{ type: @js(old('account_type', 'member')) }">
+          x-data="{ type: @js(old('account_type', $selectedType->value)) }">
         @csrf
         @include('site.components.form.honeypot')
-        @include('site.components.form.account-type', ['types' => $accountTypes])
+        @include('site.components.form.account-type', ['types' => $accountTypes, 'selected' => $selectedType->value])
         @include('site.components.form.google-button', ['withType' => true])
 
         @include('site.components.form.field', ['name' => 'name', 'label' => 'الاسم', 'autocomplete' => 'name', 'autofocus' => true])

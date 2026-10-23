@@ -8,13 +8,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\Auth\RegistrationService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 
 class RegisterController extends Controller
 {
-    public function create(): View
+    /** "?type=brand-owner" (from the restaurants page) preselects that account; anything else is ignored. */
+    public function create(Request $request): View
     {
-        return view('site.pages.auth.register', ['accountTypes' => AccountType::cases()]);
+        return view('site.pages.auth.register', [
+            'accountTypes' => AccountType::cases(),
+            'selectedType' => AccountType::tryFrom((string) $request->query('type')) ?? AccountType::Member,
+        ]);
     }
 
     public function store(RegisterRequest $request, RegistrationService $registration): RedirectResponse
