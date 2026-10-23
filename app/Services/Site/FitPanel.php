@@ -25,6 +25,7 @@ class FitPanel
         return [
             'name' => $meal->name,
             'brand' => $meal->brand,
+            'brandUrl' => $meal->brandUrl(),
             'portion' => (int) round($meal->portionGrams()),
             'kcal' => $round('energy_kcal'),
             'macros' => ['protein' => $round('protein_g'), 'carbs' => $round('carbohydrate_g'), 'fat' => $round('fat_g')],

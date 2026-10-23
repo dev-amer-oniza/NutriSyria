@@ -3,7 +3,7 @@
     <div class="ns-panel__head">
         <div>
             <h2 class="ns-panel__title" id="panel-title">{{ $meal['name'] }}</h2>
-            <p class="ns-panel__sub">{{ $meal['brand'] }} · حصة <span class="ns-num">{{ $meal['portion'] }}</span> غ</p>
+            <p class="ns-panel__sub">@if ($meal['brandUrl'] ?? null)<a class="ns-brand-link" href="{{ $meal['brandUrl'] }}">{{ $meal['brand'] }}</a>@else{{ $meal['brand'] }}@endif · حصة <span class="ns-num">{{ $meal['portion'] }}</span> غ</p>
         </div>
         @include('site.components.verify-badge', ['level' => $meal['verification']])
     </div>

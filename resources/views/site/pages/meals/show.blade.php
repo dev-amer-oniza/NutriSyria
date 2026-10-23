@@ -24,7 +24,7 @@
                         @endif
                     </div>
                     <div>
-                        <p class="ns-eyebrow">{{ $meal->brand }}</p>
+                        <p class="ns-eyebrow">@if ($meal->brandUrl())<a class="ns-brand-link" href="{{ $meal->brandUrl() }}">{{ $meal->brand }}</a>@else{{ $meal->brand }}@endif</p>
                         <h1 class="t-title">{{ $meal->name }}</h1>
                         @if ($meal->description)<p class="t-body ns-muted">{{ $meal->description }}</p>@endif
                         <p class="ns-meal__verify">
