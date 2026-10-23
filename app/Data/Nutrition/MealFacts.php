@@ -43,6 +43,12 @@ final readonly class MealFacts
     }
 
     /** For site.components.dish-card. */
+    /** The restaurant's page on the site (null for a meal without one, e.g. a test double). */
+    public function brandUrl(): ?string
+    {
+        return $this->brandId ? route('site.brands.show', $this->brandId) : null;
+    }
+
     public function card(?MealFit $fit = null): array
     {
         $rounded = fn (string $code) => isset($this->nutrients[$code]) ? (int) round($this->nutrients[$code]) : null;
@@ -61,6 +67,7 @@ final readonly class MealFacts
             'verification' => $this->verification,
             'image' => $this->image,
             'url' => route('site.meals.show', $this->id),
+            'brandUrl' => $this->brandUrl(),
             'fit' => $fit?->level,
         ];
     }

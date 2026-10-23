@@ -51,6 +51,26 @@ class MealPagesTest extends TestCase
             ->assertSee('أنشئ حسابك');
     }
 
+    public function test_every_meal_names_its_restaurant_with_a_link_to_its_page(): void
+    {
+        $meal = $this->approvedMeal('مجدرة');
+        $restaurant = route('site.brands.show', $this->brand);
+        $link = 'href="'.$restaurant.'">بيت المجدرة</a>';
+
+        $this->get(route('site.meals'))->assertOk()
+            ->assertSee($link, false)
+            ->assertSee('href="'.route('site.meals.show', $meal).'">مجدرة</a>', false);   // the card still opens the meal
+        $this->get('/')->assertSee($link, false);
+        $this->get(route('site.meals.show', $meal))->assertSee($link, false);
+
+        $this->actingAs($this->person());
+        $this->get('/')->assertSee($link, false);                                         // the fit panel too
+
+        // On the restaurant's own page the cards don't repeat its name.
+        $html = $this->get($restaurant)->assertOk()->getContent();
+        $this->assertStringNotContainsString('ns-dish__brand', $html);
+    }
+
     public function test_an_unapproved_or_hidden_meal_is_not_found(): void
     {
         $hidden = $this->approvedMeal('موقوفة', ['is_active' => false]);

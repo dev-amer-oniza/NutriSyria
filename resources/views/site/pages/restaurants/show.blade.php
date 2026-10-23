@@ -68,7 +68,7 @@
                 @if ($dishes)
                     <div class="ns-dishes">
                         @foreach ($dishes as $dish)
-                            @include('site.components.dish-card', ['dish' => $dish])
+                            @include('site.components.dish-card', ['dish' => $dish, 'showBrand' => false])
                         @endforeach
                     </div>
                 @else
