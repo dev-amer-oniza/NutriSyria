@@ -1,0 +1,28 @@
+/* "Health goals" (pages/goals). The hero, notes and split reuse the method page styles. */
+@layer components {
+    .ns-method__hero .ns-goals__chips { justify-content: flex-start; margin-top: var(--space-6); }
+
+    .ns-goals-page__list { display: grid; gap: var(--space-5); max-width: 880px; }
+    .ns-goal { display: flex; gap: var(--space-4); padding: var(--space-6); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); scroll-margin-top: 96px; }
+    .ns-goal .ns-feature__icon { flex: none; }
+    .ns-goal:target { border-color: var(--pine); box-shadow: var(--shadow-md); }
+    .ns-goal__title { margin: 0 0 var(--space-2); font-size: 22px; line-height: 32px; font-weight: 600; }
+    .ns-goal .t-body { margin: 0 0 var(--space-3); }
+    .ns-goal__rules { margin: 0 0 var(--space-4); padding-inline-start: var(--space-5); display: grid; gap: var(--space-2); font-size: 15px; line-height: 26px; }
+    .ns-goal__how { margin: 0; padding: var(--space-3) var(--space-4); background: var(--pine-soft); border-radius: var(--radius-md); font-size: 15px; line-height: 24px; color: var(--ink); }
+    .ns-goal__how strong { color: var(--pine); }
+
+    .ns-conditions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); }
+    .ns-conditions__group { padding: var(--space-5); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+    .ns-conditions__group dl { margin: var(--space-3) 0 0; display: grid; gap: var(--space-3); }
+    .ns-condition { padding-top: var(--space-3); border-top: 1px solid var(--line); }
+    .ns-condition dt { font-size: 15px; font-weight: 600; }
+    .ns-condition dd { margin: var(--space-1) 0 0; font-size: 14px; line-height: 22px; color: var(--ink-muted); }
+    .ns-condition__template { color: var(--pine); font-weight: 500; }
+    .ns-condition__tag { display: inline-block; margin-inline-start: var(--space-2); padding: 0 var(--space-2); border-radius: var(--radius-full); background: var(--sand); font-size: 12px; font-weight: 500; color: var(--ink-muted); }
+
+    @media (max-width: 860px) {
+        .ns-conditions { grid-template-columns: minmax(0, 1fr); }
+        .ns-goal { flex-direction: column; padding: var(--space-5); }
+    }
+}

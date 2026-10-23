@@ -61,6 +61,19 @@ return [
     ],
 
     /*
+     * The health goals (pages/goals, the home chips): key = the section's anchor on /goals.
+     * What each one changes is told by App\Services\Site\HealthGoalGuide.
+     */
+    'goals' => [
+        'weight-loss' => ['icon' => 'scale', 'label' => 'خفض الوزن'],
+        'muscle' => ['icon' => 'chart', 'label' => 'بناء العضلات'],
+        'diabetes' => ['icon' => 'drop', 'label' => 'السكري'],
+        'heart' => ['icon' => 'heart', 'label' => 'صحة القلب'],
+        'fiber' => ['icon' => 'leaf', 'label' => 'ألياف أكثر'],
+        'balanced' => ['icon' => 'bowl', 'label' => 'وجبات متوازنة'],
+    ],
+
+    /*
      * Data sources as the "how we verify" page names them, by data_sources.code. A source
      * missing here shows with its own name and no description.
      */
