@@ -1,0 +1,32 @@
+/* "About us" (pages/about) and the shared captioned photo (components/photo). */
+@layer components {
+    .ns-about__beliefs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
+    .ns-about__belief { padding: var(--space-6); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+    .ns-about__belief .ns-chain { margin-bottom: var(--space-4); }
+
+    .ns-about__team { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); max-width: 880px; }
+    .ns-person-card { display: flex; align-items: center; gap: var(--space-5); padding: var(--space-6); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+    .ns-person-card__mark { flex: none; display: grid; place-items: center; width: 72px; height: 72px; border-radius: 0 var(--radius-full) var(--radius-full) var(--radius-full); background: var(--pine); color: var(--surface-raised); font-size: 32px; font-weight: 600; }
+    .ns-person-card__name { margin: 0; font-size: 20px; line-height: 30px; font-weight: 600; }
+    .ns-person-card__role { margin: var(--space-1) 0 0; font-size: 14px; font-weight: 600; color: var(--pine); text-align: start; }
+    .ns-person-card__field { margin: var(--space-1) 0 0; font-size: 14px; color: var(--ink-muted); }
+
+    .ns-about__events { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+
+    .ns-photo { margin: 0; }
+    .ns-photo__frame { position: relative; display: block; overflow: hidden; border-radius: var(--radius-lg); background: var(--sand); box-shadow: var(--shadow-md); }
+    .ns-photo__frame img { display: block; width: 100%; height: auto; transition: transform .4s ease; }
+    .ns-photo--tall .ns-photo__frame img { aspect-ratio: 3 / 4; object-fit: cover; object-position: center 40%; }
+    .ns-photo__frame:hover img { transform: scale(1.02); }
+    .ns-photo__frame:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    .ns-photo__zoom { position: absolute; inset-block-end: var(--space-3); inset-inline-end: var(--space-3); display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-1) var(--space-3); border-radius: var(--radius-full); background: #0f3d32cc; color: #fff; font-size: 12px; opacity: 0; transition: opacity .2s ease; }
+    .ns-photo__frame:hover .ns-photo__zoom, .ns-photo__frame:focus-visible .ns-photo__zoom { opacity: 1; }
+    .ns-photo figcaption { display: grid; gap: var(--space-1); margin-top: var(--space-4); padding-inline-start: var(--space-4); border-inline-start: 3px solid var(--sage); font-size: 15px; line-height: 24px; color: var(--ink-muted); }
+    .ns-photo__title { color: var(--ink); font-size: 17px; font-weight: 600; }
+
+    @media (max-width: 860px) {
+        .ns-about__beliefs, .ns-about__team, .ns-about__events { grid-template-columns: minmax(0, 1fr); }
+        .ns-photo--tall .ns-photo__frame img { aspect-ratio: 4 / 5; }
+        .ns-photo__zoom { opacity: 1; }
+    }
+}

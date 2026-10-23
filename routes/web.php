@@ -27,7 +27,6 @@ Route::get('/', HomeController::class)->name('home');
 Route::name('site.')->group(function () {
     $soon = [
         'sources' => ['/sources', 'المصادر'],
-        'about' => ['/about', 'من نحن'],
         'contact' => ['/contact', 'تواصل معنا'],
         'privacy' => ['/privacy', 'سياسة الخصوصية'],
     ];
@@ -35,6 +34,9 @@ Route::name('site.')->group(function () {
     foreach ($soon as $name => [$uri, $title]) {
         Route::view($uri, 'site.pages.soon', ['title' => $title])->name($name);
     }
+
+    // "About us": the idea, the team and where the project was presented.
+    Route::view('/about', 'site.pages.about')->name('about');
 
     // "Health goals": what each goal changes in our calculations (HealthGoalGuide).
     Route::get('/goals', GoalsController::class)->name('goals');
