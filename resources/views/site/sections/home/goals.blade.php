@@ -1,11 +1,3 @@
-@php($goals = [
-    ['icon' => 'scale', 'label' => 'خفض الوزن'],
-    ['icon' => 'chart', 'label' => 'بناء العضلات'],
-    ['icon' => 'drop', 'label' => 'السكري'],
-    ['icon' => 'heart', 'label' => 'صحة القلب'],
-    ['icon' => 'leaf', 'label' => 'ألياف أكثر'],
-    ['icon' => 'bowl', 'label' => 'وجبات متوازنة'],
-])
 @php($register = route('site.register'))
 
 <section class="ns-section" aria-labelledby="goals-title">
@@ -17,8 +9,8 @@
                 <p class="t-lead ns-muted">اختر ما يهمّك الآن، ونحسب لك مدى مناسبة كل وجبة له.</p>
             </div>
             <div class="ns-goals__chips">
-                @foreach ($goals as $goal)
-                    <a class="ns-chip" href="{{ $register }}">@include('site.partials.icon', ['name' => $goal['icon']]){{ $goal['label'] }}</a>
+                @foreach (config('site.goals') as $key => $goal)
+                    <a class="ns-chip" href="{{ route('site.goals') }}#{{ $key }}">@include('site.partials.icon', ['name' => $goal['icon']]){{ $goal['label'] }}</a>
                 @endforeach
             </div>
         </div>

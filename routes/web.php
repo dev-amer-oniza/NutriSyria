@@ -11,6 +11,7 @@ use App\Http\Controllers\Site\Auth\PasswordResetController;
 use App\Http\Controllers\Site\Auth\RegisterController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\MealController;
+use App\Http\Controllers\Site\GoalsController;
 use App\Http\Controllers\Site\MethodController;
 use App\Http\Controllers\Site\PartnersController;
 use App\Http\Controllers\Site\RestaurantController;
@@ -25,7 +26,6 @@ Route::get('/', HomeController::class)->name('home');
 
 Route::name('site.')->group(function () {
     $soon = [
-        'goals' => ['/goals', 'الأهداف الصحية'],
         'sources' => ['/sources', 'المصادر'],
         'about' => ['/about', 'من نحن'],
         'contact' => ['/contact', 'تواصل معنا'],
@@ -35,6 +35,9 @@ Route::name('site.')->group(function () {
     foreach ($soon as $name => [$uri, $title]) {
         Route::view($uri, 'site.pages.soon', ['title' => $title])->name($name);
     }
+
+    // "Health goals": what each goal changes in our calculations (HealthGoalGuide).
+    Route::get('/goals', GoalsController::class)->name('goals');
 
     // "How we verify": sources, calculation, review, levels and limits (DataCoverage).
     Route::get('/method', MethodController::class)->name('method');
