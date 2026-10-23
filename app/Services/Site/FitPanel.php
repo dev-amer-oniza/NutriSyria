@@ -34,7 +34,7 @@ class FitPanel
             'ask' => 'مدى مناسبتها لك، من معاييرك أنت:',
             'people' => [[
                 'label' => 'لك أنت',
-                'who' => 'حسب قالبك: '.$fit->template.'.',
+                'who' => $fit->who(),
                 'level' => $fit->level,
                 'reasons' => $fit->reasons,
                 'notes' => $fit->notes,

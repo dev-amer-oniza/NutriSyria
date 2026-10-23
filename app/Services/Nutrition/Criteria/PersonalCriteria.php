@@ -4,13 +4,16 @@ namespace App\Services\Nutrition\Criteria;
 
 use App\Data\Nutrition\CriteriaSheet;
 use App\Data\Nutrition\CriterionValue;
+use App\Enums\ConsultationStatus;
 use App\Enums\CriterionSource;
 use App\Exceptions\CriterionLocked;
+use App\Models\NutritionPlan;
 use App\Models\User;
 use App\Models\UserCriterion;
 use App\Models\UserCriterionChange;
 use App\Models\UserDietTemplate;
 use App\Models\UserProfile;
+use App\Services\Nutrition\Plan\NutritionPlans;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
@@ -61,7 +64,22 @@ class PersonalCriteria
             }
         }
 
-        return $sheet;
+        // With a nutritionist's plan that has a lunch, dishes are judged against that lunch (phase 3).
+        $meal = $this->planMeal($user, $sheet);
+
+        return $meal ? $sheet->withMeal($meal) : $sheet;
+    }
+
+    /** The lunch of the plan of the person's current (accepted) nutritionist link, if any (4a). */
+    private function planMeal(User $user, CriteriaSheet $sheet): ?array
+    {
+        $meals = NutritionPlan::query()
+            ->whereHas('consultation', fn ($q) => $q->where('user_id', $user->getKey())->where('status', ConsultationStatus::Accepted))
+            ->value('meals');
+
+        $energy = $sheet->get('energy_kcal')?->value;
+
+        return $meals && $energy ? NutritionPlans::referenceMeal(is_array($meals) ? $meals : json_decode($meals, true), $energy) : null;
     }
 
     /** @return array<string, array> the templates a person may pick for themselves */

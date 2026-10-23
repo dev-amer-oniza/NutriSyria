@@ -19,5 +19,13 @@ final readonly class MealFit
         public ?array $portion,
         public array $notes,
         public string $template,
+        /** "غداؤك في خطة أخصائيّك (14:00، 697 سعرة)" when judged against the plan's lunch */
+        public ?string $basis = null,
     ) {}
+
+    /** What the verdict is based on, for the person reading it. */
+    public function who(): string
+    {
+        return 'حسب قالبك: '.$this->template.'.'.($this->basis ? ' مقارنةً ب'.$this->basis.'.' : '');
+    }
 }

@@ -8,7 +8,7 @@
             @if ($sheet)
                 @php
                     $kcal = $sheet->get('energy_kcal');
-                    $meal = (int) round($kcal->perMeal($sheet->mealShare));
+                    $meal = (int) round($sheet->perMeal($kcal));
                 @endphp
                 <p class="ns-eyebrow">احتياجك اليومي</p>
                 <div class="ns-needs">
@@ -16,7 +16,11 @@
                         <span class="ns-num t-figure-xl">{{ number_format($kcal->value) }}</span>
                         <span class="ns-energy__unit">سعرة في اليوم</span>
                     </div>
-                    <p class="ns-needs__meal">حصة الوجبة الرئيسية: <b class="ns-num">{{ number_format($meal) }}</b> سعرة (<span class="ns-num">{{ (int) ($sheet->mealShare * 100) }}%</span> من يومك).</p>
+                    @if ($sheet->meal)
+                        <p class="ns-needs__meal">غداؤك في خطة أخصائيّك: <b class="ns-num">{{ number_format($meal) }}</b> سعرة (<span class="ns-num">{{ (int) round($sheet->mealShare * 100) }}%</span> من يومك). <a class="ns-link" href="{{ route('site.criteria') }}#plan">خطتك كاملة</a></p>
+                    @else
+                        <p class="ns-needs__meal">حصة الوجبة الرئيسية: <b class="ns-num">{{ number_format($meal) }}</b> سعرة (<span class="ns-num">{{ (int) ($sheet->mealShare * 100) }}%</span> من يومك).</p>
+                    @endif
 
                     @if ($bmi)
                         @include('site.components.bmi-card', ['bmi' => $bmi, 'goalUrl' => $goalUrl])

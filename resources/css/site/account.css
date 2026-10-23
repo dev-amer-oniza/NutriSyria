@@ -115,3 +115,22 @@
     .ns-bmi__warning { margin: var(--space-3) 0; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border-inline-start: 3px solid var(--pine); background: var(--sand); font-size: 14px; line-height: 22px; }
     .ns-bmi .ns-field__hint { margin: 0; }
 }
+
+/* The nutritionist's plan on "my criteria" (components/plan-card). */
+@layer components {
+    .ns-plan { margin: var(--space-5) 0; padding: var(--space-5); background: var(--pine-soft); border-radius: var(--radius-lg); scroll-margin-top: 96px; }
+    .ns-plan__title { margin: 0; font-size: 18px; line-height: 28px; font-weight: 600; color: var(--pine); }
+    .ns-plan__by { margin: var(--space-1) 0 0; font-size: 14px; color: var(--ink-muted); }
+    .ns-plan__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: var(--space-3); margin: var(--space-4) 0 0; }
+    .ns-plan__grid div { padding: var(--space-3); background: var(--surface-raised); border-radius: var(--radius-md); }
+    .ns-plan__grid dt { font-size: 13px; color: var(--ink-muted); }
+    .ns-plan__grid dd { margin: var(--space-1) 0 0; font-size: 14px; }
+    .ns-plan__grid .ns-num { font-size: 22px; font-weight: 600; color: var(--pine); }
+    .ns-plan__meals { margin-top: var(--space-4); overflow-x: auto; background: var(--surface-raised); border-radius: var(--radius-md); }
+    .ns-plan__meals table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .ns-plan__meals caption { padding: var(--space-3) var(--space-4) 0; text-align: start; font-weight: 600; }
+    .ns-plan__meals th, .ns-plan__meals td { padding: var(--space-2) var(--space-4); text-align: start; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    .ns-plan__meals thead th { font-size: 12px; font-weight: 500; color: var(--ink-muted); }
+    .ns-plan__meals tr:last-child th, .ns-plan__meals tr:last-child td { border-bottom: 0; }
+    .ns-plan__meals tr.is-lunch { background: var(--sand); }
+}

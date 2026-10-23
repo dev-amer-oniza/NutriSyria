@@ -12,7 +12,8 @@ use App\Enums\Allergen;
  * Judges one meal against one person's criteria (pure: no database). The rules agreed with
  * the owner for phase 3 (1a 2a 3a):
  *  - each criterion is compared with its share of one meal (meal_share of a day value, or the
- *    meal value itself for a meal limit);
+ *    meal value itself for a meal limit); with a nutritionist's plan, with the plan's lunch:
+ *    its own calories and grams, and its share of the day for the rest (plan phase 3, 1a);
  *  - every upper limit counts, and so do the energy, carbohydrate and fat targets
  *    (fit_target_limits): the level comes from the largest overshoot (fit_tolerance);
  *  - being clearly under a minimum or the protein target (by more than the moderate
@@ -41,7 +42,7 @@ class MealFitCalculator
 
         foreach ($sheet->criteria as $criterion) {
             $amount = $meal->amount($criterion->nutrient);
-            $limit = $criterion->perMeal($sheet->mealShare);
+            $limit = $sheet->perMeal($criterion);
 
             if ($amount === null) {
                 if ($this->counts($criterion)) {
@@ -79,14 +80,14 @@ class MealFitCalculator
             ...array_map(fn (string $a) => 'فيها '.(Allergen::tryFrom($a)?->label() ?? $a).'، ولا يناسبك بحسب حالتك أو حساسيتك.', $found),
             ...($sheet->allergens && ! $meal->allergensChecked && ! $found
                 ? ['لم نتحقق بعد من مسبّبات الحساسية في كل مكوّناتها، فتأكد منها مع المطعم.'] : []),
-            ...array_map(fn (array $o) => $this->overReason(...$o), $overs),
+            ...array_map(fn (array $o) => $this->overReason($sheet, ...$o), $overs),
         ];
         if (! $overs && ! $found) {
             $reasons[] = $this->energyReason($sheet, $meal);
         }
 
         $notes = [
-            ...array_map(fn (array $u) => $this->underNote(...$u), $unders),
+            ...array_map(fn (array $u) => $this->underNote($sheet, ...$u), $unders),
             ...($missing ? ['لا تتوفر قيمة '.implode(' و', array_unique($missing)).' لهذه الوجبة، فلم تدخل في التقييم.'] : []),
         ];
 
@@ -97,6 +98,7 @@ class MealFitCalculator
             portion: $found ? null : $this->portion($meal, $factor),
             notes: $notes,
             template: $sheet->template['label'],
+            basis: $sheet->meal ? sprintf('غدائك في خطة أخصائيّك (%s%s سعرة)', $sheet->meal['time'] ? $sheet->meal['time'].'، ' : '', number_format($sheet->meal['kcal'])) : null,
         );
     }
 
@@ -119,19 +121,19 @@ class MealFitCalculator
         };
     }
 
-    private function overReason(CriterionValue $criterion, float $amount, float $limit, float $over): string
+    private function overReason(CriteriaSheet $sheet, CriterionValue $criterion, float $amount, float $limit, float $over): string
     {
-        $share = $criterion->scope === 'meal' ? 'حدّك للوجبة' : 'حصة وجبة من احتياجك';
+        $share = $criterion->scope === 'meal' ? 'حدّك للوجبة' : ($sheet->meal ? 'غداؤك في خطتك' : 'حصة وجبة من احتياجك');
 
         return sprintf('%s فيها %s %s، و%s %s %s، أي أكثر بـ%d%%.',
             $criterion->label, self::number($amount), $criterion->unit,
             $share, self::number($limit), $criterion->unit, (int) round($over));
     }
 
-    private function underNote(CriterionValue $criterion, float $amount, float $limit): string
+    private function underNote(CriteriaSheet $sheet, CriterionValue $criterion, float $amount, float $limit): string
     {
-        return sprintf('%s فيها %s %s، أقل من حصة وجبة (%s %s). كمّلها في وجبة أخرى من يومك.',
-            $criterion->label, self::number($amount), $criterion->unit, self::number($limit), $criterion->unit);
+        return sprintf('%s فيها %s %s، أقل من %s (%s %s). كمّلها في وجبة أخرى من يومك.',
+            $criterion->label, self::number($amount), $criterion->unit, $sheet->meal ? 'غدائك في خطتك' : 'حصة وجبة', self::number($limit), $criterion->unit);
     }
 
     private function energyReason(CriteriaSheet $sheet, MealFacts $meal): ?string
@@ -139,8 +141,10 @@ class MealFitCalculator
         $kcal = $meal->amount('energy_kcal');
         $day = $sheet->get('energy_kcal')?->value;
 
+        $within = $sheet->meal ? 'ضمن غدائك في خطتك' : 'ضمن حصة وجبة واحدة';
+
         return $kcal !== null && $day
-            ? sprintf('سعراتها %s، أي %d%% من احتياجك اليومي، ضمن حصة وجبة واحدة، وكل حدودك محترمة.', self::number($kcal), (int) round($kcal / $day * 100))
+            ? sprintf('سعراتها %s، أي %d%% من احتياجك اليومي، %s، وكل حدودك محترمة.', self::number($kcal), (int) round($kcal / $day * 100), $within)
             : 'كل حدودك محترمة في هذه الوجبة.';
     }
 

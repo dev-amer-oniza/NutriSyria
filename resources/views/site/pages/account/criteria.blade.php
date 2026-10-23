@@ -26,6 +26,10 @@
             @unless ($sheet)
                 <p class="ns-alert ns-alert--error">الحساب الشخصي متاح من عمر {{ config('nutrition_criteria.min_age') }} سنة.</p>
             @else
+                @if ($plan)
+                    @include('site.components.plan-card', ['plan' => $plan, 'by' => $planBy])
+                @endif
+
                 @if ($bmi)
                     @include('site.components.bmi-card', ['bmi' => $bmi, 'goalUrl' => $managed ? null : route('site.onboarding.show', \App\Enums\OnboardingStep::Activity)])
                 @endif
@@ -44,7 +48,7 @@
                                 @if ($c)
                                     <p class="ns-criterion__value">
                                         <span class="ns-num">{{ number_format($c->value) }}</span> {{ $c->unit }}
-                                        @if ($c->scope === 'day')<span class="ns-criterion__meal">الوجبة: <span class="ns-num">{{ number_format(round($c->perMeal($sheet->mealShare))) }}</span> {{ $c->unit }}</span>@endif
+                                        @if ($c->scope === 'day')<span class="ns-criterion__meal">{{ $sheet->meal ? $sheet->meal['name'] : 'الوجبة' }}: <span class="ns-num">{{ number_format(round($sheet->perMeal($c))) }}</span> {{ $c->unit }}</span>@endif
                                     </p>
                                     <p class="ns-criterion__basis">
                                         <span @class(['ns-source', 'ns-source--'.$c->source->value])>{{ $c->source->label() }}</span>

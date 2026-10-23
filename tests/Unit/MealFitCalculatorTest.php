@@ -158,4 +158,38 @@ class MealFitCalculatorTest extends TestCase
 
         $this->assertSame(['grams' => 70, 'kcal' => 420, 'whole' => false], $fit->portion);
     }
+    /** The nutritionist's plan lunch: 35% of 2240 = 784 kcal, with carbs kept to 60 g on purpose. */
+    private function withLunch(): CriteriaSheet
+    {
+        return $this->sheet()->withMeal([
+            'name' => 'غداء', 'time' => '14:00', 'share' => 0.35, 'kcal' => 784,
+            'targets' => ['energy_kcal' => 784, 'carbohydrate_g' => 60, 'protein_g' => 39, 'fat_g' => 26],
+        ]);
+    }
+
+    public function test_with_a_plan_the_dish_is_compared_with_the_lunch_the_nutritionist_set(): void
+    {
+        // 80 g carbs: fine for 30% of the day (84 g), a third over the plan lunch's 60 g.
+        $fit = $this->judge($this->meal(), $this->withLunch());
+
+        $this->assertSame(2, $fit->level);
+        $this->assertSame('الكربوهيدرات فيها 80 غ، وغداؤك في خطتك 60 غ، أي أكثر بـ33%.', $fit->reasons[0]);
+        $this->assertSame('غدائك في خطة أخصائيّك (14:00، 784 سعرة)', $fit->basis);
+        $this->assertStringContainsString('مقارنةً بغدائك في خطة أخصائيّك', $fit->who());
+    }
+
+    public function test_the_other_limits_take_the_lunch_share_of_the_day(): void
+    {
+        // Sodium: 35% of 2000 = 700 mg, so 720 mg is just 3% over (it was 20% over 600).
+        $sheet = $this->withLunch();
+        $this->assertEqualsWithDelta(700.0, $sheet->perMeal($sheet->get('sodium_mg')), 0.001);
+        $this->assertSame(60.0, $sheet->perMeal($sheet->get('carbohydrate_g')));
+
+        $fit = $this->judge($this->meal(['carbohydrate_g' => 60, 'sodium_mg' => 720]), $sheet);
+        $this->assertSame(4, $fit->level);
+        $this->assertSame('الصوديوم فيها 720 ملغ، وغداؤك في خطتك 700 ملغ، أي أكثر بـ3%.', $fit->reasons[0]);
+
+        $within = $this->judge($this->meal(['carbohydrate_g' => 60]), $sheet);
+        $this->assertStringContainsString('ضمن غدائك في خطتك', $within->reasons[0]);
+    }
 }
