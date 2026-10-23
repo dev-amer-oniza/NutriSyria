@@ -1,4 +1,4 @@
-{{-- The verification levels on a pine band. Optional params: $eyebrow, $title, $lead, $note (one more line). --}}
+{{-- The verification levels on a pine band. Optional params: $eyebrow, $title, $lead, $note (one more line), $link (false hides the method link). --}}
 <section class="ns-trust" aria-labelledby="trust-title">
     <div class="ns-wrap ns-trust__in">
         <div>
@@ -17,7 +17,9 @@
 
             @isset($note)<p class="ns-trust__lead">{{ $note }}</p>@endisset
 
-            <a class="ns-btn ns-btn--on-pine" href="{{ route('site.method') }}">اقرأ منهجية التحقق</a>
+            @if ($link ?? true)
+                <a class="ns-btn ns-btn--on-pine" href="{{ route('site.method') }}">اقرأ منهجية التحقق</a>
+            @endif
         </div>
 
         @include('site.components.chain-tiles', ['pattern' => 'trust', 'tile' => 72, 'class' => 'ns-trust__art'])

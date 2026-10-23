@@ -2,6 +2,7 @@
 namespace App\Services\Import;
 
 use App\Services\Nutrition\PortionResolver;
+use App\Services\Site\PublicCatalogCache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Exceptions\ImportFileRejected;
@@ -618,7 +619,7 @@ final class BundleImporter
             throw new RuntimeException("Batch {$batchId} is '{$batch->status}': only committed batches can be approved.");
         }
 
-        return DB::transaction(function () use ($batchId) {
+        $stats = DB::transaction(function () use ($batchId) {
             $pending = fn() => DB::table('food_source_records')
                 ->where('import_batch_id', $batchId)->where('status', 'pending_review');
 
@@ -630,6 +631,11 @@ final class BundleImporter
 
             return ['records_approved' => $approved, 'foods_activated' => $activated];
         });
+
+        // Written with DB::table, so the model events that refresh the site's cache never fire.
+        app(PublicCatalogCache::class)->flush();
+
+        return $stats;
     }
 
     // ---------------------------------------------------------------- helpers

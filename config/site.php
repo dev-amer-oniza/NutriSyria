@@ -60,6 +60,25 @@ return [
         ],
     ],
 
+    /*
+     * Data sources as the "how we verify" page names them, by data_sources.code. A source
+     * missing here shows with its own name and no description.
+     */
+    'data_sources' => [
+        'usda_fdc_foundation' => [
+            'label' => 'USDA Foundation Foods',
+            'text' => 'تحاليل مخبرية حديثة من وزارة الزراعة الأمريكية، تُحدَّث دورياً. نستعملها أولاً.',
+        ],
+        'usda_fdc_sr_legacy' => [
+            'label' => 'USDA SR Legacy',
+            'text' => 'المرجع الأمريكي الكلاسيكي للتركيب الغذائي، آخر إصدار له 2018. يغطي ما لا تغطيه Foundation.',
+        ],
+        'usda_fdc_fndds' => [
+            'label' => 'USDA FNDDS',
+            'text' => 'أطباق جاهزة كما تؤكل في المسوح الغذائية. لا نستعمله للمكوّنات.',
+        ],
+    ],
+
     /* How well a meal fits one person: four calm levels, always shown with the reasons. */
     'fit_levels' => [
         4 => 'مناسبة جداً',
