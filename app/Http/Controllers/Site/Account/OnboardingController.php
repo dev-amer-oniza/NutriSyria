@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Profile\ActivityStepRequest;
 use App\Http\Requests\Profile\BodyStepRequest;
 use App\Http\Requests\Profile\HealthStepRequest;
+use App\Services\Consultations\ConsultationService;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
 use App\Services\Nutrition\UserProfileService;
 use Illuminate\Contracts\View\View;
@@ -65,7 +66,7 @@ class OnboardingController extends Controller
         return redirect()->route('site.onboarding.done');
     }
 
-    public function done(Request $request, PersonalCriteria $criteria): View|RedirectResponse
+    public function done(Request $request, PersonalCriteria $criteria, ConsultationService $consultations): View|RedirectResponse
     {
         $profile = $request->user()->profile;
 
@@ -76,6 +77,8 @@ class OnboardingController extends Controller
         return view('site.pages.onboarding.done', [
             'profile' => $profile,
             'sheet' => $criteria->for($request->user()),
+            'bmi' => $profile->bmi(),
+            'goalUrl' => $consultations->isManaged($request->user()) ? null : route('site.onboarding.show', OnboardingStep::Activity),
         ]);
     }
 }

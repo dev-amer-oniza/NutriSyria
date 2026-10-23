@@ -97,3 +97,21 @@
 @layer components {
     .ns-criteria-page__links { display: flex; flex-wrap: wrap; gap: var(--space-4); }
 }
+
+/* Body mass index card (components/bmi-card): onboarding "done" and "my criteria". */
+@layer components {
+    .ns-bmi { margin: var(--space-5) 0; padding: var(--space-5); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+    .ns-bmi__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2) var(--space-4); }
+    .ns-bmi__title { margin: 0; font-size: 17px; line-height: 28px; font-weight: 600; }
+    .ns-bmi__value { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3); margin: 0; }
+    .ns-bmi__value .ns-num { font-size: 28px; font-weight: 600; color: var(--pine); }
+    .ns-bmi__label { padding: 2px var(--space-3); border-radius: var(--radius-full); background: var(--sand); font-size: 14px; font-weight: 600; color: var(--ink); }
+    .ns-bmi__label[data-class="normal"] { background: var(--pine-soft); color: var(--pine); }
+    .ns-bmi__scale { position: relative; display: flex; gap: 3px; height: 10px; margin: var(--space-4) 0 var(--space-3); }
+    .ns-bmi__band { flex-basis: 0; border-radius: var(--radius-full); background: var(--sand); }
+    .ns-bmi__band.is-current { background: var(--sage); }
+    .ns-bmi__marker { position: absolute; top: -5px; width: 4px; height: 20px; margin-inline-start: -2px; border-radius: var(--radius-full); background: var(--pine); box-shadow: 0 0 0 2px var(--surface-raised); }
+    .ns-bmi__range { margin: 0 0 var(--space-2); font-size: 15px; }
+    .ns-bmi__warning { margin: var(--space-3) 0; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border-inline-start: 3px solid var(--pine); background: var(--sand); font-size: 14px; line-height: 22px; }
+    .ns-bmi .ns-field__hint { margin: 0; }
+}

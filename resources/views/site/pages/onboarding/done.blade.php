@@ -18,6 +18,10 @@
                     </div>
                     <p class="ns-needs__meal">حصة الوجبة الرئيسية: <b class="ns-num">{{ number_format($meal) }}</b> سعرة (<span class="ns-num">{{ (int) ($sheet->mealShare * 100) }}%</span> من يومك).</p>
 
+                    @if ($bmi)
+                        @include('site.components.bmi-card', ['bmi' => $bmi, 'goalUrl' => $goalUrl])
+                    @endif
+
                     @include('site.components.template-card', ['sheet' => $sheet])
 
                     <dl class="ns-needs__grid">

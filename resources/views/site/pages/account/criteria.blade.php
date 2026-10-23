@@ -26,6 +26,10 @@
             @unless ($sheet)
                 <p class="ns-alert ns-alert--error">الحساب الشخصي متاح من عمر {{ config('nutrition_criteria.min_age') }} سنة.</p>
             @else
+                @if ($bmi)
+                    @include('site.components.bmi-card', ['bmi' => $bmi, 'goalUrl' => $managed ? null : route('site.onboarding.show', \App\Enums\OnboardingStep::Activity)])
+                @endif
+
                 @include('site.components.template-card', ['sheet' => $sheet, 'selectable' => $selectableTemplates, 'locked' => $templateLocked || $managed])
 
                 <ul class="ns-criteria">
