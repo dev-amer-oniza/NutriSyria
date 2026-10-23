@@ -3,7 +3,7 @@
         $client = $this->record->user;
         $profile = $client->profile;
         $sheet = $this->sheet();
-        $bmi = $profile?->height_cm && $profile?->weight_kg ? round($profile->weight_kg / (($profile->height_cm / 100) ** 2), 1) : null;
+        $bmi = $profile?->bmi();
         $conditions = collect($profile?->health_conditions ?? [])->map(fn ($c) => \App\Enums\HealthCondition::tryFrom($c)?->label())->filter();
         $allergies = collect($profile?->allergies ?? [])->map(fn ($a) => \App\Enums\Allergen::tryFrom($a)?->label())->filter();
         $facts = array_filter([
@@ -11,7 +11,8 @@
             'الجنس' => $profile?->sex?->label(),
             'الطول' => $profile?->height_cm ? round($profile->height_cm).' سم' : null,
             'الوزن' => $profile?->weight_kg ? round($profile->weight_kg, 1).' كغ' : null,
-            'مؤشر كتلة الجسم' => $bmi,
+            'مؤشر كتلة الجسم' => $bmi ? number_format($bmi->value, 1).' · '.($bmi->clinical ?? 'لا يُصنَّف في الحمل') : null,
+            'الوزن الصحي لطوله' => $bmi?->classified() ? $bmi->healthyMinKg.'–'.$bmi->healthyMaxKg.' كغ' : null,
             'النشاط' => $profile?->activity_level?->label(),
             'الهدف' => $profile?->goal?->label(),
             'مرتبط منذ' => $this->record->responded_at?->format('Y-m-d'),

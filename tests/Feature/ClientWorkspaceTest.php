@@ -68,7 +68,8 @@ class ClientWorkspaceTest extends TestCase
             ->assertSee('السكري')
             ->assertSee('الفول السوداني')
             ->assertSee('أريد خطة لإنقاص الوزن مع السكري.')
-            ->assertSee('28.7') // BMI: 78 / 1.65²
+            ->assertSee('28.7 · زيادة وزن') // BMI: 78 / 1.65², the clinical class for the nutritionist
+            ->assertSee('الوزن الصحي لطوله')
             ->assertSee('الصوديوم');
     }
 

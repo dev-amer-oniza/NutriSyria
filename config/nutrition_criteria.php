@@ -70,6 +70,27 @@ return [
         'male' => 1500,
     ],
 
+    /*
+    | Body mass index = weight (kg) / height (m)². The owner's classes (WHO); each one applies
+    | below its 'below' value (the last one has none). People see the gentle 'label', the
+    | nutritionist the clinical one (decision 3a). The value is rounded to one decimal first.
+    | 'warn' names the goals the class should not be chased with (decision 2a: a warning, never
+    | a block); 'not_for' lists the conditions the index says nothing about (pregnancy).
+    */
+    'bmi' => [
+        'classes' => [
+            ['key' => 'underweight', 'below' => 18.5, 'label' => 'أقل من الطبيعي', 'clinical' => 'نقص الوزن', 'warn' => ['lose']],
+            ['key' => 'normal', 'below' => 25, 'label' => 'ضمن الطبيعي', 'clinical' => 'وزن طبيعي'],
+            ['key' => 'overweight', 'below' => 30, 'label' => 'أعلى من الطبيعي', 'clinical' => 'زيادة وزن'],
+            ['key' => 'obese_1', 'below' => 35, 'label' => 'أعلى بكثير من الطبيعي (الدرجة الأولى)', 'clinical' => 'سمنة درجة أولى (خفيفة)', 'warn' => ['gain']],
+            ['key' => 'obese_2', 'below' => 40, 'label' => 'أعلى بكثير من الطبيعي (الدرجة الثانية)', 'clinical' => 'سمنة درجة ثانية (متوسطة)', 'warn' => ['gain']],
+            ['key' => 'obese_3', 'below' => null, 'label' => 'أعلى بكثير من الطبيعي (الدرجة الثالثة)', 'clinical' => 'سمنة درجة ثالثة (مفرطة)', 'warn' => ['gain']],
+        ],
+        /* The healthy range, turned into kilograms for the person's height. */
+        'healthy' => [18.5, 24.9],
+        'not_for' => ['pregnant_or_breastfeeding', 'gestational_diabetes'],
+    ],
+
     /* Calories per gram, to turn a share of the day into grams. */
     'kcal_per_g' => ['carbs' => 4, 'protein' => 4, 'fat' => 9],
 

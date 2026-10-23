@@ -29,6 +29,7 @@ class CriteriaController extends Controller
         return view('site.pages.account.criteria', [
             'profile' => $profile,
             'sheet' => $criteria->for($request->user()),
+            'bmi' => $profile->bmi(),
             'selectableTemplates' => PersonalCriteria::selectableTemplates(),
             'templateLocked' => $criteria->templateLockedFor($request->user()),
             // With a nutritionist (or a request out), the "choose a nutritionist" advice is not shown.

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Data\Nutrition\BmiAssessment;
+use App\Services\Nutrition\Criteria\BmiCalculator;
 use App\Enums\ActivityLevel;
 use App\Enums\Goal;
 use App\Enums\OnboardingStep;
@@ -70,6 +72,14 @@ class UserProfile extends Model
     public function isAdult(): bool
     {
         return ($this->age() ?? 0) >= (int) config('nutrition_criteria.min_age');
+    }
+
+    /** Body mass index, its class and the healthy weight range; null without height and weight. */
+    public function bmi(): ?BmiAssessment
+    {
+        return $this->height_cm && $this->weight_kg
+            ? (new BmiCalculator(config('nutrition_criteria.bmi')))->assess((float) $this->height_cm, (float) $this->weight_kg, $this->goal, $this->health_conditions ?? [])
+            : null;
     }
 
     /** Enough to work out personal criteria. */
