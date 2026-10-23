@@ -1,0 +1,39 @@
+/* "For restaurants" (pages/partners). The benefit tiles reuse the home feature styles. */
+@layer components {
+    .ns-partners__hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: var(--space-8); align-items: center; }
+    .ns-partners__hero .t-display { margin: var(--space-3) 0 var(--space-4); }
+    .ns-partners__hero .t-lead { max-width: 56ch; margin: 0 0 var(--space-6); }
+    .ns-partners__art { justify-self: end; }
+
+    .ns-partners__stats { border-block: 1px solid var(--line); background: var(--surface-raised); }
+    .ns-partners__stats .ns-wrap { display: flex; flex-wrap: wrap; gap: var(--space-8); padding-block: var(--space-5); }
+    .ns-partners__stats p { margin: 0; font-size: 16px; color: var(--ink-muted); }
+    .ns-partners__stats .ns-num { margin-inline-end: var(--space-2); font-size: 32px; font-weight: 600; color: var(--pine); }
+
+    .ns-partners__benefits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5); }
+    .ns-partners__benefit { padding: var(--space-5); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+
+    .ns-partners__split { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: var(--space-8); align-items: start; }
+    .ns-partners__needs { margin: var(--space-5) 0 0; padding-inline-start: var(--space-5); display: grid; gap: var(--space-3); font-size: 16px; line-height: 28px; }
+    .ns-partners__privacy { padding: var(--space-5); background: var(--pine-soft); border-radius: var(--radius-lg); color: var(--pine); }
+    .ns-partners__privacy .t-body { margin: var(--space-2) 0 0; color: var(--ink); }
+
+    .ns-partners__faq { max-width: 760px; }
+    .ns-partners__faq .t-title { margin: 0 0 var(--space-5); }
+    .ns-faq { border-bottom: 1px solid var(--line-strong); }
+    .ns-faq summary { padding: var(--space-4) 0; font-size: 17px; font-weight: 600; cursor: pointer; list-style-position: inside; }
+    .ns-faq summary:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
+    .ns-faq p { margin: 0 0 var(--space-4); font-size: 15px; line-height: 26px; color: var(--ink-muted); }
+
+    .ns-partners__cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); }
+    .ns-partners__cta .t-title { margin: 0; }
+
+    @media (max-width: 1080px) {
+        .ns-partners__hero, .ns-partners__split { grid-template-columns: minmax(0, 1fr); }
+        .ns-partners__art { display: none; }
+        .ns-partners__benefits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+        .ns-partners__benefits { grid-template-columns: minmax(0, 1fr); }
+    }
+}

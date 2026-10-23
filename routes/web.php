@@ -11,6 +11,7 @@ use App\Http\Controllers\Site\Auth\PasswordResetController;
 use App\Http\Controllers\Site\Auth\RegisterController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\MealController;
+use App\Http\Controllers\Site\PartnersController;
 use App\Http\Controllers\Site\RestaurantController;
 use App\Http\Controllers\Site\NutritionistController;
 use Illuminate\Support\Facades\Route;
@@ -24,7 +25,6 @@ Route::get('/', HomeController::class)->name('home');
 Route::name('site.')->group(function () {
     $soon = [
         'method' => ['/method', 'منهجية التحقق'],
-        'partners' => ['/for-restaurants', 'للمطاعم'],
         'goals' => ['/goals', 'الأهداف الصحية'],
         'sources' => ['/sources', 'المصادر'],
         'about' => ['/about', 'من نحن'],
@@ -35,6 +35,9 @@ Route::name('site.')->group(function () {
     foreach ($soon as $name => [$uri, $title]) {
         Route::view($uri, 'site.pages.soon', ['title' => $title])->name($name);
     }
+
+    // "For restaurants": why and how a restaurant joins.
+    Route::get('/for-restaurants', PartnersController::class)->name('partners');
 
     // The restaurants (active brands), each with its details and menu (RestaurantDirectory).
     Route::get('/restaurants', [RestaurantController::class, 'index'])->name('brands');
