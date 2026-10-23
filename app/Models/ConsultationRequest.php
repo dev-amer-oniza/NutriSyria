@@ -6,6 +6,7 @@ use App\Enums\ConsultationStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * A person's request to a nutritionist, and the link once accepted. Changed only through
@@ -33,6 +34,11 @@ class ConsultationRequest extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function plan(): HasOne
+    {
+        return $this->hasOne(NutritionPlan::class);
     }
 
     public function nutritionist(): BelongsTo

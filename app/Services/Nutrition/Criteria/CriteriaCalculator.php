@@ -5,6 +5,8 @@ namespace App\Services\Nutrition\Criteria;
 use App\Data\Nutrition\CriteriaSheet;
 use App\Data\Nutrition\CriterionValue;
 use App\Enums\CriterionSource;
+use App\Enums\EnergyEquation;
+use App\Enums\Sex;
 use InvalidArgumentException;
 
 /**
@@ -108,8 +110,7 @@ final class CriteriaCalculator
      */
     private function energy(array $profile, array $templates): array
     {
-        $female = $profile['sex'] === 'female';
-        $bmr = 10 * $profile['weight_kg'] + 6.25 * $profile['height_cm'] - 5 * $profile['age'] + ($female ? -161 : 5);
+        $bmr = EnergyEquation::Mifflin->bmr(Sex::from($profile['sex']), (int) $profile['age'], (float) $profile['height_cm'], (float) $profile['weight_kg']);
         $tdee = $bmr * (float) $this->rules['activity_factors'][$profile['activity']];
 
         $adjustment = (int) $this->rules['goal_adjustment'][$profile['goal']];

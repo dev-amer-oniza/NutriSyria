@@ -60,6 +60,21 @@
             <p>لا يمكن حساب معاييره بعد: بياناته ناقصة، أو عمره أقل من {{ config('nutrition_criteria.min_age') }} سنة.</p>
         </x-filament::section>
     @else
+        @php
+            $plan = $this->plan();
+        @endphp
+        <x-filament::section heading="خطة التغذية" :description="$plan ? 'السعرات والكربوهيدرات والبروتين والدهون أدناه منها.' : 'لم تضع خطة بعد: السعرات والمغذيات من القالب.'">
+            @if ($plan)
+                <dl class="grid grid-cols-2 gap-4 sm:grid-cols-5">
+                    <div><dt class="text-sm text-gray-500 dark:text-gray-400">الأيض الأساسي</dt><dd class="font-semibold">{{ number_format($plan->bmr) }}</dd></div>
+                    <div><dt class="text-sm text-gray-500 dark:text-gray-400">الاحتياج</dt><dd class="font-semibold">{{ number_format($plan->tdee) }}</dd></div>
+                    <div><dt class="text-sm text-gray-500 dark:text-gray-400">السعرات النهائية</dt><dd class="font-semibold">{{ number_format($plan->target) }} <span class="text-sm font-normal" dir="ltr">({{ \App\Filament\Clusters\Consultations\Resources\Clients\Pages\ClientPlan::signed($plan->adjustment) }})</span></dd></div>
+                    <div><dt class="text-sm text-gray-500 dark:text-gray-400">كارب / بروتين / دهون</dt><dd class="font-semibold">{{ $plan->macros['carbs']['g'] }} / {{ $plan->macros['protein']['g'] }} / {{ $plan->macros['fat']['g'] }} غ</dd></div>
+                    <div><dt class="text-sm text-gray-500 dark:text-gray-400">السوائل</dt><dd class="font-semibold">{{ $plan->fluids['ml'] ? number_format($plan->fluids['ml'] / 1000, 2).' ل' : '—' }}</dd></div>
+                </dl>
+            @endif
+        </x-filament::section>
+
         <x-filament::section heading="القالب الغذائي">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div>

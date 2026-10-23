@@ -64,6 +64,34 @@ return [
         'gain' => 300,
     ],
 
+    /*
+    | The nutritionist's nutrition plan (App\Services\Nutrition\Plan, the owner's decisions
+    | 1a 2a 3a 4a). It overrides the automatic calories and macros for one client:
+    |  - equations: the resting energy formulas offered (App\Enums\EnergyEquation);
+    |  - adjustments: the ready-made calorie changes; any value in adjustment_range can be set
+    |    with the slider. -750 and +500 are for nutritionists only (3a): people keep goal_adjustment;
+    |  - macro_range: what each share of calories may be set to, in %; the three make 100;
+    |  - fluids: ml per kg suggested, rounded to fluids_step; none for the conditions where
+    |    fluids are the doctor's call (2a), so the nutritionist types them.
+    */
+    'plan' => [
+        'adjustments' => [
+            -750 => 'عجز شديد',
+            -500 => 'عجز قياسي',
+            0 => 'ثبات',
+            300 => 'فائض معتدل',
+            500 => 'فائض قياسي',
+        ],
+        'adjustment_range' => [-1000, 1000],
+        'adjustment_step' => 50,
+        'macro_range' => [5, 80],
+        'fluids_ml_per_kg' => 35,
+        'fluids_step' => 50,
+        'fluids_range' => [500, 6000],
+        'fluids_manual_for' => ['heart_failure', 'kidney', 'dialysis'],
+        'body_fat_range' => [3, 70],
+    ],
+
     /* Never suggest fewer calories than this (App\Enums\Sex). */
     'min_kcal' => [
         'female' => 1200,
