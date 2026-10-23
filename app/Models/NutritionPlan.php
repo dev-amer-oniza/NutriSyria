@@ -21,6 +21,7 @@ class NutritionPlan extends Model
             'protein_pct' => 'integer',
             'fat_pct' => 'integer',
             'fluids_ml' => 'integer',
+            'meals' => 'array',
         ];
     }
 
@@ -41,6 +42,7 @@ class NutritionPlan extends Model
             'protein_pct' => $this->protein_pct,
             'fat_pct' => $this->fat_pct,
             'fluids_ml' => $this->fluids_ml,
+            'meals' => $this->meals ?? [],
         ];
     }
 }

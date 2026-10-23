@@ -133,7 +133,7 @@ class ClientWorkspace
      * calories and macros from it as the nutritionist's values, so meals are judged on it.
      * The activity level is the profile's own and is updated with it.
      *
-     * @param  array{equation: string, body_fat_pct: ?float, activity: string, adjustment: int, carbs_pct: int, protein_pct: int, fat_pct: int, fluids_ml: ?int}  $inputs
+     * @param  array{equation: string, body_fat_pct: ?float, activity: string, adjustment: int, carbs_pct: int, protein_pct: int, fat_pct: int, fluids_ml: ?int, meals?: list<array<string, mixed>>}  $inputs
      *
      * @throws InvalidArgumentException when the plan has errors or a value is out of range
      */
@@ -158,6 +158,7 @@ class ClientWorkspace
                 'protein_pct' => (int) $inputs['protein_pct'],
                 'fat_pct' => (int) $inputs['fat_pct'],
                 'fluids_ml' => filled($inputs['fluids_ml'] ?? null) ? (int) $inputs['fluids_ml'] : null,
+                'meals' => self::planMeals($result),
             ])->save();
         });
 
@@ -182,6 +183,22 @@ class ClientWorkspace
     {
         $this->ensureLinked($nutritionist, $link);
         $this->consultations->end($nutritionist, $link, $reason);
+    }
+
+    /** @return list<array<string, mixed>>|null the meals as stored: by time, without what is derived */
+    private static function planMeals(NutritionPlanResult $result): ?array
+    {
+        $meals = array_map(fn (array $m) => [
+            'type' => $m['type'],
+            'label' => $m['type'] === 'other' ? $m['name'] : null,
+            'time' => $m['time'],
+            'share_pct' => $m['share_pct'],
+            'carbs_g' => $m['carbs_g'],
+            'protein_g' => $m['protein_g'],
+            'fat_g' => $m['fat_g'],
+        ], $result->meals);
+
+        return $meals ?: null;
     }
 
     /** Sets the plan's calories and macros as the nutritionist's values (checked first, all or none). */

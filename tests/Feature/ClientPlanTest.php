@@ -10,6 +10,7 @@ use App\Models\NutritionPlan;
 use App\Notifications\SiteNotification;
 use App\Services\Consultations\ClientWorkspace;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
+use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -140,5 +141,57 @@ class ClientPlanTest extends TestCase
         $this->actingAs($this->nutritionist('omar@example.com')->user);
 
         $this->get(ClientPlan::getUrl(['record' => $this->link]))->assertNotFound();
+    }
+    public function test_the_standard_split_fills_five_meals_with_their_grams(): void
+    {
+        $page = $this->plan()->callAction(TestAction::make('preset_standard')->schemaComponent('mealsSection', 'form'));
+
+        $meals = array_values($page->get('data.meals'));
+        $this->assertSame(['breakfast', 'snack', 'lunch', 'snack', 'dinner'], array_column($meals, 'type'));
+        $this->assertSame([25, 10, 35, 10, 20], array_column($meals, 'share_pct'));
+        // 1540 kcal, diabetes 45/20/35: 173 g carbs, 77 g protein, 60 g fat, shared by the meals' calories.
+        $this->assertSame(173, array_sum(array_column($meals, 'carbs_g')));
+        $this->assertSame(77, array_sum(array_column($meals, 'protein_g')));
+        $this->assertSame(60, array_sum(array_column($meals, 'fat_g')));
+        $page->assertSee('باقي للتوزيع')->assertSee('غداء');
+    }
+
+    public function test_what_is_left_shows_as_the_nutritionist_types_and_only_the_shares_block_saving(): void
+    {
+        $page = $this->plan()->callAction(TestAction::make('preset_three')->schemaComponent('mealsSection', 'form'));
+        $lunch = array_keys($page->get('data.meals'))[1];
+
+        $page->set("data.meals.$lunch.protein_g", $page->get("data.meals.$lunch.protein_g") - 20)
+            ->assertSee('لم تتطابق غرامات الوجبات مع المجموع: البروتين باقي 20 غ.')
+            ->call('save')
+            ->assertNotified('حُفظت الخطة');                                   // grams left: a warning (1a)
+
+        $this->assertCount(3, NutritionPlan::firstOrFail()->meals);
+
+        $page->set("data.meals.$lunch.share_pct", 30)
+            ->assertSee('مجموع نسب الوجبات 90%، ويجب أن يكون 100%.')
+            ->call('save')
+            ->assertNotified('لم تُحفظ الخطة');                                // shares must make 100
+    }
+
+    public function test_saved_meals_come_back_by_time_and_show_in_the_client_file(): void
+    {
+        app(ClientWorkspace::class)->savePlan($this->link->nutritionist, $this->link, [
+            'equation' => 'mifflin', 'body_fat_pct' => null, 'activity' => 'light', 'adjustment' => -500,
+            'carbs_pct' => 45, 'protein_pct' => 20, 'fat_pct' => 35, 'fluids_ml' => null,
+            'meals' => [
+                ['type' => 'dinner', 'time' => '20:00', 'share_pct' => 40, 'carbs_g' => 70, 'protein_g' => 31, 'fat_g' => 24],
+                ['type' => 'other', 'label' => 'بعد التمرين', 'time' => '10:30', 'share_pct' => 10, 'carbs_g' => 17, 'protein_g' => 8, 'fat_g' => 6],
+                ['type' => 'lunch', 'time' => '14:00', 'share_pct' => 50, 'carbs_g' => 86, 'protein_g' => 38, 'fat_g' => 30],
+            ],
+        ]);
+
+        $this->assertSame(['other', 'lunch', 'dinner'], array_column(NutritionPlan::firstOrFail()->meals, 'type'));
+        $this->assertSame('بعد التمرين', NutritionPlan::firstOrFail()->meals[0]['label']);
+
+        $this->get(ViewClient::getUrl(['record' => $this->link]))->assertOk()
+            ->assertSeeInOrder(['10:30', 'بعد التمرين', '14:00', 'غداء', '770', '20:00', 'عشاء']);   // lunch: 50% of 1540
+
+        $this->plan()->assertSet('data.meals', fn (array $meals) => count($meals) === 3);
     }
 }
