@@ -6,6 +6,15 @@ use App\Http\Middleware\InitializeTenancyIfTenantDomain;
 use App\Livewire\TenantDatabaseNotifications;
 use App\Models\Category;
 use App\Observers\CategoryObserver;
+use App\Models\Brand;
+use App\Models\Food;
+use App\Models\FoodNutrientValue;
+use App\Models\FoodSourceRecord;
+use App\Models\Product;
+use App\Models\ProductRecipe;
+use App\Models\ProductRecipeIngredient;
+use App\Services\Site\PublicCatalogCache;
+use Illuminate\Database\Eloquent\Model;
 use App\View\Composers\NotificationBellComposer;
 use App\View\Composers\ProfileReminderComposer;
 use Filament\Notifications\Livewire\DatabaseNotifications;
@@ -27,11 +36,32 @@ class AppServiceProvider extends ServiceProvider
     {
         //
     }
+    /**
+     * What the public site shows is cached (PublicCatalogCache): any change to it clears the
+     * cache, so the next visitor sees it at once.
+     */
+    private function watchPublicCatalog(): void
+    {
+        $models = [Brand::class, Product::class, ProductRecipe::class, ProductRecipeIngredient::class,
+            FoodNutrientValue::class, Food::class, FoodSourceRecord::class];
+
+        foreach ($models as $model) {
+            foreach (['saved', 'deleted'] as $event) {
+                $model::$event(fn () => app(PublicCatalogCache::class)->flush());
+            }
+        }
+    }
+
     public function boot(): void
     {
         $this->configureRateLimits();
         View::composer('site.layouts.app', ProfileReminderComposer::class);
         View::composer('site.partials.header', NotificationBellComposer::class);
+        $this->watchPublicCatalog();
+
+        // N+1 guard (the owner's decision 4a): outside production, a relation loaded one row
+        // at a time inside a list is an error, so a slow page is caught before it ships.
+        Model::preventLazyLoading(! $this->app->isProduction());
 
         Livewire::setUpdateRoute(function ($handle) {
             return Route::post('/livewire/update', $handle)

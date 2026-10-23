@@ -3,6 +3,7 @@
 namespace App\Filament\Clusters\Brands\Resources\Brands\Schemas;
 
 use App\Auth\Access;
+use App\Enums\SyrianGovernorate;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -45,6 +46,44 @@ class BrandForm
                             ->helperText('البراند غير النشط لا يظهر للمستخدمين'),
                         Textarea::make('description')
                             ->label('الوصف')
+                            ->columnSpanFull(),
+                    ]),
+                // Shown on the restaurant's page on the site; empty fields are not shown.
+                Section::make('التواصل والموقع')
+                    ->description('تظهر في صفحة المطعم على الموقع. اترك الحقل فارغاً إن لم ينطبق.')
+                    ->columns(2)
+                    ->components([
+                        Select::make('city')
+                            ->label('المحافظة')
+                            ->options(SyrianGovernorate::options()),
+                        TextInput::make('address')
+                            ->label('العنوان')
+                            ->placeholder('دمشق، المزة، شارع الجلاء')
+                            ->maxLength(200),
+                        TextInput::make('opening_hours')
+                            ->label('ساعات الدوام')
+                            ->placeholder('يومياً من 10 صباحاً حتى 12 ليلاً')
+                            ->maxLength(200),
+                        TextInput::make('whatsapp')
+                            ->label('واتساب')
+                            ->tel()
+                            ->placeholder('0912 345 678')
+                            ->maxLength(32),
+                        TextInput::make('instagram_url')
+                            ->label('رابط إنستغرام')
+                            ->url()
+                            ->rules(['url:http,https'])
+                            ->maxLength(255),
+                        TextInput::make('facebook_url')
+                            ->label('رابط فيسبوك')
+                            ->url()
+                            ->rules(['url:http,https'])
+                            ->maxLength(255),
+                        TextInput::make('delivery_note')
+                            ->label('ملاحظة التوصيل')
+                            ->placeholder('توصيل لكل دمشق، أو عبر تطبيق طلبات')
+                            ->helperText('تظهر فقط إن كان البراند يقدّم توصيلاً.')
+                            ->maxLength(200)
                             ->columnSpanFull(),
                     ]),
                 Section::make('الشعار')

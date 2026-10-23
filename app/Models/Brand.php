@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\SyrianGovernorate;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,6 +12,7 @@ class Brand extends Model
 {
     protected $fillable = [
         'name', 'description', 'logo', 'phone_1', 'phone_2', 'has_delivery', 'is_active',
+        'city', 'address', 'opening_hours', 'whatsapp', 'instagram_url', 'facebook_url', 'delivery_note',
     ];
 
     protected function casts(): array
@@ -18,6 +20,7 @@ class Brand extends Model
         return [
             'has_delivery' => 'boolean',
             'is_active' => 'boolean',
+            'city' => SyrianGovernorate::class,
         ];
     }
 
