@@ -52,6 +52,40 @@ class NutritionPlans
         ];
     }
 
+    /**
+     * The plan meal restaurant dishes are judged against: the first lunch by time, with its
+     * calories (its share of the day's) and grams as the nutritionist set them. Null without a
+     * lunch: then the usual share of the day applies (2a).
+     *
+     * @param  list<array<string, mixed>>  $meals  as stored on the plan
+     * @return array{name: string, time: ?string, share: float, kcal: int, targets: array<string, float>}|null
+     */
+    public static function referenceMeal(array $meals, float $dayKcal): ?array
+    {
+        $lunches = array_values(array_filter($meals, fn (array $m) => ($m['type'] ?? null) === 'lunch'));
+        usort($lunches, fn ($a, $b) => strcmp((string) ($a['time'] ?? ''), (string) ($b['time'] ?? '')));
+        $lunch = $lunches[0] ?? null;
+        if (! $lunch || (float) ($lunch['share_pct'] ?? 0) <= 0) {
+            return null;
+        }
+
+        $share = (float) $lunch['share_pct'] / 100;
+        $kcal = (int) round($dayKcal * $share);
+
+        return [
+            'name' => config('nutrition_criteria.plan.meal_types.lunch'),
+            'time' => isset($lunch['time']) ? substr((string) $lunch['time'], 0, 5) : null,
+            'share' => $share,
+            'kcal' => $kcal,
+            'targets' => [
+                'energy_kcal' => (float) $kcal,
+                'carbohydrate_g' => (float) ($lunch['carbs_g'] ?? 0),
+                'protein_g' => (float) ($lunch['protein_g'] ?? 0),
+                'fat_g' => (float) ($lunch['fat_g'] ?? 0),
+            ],
+        ];
+    }
+
     /** @return array<string, float> the criterion values a valid result sets */
     public static function criteriaOf(NutritionPlanResult $result): array
     {

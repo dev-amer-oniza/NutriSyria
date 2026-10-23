@@ -93,7 +93,7 @@
                     @endif
                     <p class="mt-2 text-sm">
                         السعرات: <span class="font-semibold">{{ number_format($sheet->get('energy_kcal')->value) }}</span> في اليوم،
-                        <span class="font-semibold">{{ number_format(round($sheet->get('energy_kcal')->perMeal($sheet->mealShare))) }}</span> للوجبة.
+                        <span class="font-semibold">{{ number_format(round($sheet->perMeal($sheet->get('energy_kcal')))) }}</span> {{ $sheet->meal ? 'لغداء الخطة' : 'للوجبة' }}.
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-2">
