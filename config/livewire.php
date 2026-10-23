@@ -65,7 +65,9 @@ return [
 
     'temporary_file_upload' => [
         'disk' => 'tenant_uploads',        // Example: 'local', 's3'              | Default: 'default'
-        'rules' => ['file', 'mimes:png,jpg,webp,mp4,mp3,svg,xlsx,csv,xls','max:10240'] ,       // Example: ['file', 'mimes:png,jpg']  | Default: ['required', 'file', 'max:12288'] (12MB)
+        // A CSV is often detected as plain text (Arabic text, ";" separators): "txt" lets it
+        // through, or the upload fails with a bare 422 before the import can explain anything.
+        'rules' => ['file', 'mimes:png,jpg,webp,mp4,mp3,svg,xlsx,csv,txt,xls','max:10240'],       // Example: ['file', 'mimes:png,jpg']  | Default: ['required', 'file', 'max:12288'] (12MB)
         'directory' => 'livewire-tmp',   // Example: 'tmp'                      | Default: 'livewire-tmp'
         'middleware' => null,  // Example: 'throttle:5,1'             | Default: 'throttle:60,1'
         'preview_mimes' => [   // Supported file types for temporary pre-signed file URLs...

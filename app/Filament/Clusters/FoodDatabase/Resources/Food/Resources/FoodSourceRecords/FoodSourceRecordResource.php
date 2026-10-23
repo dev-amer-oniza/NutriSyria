@@ -10,6 +10,7 @@ use App\Filament\Clusters\FoodDatabase\Resources\Food\Resources\FoodSourceRecord
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Resources\FoodSourceRecords\Tables\FoodSourceRecordsTable;
 use App\Models\FoodSourceRecord;
 use BackedEnum;
+use Filament\Resources\ParentResourceRegistration;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -23,7 +24,17 @@ class FoodSourceRecordResource extends Resource
 
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::DocumentText;
 
-    protected static ?string $parentResource = FoodResource::class;
+    /**
+     * Nested under a food. Filament guesses the relationship from the model name
+     * (foodSourceRecords), but Food calls it sourceRecords: named here, or creating a
+     * record from a food's page fails.
+     */
+    public static function getParentResourceRegistration(): ?ParentResourceRegistration
+    {
+        return FoodResource::asParent(childResource: static::class)
+            ->relationship('sourceRecords')
+            ->inverseRelationship('food');
+    }
 
     protected static ?string $modelLabel = 'مصدر';
 

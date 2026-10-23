@@ -3,6 +3,8 @@ namespace App\Filament\Clusters\ReferenceSettings\Resources\DataSources\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -45,7 +47,16 @@ class DataSourcesTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        // Sources holding records stay (DataSource::deletionBlocker): nothing is deleted.
+                        ->before(function (DeleteBulkAction $action, Collection $records) {
+                            $reasons = $records->map->deletionBlocker()->filter();
+
+                            if ($reasons->isNotEmpty()) {
+                                Notification::make()->title('لم يُحذف شيء.')->body($reasons->join("\n"))->danger()->persistent()->send();
+                                $action->cancel();
+                            }
+                        }),
                 ]),
             ]);
     }

@@ -4,6 +4,7 @@ namespace App\Services\Import;
 use App\Services\Nutrition\PortionResolver;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Exceptions\ImportFileRejected;
 use RuntimeException;
 use Throwable;
 
@@ -23,6 +24,22 @@ final class BundleImporter
         'nutrient_values' => 'nutrient_values.csv',
         'portions'        => 'portions.csv',
     ];
+
+    /** Columns a sheet cannot do without (the rest are optional); records also need food_id or food_name_ar. */
+    private const REQUIRED_COLUMNS = [
+        'records'         => ['data_source_code', 'external_ref', 'food_form_code'],
+        'nutrient_values' => ['data_source_code', 'external_ref', 'nutrient_code', 'amount_per_100g', 'unit'],
+        'portions'        => ['data_source_code', 'external_ref', 'measure_unit_label', 'amount', 'gram_weight'],
+    ];
+
+    private const SHEET_LABELS = [
+        'records'         => 'ملف السجلات',
+        'nutrient_values' => 'ملف القيم الغذائية',
+        'portions'        => 'ملف الحصص',
+    ];
+
+    /** Spreadsheets saved in Arabic often separate with ";" (or a tab): any of them is read. */
+    private const DELIMITERS = [',', ';', "\t"];
 
     private array $cfg;
 
@@ -52,23 +69,38 @@ final class BundleImporter
 
         $hash = hash('sha256', implode('', array_map(fn($p) => hash_file('sha256', $p), $files)));
         if (! $force && DB::table('import_batches')->where('file_sha256', $hash)->where('status', 'committed')->exists()) {
-            throw new RuntimeException('This exact bundle was already imported. Use --force to import it again.');
+            throw new ImportFileRejected('هذه الملفات نفسها استوردت وحُفظت من قبل.');
         }
 
-        return DB::transaction(function () use ($dir, $files, $hash, $userId) {
+        // Every sheet is read and checked before anything is written: a bad file leaves no batch.
+        $sheets = array_map(fn (string $sheet) => $this->readSheet($sheet, $files[$sheet]), array_combine(array_keys($files), array_keys($files)));
+
+        return DB::transaction(function () use ($dir, $files, $sheets, $hash, $userId) {
             $batchId = DB::table('import_batches')->insertGetId([
                 'user_id'           => $userId,
                 'original_filename' => basename($dir),
-                'file_path'         => 'pending',
+                'file_path'         => "imports/pending",
                 'file_sha256'       => $hash,
                 'status'            => 'uploaded',
                 'created_at'        => now(),
                 'updated_at'        => now(),
             ]);
 
-            foreach ($files as $sheet => $path) {
+            foreach ($sheets as $sheet => $rows) {
+                foreach (array_chunk($rows, 500, true) as $chunk) {
+                    DB::table('import_rows')->insert(array_map(fn (array $raw, int $rowNumber) => [
+                        'import_batch_id' => $batchId,
+                        'sheet'           => $sheet,
+                        'row_number'      => $rowNumber,
+                        'raw'             => json_encode($raw, JSON_UNESCAPED_UNICODE),
+                        'status'          => 'pending',
+                        'created_at'      => now(),
+                        'updated_at'      => now(),
+                    ], $chunk, array_keys($chunk)));
+                }
+            }
+            foreach ($files as $path) {
                 Storage::disk('local')->put("imports/{$batchId}/" . basename($path), file_get_contents($path));
-                $this->stageSheet($batchId, $sheet, $path);
             }
 
             DB::table('import_batches')->where('id', $batchId)->update(['file_path' => "imports/{$batchId}"]);
@@ -77,45 +109,78 @@ final class BundleImporter
         });
     }
 
-    private function stageSheet(int $batchId, string $sheet, string $path): void
+    /**
+     * A sheet's rows keyed by their line number, after checking it can be read: not empty,
+     * its separator found, its required columns present, every row the same width.
+     *
+     * @return array<int, array<string, string>>
+     */
+    private function readSheet(string $sheet, string $path): array
     {
-        $handle = fopen($path, 'r') ?: throw new RuntimeException("Cannot open {$path}");
-        $header = fgetcsv($handle, 0, ',', '"', '');
-        if (! $header) {
-            throw new RuntimeException("{$sheet}: file is empty");
-        }
-        $header[0] = ltrim($header[0], "\xEF\xBB\xBF");
-        $header    = array_map('trim', $header);
+        $label = self::SHEET_LABELS[$sheet];
+        $handle = fopen($path, 'r') ?: throw new ImportFileRejected("{$label}: تعذّر فتحه.");
 
-        $rowNumber = 1;
-        $buffer    = [];
-        while (($line = fgetcsv($handle, 0, ',', '"', '')) !== false) {
-            $rowNumber++;
-            if ($line === [null]) {
-                continue;
+        try {
+            $first = (string) fgets($handle);
+            $first = ltrim($first, "\xEF\xBB\xBF");
+            if (trim($first) === '') {
+                throw new ImportFileRejected("{$label} فارغ: لا يحتوي حتى سطر العناوين.");
             }
-            if (count($line) !== count($header)) {
-                throw new RuntimeException("{$sheet}: row {$rowNumber} has " . count($line) . ' columns, expected ' . count($header));
+
+            $delimiter = self::delimiter($first);
+            $header = array_map(fn ($h) => trim((string) $h), str_getcsv(rtrim($first, "\r\n"), $delimiter, '"', ''));
+
+            $missing = array_values(array_diff(self::REQUIRED_COLUMNS[$sheet], $header));
+            if ($sheet === 'records' && ! array_intersect(['food_id', 'food_name_ar'], $header)) {
+                $missing[] = 'food_name_ar (أو food_id)';
             }
-            $raw      = array_map(fn($v) => trim((string) $v), array_combine($header, $line));
-            $buffer[] = [
-                'import_batch_id' => $batchId,
-                'sheet'           => $sheet,
-                'row_number'      => $rowNumber,
-                'raw'             => json_encode($raw, JSON_UNESCAPED_UNICODE),
-                'status'          => 'pending',
-                'created_at'      => now(),
-                'updated_at'      => now(),
-            ];
-            if (count($buffer) >= 500) {
-                DB::table('import_rows')->insert($buffer);
-                $buffer = [];
+            if ($missing) {
+                throw new ImportFileRejected("{$label}: ينقصه عمود ".implode('، ', $missing).'. حمّل القالب من صفحة الاستيراد وقارن أسماء الأعمدة.');
             }
+
+            $rows = [];
+            $rowNumber = 1;
+            while (($line = fgetcsv($handle, 0, $delimiter, '"', '')) !== false) {
+                $rowNumber++;
+                if ($line === [null]) {
+                    continue;
+                }
+                if (count($line) !== count($header)) {
+                    throw new ImportFileRejected("{$label}: السطر {$rowNumber} فيه ".count($line).' أعمدة، والعناوين '.count($header).'. تأكد أن الفاصل واحد في كل الملف وأن النصوص التي فيها فاصلة بين علامتي تنصيص.');
+                }
+                $rows[$rowNumber] = array_map(fn ($v) => trim((string) $v), array_combine($header, $line));
+            }
+        } finally {
+            fclose($handle);
         }
-        fclose($handle);
-        if ($buffer) {
-            DB::table('import_rows')->insert($buffer);
+
+        if ($sheet === 'records' && $rows === []) {
+            throw new ImportFileRejected("{$label}: لا يحتوي أي سطر بعد العناوين.");
         }
+
+        return $rows;
+    }
+
+    /** The separator used most in the header line (a comma when none is found). */
+    private static function delimiter(string $headerLine): string
+    {
+        $counts = array_map(fn (string $d) => substr_count($headerLine, $d), array_combine(self::DELIMITERS, self::DELIMITERS));
+        arsort($counts);
+
+        return reset($counts) > 0 ? array_key_first($counts) : ',';
+    }
+
+    /** Removes a batch that was staged but not committed (its rows and stored files). */
+    public function discard(int $batchId): void
+    {
+        $batch = DB::table('import_batches')->find($batchId);
+        if (! $batch || $batch->status === 'committed') {
+            return;
+        }
+
+        DB::table('import_rows')->where('import_batch_id', $batchId)->delete();
+        DB::table('import_batches')->where('id', $batchId)->delete();
+        Storage::disk('local')->deleteDirectory("imports/{$batchId}");
     }
 
     // --------------------------------------------------------------- validate

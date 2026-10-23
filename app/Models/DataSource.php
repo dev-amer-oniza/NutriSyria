@@ -26,6 +26,19 @@ class DataSource extends Model
         ];
     }
 
+    /**
+     * Why this source may not be deleted, or null when it may: a source holding records is
+     * where approved numbers come from (the owner's decision 1a), so it stays.
+     */
+    public function deletionBlocker(): ?string
+    {
+        $count = $this->foodSourceRecords()->count();
+
+        return $count > 0
+            ? "لا يمكن حذف «{$this->name}»: عليه {$count} سجلاً، وكل رقم معتمد يحتاج مصدره. أوقفه بدل حذفه إن لم تعد تستعمله."
+            : null;
+    }
+
     public function foodSourceRecords(): HasMany
     {
         return $this->hasMany(FoodSourceRecord::class);

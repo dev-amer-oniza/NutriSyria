@@ -149,15 +149,16 @@ class RecipeIngredientsRelationManager extends RelationManager
                     ->badge(),
                 TextColumn::make('grams')
                     ->label('الوزن بالغرام')
+                    // Never null: Filament shows only its "empty" tooltip on a null state, so the
+                    // reason a line cannot be converted would be lost.
                     ->getStateUsing(function (Model $record) {
                         $grams = $this->conversionFor($record)->grams;
 
-                        return $grams !== null ? number_format($grams, 1) . ' غ' : null;
+                        return $grams !== null ? number_format($grams, 1) . ' غ' : '⚠ غير متوفر';
                     })
                     ->badge()
                     ->color(fn(Model $record) => $this->conversionFor($record)->ok() ? 'success' : 'warning')
-                    ->tooltip(fn(Model $record) => $this->conversionFor($record)->message ?? $this->conversionFor($record)->basis)
-                    ->placeholder('⚠ غير متوفر'),
+                    ->tooltip(fn(Model $record) => $this->conversionFor($record)->message ?? $this->conversionFor($record)->basis),
                 TextColumn::make('is_added_after_cooking')
                     ->label('بعد الطبخ')
                     ->formatStateUsing(fn(bool $state) => $state ? 'نعم' : '—'),
@@ -224,9 +225,13 @@ class RecipeIngredientsRelationManager extends RelationManager
         $set('food_portion_id', in_array($auto, $ids, true) ? $auto : null);
     }
 
+    /** The four values a record needs to be usable on its own (the owner's decision 2a). */
+    private const CORE = ['energy_kcal' => 'السعرات', 'protein_g' => 'البروتين', 'fat_g' => 'الدهون', 'carbohydrate_g' => 'الكربوهيدرات'];
+
     /**
-     * Approved records by food name. A search matches the Arabic and English names and the
-     * food's aliases, whatever the spelling ("ارز" finds "أرز", "جبنه" finds "جبنة").
+     * Approved records by food name, and within a food the most trusted source first
+     * (data_sources.priority: Foundation before SR Legacy). A search matches the Arabic and
+     * English names and the food's aliases, whatever the spelling ("ارز" finds "أرز").
      *
      * @return array<int, string>
      */
@@ -234,13 +239,17 @@ class RecipeIngredientsRelationManager extends RelationManager
     {
         return FoodSourceRecord::query()
             ->join('foods', 'foods.id', '=', 'food_source_records.food_id')
+            ->join('data_sources', 'data_sources.id', '=', 'food_source_records.data_source_id')
             ->where('food_source_records.status', FoodSourceStatus::Active)
             ->when(filled($search), fn (Builder $query) => $query->where(fn (Builder $query) => ArabicSearch::constrain($query, ['foods.name_ar', 'foods.name_en'], $search)
                 ->orWhereHas('food.aliases', fn (Builder $alias) => ArabicSearch::constrain($alias, ['name_ar', 'name_en'], $search))))
             ->orderBy('foods.name_ar')
+            ->orderBy('data_sources.priority')
             ->orderBy('food_source_records.id')
             ->select('food_source_records.*')
-            ->with(['food', 'foodForm', 'dataSource'])
+            ->with(['food', 'foodForm', 'dataSource', 'nutrientValues' => fn ($q) => $q
+                ->whereHas('nutrient', fn (Builder $n) => $n->whereIn('code', array_keys(self::CORE)))
+                ->with('nutrient:id,code')])
             ->limit(filled($search) ? 50 : 1000)
             ->get()
             ->mapWithKeys(fn (FoodSourceRecord $r) => [$r->id => self::labelFor($r)])
@@ -249,7 +258,29 @@ class RecipeIngredientsRelationManager extends RelationManager
 
     private static function labelFor(FoodSourceRecord $r): string
     {
-        return sprintf('%s — %s (%s)', $r->food?->name_ar, $r->foodForm?->name_ar, $r->dataSource?->name);
+        $label = sprintf('%s — %s (%s)', $r->food?->name_ar, $r->foodForm?->name_ar, $r->dataSource?->name);
+        $missing = self::missingCore($r);
+
+        return $missing ? $label.' · ناقص: '.implode('، ', $missing) : $label;
+    }
+
+    /**
+     * Which of the four core values the record lacks. Missing calories alone do not count:
+     * they are calculated from protein, fat and carbohydrate (NutrientGapFiller).
+     *
+     * @return list<string>
+     */
+    private static function missingCore(FoodSourceRecord $r): array
+    {
+        $r->loadMissing(['nutrientValues.nutrient:id,code']);
+        $present = $r->nutrientValues->pluck('nutrient.code')->all();
+        $missing = array_diff_key(self::CORE, array_flip($present));
+
+        if (array_keys($missing) === ['energy_kcal']) {
+            return [];
+        }
+
+        return array_values($missing);
     }
 
 }

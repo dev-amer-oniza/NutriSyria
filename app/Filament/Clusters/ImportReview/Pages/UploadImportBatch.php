@@ -4,6 +4,7 @@ namespace App\Filament\Clusters\ImportReview\Pages;
 use App\Auth\Access;
 use App\Filament\Clusters\ImportReview\ImportReviewCluster;
 use App\Filament\Clusters\ImportReview\Resources\ImportBatches\ImportBatchResource;
+use App\Exceptions\ImportFileRejected;
 use App\Services\Import\BundleImporter;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
@@ -97,6 +98,7 @@ class UploadImportBatch extends Page implements HasForms
                             ->maxLength(255),
                         FileUpload::make('records_file')
                             ->label('ملف السجلات (records.csv)')
+                            ->helperText('ملف CSV غير فارغ، مفصول بفاصلة أو فاصلة منقوطة، حتى 10 ميغا. أسماء الأعمدة كما في قالب السجلات أعلاه.')
                             ->disk('local')
                             ->directory('import-uploads')
                             ->required(),
@@ -138,8 +140,9 @@ class UploadImportBatch extends Page implements HasForms
         $this->report       = null;
         $this->errorMessage = null;
 
+        $importer = new BundleImporter();
+
         try {
-            $importer      = new BundleImporter();
             $this->batchId = $importer->stage($tempDir, auth()->id());
             DB::table('import_batches')
                 ->where('id', $this->batchId)
@@ -151,13 +154,22 @@ class UploadImportBatch extends Page implements HasForms
                 ->success()
                 ->send();
         } catch (Throwable $e) {
+            // A batch staged but not checked would hang in the list: remove it.
+            if ($this->batchId) {
+                $importer->discard($this->batchId);
+            }
             $this->batchId      = null;
-            $this->errorMessage = $e->getMessage();
+            // Our own messages are written for the reader; anything else is a bug, logged.
+            $this->errorMessage = $e instanceof ImportFileRejected ? $e->getMessage() : 'حدث خطأ غير متوقع أثناء فحص الملفات. أرسل الملفات للدعم.';
+            if (! $e instanceof ImportFileRejected) {
+                report($e);
+            }
 
             Notification::make()
                 ->title('تعذّر فحص الملفات')
-                ->body($e->getMessage())
+                ->body($this->errorMessage)
                 ->danger()
+                ->persistent()
                 ->send();
         } finally {
             File::deleteDirectory($tempDir);
