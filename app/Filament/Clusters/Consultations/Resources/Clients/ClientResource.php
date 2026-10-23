@@ -3,6 +3,7 @@
 namespace App\Filament\Clusters\Consultations\Resources\Clients;
 
 use App\Filament\Clusters\Consultations\ConsultationsCluster;
+use App\Filament\Clusters\Consultations\Resources\Clients\Pages\ClientPlan;
 use App\Filament\Clusters\Consultations\Resources\Clients\Pages\ListClients;
 use App\Filament\Clusters\Consultations\Resources\Clients\Pages\ViewClient;
 use App\Models\ConsultationRequest;
@@ -93,6 +94,7 @@ class ClientResource extends Resource
         return [
             'index' => ListClients::route('/'),
             'view' => ViewClient::route('/{record}'),
+            'plan' => ClientPlan::route('/{record}/plan'),
         ];
     }
 }

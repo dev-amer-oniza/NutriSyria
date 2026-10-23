@@ -15,7 +15,7 @@ class AboutPageTest extends TestCase
             ->assertSee('من قرار صغير… يبدأ الأثر')
             ->assertSee('التغيير ليس زيادة دائماً')
             ->assertDontSee('ORIGIN EFFECT')                 // the concept's internal name stays internal
-            ->assertSeeInOrder(['عامر عنيزة', 'Co-Founder &amp; CTO', 'ماريا الناظم', 'Graphic Design'], false)
+            ->assertSeeInOrder(['عامر عنيزه', 'Co-Founder &amp; CTO', 'ماريا نظام', 'Graphic Design'], false)
             ->assertSee('من مؤتمر Safire Tech')
             ->assertSee('تقدّم 160 مشروعاً، وتأهّل 16 منها')
             ->assertSee('من مسابقة ReRoot من JCI')

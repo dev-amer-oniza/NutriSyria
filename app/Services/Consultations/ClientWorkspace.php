@@ -2,17 +2,22 @@
 
 namespace App\Services\Consultations;
 
+use App\Data\Nutrition\NutritionPlanResult;
+use App\Enums\ActivityLevel;
 use App\Enums\Allergen;
 use App\Enums\ConsultationStatus;
+use App\Enums\EnergyEquation;
 use App\Enums\HealthCondition;
 use App\Enums\Sex;
 use App\Models\ConsultationRequest;
 use App\Models\User;
 use App\Notifications\SiteNotification;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
+use App\Services\Nutrition\Plan\NutritionPlans;
 use App\Services\Nutrition\UserProfileService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 /**
@@ -23,6 +28,8 @@ use InvalidArgumentException;
  *    sees; what they set is locked for the person (PersonalCriteria);
  *  - update the person's profile and health record, which the person cannot change
  *    while linked (the owner's later decision 3a);
+ *  - build a nutrition plan (equation, calorie change, macro shares, fluids) that sets the
+ *    person's calories and macros, and follows later changes to their weight or activity;
  *  - end the link, with an optional reason the person sees in their bell.
  * Every step checks the link is accepted and theirs; anything else is "not found". The person
  * gets one notice per editing session (NOTIFY_EVERY_MINUTES), not one per change.
@@ -31,10 +38,14 @@ class ClientWorkspace
 {
     public const NOTIFY_EVERY_MINUTES = 30;
 
+    /** The note the person sees on the values a plan sets. */
+    public const PLAN_NOTE = 'من خطة التغذية التي وضعها أخصائيّك.';
+
     public function __construct(
         private readonly PersonalCriteria $criteria,
         private readonly ConsultationService $consultations,
         private readonly UserProfileService $profiles,
+        private readonly NutritionPlans $plans,
     ) {}
 
     /** The links this nutritionist has now (accepted, theirs). */
@@ -104,6 +115,66 @@ class ClientWorkspace
             array_map(fn (string $a) => Allergen::from($a), $data['allergies'] ?? []),
         );
 
+        // A new weight or activity changes the plan's numbers: keep the client's values in step.
+        $plan = $link->plan()->first();
+        if ($plan) {
+            $profile = $client->profile->refresh();
+            $result = $this->plans->calculate($profile, $plan->inputs($profile->activity_level->value));
+            if ($result->isValid()) {
+                $this->applyPlan($nutritionist, $link, $result);
+            }
+        }
+
+        $this->changed($link);
+    }
+
+    /**
+     * Saves the nutrition plan (phase 1 of the nutritionist's plan) and sets the client's
+     * calories and macros from it as the nutritionist's values, so meals are judged on it.
+     * The activity level is the profile's own and is updated with it.
+     *
+     * @param  array{equation: string, body_fat_pct: ?float, activity: string, adjustment: int, carbs_pct: int, protein_pct: int, fat_pct: int, fluids_ml: ?int}  $inputs
+     *
+     * @throws InvalidArgumentException when the plan has errors or a value is out of range
+     */
+    public function savePlan(User $nutritionist, ConsultationRequest $link, array $inputs): NutritionPlanResult
+    {
+        $this->ensureLinked($nutritionist, $link);
+        EnergyEquation::from($inputs['equation']);
+        ActivityLevel::from($inputs['activity']);
+
+        $result = $this->plans->calculate($link->user->profile, $inputs);
+
+        DB::transaction(function () use ($nutritionist, $link, $inputs, $result) {
+            $this->applyPlan($nutritionist, $link, $result);
+            $this->profiles->saveActivity($link->user, ['activity_level' => $inputs['activity']]);
+
+            $link->plan()->firstOrNew()->forceFill([
+                'updated_by' => $nutritionist->getKey(),
+                'equation' => $inputs['equation'],
+                'body_fat_pct' => filled($inputs['body_fat_pct'] ?? null) ? (float) $inputs['body_fat_pct'] : null,
+                'adjustment_kcal' => (int) $inputs['adjustment'],
+                'carbs_pct' => (int) $inputs['carbs_pct'],
+                'protein_pct' => (int) $inputs['protein_pct'],
+                'fat_pct' => (int) $inputs['fat_pct'],
+                'fluids_ml' => filled($inputs['fluids_ml'] ?? null) ? (int) $inputs['fluids_ml'] : null,
+            ])->save();
+        });
+
+        $this->changed($link);
+
+        return $result;
+    }
+
+    /** Removes the plan; the calories and macros go back to the template's or the person's. */
+    public function removePlan(User $nutritionist, ConsultationRequest $link): void
+    {
+        $this->ensureLinked($nutritionist, $link);
+
+        foreach (array_keys(NutritionPlans::CRITERIA) as $criterion) {
+            $this->criteria->resetByNutritionist($link->user, $criterion, $nutritionist);
+        }
+        $link->plan()->delete();
         $this->changed($link);
     }
 
@@ -111,6 +182,27 @@ class ClientWorkspace
     {
         $this->ensureLinked($nutritionist, $link);
         $this->consultations->end($nutritionist, $link, $reason);
+    }
+
+    /** Sets the plan's calories and macros as the nutritionist's values (checked first, all or none). */
+    private function applyPlan(User $nutritionist, ConsultationRequest $link, NutritionPlanResult $result): void
+    {
+        if (! $result->isValid()) {
+            throw new InvalidArgumentException(implode(' ', $result->errors));
+        }
+
+        $values = NutritionPlans::criteriaOf($result);
+        foreach ($values as $criterion => $value) {
+            [$min, $max] = PersonalCriteria::range($criterion);
+            if ($value < $min || $value > $max) {
+                $label = config("nutrition_criteria.criteria.$criterion.label");
+                throw new InvalidArgumentException("{$label} في الخطة ({$value}) خارج المجال المسموح ({$min}–{$max}).");
+            }
+        }
+
+        foreach ($values as $criterion => $value) {
+            $this->criteria->setByNutritionist($link->user, $criterion, $value, $nutritionist, self::PLAN_NOTE);
+        }
     }
 
     private function ensureLinked(User $nutritionist, ConsultationRequest $link): void

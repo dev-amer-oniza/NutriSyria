@@ -3,6 +3,7 @@
 namespace App\Filament\Clusters\Consultations\Resources\Clients\Pages;
 
 use App\Data\Nutrition\CriteriaSheet;
+use App\Data\Nutrition\NutritionPlanResult;
 use App\Enums\ActivityLevel;
 use App\Enums\Allergen;
 use App\Enums\CriterionSource;
@@ -13,6 +14,7 @@ use App\Filament\Clusters\Consultations\Resources\Clients\ClientResource;
 use App\Models\ConsultationRequest;
 use App\Services\Consultations\ClientWorkspace;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
+use App\Services\Nutrition\Plan\NutritionPlans;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
@@ -62,6 +64,12 @@ class ViewClient extends Page
         return $this->record->clientSummary();
     }
 
+    /** The saved nutrition plan on the client's current profile; null without one. */
+    public function plan(): ?NutritionPlanResult
+    {
+        return app(NutritionPlans::class)->current($this->record);
+    }
+
     public function sheet(): ?CriteriaSheet
     {
         return app(PersonalCriteria::class)->for($this->record->user);
@@ -86,6 +94,10 @@ class ViewClient extends Page
                 ->color('gray')
                 ->visible(fn () => filled($this->record->user->phone))
                 ->url(fn () => ConsultationRequest::whatsappUrl($this->record->user->phone), shouldOpenInNewTab: true),
+            Action::make('plan')
+                ->label('خطة التغذية')
+                ->icon(Heroicon::OutlinedCalculator)
+                ->url(fn () => ClientPlan::getUrl(['record' => $this->record])),
             $this->editProfileAction(),
             $this->endLinkAction(),
         ];
