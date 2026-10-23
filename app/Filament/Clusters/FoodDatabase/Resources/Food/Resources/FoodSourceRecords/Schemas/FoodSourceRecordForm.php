@@ -6,7 +6,9 @@ use App\Enums\ConfidenceLevel;
 use App\Enums\FoodSourceStatus;
 use App\Enums\NutrientValueMethod;
 use App\Enums\ValueQualifier;
+use App\Models\FoodSourceRecord;
 use App\Models\Nutrient;
+use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -20,6 +22,30 @@ use Filament\Schemas\Schema;
 
 class FoodSourceRecordForm
 {
+    /**
+     * One item of a source belongs to one record (food_source_item_unique): say which food
+     * already holds it, rather than letting the database refuse the save.
+     */
+    private static function uniqueInSource(mixed $sourceId, ?FoodSourceRecord $record): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail) use ($sourceId, $record): void {
+            if (blank($value) || blank($sourceId)) {
+                return;
+            }
+
+            $taken = FoodSourceRecord::query()
+                ->with('food:id,name_ar')
+                ->where('data_source_id', $sourceId)
+                ->where('external_ref', $value)
+                ->when($record?->exists, fn ($q) => $q->whereKeyNot($record->getKey()))
+                ->first();
+
+            if ($taken) {
+                $fail("هذا الرقم موجود في نفس المصدر لغذاء «{$taken->food?->name_ar}». افتح ذلك السجل بدل إضافته مرة ثانية.");
+            }
+        };
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -45,7 +71,8 @@ class FoodSourceRecordForm
                         TextInput::make('external_ref')
                             ->label('الرقم المرجعي')
                             ->helperText('مثال: رقم العنصر في USDA')
-                            ->maxLength(128),
+                            ->maxLength(128)
+                            ->rule(fn (Get $get, ?FoodSourceRecord $record) => self::uniqueInSource($get('data_source_id'), $record)),
                         Select::make('status')
                             ->label('الحالة')
                             ->options(FoodSourceStatus::class)
