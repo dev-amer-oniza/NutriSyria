@@ -90,6 +90,30 @@ return [
         'fluids_range' => [500, 6000],
         'fluids_manual_for' => ['heart_failure', 'kidney', 'dialysis'],
         'body_fat_range' => [3, 70],
+
+        /*
+        | Meals (phase 2, decisions 1a 2a 3a 4a): their shares of the calories must make 100;
+        | grams left unshared are only a warning. 'lunch' is the meal restaurant dishes will be
+        | judged against (phase 3).
+        */
+        'meal_types' => [
+            'breakfast' => 'فطور',
+            'snack' => 'سناك',
+            'lunch' => 'غداء',
+            'dinner' => 'عشاء',
+            'other' => 'وجبة أخرى',
+        ],
+        'meal_presets' => [
+            'standard' => [
+                'label' => 'التوزيع القياسي (5 وجبات)',
+                'meals' => [['breakfast', '08:00', 25], ['snack', '11:00', 10], ['lunch', '14:00', 35], ['snack', '17:00', 10], ['dinner', '20:00', 20]],
+            ],
+            'three' => [
+                'label' => '3 وجبات',
+                'meals' => [['breakfast', '08:00', 30], ['lunch', '14:00', 40], ['dinner', '20:00', 30]],
+            ],
+        ],
+        'max_meals' => 8,
     ],
 
     /* Never suggest fewer calories than this (App\Enums\Sex). */

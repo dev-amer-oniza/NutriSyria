@@ -86,4 +86,67 @@ class NutritionPlanCalculatorTest extends TestCase
         $this->assertFalse($dialysis->isValid());
         $this->assertTrue($this->calculate(['fluids_ml' => 1000], ['conditions' => ['dialysis']])->isValid());
     }
+    /** The standard five meals, filled by distribute() (2a). */
+    private function standardMeals(): array
+    {
+        $types = [['breakfast', '08:00', 25], ['snack', '11:00', 10], ['lunch', '14:00', 35], ['snack', '17:00', 10], ['dinner', '20:00', 20]];
+        $grams = NutritionPlanCalculator::distribute(['carbs' => 280, 'protein' => 112, 'fat' => 75], array_column($types, 2));
+
+        return array_map(fn ($t, $g) => ['type' => $t[0], 'time' => $t[1], 'share_pct' => $t[2]] + $g, $types, $grams);
+    }
+
+    public function test_distribute_shares_whole_grams_that_add_up(): void
+    {
+        $split = NutritionPlanCalculator::distribute(['carbs' => 280, 'protein' => 112, 'fat' => 75], [25, 10, 35, 10, 20]);
+
+        $this->assertSame([70, 28, 98, 28, 56], array_column($split, 'carbs_g'));
+        $this->assertSame([28, 11, 39, 11, 23], array_column($split, 'protein_g'));
+        $this->assertSame([19, 8, 26, 7, 15], array_column($split, 'fat_g'));
+    }
+
+    public function test_meals_get_their_calories_and_nothing_is_left(): void
+    {
+        $result = $this->calculate(['meals' => $this->standardMeals()]);
+
+        $lunch = $result->meals[2];
+        $this->assertSame(['lunch', 'غداء', 784, 782, -2], [$lunch['type'], $lunch['name'], $lunch['kcal'], $lunch['macro_kcal'], $lunch['diff']]);
+        $this->assertSame(['share' => 0, 'carbs' => 0, 'protein' => 0, 'fat' => 0], $result->remaining);
+        $this->assertTrue($result->isValid());
+        $this->assertSame([], $result->warnings);
+    }
+
+    public function test_meal_shares_must_make_100_but_grams_left_are_only_a_warning(): void
+    {
+        $meals = $this->standardMeals();
+        $meals[0]['share_pct'] = 15;          // 90% in all
+        $meals[2]['protein_g'] -= 34;
+
+        $result = $this->calculate(['meals' => $meals]);
+
+        $this->assertSame(10, $result->remaining['share']);
+        $this->assertSame(34, $result->remaining['protein']);
+        $this->assertContains('مجموع نسب الوجبات 90%، ويجب أن يكون 100%.', $result->errors);
+        $this->assertStringContainsString('البروتين باقي 34 غ', $result->warnings[0]);
+
+        $meals[0]['share_pct'] = 25;
+        $this->assertTrue($this->calculate(['meals' => $meals])->isValid());
+    }
+
+    public function test_meals_are_ordered_by_time_and_a_custom_meal_keeps_its_name(): void
+    {
+        $meals = $this->standardMeals();
+        $meals[] = ['type' => 'other', 'label' => 'بعد التمرين', 'time' => '09:30', 'share_pct' => 0, 'carbs_g' => 0, 'protein_g' => 0, 'fat_g' => 0];
+
+        $names = array_column($this->calculate(['meals' => $meals])->meals, 'name');
+
+        $this->assertSame(['فطور', 'بعد التمرين', 'سناك', 'غداء', 'سناك', 'عشاء'], $names);
+    }
+
+    public function test_a_plan_without_meals_stays_valid(): void
+    {
+        $result = $this->calculate(['meals' => []]);
+
+        $this->assertNull($result->remaining);
+        $this->assertTrue($result->isValid());
+    }
 }

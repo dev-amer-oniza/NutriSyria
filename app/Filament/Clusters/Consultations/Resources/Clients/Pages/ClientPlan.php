@@ -12,6 +12,12 @@ use App\Services\Nutrition\Criteria\PersonalCriteria;
 use App\Services\Nutrition\Plan\NutritionPlans;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\TimePicker;
+use Filament\Infolists\Components\TextEntry;
+use App\Services\Nutrition\Plan\NutritionPlanCalculator;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Slider;
 use Filament\Forms\Components\Slider\Enums\PipsMode;
@@ -32,9 +38,9 @@ use Illuminate\Contracts\Support\Htmlable;
 use InvalidArgumentException;
 
 /**
- * The nutrition plan for one client (phase 1 of the nutritionist's plan, decisions 1a 2a 3a):
- * equation and activity, the calorie change (presets or the slider), the macro shares, the
- * fluids, and a live summary beside them. Saving sets the client's calories and macros
+ * The nutrition plan for one client (the nutritionist's plan, phases 1 and 2): equation and
+ * activity, the calorie change (presets or the slider), the macro shares, the fluids, the
+ * meals with their times, shares and grams (with what is left to share), and a live summary. Saving sets the client's calories and macros
  * (ClientWorkspace::savePlan).
  *
  * @property ConsultationRequest $record
@@ -142,7 +148,102 @@ class ClientPlan extends Page implements HasForms
                                 ? 'حالة المراجع (القلب أو الكلى) تحتاج تحديد السوائل حسب توصية الطبيب، فلا نقترح رقماً.'
                                 : 'اتركه فارغاً لنستعمل المقترح: '.$plan['fluids_ml_per_kg'].' مل لكل كغ.'),
                     ]),
+
+                Section::make('5. الوجبات')->key('mealsSection')
+                    ->description('اختياري: عدد الوجبات وساعاتها، وحصة كل وجبة من السعرات، وكم فيها من كل مغذٍّ.')
+                    ->headerActions([
+                        ...array_map(fn (string $key) => $this->mealPresetAction($key), array_keys($plan['meal_presets'])),
+                        $this->redistributeAction(),
+                    ])
+                    ->components([
+                        TextEntry::make('remaining')->hiddenLabel()
+                            ->state(fn () => new HtmlString(view('filament.clusters.consultations.pages.plan-remaining', ['result' => $this->preview()])->render()))
+                            ->visible(fn () => ! empty($this->data['meals'])),
+                        // Two rows a meal (a table of eight columns is too narrow beside the summary).
+                        Repeater::make('meals')->hiddenLabel()
+                            ->columns(4)
+                            ->itemLabel(fn (array $state) => trim(($state['time'] ?? '').' · '.(($state['type'] ?? '') === 'other' && filled($state['label'] ?? null)
+                                ? $state['label'] : ($plan['meal_types'][$state['type'] ?? ''] ?? '')), ' ·'))
+                            ->schema([
+                                Select::make('type')->label('الوجبة')->options($plan['meal_types'])->required()->live()->selectablePlaceholder(false),
+                                TimePicker::make('time')->label('الساعة')->seconds(false)->required()->live(onBlur: true),
+                                TextInput::make('share_pct')->label('% من السعرات')->numeric()->minValue(0)->maxValue(100)->required()->live(onBlur: true),
+                                TextInput::make('label')->label('الاسم')->placeholder('مثلاً: بعد التمرين')->maxLength(40)
+                                    ->visible(fn (Get $get) => $get('type') === 'other')
+                                    ->required(fn (Get $get) => $get('type') === 'other'),
+                                ...array_map(fn (string $f, string $label) => TextInput::make($f)->label($label)->suffix('غ')->integer()->minValue(0)->maxValue(500)->required()->live(onBlur: true),
+                                    ['carbs_g', 'protein_g', 'fat_g'], ['كربوهيدرات', 'بروتين', 'دهون']),
+                                TextEntry::make('kcal')->label('السعرات (الحصة · الفرق)')->state(fn (Get $get) => $this->mealCalories($get)),
+                            ])
+                            ->default([])
+                            ->maxItems($plan['max_meals'])
+                            ->reorderable(false)
+                            ->addActionLabel('إضافة وجبة'),
+                    ]),
             ]);
+    }
+
+    /** Fills the meals from a ready-made split (standard five, or three), grams shared by calories (2a). */
+    public function mealPresetAction(string $key): Action
+    {
+        $preset = config("nutrition_criteria.plan.meal_presets.$key");
+
+        return Action::make('preset_'.$key)
+            ->label($preset['label'])
+            ->icon(Heroicon::OutlinedQueueList)
+            ->link()
+            ->requiresConfirmation()
+            ->modalHidden(fn () => empty($this->data['meals']))
+            ->modalDescription('تُستبدل الوجبات الحالية.')
+            ->modalSubmitActionLabel('استبدال')
+            ->action(function () use ($preset) {
+                $meals = array_map(fn (array $m) => ['type' => $m[0], 'label' => null, 'time' => $m[1], 'share_pct' => $m[2]], $preset['meals']);
+                $this->data['meals'] = $this->withGrams($meals);
+            });
+    }
+
+    /** Shares the day's grams again by each meal's calorie share, replacing what was typed. */
+    public function redistributeAction(): Action
+    {
+        return Action::make('redistribute')
+            ->label('إعادة التوزيع التلقائي')
+            ->icon(Heroicon::OutlinedArrowPath)
+            ->link()
+            ->color('gray')
+            ->visible(fn () => ! empty($this->data['meals']))
+            ->action(fn () => $this->data['meals'] = $this->withGrams(array_values($this->data['meals'])));
+    }
+
+    /** @return array<string, array<string, mixed>> the meals keyed for the repeater, grams by share */
+    private function withGrams(array $meals): array
+    {
+        $result = $this->preview();
+        $grams = array_map(fn (array $m) => $m['g'], $result?->macros ?? ['carbs' => ['g' => 0], 'protein' => ['g' => 0], 'fat' => ['g' => 0]]);
+        $split = NutritionPlanCalculator::distribute($grams, array_map(fn (array $m) => (float) ($m['share_pct'] ?? 0), $meals));
+
+        $keyed = [];
+        foreach ($meals as $i => $meal) {
+            $keyed[(string) Str::uuid()] = $split[$i] + $meal;
+        }
+
+        return $keyed;
+    }
+
+    /** "784 · 782 (−2)": the meal's share of the calories, and what its macros give (4a). */
+    private function mealCalories(Get $get): ?HtmlString
+    {
+        $target = $this->preview()?->target;
+        if ($target === null) {
+            return null;
+        }
+
+        $share = (int) round($target * (float) $get('share_pct') / 100);
+        $perGram = config('nutrition_criteria.kcal_per_g');
+        $fromMacros = $perGram['carbs'] * (int) $get('carbs_g') + $perGram['protein'] * (int) $get('protein_g') + $perGram['fat'] * (int) $get('fat_g');
+        $diff = $fromMacros - $share;
+
+        return new HtmlString(e(number_format($share)).($diff === 0 ? '' :
+            ' <span class="text-xs text-gray-500 dark:text-gray-400" title="من المغذيات '.e(number_format($fromMacros)).'" dir="ltr">('.e(self::signed($diff)).')</span>'));
     }
 
     /** Fills the three shares from the client's current diet template. */
@@ -165,8 +266,17 @@ class ClientPlan extends Page implements HasForms
             return null;
         }
 
-        return app(NutritionPlans::class)->calculate($this->record->user->profile, $this->data);
+        // Asked for by every meal row: worked out once per state of the form.
+        $key = md5(json_encode($this->data));
+        if (($this->previewCache[0] ?? null) !== $key) {
+            $this->previewCache = [$key, app(NutritionPlans::class)->calculate($this->record->user->profile, $this->data)];
+        }
+
+        return $this->previewCache[1];
     }
+
+    /** @var array{0?: string, 1?: NutritionPlanResult} not a Livewire property: rebuilt each request */
+    protected array $previewCache = [];
 
     public function save(): void
     {

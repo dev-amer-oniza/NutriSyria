@@ -73,6 +73,13 @@
                             </div>
                         </dl>
 
+                        @if ($result->meals)
+                            <div class="mt-4 border-t border-gray-200 pt-3 dark:border-white/10">
+                                <p class="mb-2 text-sm font-semibold">الوجبات</p>
+                                @include('filament.clusters.consultations.pages.plan-meals', ['meals' => $result->meals])
+                            </div>
+                        @endif
+
                         @foreach ($result->errors as $error)
                             <p class="mt-3 rounded-lg bg-danger-50 p-2 text-sm text-danger-700 dark:bg-danger-500/10 dark:text-danger-400">{{ $error }}</p>
                         @endforeach

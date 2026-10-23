@@ -72,6 +72,11 @@
                     <div><dt class="text-sm text-gray-500 dark:text-gray-400">كارب / بروتين / دهون</dt><dd class="font-semibold">{{ $plan->macros['carbs']['g'] }} / {{ $plan->macros['protein']['g'] }} / {{ $plan->macros['fat']['g'] }} غ</dd></div>
                     <div><dt class="text-sm text-gray-500 dark:text-gray-400">السوائل</dt><dd class="font-semibold">{{ $plan->fluids['ml'] ? number_format($plan->fluids['ml'] / 1000, 2).' ل' : '—' }}</dd></div>
                 </dl>
+                @if ($plan->meals)
+                    <div class="mt-4 max-w-xl">
+                        @include('filament.clusters.consultations.pages.plan-meals', ['meals' => $plan->meals])
+                    </div>
+                @endif
             @endif
         </x-filament::section>
 
