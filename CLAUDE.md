@@ -1,7 +1,7 @@
 # NutriSyria: دليل المتابعة
 
 اقرأ هذا الملف كاملاً قبل أي عمل. هو ملخص المشروع، والقرارات المتفق عليها، والوضع الحالي، والخطوة التالية.
-آخر تحديث: 2026-10-23.
+آخر تحديث: 2026-10-24.
 
 ## التواصل مع صاحب المشروع
 - **تكلّم بالعربي، باللهجة السورية، وببساطة.** اشرح بأمثلة من المطبخ (كوب حمص، حبة فليفلة) لا بمصطلحات برمجية.
@@ -111,9 +111,14 @@
    - إضافة ربط `1085` (Total fat NLEA) و`2033` (Fiber AOAC) في `nutrient_source_codes.csv`.
    - إضافة aliases لوحدات غير معروفة (link, roast, steak, fillet, container...).
 6. **ثم:** تقييم كامل للنظام.
-7. **ثم (خطة صاحب المشروع الأصلية):**
-   - حذف بقايا نظام المطاعم والطلبات القديم: routes/api.php (Cart/Restaurant controllers غير موجودة)، tenancy، OTP. (`/api/set-password` حُذف.) تنبيه: `/api/register` يسند دور `customer` المحذوف فيفشل بعد إنشاء المستخدم، و`/api/login` يعطي توكن Sanctum لأي مستخدم: الأفضل حذف الـ API القديم كله.
-   - بعدها بناء واجهات Blade، وتسجيل الدخول.
+7. **حذف النظام القديم: تم** (قرارات صاحب المشروع 1أ 2أ 3أ 4أ، مع إبقاء Cloudinary؛ اختبارات `tests/Feature/OldApiRemovedTest.php`):
+   - لا يوجد أي مسار `/api` ولا بث (`routes/api.php` و`channels.php` و`tenant.php` محذوفة، وكذلك Controllers وResources وRequests الـ API القديم).
+   - Sanctum وجدول `personal_access_tokens` محذوفان (migration `2026_11_05_000000`)، فلا توكن قديم يعمل.
+   - الـ OTP القديم (`OtpCode`، `otp_codes`) محذوف؛ رموز الدخول في `auth_codes` فقط.
+   - الـ tenancy (`stancl/tenancy`، `TenancyServiceProvider`، `TenantHelper`، middleware الرفع) و`nwidart/laravel-modules` وpusher محذوفة. رفع الملفات المؤقت عاد لمسارات Livewire العادية؛ اسم القرص `tenant_uploads` بقي كما هو (`config/livewire.php`).
+   - **Cloudinary باقٍ** (طلب صاحب المشروع): `CloudinaryUploadService` يقرأ المفاتيح من `config/cloudinary.php` (`CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET` في `.env`) والمجلد `CLOUDINARY_FOLDER` (الافتراضي `central`). `CloudinaryController` غير مربوط بمسار بعد. **كان فيه مفتاح سري مكتوب في الكود وحُذف؛ يجب تغييره من حساب Cloudinary لأنه باقٍ في تاريخ git.**
+   - بقايا للتقييم الكامل: `FoodImportExportController` (خدمته غير موجودة)، `ShamCashAccount`، `Recipe`/`RecipeIngredient` القديمة.
+8. **ثم:** بناء ما تبقى من الموقع (المصادر، تواصل معنا، الخصوصية، رمز الطاولة) حسب قرار صاحب المشروع.
 
 ## هوية اللوحة (اختيار صاحب المشروع)
 - **الألوان:** "زيتون وزعتر": أساسي زيتوني (`AdminPanelProvider::OLIVE`، مدرّج يدوياً بـ OKLCH لأن `Color::hex` يعطي أخضر ليموني)، ورماديات `Stone` الدافئة. ألوان الحالة ثابتة: أخضر معتمد، كهرماني للمراجعة، أحمر مرفوض.
@@ -144,7 +149,7 @@
   - قسما "وجبات تناسبك" و"مطاعم معنا" (انظر قسم المطاعم والكاش).
   - لوحة التأثير الشخصي في الأعلى (`App\Services\Site\FitPanel`): للمسجّل صاحب المعايير أحدث وجبة مقيّمة عليه، وللضيف (أو بلا وجبات) **المثال التوضيحي** `FitExample`. بطاقات الوجبات عليها شارة الدرجة للمسجّل.
   - اختبارات: `tests/Feature/MealCatalogTest.php`، `SiteHomeTest.php`.
-- `routes/tenant.php` **لا يُحمَّل** (أُوقف في `TenancyServiceProvider::boot`)، لأن مساراته من النظام القديم وكان مسار `/` فيه يغطي الرئيسية بـ 404. الملف نفسه لم يُعدَّل.
+- `routes/tenant.php` والـ tenancy كلها **محذوفة** (كان مسار `/` فيها يغطي الرئيسية بـ 404).
 
 ## حسابات المنصة (تسجيل ودخول)
 - **القرارات** (صاحب المشروع): تأكيد البريد برمز 6 أرقام؛ خانة كلمة مرور واحدة مع "إظهار"؛ صاحب المطعم والأخصائي يسجّلان من الموقع ويبقيان "بانتظار موافقة المدير"؛ لا دخول قبل تأكيد البريد. كلمة المرور بسيطة: 8+ فقط، تُمنع الشائعة (`App\Rules\NotCommonPassword`) ومطابقة البريد.
