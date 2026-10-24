@@ -126,7 +126,12 @@
 - **المعاينة:** صفحة الخيارات المعروضة عليه: https://claude.ai/artifact/TAeT2Eh9UczTrzxWBrPbPr
 
 ## واجهة المنصة العامة (Blade)
-- **الهوية:** غير هوية اللوحة. صنوبري `#0f3d32`، تيراكوتا `#c15b3f` (عنصر "أصل" واحد بكل مشهد، لا نص)، مريمية، رملي. خط IBM Plex Sans Arabic للعربي وSora للأرقام (`.ns-num`). الهوية: https://claude.ai/artifact/Xhz38DruntgMyqG1MQjV2a
+- **الهوية:** غير هوية اللوحة. صنوبري `#0f3d32`، تيراكوتا `#c15b3f` (الأصل واللون المميِّز، لا نص صغير ولا زر أساسي)، مريمية، رملي.
+- **إعادة التصميم وفق الهوية** (قرارات صاحب المشروع 1أ 2أ 3أ 4أ، ملف الهوية حُدّث أيضاً):
+  - **اللوغو** من كرت البزنس: المعيّن بست قطع (القطعة العلوية اليمنى تيراكوتا) و**Nutri** (Sora 800) وSyria (Sora 400)، `partials/logo` و`public/images/site/mark.svg` (favicon)، والقياسات بالـ em (`.ns-logo`، الحجم بـ `font-size`). خط Sora يُحمَّل بوزن 800.
+  - **زاوية الأصل** (1أ): كل بطاقة ولوحة وصورة تأخذ قوساً واحداً أكبر `--radius-origin` (48px) في الزاوية العليا اليمنى (`border-start-start-radius`)، والبطاقات (لا الصور ولا الأغلفة) يُرسم قوسها بخط تيراكوتا 2px يتلاشى على الحافتين. الأزرار والحقول والشرائح والقوائم كما هي. كلها في `resources/css/site/origin.css` (يُحمَّل آخراً): **بطاقة جديدة = إضافة صنفها إلى قوائمه.**
+  - **تيراكوتا أكثر** (2أ): مربع العنوان الصغير (eyebrow)، أرقام الخطوات (`terracotta-ink`)، حدّ البطاقة عند المرور، خط الروابط والشرائح عند المرور، وأيقونات المزايا بالتناوب (خلفية `terracotta-soft`). الأزرار الأساسية تبقى صنوبرية، و"مناسبة جداً" تبقى خضراء لأن البرتقالي يعني "تحتاج انتباهاً".
+  - الموقع العام فقط (3أ)؛ اللوحة بهويتها (زيتون وزعتر). خط IBM Plex Sans Arabic للعربي وSora للأرقام (`.ns-num`). الهوية: https://claude.ai/artifact/Xhz38DruntgMyqG1MQjV2a
 - **الملفات:** `resources/views/site/` فيها `layouts/app` (@yield)، و`partials/` (header، footer، logo، icon، nav-links)، و`components/` (dish-card، verify-badge، chain-tiles، fit-verdict، daily-share، nutrient-stat، macro-bar، feature-tile، search-field، كلها بـ @include ومعاملات)، و`sections/home/*`، و`pages/home`. الأنماط في `resources/css/site/` (tokens، base، components، chrome، home) عبر `site.css` (Tailwind 4)، والتفاعل Alpine.js في `resources/js/site.js`.
 - **الإعدادات المشتركة** في `config/site.php`: القائمة، والفوتر، ومستويات التحقق، ودرجات المناسبة الأربع. الروابط بأسماء routes، وكل routes المنصة في `routes/web.php` (`home` و`site.*`)؛ الصفحات غير المبنية بعد تعرض `site.pages.soon`.
 - **البلاطات** (ربع دائرة) في `App\Support\Site\ChainPatterns`. بطاقة الوجبة تعرض صورة المطعم إن وُجدت، وإلا البلاطات.

@@ -1,13 +1,16 @@
 /* Shared components. One block per Blade partial in resources/views/site/components. */
 @layer components {
     /* ---------- Logo lockup (partials/logo) ---------- */
-    .ns-logo { display: inline-flex; align-items: center; gap: 10px; direction: ltr; color: var(--pine); text-decoration: none; border-radius: var(--radius-sm); }
-    .ns-logo svg { width: 34px; height: 34px; flex: none; }
-    .ns-logo__word { font-family: var(--font-latin); font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
-    .ns-logo--on-pine .ns-logo__word { color: var(--on-pine); }
-    .ns-mark .petal { fill: var(--pine); }
+    /* Logo lockup (identity: Logo), all in em so it scales with font-size: the mark a 1.2em box
+       0.32em below the baseline, 0.24em from the name; Nutri 800 + Syria 400, both pine. */
+    .ns-logo { display: inline-block; direction: ltr; white-space: nowrap; font-family: var(--font-latin); font-size: 24px; line-height: 1.2; color: var(--pine); text-decoration: none; border-radius: var(--radius-sm); }
+    .ns-logo .ns-mark { display: inline-block; width: 1.2em; height: 1.2em; vertical-align: -0.32em; margin-right: 0.24em; }
+    .ns-logo__word { font-weight: 400; letter-spacing: -0.01em; }
+    .ns-logo__word b { font-weight: 800; }
+    .ns-logo--on-pine { color: var(--on-pine); }
+    .ns-mark .part { fill: var(--pine); }
     .ns-mark .origin { fill: var(--terracotta); }
-    .ns-logo--on-pine .ns-mark .petal { fill: var(--on-pine); }
+    .ns-logo--on-pine .ns-mark .part { fill: var(--on-pine); }
 
     /* ---------- Button ---------- */
     .ns-btn { font: inherit; font-family: var(--font-arabic); font-size: 15px; line-height: 24px; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); height: 48px; padding: 0 var(--space-5); border-radius: var(--radius-md); border: 1px solid transparent; background: transparent; color: var(--ink); cursor: pointer; text-decoration: none; white-space: nowrap; transition: background-color .15s ease, border-color .15s ease, color .15s ease; }

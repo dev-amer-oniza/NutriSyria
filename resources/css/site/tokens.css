@@ -38,6 +38,9 @@
     --radius-xl: 28px;
     --radius-full: 9999px;
     --radius-arc: 100%;
+    /* The origin corner (owner's decision 1a): the one big arc a card, panel or image takes,
+       where reading begins (top-right in RTL); its other corners keep radius-lg. */
+    --radius-origin: 48px;
 
     --shadow-sm: 0 1px 2px #0f3d320f, 0 2px 8px #0f3d320d;
     --shadow-md: 0 2px 6px #0f3d3214, 0 16px 40px -12px #0f3d3233;

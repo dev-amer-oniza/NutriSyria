@@ -1,0 +1,63 @@
+/*
+ * The identity's corners on the interface (owner's decisions 1a 2a): every card, panel and
+ * image takes ONE big arc at its origin corner, where reading begins (top-right in RTL; the
+ * chain tiles' quarter cut), and the cards draw that arc in terracotta. Loaded last so it
+ * wins over each page's own radius. Buttons, inputs, chips and menus keep their radii.
+ */
+@layer components {
+    :is(.ns-dish, .ns-feature, .ns-rest, .ns-nutri, .ns-panel, .ns-cta, .ns-empty,
+        .ns-needs, .ns-advice, .ns-criteria, .ns-health, .ns-template, .ns-bmi, .ns-plan,
+        .ns-goal, .ns-conditions__group, .ns-method__step, .ns-method__sum, .ns-method__source, .ns-method__levels li,
+        .ns-about__belief, .ns-person-card, .ns-photo__frame,
+        .ns-meal__cover, .ns-meal__values, .ns-meal__fit,
+        .ns-partners__benefit, .ns-partners__privacy,
+        .ns-restaurant__logo, .ns-restaurant__info, .ns-nutri-page__book, .ns-book__card) {
+        border-start-start-radius: var(--radius-origin);
+    }
+
+    /* The origin arc drawn in terracotta on cards (not on images and covers). */
+    :is(.ns-dish, .ns-feature, .ns-rest, .ns-nutri, .ns-panel, .ns-empty,
+        .ns-needs, .ns-advice, .ns-criteria, .ns-health, .ns-template, .ns-bmi, .ns-plan,
+        .ns-goal, .ns-conditions__group, .ns-method__step, .ns-method__sum, .ns-method__source, .ns-method__levels li,
+        .ns-about__belief, .ns-person-card,
+        .ns-meal__values,
+        .ns-partners__benefit, .ns-partners__privacy,
+        .ns-restaurant__info, .ns-book__card) {
+        position: relative;   /* .ns-meal__fit and .ns-nutri-page__book are sticky, which also holds the arc */
+    }
+    :is(.ns-dish, .ns-feature, .ns-rest, .ns-nutri, .ns-panel, .ns-empty,
+        .ns-needs, .ns-advice, .ns-criteria, .ns-health, .ns-template, .ns-bmi, .ns-plan,
+        .ns-goal, .ns-conditions__group, .ns-method__step, .ns-method__sum, .ns-method__source, .ns-method__levels li,
+        .ns-about__belief, .ns-person-card,
+        .ns-meal__values, .ns-meal__fit,
+        .ns-partners__benefit, .ns-partners__privacy,
+        .ns-restaurant__info, .ns-nutri-page__book, .ns-book__card)::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        border: 2px solid transparent;
+        border-top-color: var(--terracotta);
+        border-inline-start-color: var(--terracotta);
+        border-radius: inherit;
+        pointer-events: none;
+        /* Only around the origin corner: from the top-right, fading out along the edges. */
+        -webkit-mask-image: linear-gradient(225deg, #000 0, #000 34px, transparent 64px);
+        mask-image: linear-gradient(225deg, #000 0, #000 34px, transparent 64px);
+    }
+
+    /* Interactive cards answer in terracotta. */
+    :is(.ns-dish, .ns-feature, .ns-rest, .ns-nutri):hover { border-color: var(--terracotta); }
+
+    /* Feature icons alternate pine and terracotta (2a). */
+    :is(.ns-feature, .ns-partners__benefit, .ns-method__step, .ns-goal, .ns-about__belief):nth-child(even) .ns-feature__icon {
+        background: var(--terracotta-soft);
+        color: var(--terracotta-ink);
+    }
+
+    /* Accents: the eyebrow's tile, step numbers, link underlines and chip hovers. */
+    .ns-eyebrow::before, .ns-eyebrow--on-pine::before { background: var(--terracotta); }
+    .ns-step__n, .ns-method__step .ns-num { color: var(--terracotta-ink); }
+    .ns-link:hover, .ns-brand-link:hover { text-decoration-color: var(--terracotta); text-decoration-thickness: 2px; }
+    .ns-chip:hover { border-color: var(--terracotta); }
+}
