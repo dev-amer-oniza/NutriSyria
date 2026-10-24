@@ -2,44 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use Cloudinary\Configuration\Configuration;
-use Cloudinary\Cloudinary;
+use App\Services\CloudinaryUploadService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-
+/**
+ * Uploads one image to Cloudinary. Not routed yet; the keys come from config/cloudinary.php
+ * (.env), never from code.
+ */
 class CloudinaryController extends Controller
 {
-    public function uploadImage(Request $request)
+    public function uploadImage(Request $request, CloudinaryUploadService $cloudinary): JsonResponse
     {
         $request->validate([
             'image' => 'required|image|max:10240',
         ]);
 
-        $cloudinary = new Cloudinary(
-            Configuration::instance([
-                'cloud' => [
-                    'cloud_name' => 'dnpqxfirl',
-                    'api_key' => '773748585664721',
-                    'api_secret' => 'TcCThmlPOPWUhyPb8QNGYT06dFY',
-                ],
-                'url' => [
-                    'secure' => true,
-                ],
-            ])
-        );
-
         try {
-            $result = $cloudinary->uploadApi()->upload(
-                $request->file('image')->getRealPath()
-            );
-
-            return response()->json(['url' => $result['secure_url']]);
-
+            return response()->json(['url' => $cloudinary->upload($request->file('image')->getRealPath())]);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Upload failed',
-                'error' => $e->getMessage(),
-            ], 500);
+            report($e);
+
+            return response()->json(['message' => 'Upload failed'], 500);
         }
     }
 }

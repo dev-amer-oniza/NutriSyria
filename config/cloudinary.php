@@ -47,4 +47,13 @@ return [
      * Controller action to get cloud_image_url from Blade Upload Widget
      */
     'upload_action' => env('CLOUDINARY_UPLOAD_ACTION'),
+
+    /*
+    | The keys App\Services\CloudinaryUploadService signs in with (never written in code),
+    | and the folder its uploads go to.
+    */
+    'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+    'api_key' => env('CLOUDINARY_API_KEY'),
+    'api_secret' => env('CLOUDINARY_API_SECRET'),
+    'folder' => env('CLOUDINARY_FOLDER', 'central'),
 ];
