@@ -295,5 +295,6 @@
 - **المطابقة من سطر الأوامر:**
   `python3 tools/usda_to_template.py suggest --fdc-dir tools/fdc/FoodData_Central_foundation_food_csv_2026-04-30 --fdc-dir tools/fdc/sr_legacy --wanted tools/wanted_foods_2.csv --out draft.csv`
   ثم `build` بنفس `--fdc-dir` و`--nutrients database/seeders/data/nutrients.csv --source-codes database/seeders/data/nutrient_source_codes.csv --crosswalk draft.csv --out bundle`.
+- **النسخة التجريبية على InfinityFree** (http://nutrisyria.rf.gd، بلا SSH): `bash tools/deploy/build_infinityfree.sh` يبني `build/infinityfree/htdocs` (ملفات `public` في الجذر، وباقي Laravel في `core/` مقفول بـ `.htaccess`، و`index.php` الخاص في `tools/deploy/infinityfree/` يستدعي `usePublicPath`). القاعدة تُصدَّر من XAMPP وتُستورد بـ phpMyAdmin، و`APP_KEY` نفس المحلي (البيانات المشفّرة). الدليل: `tools/deploy/INFINITYFREE.md`. صفحة مطابقة USDA لا تعمل هناك (Python ممنوع).
 - **بيئة صاحب المشروع:** Windows على الأغلب. `PYTHON_BIN` في `.env` يحدد مسار Python للوحة (الافتراضي `python`).
 - **SR Legacy مجمّدة** منذ 2018-04، ولا توجد نسخة أحدث. أما Foundation فتتحدث دورياً، وتوضع النسخة الجديدة كمجلد جديد داخل `tools/fdc/`.
