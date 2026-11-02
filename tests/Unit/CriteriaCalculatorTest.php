@@ -80,6 +80,20 @@ class CriteriaCalculatorTest extends TestCase
         $this->assertSame(60.0, $sheet->get('meal_carbohydrate_g')->perMeal($sheet->mealShare), 'a meal limit is not scaled');
     }
 
+    public function test_jaundice_of_unknown_cause_takes_the_liver_template_and_sends_to_a_nutritionist(): void
+    {
+        $jaundice = $this->calculate(['conditions' => ['jaundice']]);
+        $liver = $this->calculate(['conditions' => ['liver_cirrhosis']]);
+
+        $this->assertSame('hepatic', $jaundice->template['key']);
+        $this->assertSame(96.0, $jaundice->get('protein_g')->value, 'protein is a floor of 1.2 g/kg, never cut');
+        $this->assertSame(
+            $this->values($liver, ['energy_kcal', 'carbohydrate_g', 'protein_g', 'fat_g', 'sodium_mg']),
+            $this->values($jaundice, ['energy_kcal', 'carbohydrate_g', 'protein_g', 'fat_g', 'sodium_mg']),
+        );
+        $this->assertCount(2, $jaundice->advice, 'the liver advice and the "find the cause" advice');
+    }
+
     public function test_the_higher_priority_template_wins_and_the_others_keep_their_limits(): void
     {
         $sheet = $this->calculate(['conditions' => ['diabetes', 'kidney']]);

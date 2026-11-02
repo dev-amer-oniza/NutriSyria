@@ -202,6 +202,21 @@ class OnboardingTest extends TestCase
         $this->get('/account/criteria')->assertSee('دهون الوجبة')->assertSee('الحديد');
     }
 
+    public function test_jaundice_explains_its_causes_and_takes_the_liver_template(): void
+    {
+        $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1990, 'height_cm' => 178, 'weight_kg' => 80]);
+        $this->post('/onboarding/activity', ['activity_level' => 'moderate', 'goal' => 'maintain']);
+
+        $this->get('/onboarding/health')->assertOk()
+            ->assertSee('يرقان (السبب غير معروف بعد)')
+            ->assertSee('إن عرفت السبب، اختره بدلاً منه');
+
+        $this->post('/onboarding/health', ['conditions' => ['jaundice'], 'consent' => '1'])->assertRedirect('/onboarding/done');
+
+        $this->assertSame('hepatic', app(PersonalCriteria::class)->for($this->user->fresh())->template['key']);
+        $this->get('/onboarding/done')->assertSee('اليرقان له أكثر من سبب');
+    }
+
     public function test_a_person_picks_a_general_template_and_puts_it_back(): void
     {
         $this->completeSetUp();
