@@ -409,6 +409,11 @@ return [
             ],
         ],
         'liver_cirrhosis' => ['template' => 'hepatic'],
+        // A sign, not a diagnosis: the liver template until the cause is known (the owner's decision a).
+        'jaundice' => [
+            'template' => 'hepatic',
+            'see_nutritionist' => 'اليرقان له أكثر من سبب، ولكل سبب غذاؤه. راجع طبيبك وأخصائياً ليحددا القالب المناسب.',
+        ],
         'reflux' => ['template' => 'gerd'],
         'gallbladder_removed' => ['template' => 'post_cholecystectomy'],
         'fat_intolerance' => [

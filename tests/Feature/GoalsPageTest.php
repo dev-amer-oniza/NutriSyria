@@ -53,7 +53,8 @@ class GoalsPageTest extends TestCase
             ->assertSee('غسيل الكلى')
             ->assertSee('DASH لضغط الدم:')
             ->assertSee('الحديد: 18 ملغ للمرأة و8 للرجل في اليوم.') // anaemia: no template, its own limit
-            ->assertSee('ننصح بأخصائي');
+            ->assertSee('ننصح بأخصائي')
+            ->assertSee('يرقان (السبب غير معروف بعد)');
     }
 
     public function test_the_next_step_depends_on_who_is_visiting(): void

@@ -130,6 +130,7 @@ class ViewClient extends Page
                 ]),
                 CheckboxList::make('health_conditions')->label('الحالات الصحية')
                     ->options(fn (Get $get) => $options(array_filter(HealthCondition::cases(), fn (HealthCondition $c) => $c->appliesTo(Sex::tryFrom((string) $get('sex'))))))
+                    ->descriptions(array_filter(array_column(array_map(fn (HealthCondition $c) => [$c->value, $c->hint()], HealthCondition::cases()), 1, 0)))
                     ->columns(3),
                 CheckboxList::make('allergies')->label('الحساسيات')->options($options(Allergen::cases()))->columns(4),
             ])

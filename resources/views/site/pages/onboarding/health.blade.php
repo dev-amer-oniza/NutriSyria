@@ -19,7 +19,7 @@
             @include('site.components.form.choice-cards', [
                 'name' => 'conditions', 'legend' => $group['label'], 'multiple' => true,
                 'selected' => $checkedConditions, 'showErrors' => $loop->first,
-                'options' => collect($group['conditions'])->mapWithKeys(fn ($c) => [$c->value => ['label' => $c->label()]])->all(),
+                'options' => collect($group['conditions'])->mapWithKeys(fn ($c) => [$c->value => array_filter(['label' => $c->label(), 'hint' => $c->hint()])])->all(),
             ])
         @endforeach
         @include('site.components.form.choice-cards', [

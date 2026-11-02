@@ -27,6 +27,7 @@ enum HealthCondition: string
     case Celiac = 'celiac';
     case FattyLiver = 'fatty_liver';
     case LiverCirrhosis = 'liver_cirrhosis';
+    case Jaundice = 'jaundice';
     // Other
     case Gout = 'gout';
     case Anemia = 'anemia';
@@ -61,6 +62,7 @@ enum HealthCondition: string
             self::Celiac => 'السيلياك (حساسية الغلوتين)',
             self::FattyLiver => 'الكبد الدهني',
             self::LiverCirrhosis => 'الكبد الوبائي أو التليّف',
+            self::Jaundice => 'يرقان (السبب غير معروف بعد)',
             self::Gout => 'النقرس',
             self::Anemia => 'فقر الدم',
             self::Osteoporosis => 'هشاشة العظام',
@@ -75,8 +77,20 @@ enum HealthCondition: string
             self::Diabetes, self::GestationalDiabetes, self::InsulinResistance, self::HighCholesterol => 'metabolic',
             self::Hypertension, self::HeartDisease, self::HeartFailure, self::Kidney, self::Dialysis => 'heart_kidney',
             self::Reflux, self::GallbladderRemoved, self::FatIntolerance, self::Pancreatitis, self::Celiac,
-            self::FattyLiver, self::LiverCirrhosis => 'digestion',
+            self::FattyLiver, self::LiverCirrhosis, self::Jaundice => 'digestion',
             default => 'other',
+        };
+    }
+
+    /**
+     * A line under the choice, for a condition that is a sign rather than a diagnosis: jaundice
+     * has several causes, each with its own diet (the owner's decision a).
+     */
+    public function hint(): ?string
+    {
+        return match ($this) {
+            self::Jaundice => 'إن عرفت السبب، اختره بدلاً منه: الكبد الوبائي أو التليّف، أو عدم تحمّل الدسم (انسداد المرارة).',
+            default => null,
         };
     }
 
