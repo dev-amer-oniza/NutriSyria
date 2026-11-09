@@ -121,7 +121,8 @@
         </x-filament::section>
     @endif
 
-    @if ($product)
+    {{-- The platform kitchen is approved by the admin with no review (the owner's decisions). --}}
+    @if ($product && ! $product->isPlatform())
         <x-filament::section heading="ملاحظات المراجعة" icon="heroicon-o-chat-bubble-left-right">
             @livewire(\App\Livewire\ReviewNotesPanel::class, ['productId' => $product->id], key('review-notes-'.$product->id))
         </x-filament::section>

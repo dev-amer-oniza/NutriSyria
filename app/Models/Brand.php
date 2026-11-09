@@ -20,8 +20,21 @@ class Brand extends Model
         return [
             'has_delivery' => 'boolean',
             'is_active' => 'boolean',
+            'is_platform' => 'boolean',
             'city' => SyrianGovernorate::class,
         ];
+    }
+
+    /** The platform's own kitchen ("المطبخ السوري"), made by its migration. */
+    public static function platform(): self
+    {
+        return static::query()->where('is_platform', true)->firstOrFail();
+    }
+
+    /** Real restaurants only: the platform's kitchen is not one of them. */
+    public function scopeRestaurants(Builder $query): void
+    {
+        $query->where($query->qualifyColumn('is_platform'), false);
     }
 
     public function products(): HasMany

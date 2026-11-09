@@ -11,7 +11,9 @@ use App\Policies\Concerns\DeniesByDefault;
  * Products follow their brand: a brand owner manages the products of their own brands. The
  * nutritionist sees every product (to review it) but changes none, and is the one who
  * approves the official nutrition values. The admin manages restaurants, not their recipes:
- * no product is theirs to see (the owner's decisions 1a 2a).
+ * no product is theirs to see (the owner's decisions 1a 2a). The one exception is the
+ * platform's own kitchen ("المطبخ السوري"): its dishes are the admin's alone, approved with no
+ * review, and no one else's (its pages are the kitchen cluster's).
  */
 class ProductPolicy
 {
@@ -30,8 +32,8 @@ class ProductPolicy
 
     public function view(User $user, Product $product): bool
     {
-        if ($user->isSuperAdmin()) {
-            return false;
+        if ($user->isSuperAdmin() || $product->isPlatform()) {
+            return $user->isSuperAdmin() && $product->isPlatform();
         }
 
         return $user->allows(Access::PRODUCTS_VIEW_ALL) || $this->update($user, $product);
@@ -49,8 +51,8 @@ class ProductPolicy
 
     public function update(User $user, Product $product): bool
     {
-        if ($user->isSuperAdmin()) {
-            return false;
+        if ($user->isSuperAdmin() || $product->isPlatform()) {
+            return $user->isSuperAdmin() && $product->isPlatform();
         }
 
         return $user->allows(Access::BRANDS_MANAGE_ALL)
@@ -74,15 +76,15 @@ class ProductPolicy
         return $user->allows(Access::NUTRITION_APPROVE) && $this->view($user, $product);
     }
 
-    /** Send the brand owner a note about the analysis: whoever may approve it. */
+    /** Send the brand owner a note about the analysis: whoever may approve it (no review for the kitchen). */
     public function sendReviewNote(User $user, Product $product): bool
     {
-        return $this->approveNutrition($user, $product);
+        return ! $product->isPlatform() && $this->approveNutrition($user, $product);
     }
 
     /** Mark a note as fixed: whoever may change the product (its brand owner). */
     public function resolveReviewNote(User $user, Product $product): bool
     {
-        return $this->update($user, $product);
+        return ! $product->isPlatform() && $this->update($user, $product);
     }
 }

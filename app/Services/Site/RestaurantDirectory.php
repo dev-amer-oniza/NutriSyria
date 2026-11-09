@@ -132,6 +132,7 @@ class RestaurantDirectory
         $mealCounts = array_count_values(array_map(fn (MealFacts $m) => $m->brandId, $this->meals->meals()));
 
         return Brand::query()
+            ->restaurants()
             ->where('is_active', true)
             ->withCount(['products' => fn (Builder $q) => $q->where('is_active', true)])
             ->orderBy('name')

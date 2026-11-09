@@ -31,6 +31,8 @@ final readonly class MealFacts
         public int $brandId = 0,
         /** The restaurant's menu section it sits in, if any. */
         public ?int $categoryId = null,
+        /** A dish of the platform's own kitchen ("المطبخ السوري"), approved with no review. */
+        public bool $platform = false,
     ) {}
 
     /** The grams the values describe. */
@@ -48,7 +50,19 @@ final readonly class MealFacts
     /** The restaurant's page on the site (null for a meal without one, e.g. a test double). */
     public function brandUrl(): ?string
     {
+        if ($this->platform) {
+            return route('site.kitchen');
+        }
+
         return $this->brandId ? route('site.brands.show', $this->brandId) : null;
+    }
+
+    /** What the verification badge means for this meal: the kitchen's dishes have no review. */
+    public function verificationText(): string
+    {
+        $level = config("site.verification.{$this->verification}");
+
+        return $this->platform ? ($level['platform_text'] ?? $level['text']) : $level['text'];
     }
 
     public function card(?MealFit $fit = null): array

@@ -22,6 +22,11 @@ class ProductCategory extends Model
         return $this->belongsTo(Brand::class);
     }
 
+    public function isPlatform(): bool
+    {
+        return (bool) $this->loadMissing('brand')->brand?->is_platform;
+    }
+
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'category_id');

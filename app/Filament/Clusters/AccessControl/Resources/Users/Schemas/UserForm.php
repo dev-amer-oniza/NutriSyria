@@ -79,8 +79,8 @@ class UserForm
                             }),
                         Select::make('brands')
                             ->label('البراندات التي يديرها')
-                            ->relationship('brands', 'name')
-                            ->arabicSearch()
+                            ->relationship('brands', 'name', modifyQueryUsing: fn ($query) => $query->restaurants())
+                            ->arabicSearch(fn ($query) => $query->restaurants())
                             ->multiple()
                             ->preload()
                             ->searchable()

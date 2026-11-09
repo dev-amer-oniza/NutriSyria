@@ -11,6 +11,12 @@ trait HiddenFromAdmin
 {
     public function bootHiddenFromAdmin(): void
     {
-        abort_if((bool) auth()->user()?->isSuperAdmin(), 404);
+        abort_if((bool) auth()->user()?->isSuperAdmin() && ! static::visibleToAdmin(), 404);
+    }
+
+    /** True on the platform kitchen's own pages, which the admin alone uses. */
+    protected static function visibleToAdmin(): bool
+    {
+        return false;
     }
 }

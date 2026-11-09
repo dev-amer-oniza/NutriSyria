@@ -29,7 +29,7 @@
                         @if ($meal->description)<p class="t-body ns-muted">{{ $meal->description }}</p>@endif
                         <p class="ns-meal__verify">
                             @include('site.components.verify-badge', ['level' => $meal->verification])
-                            <span>{{ config("site.verification.{$meal->verification}.text") }}</span>
+                            <span>{{ $meal->verificationText() }}</span>
                         </p>
                     </div>
                 </div>
