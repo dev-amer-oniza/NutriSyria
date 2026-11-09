@@ -29,6 +29,8 @@ final readonly class MealFacts
         public bool $allergensChecked = false,
         public array $ingredients = [],
         public int $brandId = 0,
+        /** The restaurant's menu section it sits in, if any. */
+        public ?int $categoryId = null,
     ) {}
 
     /** The grams the values describe. */

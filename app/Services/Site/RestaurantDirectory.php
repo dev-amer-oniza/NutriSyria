@@ -7,6 +7,7 @@ use App\Data\Site\RestaurantFacts;
 use App\Http\Requests\Auth\AuthFormRequest;
 use App\Models\Brand;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Services\Import\ArabicNormalizer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
@@ -57,33 +58,72 @@ class RestaurantDirectory
     }
 
     /**
-     * Every active product of a restaurant: the approved ones with their values, and the
-     * rest by name only, "values under review" (the owner's decision 2a).
+     * Every active product of a restaurant: the approved ones with their values, grouped in the
+     * restaurant's menu sections in its order (the owner's decision 4a), and the rest by name only,
+     * "values under review" (decision 2a). Meals without a section come last, under "أطباق أخرى";
+     * a restaurant without sections gets one untitled group.
      *
-     * @return array{meals: list<MealFacts>, pending: list<array{id: int, name: string, description: ?string, image: ?string}>}
+     * @return array{meals: list<MealFacts>, sections: list<array{id: ?int, name: ?string, meals: list<MealFacts>}>, pending: list<array{id: int, name: string, description: ?string, image: ?string, category: ?string}>}
      */
     public function menu(int $brandId): array
     {
         $meals = $this->meals->ofBrand($brandId);
-        $approved = array_column(array_map(fn (MealFacts $m) => ['id' => $m->id], $meals), 'id');
+        $approved = array_map(fn (MealFacts $m) => $m->id, $meals);
+        $categories = $this->cache->remember("restaurant.{$brandId}.categories", fn () => ProductCategory::query()
+            ->where('brand_id', $brandId)
+            ->menuOrder()
+            ->pluck('name', 'id')
+            ->all());
 
         $pending = $this->cache->remember("restaurant.{$brandId}.pending", fn () => Product::query()
             ->where('brand_id', $brandId)
             ->where('is_active', true)
             ->orderBy('name')
-            ->get(['id', 'name', 'description', 'img'])
+            ->get(['id', 'name', 'description', 'img', 'category_id'])
             ->map(fn (Product $p) => [
                 'id' => $p->id,
                 'name' => $p->name,
                 'description' => $p->description,
                 'image' => $p->img ? Storage::disk('public')->url($p->img) : null,
+                'category_id' => $p->category_id,
             ])
             ->all());
 
         return [
             'meals' => $meals,
-            'pending' => array_values(array_filter($pending, fn (array $p) => ! in_array($p['id'], $approved, true))),
+            'sections' => $this->sections($meals, $categories),
+            'pending' => array_values(array_map(
+                fn (array $p) => array_diff_key($p, ['category_id' => 0]) + ['category' => $categories[$p['category_id']] ?? null],
+                array_filter($pending, fn (array $p) => ! in_array($p['id'], $approved, true)),
+            )),
         ];
+    }
+
+    /**
+     * @param  list<MealFacts>  $meals
+     * @param  array<int, string>  $categories  id => name, in menu order
+     * @return list<array{id: ?int, name: ?string, meals: list<MealFacts>}>
+     */
+    private function sections(array $meals, array $categories): array
+    {
+        if ($meals === []) {
+            return [];
+        }
+
+        $sections = [];
+        foreach ($categories as $id => $name) {
+            $in = array_values(array_filter($meals, fn (MealFacts $m) => $m->categoryId === $id));
+            if ($in !== []) {
+                $sections[] = ['id' => $id, 'name' => $name, 'meals' => $in];
+            }
+        }
+
+        $rest = array_values(array_filter($meals, fn (MealFacts $m) => ! isset($categories[$m->categoryId ?? 0])));
+        if ($rest !== []) {
+            $sections[] = ['id' => null, 'name' => $sections === [] ? null : 'أطباق أخرى', 'meals' => $rest];
+        }
+
+        return $sections;
     }
 
     /** @return list<RestaurantFacts> */
