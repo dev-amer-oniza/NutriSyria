@@ -7,7 +7,7 @@ use App\Models\ProductCategory;
 use App\Models\User;
 use App\Policies\Concerns\DeniesByDefault;
 
-/** A menu section follows its brand, like the brand's products (ProductPolicy). */
+/** A menu section follows its brand, like the brand's products (ProductPolicy): not the admin's. */
 class ProductCategoryPolicy
 {
     use DeniesByDefault;
@@ -23,6 +23,10 @@ class ProductCategoryPolicy
 
     public function view(User $user, ProductCategory $category): bool
     {
+        if ($user->isSuperAdmin()) {
+            return false;
+        }
+
         return $user->allows(Access::PRODUCTS_VIEW_ALL) || $this->update($user, $category);
     }
 
@@ -34,6 +38,10 @@ class ProductCategoryPolicy
 
     public function update(User $user, ProductCategory $category): bool
     {
+        if ($user->isSuperAdmin()) {
+            return false;
+        }
+
         return $user->allows(Access::BRANDS_MANAGE_ALL)
             || ($user->allows(Access::BRANDS_MANAGE_OWN) && $user->managesBrand($category->brand_id));
     }

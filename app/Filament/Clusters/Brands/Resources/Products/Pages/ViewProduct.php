@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\Brands\Resources\Products\Pages;
 
+use App\Filament\Support\Concerns\HiddenFromAdmin;
 use App\Filament\Clusters\Brands\Pages\RecipeAnalysis;
 use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
 use Filament\Actions\Action;
@@ -15,6 +16,8 @@ use Filament\Support\Icons\Heroicon;
  */
 class ViewProduct extends ViewRecord
 {
+    use HiddenFromAdmin;
+
     protected static string $resource = ProductResource::class;
 
     public function mount(int | string $record): void

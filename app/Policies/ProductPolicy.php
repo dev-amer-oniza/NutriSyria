@@ -10,7 +10,8 @@ use App\Policies\Concerns\DeniesByDefault;
 /**
  * Products follow their brand: a brand owner manages the products of their own brands. The
  * nutritionist sees every product (to review it) but changes none, and is the one who
- * approves the official nutrition values.
+ * approves the official nutrition values. The admin manages restaurants, not their recipes:
+ * no product is theirs to see (the owner's decisions 1a 2a).
  */
 class ProductPolicy
 {
@@ -18,6 +19,10 @@ class ProductPolicy
 
     public function viewAny(User $user): bool
     {
+        if ($user->isSuperAdmin()) {
+            return false;
+        }
+
         return $user->allows(Access::BRANDS_MANAGE_ALL)
             || $user->allows(Access::BRANDS_MANAGE_OWN)
             || $user->allows(Access::PRODUCTS_VIEW_ALL);
@@ -25,17 +30,29 @@ class ProductPolicy
 
     public function view(User $user, Product $product): bool
     {
+        if ($user->isSuperAdmin()) {
+            return false;
+        }
+
         return $user->allows(Access::PRODUCTS_VIEW_ALL) || $this->update($user, $product);
     }
 
     public function create(User $user): bool
     {
         // Which brand it goes to is checked by the form (only the user's own brands).
+        if ($user->isSuperAdmin()) {
+            return false;
+        }
+
         return $user->allows(Access::BRANDS_MANAGE_ALL) || $user->allows(Access::BRANDS_MANAGE_OWN);
     }
 
     public function update(User $user, Product $product): bool
     {
+        if ($user->isSuperAdmin()) {
+            return false;
+        }
+
         return $user->allows(Access::BRANDS_MANAGE_ALL)
             || ($user->allows(Access::BRANDS_MANAGE_OWN) && $user->managesBrand($product->brand_id));
     }

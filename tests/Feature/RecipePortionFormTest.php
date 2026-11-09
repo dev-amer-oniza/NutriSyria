@@ -29,7 +29,9 @@ class RecipePortionFormTest extends TestCase
 
     public function test_the_size_field_appears_and_is_saved(): void
     {
-        $this->signInAs();
+        // Recipes are the restaurant's side of the panel: the admin does not see them.
+        $brand = Brand::create(['name' => 'مطعم']);
+        $this->signInAs(\App\Auth\Access::BRAND_OWNER)->brands()->attach($brand->id);
 
         $source = DataSource::create(['code' => 'usda_fdc_sr_legacy', 'name' => 'USDA SR Legacy', 'type' => 'usda_fdc']);
         $onion = FoodSourceRecord::create([
@@ -45,7 +47,7 @@ class RecipePortionFormTest extends TestCase
                 'food_source_record_id' => $onion->id, 'description' => $description,
             ]);
         }
-        $product = Product::create(['brand_id' => Brand::create(['name' => 'مطعم'])->id, 'name' => 'بصل مشوي']);
+        $product = Product::create(['brand_id' => $brand->id, 'name' => 'بصل مشوي']);
         ProductRecipe::create(['product_id' => $product->id, 'servings' => 1]);
 
         $component = Livewire::test(RecipeIngredientsRelationManager::class, ['ownerRecord' => $product, 'pageClass' => EditProduct::class])

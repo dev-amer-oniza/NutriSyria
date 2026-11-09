@@ -6,8 +6,6 @@ use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\CreateBrand;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\EditBrand;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\ListBrands;
-use App\Filament\Clusters\Brands\Resources\Brands\RelationManagers\CategoriesRelationManager;
-use App\Filament\Clusters\Brands\Resources\Brands\RelationManagers\ProductsRelationManager;
 use App\Filament\Clusters\Brands\Resources\Brands\Schemas\BrandForm;
 use App\Filament\Clusters\Brands\Resources\Brands\Tables\BrandsTable;
 use App\Auth\Access;
@@ -99,18 +97,13 @@ class BrandResource extends Resource
         return BrandsTable::configure($table);
     }
 
+    /**
+     * A brand's page is its details only, for everyone: products and categories have their own
+     * pages in the section (the owner's request).
+     */
     public static function getRelations(): array
     {
-        // For a brand owner "مطعمي" is its details only: products and categories have their own
-        // pages beside it (the owner's request). The admin keeps both tabs on each brand.
-        if (static::ownedBrandIds() !== null) {
-            return [];
-        }
-
-        return [
-            ProductsRelationManager::class,
-            CategoriesRelationManager::class,
-        ];
+        return [];
     }
 
     public static function getPages(): array

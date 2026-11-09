@@ -22,10 +22,20 @@ class BrandsCluster extends Cluster
 
     protected static ?int $navigationSort = 1;
 
-    /** A brand owner's own section of the panel: their restaurant and its products. */
+    /**
+     * Named after what each role finds in it: a brand owner their restaurant and its products,
+     * the admin the brands only (products are not theirs), the nutritionist the products to review.
+     */
     public static function getNavigationLabel(): string
     {
-        return self::forOwner() ? 'مطعمي ومنتجاته' : static::$navigationLabel;
+        $user = auth()->user();
+
+        return match (true) {
+            self::forOwner() => 'مطعمي ومنتجاته',
+            (bool) $user?->isSuperAdmin() => 'البراندات',
+            $user !== null && ! $user->allows(Access::BRANDS_MANAGE_ALL) && ! $user->allows(Access::BRANDS_MANAGE_OWN) => 'منتجات المطاعم',
+            default => static::$navigationLabel,
+        };
     }
 
     public static function getClusterBreadcrumb(): ?string

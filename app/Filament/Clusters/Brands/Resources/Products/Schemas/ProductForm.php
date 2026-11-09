@@ -4,7 +4,7 @@ namespace App\Filament\Clusters\Brands\Resources\Products\Schemas;
 
 use App\Auth\BrandScope;
 use App\Enums\RecipeStatus;
-use App\Filament\Clusters\Brands\Resources\Brands\RelationManagers\CategoriesRelationManager;
+use App\Filament\Clusters\Brands\Resources\Categories\ProductCategoryResource;
 use App\Models\ProductCategory;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -63,7 +63,7 @@ class ProductForm
                             ->disabled(fn (Get $get) => blank($get('brand_id')))
                             ->helperText('أقسام منيو المطعم. تُدار من صفحة "التصنيفات"، أو أضف واحداً من هنا.')
                             ->native(false)
-                            ->createOptionForm(fn (Get $get) => [CategoriesRelationManager::nameField(fn () => $get('brand_id'))])
+                            ->createOptionForm(fn (Get $get) => [ProductCategoryResource::nameField(fn () => $get('brand_id'))])
                             ->createOptionUsing(function (array $data, Get $get): int {
                                 $brandId = (int) $get('brand_id');
                                 $allowed = BrandScope::brandIds(auth()->user());
