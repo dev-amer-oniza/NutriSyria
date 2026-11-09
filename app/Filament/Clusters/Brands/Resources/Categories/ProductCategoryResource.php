@@ -53,8 +53,9 @@ class ProductCategoryResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $ids = BrandScope::brandIds(auth()->user());
+        $query = parent::getEloquentQuery()->whereHas('brand', fn (Builder $b) => $b->restaurants());
 
-        return $ids === null ? parent::getEloquentQuery() : parent::getEloquentQuery()->whereIn('brand_id', $ids);
+        return $ids === null ? $query : $query->whereIn('brand_id', $ids);
     }
 
     /** The owner of one restaurant never picks it: the field is filled and hidden. */

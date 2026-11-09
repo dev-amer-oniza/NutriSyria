@@ -13,6 +13,7 @@ use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\MealController;
 use App\Http\Controllers\Site\GoalsController;
 use App\Http\Controllers\Site\MethodController;
+use App\Http\Controllers\Site\KitchenController;
 use App\Http\Controllers\Site\PartnersController;
 use App\Http\Controllers\Site\RestaurantController;
 use App\Http\Controllers\Site\NutritionistController;
@@ -48,6 +49,9 @@ Route::name('site.')->group(function () {
     Route::get('/for-restaurants', PartnersController::class)->name('partners');
 
     // The restaurants (active brands), each with its details and menu (RestaurantDirectory).
+    // The platform's own dishes (المطبخ السوري).
+    Route::get('/syrian-kitchen', KitchenController::class)->name('kitchen');
+
     Route::get('/restaurants', [RestaurantController::class, 'index'])->name('brands');
     Route::get('/restaurants/{restaurant}', [RestaurantController::class, 'show'])->whereNumber('restaurant')->name('brands.show');
 

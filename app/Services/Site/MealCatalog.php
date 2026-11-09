@@ -91,7 +91,7 @@ class MealCatalog
     {
         return NutritionApprovalStatus::withApprovalData($this->publicProducts())
             ->with([
-                'brand:id,name',
+                'brand:id,name,is_platform',
                 'nutrientValues' => fn ($q) => $q->with('nutrient:id,code')
                     ->whereHas('nutrient', fn ($n) => $n->whereIn('code', self::NUTRIENTS)),
                 'recipeIngredients.ingredientRecord.food:id,name_ar,allergens,allergens_checked',
@@ -136,6 +136,7 @@ class MealCatalog
             ingredients: $foods->pluck('name_ar')->values()->all(),
             brandId: $product->brand_id,
             categoryId: $product->category_id,
+            platform: (bool) $product->brand->is_platform,
         );
     }
 

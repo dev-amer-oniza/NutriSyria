@@ -16,9 +16,10 @@ class ProductRecipeIngredientPolicy
     {
     }
 
+    /** The admin reaches recipe lines only from the kitchen's dishes (their lines are checked one by one). */
     public function viewAny(User $user): bool
     {
-        return $this->products->viewAny($user);
+        return $user->isSuperAdmin() || $this->products->viewAny($user);
     }
 
     public function view(User $user, ProductRecipeIngredient $line): bool
@@ -30,8 +31,9 @@ class ProductRecipeIngredientPolicy
 
     public function create(User $user): bool
     {
-        // Lines are added from a product page, which itself needs update rights on that product.
-        return $this->products->create($user);
+        // Lines are added from a product page, which itself needs update rights on that product
+        // (for the admin, a kitchen dish's page).
+        return $user->isSuperAdmin() || $this->products->create($user);
     }
 
     public function update(User $user, ProductRecipeIngredient $line): bool
@@ -48,12 +50,12 @@ class ProductRecipeIngredientPolicy
 
     public function deleteAny(User $user): bool
     {
-        return $this->products->create($user);
+        return $user->isSuperAdmin() || $this->products->create($user);
     }
 
     public function reorder(User $user): bool
     {
-        return $this->products->create($user);
+        return $user->isSuperAdmin() || $this->products->create($user);
     }
 
     private static function productOf(ProductRecipeIngredient $line): ?Product

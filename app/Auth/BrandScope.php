@@ -25,9 +25,11 @@ final class BrandScope
         return $user->allows(Access::BRANDS_MANAGE_OWN) ? $user->managedBrandIds() : [];
     }
 
+    /** Restaurants only: the platform's own kitchen has its own pages. */
     public static function brands(Builder $query, bool $readOnly = false): Builder
     {
         $ids = self::brandIds(auth()->user(), $readOnly);
+        $query->where($query->qualifyColumn('is_platform'), false);
 
         return $ids === null ? $query : $query->whereIn($query->qualifyColumn('id'), $ids);
     }
@@ -35,6 +37,7 @@ final class BrandScope
     public static function products(Builder $query): Builder
     {
         $ids = self::brandIds(auth()->user(), readOnly: true);
+        $query->whereHas('brand', fn (Builder $b) => $b->where('is_platform', false));
 
         return $ids === null ? $query : $query->whereIn($query->qualifyColumn('brand_id'), $ids);
     }

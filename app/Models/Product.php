@@ -28,6 +28,12 @@ class Product extends Model
         return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 
+    /** A dish of the platform's own kitchen, not a restaurant's product. */
+    public function isPlatform(): bool
+    {
+        return (bool) $this->loadMissing('brand')->brand?->is_platform;
+    }
+
     public function recipe(): HasOne
     {
         return $this->hasOne(ProductRecipe::class);

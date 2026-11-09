@@ -68,6 +68,12 @@ class RecipeAnalysis extends Page
         return $this->product !== null && Gate::allows('approveNutrition', $this->product);
     }
 
+    /** The product's page to go back to: the nutritionist may approve but not edit, so the one they may open. */
+    protected function productUrl(): string
+    {
+        return ProductResource::pageUrlFor($this->product);
+    }
+
     public function runAnalysis(): void
     {
         $this->errorMessage = null;
@@ -94,8 +100,7 @@ class RecipeAnalysis extends Page
                 ->success()
                 ->send();
 
-            // The nutritionist may approve but not edit: back to the page they may open.
-            $this->redirect(ProductResource::pageUrlFor($this->product));
+            $this->redirect($this->productUrl());
         } catch (Throwable $e) {
             Notification::make()
                 ->title('تعذّر الاعتماد')

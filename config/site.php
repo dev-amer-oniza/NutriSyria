@@ -11,6 +11,7 @@ return [
     'nav' => [
         ['label' => 'الرئيسية', 'route' => 'home'],
         ['label' => 'الوجبات', 'route' => 'site.meals'],
+        ['label' => 'المطبخ السوري', 'route' => 'site.kitchen'],
         ['label' => 'المطاعم', 'route' => 'site.brands'],
         ['label' => 'أخصائيو التغذية', 'route' => 'site.nutritionists'],
         ['label' => 'كيف نتحقق', 'route' => 'site.method'],
@@ -20,6 +21,7 @@ return [
     'footer' => [
         'المنصة' => [
             ['label' => 'الوجبات', 'route' => 'site.meals'],
+            ['label' => 'المطبخ السوري', 'route' => 'site.kitchen'],
             ['label' => 'المطاعم', 'route' => 'site.brands'],
             ['label' => 'أخصائيو التغذية', 'route' => 'site.nutritionists'],
             ['label' => 'الأهداف الصحية', 'route' => 'site.goals'],
@@ -52,6 +54,8 @@ return [
             'label' => 'محسوب',
             'icon' => 'M11 11H1A10 10 0 0 1 11 1Z',
             'text' => 'محسوبة من مكوّنات موثّقة المصدر وفق كمياتها في الوصفة، وراجعها أخصائي تغذية واعتمدها.',
+            // The platform's own kitchen ("المطبخ السوري") is approved with no nutritionist review.
+            'platform_text' => 'محسوبة من مكوّنات موثّقة المصدر وفق كمياتها في الوصفة.',
         ],
         'estimated' => [
             'label' => 'تقديري',
