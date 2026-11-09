@@ -58,7 +58,7 @@ class MyRestaurantTest extends TestCase
     {
         $this->signInAs(Access::NUTRITIONIST);
 
-        $this->assertSame('البراندات والمنتجات', \App\Filament\Clusters\Brands\BrandsCluster::getNavigationLabel());
+        $this->assertSame('منتجات المطاعم', \App\Filament\Clusters\Brands\BrandsCluster::getNavigationLabel());
     }
 
     public function test_the_admin_keeps_the_list_of_brands(): void
@@ -115,11 +115,12 @@ class MyRestaurantTest extends TestCase
         $this->assertSame([$mine[1]->id], ProductCategory::where('name', 'حلويات')->pluck('brand_id')->all());
     }
 
-    public function test_the_admin_sees_every_brands_categories_on_their_own_page(): void
+    public function test_the_admin_has_no_categories_page(): void
     {
         $this->signInAs();
 
         $this->assertSame([], BrandResource::getRelations());
-        $this->get(ProductCategoryResource::getUrl())->assertOk()->assertSee('المطعم');
+        $this->assertSame('البراندات', \App\Filament\Clusters\Brands\BrandsCluster::getNavigationLabel());
+        $this->get(ProductCategoryResource::getUrl())->assertNotFound();
     }
 }

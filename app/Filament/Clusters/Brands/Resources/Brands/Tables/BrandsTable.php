@@ -38,6 +38,8 @@ class BrandsTable
                     ->weight('bold'),
                 TextColumn::make('products_count')
                     ->label('عدد المنتجات')
+                    // Products are not the admin's (the owner's decision 2a).
+                    ->hidden(fn () => (bool) auth()->user()?->isSuperAdmin())
                     ->counts('products')
                     ->badge()
                     ->color('success'),

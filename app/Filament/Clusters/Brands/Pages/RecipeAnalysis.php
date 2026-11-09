@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Clusters\Brands\Pages;
 
+use App\Filament\Support\Concerns\HiddenFromAdmin;
 use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
 use App\Models\Product;
@@ -14,6 +15,8 @@ use Throwable;
 
 class RecipeAnalysis extends Page
 {
+    use HiddenFromAdmin;
+
     protected string $view = 'filament.clusters.brands.pages.recipe-analysis';
 
     protected static ?string $cluster = BrandsCluster::class;

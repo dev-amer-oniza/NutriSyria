@@ -10,6 +10,7 @@ use App\Filament\Clusters\Brands\Resources\Brands\Pages\ListBrands;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\CreateProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\ListProducts;
+use App\Filament\Clusters\Brands\Resources\Categories\ProductCategoryResource;
 use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
 use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
 use App\Filament\Clusters\FoodDatabase\Pages\CompareFoodSources;
@@ -137,14 +138,34 @@ class AccessControlTest extends TestCase
 
         foreach ([
             BrandResource::getUrl('index'), BrandResource::getUrl('create'), BrandResource::getUrl('edit', ['record' => $this->theirs]),
-            ProductResource::getUrl('index'), ProductResource::getUrl('create'), ProductResource::getUrl('edit', ['record' => $this->theirProduct]),
             FoodResource::getUrl('index'), FoodResource::getUrl('edit', ['record' => $food]),
             ImportBatchResource::getUrl('index'), ImportBatchResource::getUrl('edit', ['record' => $batch]),
             UploadImportBatch::getUrl(), SourceMatchingTools::getUrl(), CompareFoodSources::getUrl(),
-            RecipeAnalysis::getUrl().'?product='.$this->theirProduct->id, Filament::getPanel('admin')->getUrl(),
+            Filament::getPanel('admin')->getUrl(),
         ] as $url) {
             $this->get($url)->assertOk();
         }
+    }
+
+    /** Restaurants' recipes are not the admin's (the owner's decisions 1a 2a): those pages do not exist for them. */
+    public function test_the_super_admin_does_not_see_products_categories_or_recipes(): void
+    {
+        $this->signInAs();
+
+        foreach ([
+            ProductResource::getUrl('index'), ProductResource::getUrl('create'),
+            ProductResource::getUrl('edit', ['record' => $this->theirProduct]), ProductResource::getUrl('view', ['record' => $this->theirProduct]),
+            ProductCategoryResource::getUrl('index'), RecipeAnalysis::getUrl().'?product='.$this->theirProduct->id,
+        ] as $url) {
+            $this->get($url)->assertNotFound();
+        }
+
+        $user = auth()->user();
+        $this->assertFalse($user->can('viewAny', \App\Models\Product::class));
+        $this->assertFalse($user->can('update', $this->theirProduct));
+        $this->assertFalse(ProductResource::canGloballySearch());
+        $this->get(BrandResource::getUrl('index'))->assertOk()->assertDontSee('عدد المنتجات');
+        $this->get(Filament::getPanel('admin')->getUrl())->assertOk()->assertDontSee('منتجاتي');
     }
 
     // ------------------------------------------------------------------ brand owner
