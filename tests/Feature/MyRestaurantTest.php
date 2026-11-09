@@ -115,11 +115,11 @@ class MyRestaurantTest extends TestCase
         $this->assertSame([$mine[1]->id], ProductCategory::where('name', 'حلويات')->pluck('brand_id')->all());
     }
 
-    public function test_the_admin_keeps_the_tabs_and_sees_every_brands_categories(): void
+    public function test_the_admin_sees_every_brands_categories_on_their_own_page(): void
     {
         $this->signInAs();
 
-        $this->assertCount(2, BrandResource::getRelations());
+        $this->assertSame([], BrandResource::getRelations());
         $this->get(ProductCategoryResource::getUrl())->assertOk()->assertSee('المطعم');
     }
 }

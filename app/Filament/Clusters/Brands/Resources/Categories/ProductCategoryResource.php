@@ -5,14 +5,15 @@ namespace App\Filament\Clusters\Brands\Resources\Categories;
 use App\Auth\BrandScope;
 use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
-use App\Filament\Clusters\Brands\Resources\Brands\RelationManagers\CategoriesRelationManager;
 use App\Filament\Clusters\Brands\Resources\Categories\Pages\ManageProductCategories;
 use App\Models\Brand;
 use App\Models\ProductCategory;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Closure;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -22,6 +23,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Unique;
 
 /**
  * The menu sections, on a page of their own beside "مطعمي" and "المنتجات" (the owner's
@@ -63,6 +65,23 @@ class ProductCategoryResource extends Resource
         return $ids !== null && count($ids) === 1 ? $ids[0] : null;
     }
 
+    /**
+     * The section's name, unique within one brand. Also used to add a section from a product form.
+     *
+     * @param  Closure(Get, ?ProductCategory): ?int  $brandId
+     */
+    public static function nameField(Closure $brandId): TextInput
+    {
+        return TextInput::make('name')
+            ->label('اسم التصنيف')
+            ->placeholder('مثلاً: مقبلات، أطباق رئيسية، حلويات')
+            ->required()
+            ->maxLength(80)
+            ->unique('product_categories', 'name', ignoreRecord: true, modifyRuleUsing: fn (Unique $rule, Get $get, ?ProductCategory $record) => $rule
+                ->where('brand_id', $brandId($get, $record)))
+            ->validationMessages(['unique' => 'عندك تصنيف بهذا الاسم.']);
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->columns(1)->components([
@@ -76,10 +95,7 @@ class ProductCategoryResource extends Resource
                 ->required()
                 ->native(false)
                 ->live(),
-            CategoriesRelationManager::nameField(fn () => null)
-                // Unique within the chosen brand (re-bound here, where the brand is a field).
-                ->unique('product_categories', 'name', ignoreRecord: true, modifyRuleUsing: fn ($rule, Get $get, ?ProductCategory $record) => $rule
-                    ->where('brand_id', $record?->brand_id ?? $get('brand_id') ?? self::onlyBrandId())),
+            self::nameField(fn (Get $get, ?ProductCategory $record) => $record?->brand_id ?? $get('brand_id') ?? self::onlyBrandId()),
         ]);
     }
 

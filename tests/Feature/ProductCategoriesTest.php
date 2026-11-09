@@ -3,8 +3,7 @@
 namespace Tests\Feature;
 
 use App\Auth\Access;
-use App\Filament\Clusters\Brands\Resources\Brands\Pages\EditBrand;
-use App\Filament\Clusters\Brands\Resources\Brands\RelationManagers\CategoriesRelationManager;
+use App\Filament\Clusters\Brands\Resources\Categories\Pages\ManageProductCategories;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
 use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
 use App\Models\Brand;
@@ -53,10 +52,10 @@ class ProductCategoriesTest extends TestCase
     {
         $this->owner();
 
-        $page = fn () => Livewire::test(CategoriesRelationManager::class, ['ownerRecord' => $this->brand, 'pageClass' => EditBrand::class]);
-        $page()->callAction(TestAction::make(CreateAction::class)->table(), ['name' => 'مقبلات'])->assertHasNoActionErrors();
-        $page()->callAction(TestAction::make(CreateAction::class)->table(), ['name' => 'حلويات'])->assertHasNoActionErrors();
-        $page()->callAction(TestAction::make(CreateAction::class)->table(), ['name' => 'مقبلات'])->assertHasActionErrors(['name' => 'unique']);
+        $page = fn () => Livewire::test(ManageProductCategories::class);
+        $page()->callAction(TestAction::make(CreateAction::class), ['name' => 'مقبلات'])->assertHasNoActionErrors();
+        $page()->callAction(TestAction::make(CreateAction::class), ['name' => 'حلويات'])->assertHasNoActionErrors();
+        $page()->callAction(TestAction::make(CreateAction::class), ['name' => 'مقبلات'])->assertHasActionErrors(['name' => 'unique']);
 
         $this->assertSame(['مقبلات', 'حلويات'], $this->brand->categories()->pluck('name')->all());
         $this->assertSame([1, 2], $this->brand->categories()->pluck('sort_order')->all());
@@ -116,7 +115,7 @@ class ProductCategoriesTest extends TestCase
         $section = $this->category($this->brand, 'سلطات');
         $product = Product::create(['brand_id' => $this->brand->id, 'name' => 'تبولة', 'category_id' => $section->id]);
 
-        Livewire::test(CategoriesRelationManager::class, ['ownerRecord' => $this->brand, 'pageClass' => EditBrand::class])
+        Livewire::test(ManageProductCategories::class)
             ->callAction(TestAction::make(DeleteAction::class)->table($section));
 
         $this->assertModelMissing($section);
