@@ -61,7 +61,7 @@ class ProductForm
                                 ->where('brand_id', $get('brand_id') ?? 0)->menuOrder())
                             ->rules(fn (Get $get) => [Rule::exists('product_categories', 'id')->where('brand_id', $get('brand_id') ?? 0)])
                             ->disabled(fn (Get $get) => blank($get('brand_id')))
-                            ->helperText('أقسام منيو المطعم. تُدار من صفحة البراند، أو أضف واحداً من هنا.')
+                            ->helperText('أقسام منيو المطعم. تُدار من صفحة "التصنيفات"، أو أضف واحداً من هنا.')
                             ->native(false)
                             ->createOptionForm(fn (Get $get) => [CategoriesRelationManager::nameField(fn () => $get('brand_id'))])
                             ->createOptionUsing(function (array $data, Get $get): int {

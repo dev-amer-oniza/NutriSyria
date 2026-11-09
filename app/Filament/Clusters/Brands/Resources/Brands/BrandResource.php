@@ -101,6 +101,12 @@ class BrandResource extends Resource
 
     public static function getRelations(): array
     {
+        // For a brand owner "مطعمي" is its details only: products and categories have their own
+        // pages beside it (the owner's request). The admin keeps both tabs on each brand.
+        if (static::ownedBrandIds() !== null) {
+            return [];
+        }
+
         return [
             ProductsRelationManager::class,
             CategoriesRelationManager::class,
