@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\Brands\Resources\Brands\Tables;
 
+use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
 use App\Support\ArabicSearch;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -18,6 +19,12 @@ class BrandsTable
     public static function configure(Table $table): Table
     {
         return $table
+            // An owner not yet linked to their restaurant is told why the list is empty (decision 2a).
+            ->emptyStateHeading(fn () => BrandResource::ownedBrandIds() === [] ? 'لم يُربط حسابك بمطعمك بعد' : null)
+            ->emptyStateDescription(fn () => BrandResource::ownedBrandIds() === []
+                ? 'تربط إدارة NutriSyria حسابك بمطعمك بعد مراجعة طلبك، ثم تجده هنا مع منتجاته وتصنيفاته.'
+                : null)
+            ->emptyStateIcon(fn () => BrandResource::ownedBrandIds() === [] ? 'heroicon-o-clock' : null)
             ->columns([
                 ImageColumn::make('logo')
                     ->disk('public')

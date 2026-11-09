@@ -153,9 +153,10 @@ class AccessControlTest extends TestCase
     {
         $this->brandOwner();
 
+        // One restaurant: the list opens it directly ("مطعمي"), and the query holds only theirs.
         Livewire::test(ListBrands::class)
-            ->assertCanSeeTableRecords([$this->mine])
-            ->assertCanNotSeeTableRecords([$this->theirs]);
+            ->assertRedirect(BrandResource::getUrl('edit', ['record' => $this->mine]));
+        $this->assertSame([$this->mine->id], BrandResource::getEloquentQuery()->pluck('id')->all());
         Livewire::test(ListProducts::class)
             ->assertCanSeeTableRecords([$this->myProduct])
             ->assertCanNotSeeTableRecords([$this->theirProduct]);

@@ -10,6 +10,7 @@ use App\Filament\Clusters\Brands\Resources\Brands\RelationManagers\CategoriesRel
 use App\Filament\Clusters\Brands\Resources\Brands\RelationManagers\ProductsRelationManager;
 use App\Filament\Clusters\Brands\Resources\Brands\Schemas\BrandForm;
 use App\Filament\Clusters\Brands\Resources\Brands\Tables\BrandsTable;
+use App\Auth\Access;
 use App\Auth\BrandScope;
 use App\Models\Brand;
 use BackedEnum;
@@ -40,6 +41,47 @@ class BrandResource extends Resource
     protected static ?string $modelLabel = 'براند';
 
     protected static ?string $pluralModelLabel = 'البراندات';
+
+    /**
+     * A brand owner manages their own restaurant, not a list of brands (the owner's decisions
+     * 1a 3a): the menu says "مطعمي" and opens its page (details, products, categories) directly.
+     * An owner of several sees the list of theirs, "مطاعمي".
+     */
+    public static function ownedBrandIds(): ?array
+    {
+        $user = auth()->user();
+
+        return $user && $user->allows(Access::BRANDS_MANAGE_OWN) && ! $user->allows(Access::BRANDS_MANAGE_ALL)
+            ? (BrandScope::brandIds($user) ?? [])
+            : null;
+    }
+
+    /** The owner's one restaurant, to open directly; null for admins and owners of several or none. */
+    public static function ownBrandId(): ?int
+    {
+        $ids = static::ownedBrandIds();
+
+        return $ids !== null && count($ids) === 1 ? $ids[0] : null;
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        $ids = static::ownedBrandIds();
+
+        return $ids === null ? 'البراندات' : (count($ids) > 1 ? 'مطاعمي' : 'مطعمي');
+    }
+
+    public static function getBreadcrumb(): string
+    {
+        return static::getNavigationLabel();
+    }
+
+    public static function getNavigationUrl(): string
+    {
+        $id = static::ownBrandId();
+
+        return $id ? static::getUrl('edit', ['record' => $id]) : parent::getNavigationUrl();
+    }
 
     /** Brand owners get their own brands only: in the list, on record pages and in search. */
     public static function getEloquentQuery(): Builder
