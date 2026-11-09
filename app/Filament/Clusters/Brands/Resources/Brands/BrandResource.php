@@ -6,6 +6,7 @@ use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\CreateBrand;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\EditBrand;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\ListBrands;
+use App\Filament\Clusters\Brands\Resources\Brands\RelationManagers\CategoriesRelationManager;
 use App\Filament\Clusters\Brands\Resources\Brands\RelationManagers\ProductsRelationManager;
 use App\Filament\Clusters\Brands\Resources\Brands\Schemas\BrandForm;
 use App\Filament\Clusters\Brands\Resources\Brands\Tables\BrandsTable;
@@ -60,6 +61,7 @@ class BrandResource extends Resource
     {
         return [
             ProductsRelationManager::class,
+            CategoriesRelationManager::class,
         ];
     }
 

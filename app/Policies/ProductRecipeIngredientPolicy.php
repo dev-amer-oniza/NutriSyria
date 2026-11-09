@@ -58,6 +58,7 @@ class ProductRecipeIngredientPolicy
 
     private static function productOf(ProductRecipeIngredient $line): ?Product
     {
-        return $line->productRecipe?->product;
+        // Loaded here, not lazily: a table checks this once per row (N+1 guard).
+        return $line->loadMissing('productRecipe.product')->productRecipe?->product;
     }
 }

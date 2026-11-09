@@ -30,7 +30,11 @@ class RestaurantController extends Controller
 
         return view('site.pages.restaurants.show', [
             'restaurant' => $facts,
-            'dishes' => array_map(fn (MealFacts $m) => $m->card($verdicts[$m->id] ?? null), $menu['meals']),
+            'sections' => array_map(fn (array $section) => [
+                'id' => $section['id'],
+                'name' => $section['name'],
+                'dishes' => array_map(fn (MealFacts $m) => $m->card($verdicts[$m->id] ?? null), $section['meals']),
+            ], $menu['sections']),
             'pending' => $menu['pending'],
         ]);
     }

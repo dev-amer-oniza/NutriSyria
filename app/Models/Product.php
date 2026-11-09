@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Product extends Model
 {
-    protected $fillable = ['brand_id', 'name', 'img', 'description', 'is_active'];
+    protected $fillable = ['brand_id', 'category_id', 'name', 'img', 'description', 'is_active'];
 
     protected function casts(): array
     {
@@ -20,6 +20,12 @@ class Product extends Model
     public function brand(): BelongsTo
     {
         return $this->belongsTo(Brand::class);
+    }
+
+    /** The menu section it sits in, if any (one of its own brand's). */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 
     public function recipe(): HasOne

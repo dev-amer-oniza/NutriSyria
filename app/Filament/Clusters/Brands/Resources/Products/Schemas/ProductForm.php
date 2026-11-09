@@ -4,6 +4,10 @@ namespace App\Filament\Clusters\Brands\Resources\Products\Schemas;
 
 use App\Auth\BrandScope;
 use App\Enums\RecipeStatus;
+use App\Filament\Clusters\Brands\Resources\Brands\RelationManagers\CategoriesRelationManager;
+use App\Models\ProductCategory;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use App\Livewire\ReviewNotesPanel;
 use Filament\Schemas\Components\Livewire;
 use Illuminate\Validation\Rule;
@@ -46,7 +50,32 @@ class ProductForm
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->native(false),
+                            ->native(false)
+                            ->live()
+                            ->afterStateUpdated(fn (Set $set) => $set('category_id', null)),
+                        // The menu section: one of the chosen brand's own (the owner's decisions 1a 2a 3a).
+                        Select::make('category_id')
+                            ->label('التصنيف')
+                            ->placeholder('بلا تصنيف')
+                            ->relationship('category', 'name', modifyQueryUsing: fn ($query, Get $get) => $query
+                                ->where('brand_id', $get('brand_id') ?? 0)->menuOrder())
+                            ->rules(fn (Get $get) => [Rule::exists('product_categories', 'id')->where('brand_id', $get('brand_id') ?? 0)])
+                            ->disabled(fn (Get $get) => blank($get('brand_id')))
+                            ->helperText('أقسام منيو المطعم. تُدار من صفحة البراند، أو أضف واحداً من هنا.')
+                            ->native(false)
+                            ->createOptionForm(fn (Get $get) => [CategoriesRelationManager::nameField(fn () => $get('brand_id'))])
+                            ->createOptionUsing(function (array $data, Get $get): int {
+                                $brandId = (int) $get('brand_id');
+                                $allowed = BrandScope::brandIds(auth()->user());
+                                abort_unless($brandId && ($allowed === null || in_array($brandId, $allowed, true)), 403);
+
+                                $category = new ProductCategory(['name' => $data['name']]);
+                                $category->brand_id = $brandId;
+                                $category->sort_order = (int) ProductCategory::where('brand_id', $brandId)->max('sort_order') + 1;
+                                $category->save();
+
+                                return $category->getKey();
+                            }),
                         TextInput::make('name')
                             ->label('الاسم')
                             ->required()

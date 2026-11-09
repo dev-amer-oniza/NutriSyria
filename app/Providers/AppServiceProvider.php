@@ -7,6 +7,7 @@ use App\Models\Food;
 use App\Models\FoodNutrientValue;
 use App\Models\FoodSourceRecord;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\ProductRecipe;
 use App\Models\ProductRecipeIngredient;
 use App\Services\Site\PublicCatalogCache;
@@ -35,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
     private function watchPublicCatalog(): void
     {
         $models = [Brand::class, Product::class, ProductRecipe::class, ProductRecipeIngredient::class,
-            FoodNutrientValue::class, Food::class, FoodSourceRecord::class];
+            FoodNutrientValue::class, Food::class, FoodSourceRecord::class, ProductCategory::class];
 
         foreach ($models as $model) {
             foreach (['saved', 'deleted'] as $event) {

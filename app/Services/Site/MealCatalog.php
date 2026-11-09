@@ -135,6 +135,7 @@ class MealCatalog
             allergensChecked: $foods->isNotEmpty() && $foods->every(fn ($food) => $food->allergens_checked),
             ingredients: $foods->pluck('name_ar')->values()->all(),
             brandId: $product->brand_id,
+            categoryId: $product->category_id,
         );
     }
 

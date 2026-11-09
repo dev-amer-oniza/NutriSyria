@@ -16,6 +16,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use App\Models\Brand;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -38,6 +39,9 @@ class ProductsTable
                     ->searchable(query: ArabicSearch::column('name'))
                     ->sortable()
                     ->weight('bold'),
+                TextColumn::make('category.name')
+                    ->label('التصنيف')
+                    ->placeholder('بلا تصنيف'),
                 TextColumn::make('brand.name')
                     ->label('البراند')
                     ->badge()
@@ -57,6 +61,12 @@ class ProductsTable
                     ->label('البراند')
                     ->relationship('brand', 'name', modifyQueryUsing: fn ($query) => BrandScope::brands($query, readOnly: true))
                     ->searchable(),
+                SelectFilter::make('category_id')
+                    ->label('التصنيف')
+                    ->relationship('category', 'name', modifyQueryUsing: fn ($query) => $query
+                        ->whereIn('brand_id', BrandScope::brands(Brand::query(), readOnly: true)->select('id'))
+                        ->with('brand:id,name')->menuOrder())
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} · {$record->brand->name}"),
                 Filter::make('awaiting')
                     ->label('تنتظر اعتماد الأخصائي')
                     ->query(fn (Builder $query) => $query->has('recipeIngredients')->doesntHave('nutrientValues')),

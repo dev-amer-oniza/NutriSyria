@@ -29,6 +29,12 @@ class Brand extends Model
         return $this->hasMany(Product::class);
     }
 
+    /** The sections of this brand's menu, in the owner's order. */
+    public function categories(): HasMany
+    {
+        return $this->hasMany(ProductCategory::class)->menuOrder();
+    }
+
     /** The users who manage this brand (brand owners). */
     public function managers(): BelongsToMany
     {
