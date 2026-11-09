@@ -5,6 +5,11 @@ namespace Tests\Feature;
 use App\Auth\Access;
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\ListBrands;
+use App\Filament\Clusters\Brands\Resources\Categories\Pages\ManageProductCategories;
+use App\Filament\Clusters\Brands\Resources\Categories\ProductCategoryResource;
+use App\Models\ProductCategory;
+use Filament\Actions\CreateAction;
+use Filament\Actions\Testing\TestAction;
 use App\Models\Brand;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -64,5 +69,57 @@ class MyRestaurantTest extends TestCase
         $this->assertSame('البراندات', BrandResource::getNavigationLabel());
         $this->assertSame(BrandResource::getUrl('index'), BrandResource::getNavigationUrl());
         Livewire::test(ListBrands::class)->assertNoRedirect();
+    }
+
+    public function test_my_restaurant_is_its_details_and_categories_have_their_own_page(): void
+    {
+        $brand = Brand::create(['name' => 'بيت المجدرة']);
+        $other = Brand::create(['name' => 'مطعم غيره']);
+        $this->signInAs(Access::BRAND_OWNER)->brands()->attach($brand->id);
+
+        // "مطعمي": no products or categories tabs (each has its own page beside it).
+        $this->assertSame([], BrandResource::getRelations());
+        $this->get(ProductCategoryResource::getUrl())->assertOk();
+
+        // One restaurant: the section is added to it without picking it.
+        Livewire::test(ManageProductCategories::class)
+            ->callAction(TestAction::make(CreateAction::class), ['name' => 'مقبلات'])
+            ->assertHasNoActionErrors()
+            ->callAction(TestAction::make(CreateAction::class), ['name' => 'مقبلات'])
+            ->assertHasActionErrors(['name' => 'unique']);
+        $this->assertSame($brand->id, ProductCategory::where('name', 'مقبلات')->value('brand_id'));
+
+        // Another restaurant's sections are not listed, and cannot be the target.
+        $theirs = new ProductCategory(['name' => 'مشاوي']);
+        $theirs->brand_id = $other->id;
+        $theirs->save();
+        Livewire::test(ManageProductCategories::class)
+            ->assertCanNotSeeTableRecords([$theirs])
+            // A forged brand is ignored: the hidden field always means their own restaurant.
+            ->callAction(TestAction::make(CreateAction::class), ['brand_id' => $other->id, 'name' => 'حلويات']);
+        $this->assertSame($brand->id, ProductCategory::where('name', 'حلويات')->value('brand_id'));
+    }
+
+    public function test_an_owner_of_several_cannot_add_a_section_to_another_brand(): void
+    {
+        $mine = [Brand::create(['name' => 'فرع المزة']), Brand::create(['name' => 'فرع المالكي'])];
+        $other = Brand::create(['name' => 'مطعم غيره']);
+        $this->signInAs(Access::BRAND_OWNER)->brands()->attach(array_map(fn (Brand $b) => $b->id, $mine));
+
+        Livewire::test(ManageProductCategories::class)
+            ->callAction(TestAction::make(CreateAction::class), ['brand_id' => $other->id, 'name' => 'حلويات'])
+            ->assertHasActionErrors(['brand_id']);
+        Livewire::test(ManageProductCategories::class)
+            ->callAction(TestAction::make(CreateAction::class), ['brand_id' => $mine[1]->id, 'name' => 'حلويات'])
+            ->assertHasNoActionErrors();
+        $this->assertSame([$mine[1]->id], ProductCategory::where('name', 'حلويات')->pluck('brand_id')->all());
+    }
+
+    public function test_the_admin_keeps_the_tabs_and_sees_every_brands_categories(): void
+    {
+        $this->signInAs();
+
+        $this->assertCount(2, BrandResource::getRelations());
+        $this->get(ProductCategoryResource::getUrl())->assertOk()->assertSee('المطعم');
     }
 }
