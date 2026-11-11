@@ -3,7 +3,7 @@
     /* ---------- Hero: the copy, and the meal card over the identity's tiles ---------- */
     .ns-hero { position: relative; overflow: hidden; padding: var(--space-8) 0 var(--space-10); background: var(--surface-raised); }
     /* The tiles (the identity's official pattern) fill the card's side and fade toward the copy. */
-    .ns-hero::before { content: ""; position: absolute; inset: 0; inset-inline-start: 38%; background: var(--tiles-pattern) center / 640px auto; opacity: .8;
+    .ns-hero::before { content: ""; position: absolute; inset: 0; inset-inline-start: 38%; background: var(--tiles-pattern) center / cover no-repeat; opacity: .8;
         -webkit-mask-image: linear-gradient(to left, transparent 0, #000 55%); mask-image: linear-gradient(to left, transparent 0, #000 55%); }
     .ns-hero__in { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-10); align-items: start; }
     .ns-hero__copy { padding-top: var(--space-8); }
@@ -87,7 +87,7 @@
 
     /* ---------- Join band ---------- */
     .ns-join { position: relative; overflow: hidden; margin: var(--space-4) 0; background: var(--pine); color: var(--on-pine); }
-    .ns-join::before { content: ""; position: absolute; inset: 0; background: var(--tiles-pattern) center / 520px auto; opacity: .07; mix-blend-mode: luminosity; }
+    .ns-join::before { content: ""; position: absolute; inset: 0; background: var(--tiles-pattern) center / cover no-repeat; opacity: .07; mix-blend-mode: luminosity; }
     .ns-join__in { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: var(--space-8); align-items: center; padding-top: var(--space-6); padding-bottom: var(--space-6); }
     .ns-join__lead { display: flex; align-items: center; gap: var(--space-6); }
     .ns-join__lead .ns-btn { flex: none; order: -1; }
