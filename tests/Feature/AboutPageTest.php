@@ -18,7 +18,7 @@ class AboutPageTest extends TestCase
             ->assertSee('لذلك قررنا أن نبني المرجع الذي كنا نبحث عنه.')
             ->assertDontSee('ORIGIN EFFECT')                 // the concept's internal name stays internal
             ->assertDontSee('ns-chain', false)               // no tiles on this page (the owner's request)
-            ->assertSeeInOrder(['عامر عنيزه', 'Co-Founder &amp; CTO', 'ماريا نظام', 'Art Director', 'كاتيا سليمان', 'Nutrition Data Reviewer'], false)
+            ->assertSeeInOrder(['عامر عنيزه', 'Co-Founder', 'ماريا نظام', 'Art Director', 'كاتيا سليمان', 'Nutrition Data Reviewer'], false)
             ->assertSee('من مؤتمر Safierr Tech')
             ->assertSee('تقدّم 160 مشروعاً، وتأهّل 16 منها')
             ->assertSee('من مسابقة ReRoute من JCI')

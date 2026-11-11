@@ -40,6 +40,13 @@ return [
         'model' => env('OPENROUTER_MODEL', 'openai/gpt-4o-mini'),
     ],
 
+    /* USDA FoodData Central: the admin's live search (ImportReview\Pages\UsdaSearch). A free key
+       from api.data.gov, in .env only. */
+    'fdc' => [
+        'key' => env('FDC_API_KEY'),
+        'url' => env('FDC_API_URL', 'https://api.nal.usda.gov/fdc/v1'),
+    ],
+
     /* "Continue with Google" on the public site (Laravel Socialite). Values live in .env only. */
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),

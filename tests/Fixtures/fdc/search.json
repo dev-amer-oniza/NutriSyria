@@ -1,0 +1,38 @@
+{
+  "totalHits": 2,
+  "currentPage": 1,
+  "totalPages": 1,
+  "foods": [
+    {
+      "fdcId": 173757,
+      "description": "Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, without salt",
+      "dataType": "SR Legacy",
+      "publishedDate": "2019-04-01",
+      "foodCategory": "Legumes and Legume Products",
+      "foodNutrients": [
+        {"nutrientId": 1003, "nutrientName": "Protein", "nutrientNumber": "203", "unitName": "G", "value": 8.86},
+        {"nutrientId": 1004, "nutrientName": "Total lipid (fat)", "nutrientNumber": "204", "unitName": "G", "value": 2.59},
+        {"nutrientId": 1005, "nutrientName": "Carbohydrate, by difference", "nutrientNumber": "205", "unitName": "G", "value": 27.4},
+        {"nutrientId": 1008, "nutrientName": "Energy", "nutrientNumber": "208", "unitName": "KCAL", "value": 164}
+      ]
+    },
+    {
+      "fdcId": 2644288,
+      "description": "Chickpeas, (garbanzo beans, bengal gram), dry",
+      "dataType": "Foundation",
+      "publishedDate": "2023-10-26",
+      "foodCategory": "Legumes and Legume Products",
+      "foodNutrients": [
+        {"nutrientId": 1003, "nutrientName": "Protein", "nutrientNumber": "203", "unitName": "G", "value": 21.3},
+        {"nutrientId": 2047, "nutrientName": "Energy (Atwater General Factors)", "nutrientNumber": "957", "unitName": "KCAL", "value": 383},
+        {"nutrientId": 2048, "nutrientName": "Energy (Atwater Specific Factors)", "nutrientNumber": "958", "unitName": "KCAL", "value": 357}
+      ]
+    },
+    {
+      "fdcId": 999,
+      "description": "A branded hummus",
+      "dataType": "Branded",
+      "foodNutrients": []
+    }
+  ]
+}
