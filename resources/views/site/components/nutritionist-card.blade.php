@@ -4,7 +4,7 @@
         @if ($profile->photoUrl())
             <img src="{{ $profile->photoUrl() }}" alt="{{ $profile->display_name }}" loading="lazy">
         @else
-            @include('site.components.chain-tiles', ['pattern' => \App\Support\Site\ChainPatterns::dishCover($profile->id), 'tile' => 40])
+            <img src="{{ asset('images/site/nutritionist-cover.svg') }}" alt="" loading="lazy">
         @endif
     </div>
     <div class="ns-nutri__body">

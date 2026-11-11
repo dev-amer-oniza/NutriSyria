@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="أخصائي تغذية">
+  <rect width="240" height="240" fill="#dfe6dc"/>
+  <path d="M240 0v84a84 84 0 0 1-84-84z" fill="#c15b3f"/>
+  <circle cx="120" cy="98" r="38" fill="#0f3d32"/>
+  <path d="M44 240a76 76 0 0 1 152 0z" fill="#0f3d32"/>
+  <path d="M120 164v76" stroke="#dfe6dc" stroke-width="5"/>
+  <g>
+    <circle cx="176" cy="186" r="30" fill="#fbf9f5"/>
+    <path d="M176 204v-18c0-10 7-17 18-17 0 10-7 17-18 17zM176 194c0-8-6-14-14-14 0 8 6 14 14 14z" fill="#0f3d32"/>
+  </g>
+</svg>

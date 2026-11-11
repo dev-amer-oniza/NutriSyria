@@ -7,7 +7,7 @@
         <div class="ns-wrap ns-restaurant">
             <header class="ns-restaurant__head">
                 <span class="ns-restaurant__logo">
-                    @include('site.components.chain-tiles', ['pattern' => 'cta', 'tile' => 40])
+                    <img src="{{ asset('images/site/kitchen-cover.svg') }}" alt="" loading="lazy">
                 </span>
                 <div>
                     <p class="ns-eyebrow">من المنصة</p>

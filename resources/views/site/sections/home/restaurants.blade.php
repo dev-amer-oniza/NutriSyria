@@ -18,7 +18,7 @@
             </div>
         @else
             <div class="ns-empty">
-                @include('site.components.chain-tiles', ['pattern' => 'step-4', 'tile' => 40])
+                <img class="ns-empty__mark" src="{{ asset('images/site/restaurant-cover.svg') }}" alt="" loading="lazy">
                 <p class="t-body ns-muted">قريباً تظهر هنا المطاعم المسجّلة في NutriSyria.</p>
             </div>
         @endif
