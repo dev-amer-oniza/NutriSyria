@@ -4,18 +4,21 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 
-/** "About us": the idea, the team, and the two events with their photos. */
+/** "About us": the owner's seven sections, the team, and the two events with their photos. */
 class AboutPageTest extends TestCase
 {
-    public function test_the_page_tells_the_idea_the_team_and_the_events(): void
+    public function test_the_page_tells_the_story_in_its_sections_with_the_team_and_the_events(): void
     {
         $this->withoutVite();
 
         $this->get(route('site.about'))->assertOk()
-            ->assertSee('من قرار صغير… يبدأ الأثر')
-            ->assertSee('التغيير ليس زيادة دائماً')
+            // The owner's seven sections, in his order, then the closing.
+            ->assertSeeInOrder(['Who We Are', 'مرجعك الغذائي الأول في سوريا', 'Our Story', 'Our Purpose', 'What We Do',
+                'Accuracy &amp; Transparency', 'Our Team', 'Join Us', 'من قرار صغير يبدأ الأثر'], false)
+            ->assertSee('لذلك قررنا أن نبني المرجع الذي كنا نبحث عنه.')
             ->assertDontSee('ORIGIN EFFECT')                 // the concept's internal name stays internal
-            ->assertSeeInOrder(['عامر عنيزه', 'Co-Founder &amp; CTO', 'ماريا نظام', 'Graphic Design'], false)
+            ->assertDontSee('ns-chain', false)               // no tiles on this page (the owner's request)
+            ->assertSeeInOrder(['عامر عنيزه', 'Co-Founder &amp; CTO', 'ماريا نظام', 'Art Director', 'كاتيا سليمان', 'Nutrition Data Reviewer'], false)
             ->assertSee('من مؤتمر Safire Tech')
             ->assertSee('تقدّم 160 مشروعاً، وتأهّل 16 منها')
             ->assertSee('من مسابقة ReRoot من JCI')
