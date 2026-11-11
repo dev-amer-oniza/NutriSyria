@@ -85,7 +85,7 @@
     .ns-brand-link:hover { text-decoration-color: currentColor; }
     .ns-brand-link:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
     .ns-dish__cover { position: relative; height: 144px; background: var(--sand); overflow: hidden; }
-    .ns-dish__cover .ns-chain { position: absolute; inset-inline-start: 0; top: 0; }
+    .ns-dish__cover .ns-chain { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 0; }
     .ns-dish__cover img { width: 100%; height: 100%; object-fit: cover; }
     .ns-dish__body { flex: 1; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-5); }
     .ns-dish__meta { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-1); font-size: 13px; line-height: 20px; color: var(--ink-muted); }
@@ -111,19 +111,13 @@
     .ns-feature__text { margin: 0; font-size: 14px; line-height: 24px; color: var(--ink-muted); }
 
     /* ---------- Chain-reaction tiles (components/chain-tiles) ---------- */
-    .ns-chain { display: grid; grid-template-columns: repeat(var(--cols, 4), var(--tile, var(--tile-unit))); grid-auto-rows: var(--tile, var(--tile-unit)); direction: ltr; }
-    .ns-tile { display: block; width: 100%; height: 100%; background: var(--pine); transition: border-radius .5s cubic-bezier(.2,.7,.2,1), background-color .3s ease, transform .5s cubic-bezier(.2,.7,.2,1); }
-    .ns-tile--sage { background: var(--sage); }
-    .ns-tile--terracotta { background: var(--terracotta); }
-    .ns-tile--sand { background: var(--sand); }
-    .ns-tile--surface { background: var(--surface-raised); }
-    .ns-tile--empty { background: transparent; }
-    .ns-tile--q-tl { border-top-left-radius: var(--radius-arc); }
-    .ns-tile--q-tr { border-top-right-radius: var(--radius-arc); }
-    .ns-tile--q-bl { border-bottom-left-radius: var(--radius-arc); }
-    .ns-tile--q-br { border-bottom-right-radius: var(--radius-arc); }
-    .ns-tile--p-a { border-top-left-radius: var(--radius-arc); border-bottom-right-radius: var(--radius-arc); }
-    .ns-tile--p-b { border-top-right-radius: var(--radius-arc); border-bottom-left-radius: var(--radius-arc); }
+    /* The identity's tiles: the official pattern as an image (components/chain-tiles). */
+    .ns-chain { flex: none; width: calc(var(--cols, 4) * var(--tile, var(--tile-unit))); height: calc(var(--rows, 1) * var(--tile, var(--tile-unit))); max-width: 100%; border-radius: var(--radius-md); background: var(--surface-raised) center / cover no-repeat; }
+    .ns-chain--field { background-image: url('/images/site/tiles/pattern.webp'); border-start-start-radius: var(--radius-origin); }
+    .ns-chain--1 { background-image: url('/images/site/tiles/cover-1.webp'); }
+    .ns-chain--2 { background-image: url('/images/site/tiles/cover-2.webp'); }
+    .ns-chain--3 { background-image: url('/images/site/tiles/cover-3.webp'); }
+    .ns-chain--4 { background-image: url('/images/site/tiles/cover-4.webp'); }
 
     /* ---------- Fit verdict (components/fit-verdict) ----------
        Four calm levels for how a meal fits one person. The meter is four
