@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="وجبة ومدى مناسبتها لك">
+  <path d="M400 0v150A150 150 0 0 1 250 0z" fill="#a7b89f" opacity=".35"/>
+  <path d="M0 300V190a110 110 0 0 1 110 110z" fill="#c15b3f" opacity=".9"/>
+  <!-- the plate -->
+  <circle cx="170" cy="150" r="104" fill="#fbf9f5"/>
+  <circle cx="170" cy="150" r="104" fill="none" stroke="#0f3d32" stroke-width="5"/>
+  <circle cx="170" cy="150" r="76" fill="none" stroke="#ddd4c6" stroke-width="3"/>
+  <path d="M170 150V88a62 62 0 0 1 54 31z" fill="#0f3d32"/>
+  <path d="M170 150l54-31a62 62 0 0 1-23 85z" fill="#a7b89f"/>
+  <path d="M170 150l31 54a62 62 0 0 1-93-54z" fill="#e8e1d6"/>
+  <path d="M170 150h-62a62 62 0 0 1 62-62z" fill="#c15b3f"/>
+  <circle cx="170" cy="150" r="20" fill="#fbf9f5"/>
+  <g transform="translate(-20 0)">
+  <!-- you -->
+  <g>
+    <rect x="262" y="34" width="118" height="64" rx="14" fill="#fbf9f5"/>
+    <circle cx="290" cy="66" r="15" fill="#dfe6dc"/>
+    <circle cx="290" cy="61" r="5.5" fill="#0f3d32"/>
+    <path d="M279 76a11 11 0 0 1 22 0z" fill="#0f3d32"/>
+    <rect x="314" y="54" width="50" height="8" rx="4" fill="#0f3d32"/>
+    <rect x="314" y="70" width="34" height="7" rx="3.5" fill="#ddd4c6"/>
+  </g>
+  <path d="M320 104v44" stroke="#0f3d32" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round"/>
+  <!-- the verdict: three of four -->
+  <g>
+    <rect x="232" y="156" width="156" height="68" rx="16" fill="#0f3d32"/>
+    <g fill="#f4f0e9">
+      <path d="M252 206v-28a28 28 0 0 1 28 28z"/>
+      <path d="M284 206v-28a28 28 0 0 1 28 28z"/>
+      <path d="M316 206v-28a28 28 0 0 1 28 28z"/>
+    </g>
+    <path d="M348 206v-28a28 28 0 0 1 28 28z" fill="#f4f0e9" opacity=".28"/>
+  </g>
+  </g>
+</svg>

@@ -146,7 +146,7 @@
     .ns-cta__title { margin: 0 0 var(--space-2); font-size: 30px; line-height: 46px; font-weight: 600; color: var(--ink); }
     .ns-cta__copy .t-body { margin: 0; }
     .ns-cta__actions { display: flex; gap: var(--space-3); margin-top: var(--space-6); }
-    .ns-cta__art { align-self: stretch; }
+    .ns-cta__art { align-self: stretch; width: 384px; max-width: 42%; height: auto; min-height: 288px; object-fit: cover; }
 
     @media (max-width: 1080px) {
         .ns-hero__in { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
