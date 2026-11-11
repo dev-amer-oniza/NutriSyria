@@ -24,7 +24,7 @@
                     <a class="ns-btn ns-btn--secondary" href="{{ route('site.meals') }}">تصفّح الوجبات أولاً</a>
                 </div>
             </div>
-            @include('site.components.chain-tiles', ['pattern' => 'cta', 'tile' => 72, 'class' => 'ns-cta__art'])
+            <img class="ns-cta__art" src="{{ asset('images/site/fit-figure.svg') }}" alt="" width="400" height="300" loading="lazy">
         </div>
     </div>
 </section>
