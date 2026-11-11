@@ -20,6 +20,16 @@ class SiteHomeTest extends TestCase
             ->assertSee(config('site.verification.estimated.label'));
     }
 
+    public function test_the_identity_tiles_are_addressed_from_the_sites_root(): void
+    {
+        $page = $this->withoutVite()->get('/')->assertOk();
+
+        foreach (['pattern', 'pattern-green', 'cover-1', 'cover-2', 'cover-3', 'cover-4'] as $tiles) {
+            $this->assertFileExists(public_path("images/site/tiles/$tiles.webp"));
+            $page->assertSee("--tiles-$tiles: url('".asset("images/site/tiles/$tiles.webp")."')", false);
+        }
+    }
+
     public function test_site_links_are_routes_in_web_php(): void
     {
         $this->withoutVite()

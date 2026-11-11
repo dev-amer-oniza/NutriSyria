@@ -113,11 +113,11 @@
     /* ---------- Chain-reaction tiles (components/chain-tiles) ---------- */
     /* The identity's tiles: the official pattern as an image (components/chain-tiles). */
     .ns-chain { flex: none; width: calc(var(--cols, 4) * var(--tile, var(--tile-unit))); height: calc(var(--rows, 1) * var(--tile, var(--tile-unit))); max-width: 100%; border-radius: var(--radius-md); background: var(--surface-raised) center / cover no-repeat; }
-    .ns-chain--field { background-image: url('/images/site/tiles/pattern.webp'); border-start-start-radius: var(--radius-origin); }
-    .ns-chain--1 { background-image: url('/images/site/tiles/cover-1.webp'); }
-    .ns-chain--2 { background-image: url('/images/site/tiles/cover-2.webp'); }
-    .ns-chain--3 { background-image: url('/images/site/tiles/cover-3.webp'); }
-    .ns-chain--4 { background-image: url('/images/site/tiles/cover-4.webp'); }
+    .ns-chain--field { background-image: var(--tiles-pattern); border-start-start-radius: var(--radius-origin); }
+    .ns-chain--1 { background-image: var(--tiles-cover-1); }
+    .ns-chain--2 { background-image: var(--tiles-cover-2); }
+    .ns-chain--3 { background-image: var(--tiles-cover-3); }
+    .ns-chain--4 { background-image: var(--tiles-cover-4); }
 
     /* ---------- Fit verdict (components/fit-verdict) ----------
        Four calm levels for how a meal fits one person. The meter is four

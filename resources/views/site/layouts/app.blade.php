@@ -12,6 +12,15 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Sora:wght@400;500;600;800&display=swap">
 
     @vite(['resources/css/site.css', 'resources/js/site.js'])
+    {{-- The identity's tiles, addressed from the site's real root (asset), so they load when the
+         site is served from a subfolder too. The stylesheets use these as var(--tiles-*). --}}
+    <style>
+        :root {
+            @foreach (['pattern', 'pattern-green', 'cover-1', 'cover-2', 'cover-3', 'cover-4'] as $tiles)
+                --tiles-{{ $tiles }}: url('{{ asset("images/site/tiles/$tiles.webp") }}');
+            @endforeach
+        }
+    </style>
     @stack('head')
 </head>
 <body class="ns-root">

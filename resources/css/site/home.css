@@ -3,7 +3,7 @@
     /* ---------- Hero: the copy, and the meal card over the identity's tiles ---------- */
     .ns-hero { position: relative; overflow: hidden; padding: var(--space-8) 0 var(--space-10); background: var(--surface-raised); }
     /* The tiles (the identity's official pattern) fill the card's side and fade toward the copy. */
-    .ns-hero::before { content: ""; position: absolute; inset: 0; inset-inline-start: 38%; background: url('/images/site/tiles/pattern.webp') center / 640px auto; opacity: .8;
+    .ns-hero::before { content: ""; position: absolute; inset: 0; inset-inline-start: 38%; background: var(--tiles-pattern) center / 640px auto; opacity: .8;
         -webkit-mask-image: linear-gradient(to left, transparent 0, #000 55%); mask-image: linear-gradient(to left, transparent 0, #000 55%); }
     .ns-hero__in { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-10); align-items: start; }
     .ns-hero__copy { padding-top: var(--space-8); }
@@ -22,7 +22,7 @@
     .ns-panel__main { display: grid; grid-template-columns: minmax(0, 1fr) 168px; gap: var(--space-5); align-items: center; }
     .ns-panel__energy { display: flex; flex-direction: column; gap: var(--space-4); }
     /* The plate: the meal's photo, or the tiles when it has none. */
-    .ns-panel__plate { width: 168px; height: 168px; border-radius: var(--radius-full); overflow: hidden; background: url('/images/site/tiles/cover-1.webp') center / cover; box-shadow: var(--shadow-sm); }
+    .ns-panel__plate { width: 168px; height: 168px; border-radius: var(--radius-full); overflow: hidden; background: var(--tiles-cover-1) center / cover; box-shadow: var(--shadow-sm); }
     .ns-panel__plate img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .ns-energy__fig { display: flex; align-items: baseline; gap: var(--space-2); }
     .ns-energy__fig .t-figure-xl { color: var(--pine); }
@@ -57,7 +57,7 @@
     .ns-explore { padding: var(--space-6) 0; }
     .ns-explore__in { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: var(--space-5); align-items: stretch; }
     .ns-banner { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: var(--space-3); padding: var(--space-6); border-radius: var(--radius-lg); background: #dde8d8; }
-    .ns-banner::before { content: ""; position: absolute; inset: 0; background: url('/images/site/tiles/pattern-green.webp') center / cover; transform: scaleX(-1); }
+    .ns-banner::before { content: ""; position: absolute; inset: 0; background: var(--tiles-pattern-green) center / cover; transform: scaleX(-1); }
     .ns-banner > * { position: relative; }
     .ns-banner__title { margin: 0; font-size: 28px; line-height: 42px; font-weight: 700; color: var(--pine); }
     .ns-banner__text { margin: 0 0 var(--space-2); max-width: 220px; font-size: 14px; line-height: 24px; color: var(--ink-muted); }
@@ -73,10 +73,10 @@
     .ns-xtile:nth-child(3n) { background: var(--terracotta-soft); color: var(--terracotta-ink); }
     .ns-xtile__cover { position: relative; flex: 1; min-height: 120px; background: var(--sand) center / cover; }
     .ns-xtile__cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-    .ns-xtile__cover--1 { background-image: url('/images/site/tiles/cover-1.webp'); }
-    .ns-xtile__cover--2 { background-image: url('/images/site/tiles/cover-2.webp'); }
-    .ns-xtile__cover--3 { background-image: url('/images/site/tiles/cover-3.webp'); }
-    .ns-xtile__cover--4 { background-image: url('/images/site/tiles/cover-4.webp'); }
+    .ns-xtile__cover--1 { background-image: var(--tiles-cover-1); }
+    .ns-xtile__cover--2 { background-image: var(--tiles-cover-2); }
+    .ns-xtile__cover--3 { background-image: var(--tiles-cover-3); }
+    .ns-xtile__cover--4 { background-image: var(--tiles-cover-4); }
     .ns-xtile__fit { position: absolute; inset-block-start: var(--space-2); inset-inline-start: var(--space-2); padding: 2px var(--space-2); border-radius: var(--radius-sm); background: var(--surface-raised); color: var(--ink); }
     .ns-xtile__foot { display: flex; flex-direction: column; gap: 2px; padding: var(--space-3); }
     .ns-xtile__name { color: inherit; font-size: 16px; line-height: 24px; font-weight: 600; text-decoration: none; outline: none; }
@@ -87,7 +87,7 @@
 
     /* ---------- Join band ---------- */
     .ns-join { position: relative; overflow: hidden; margin: var(--space-4) 0; background: var(--pine); color: var(--on-pine); }
-    .ns-join::before { content: ""; position: absolute; inset: 0; background: url('/images/site/tiles/pattern.webp') center / 520px auto; opacity: .07; mix-blend-mode: luminosity; }
+    .ns-join::before { content: ""; position: absolute; inset: 0; background: var(--tiles-pattern) center / 520px auto; opacity: .07; mix-blend-mode: luminosity; }
     .ns-join__in { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: var(--space-8); align-items: center; padding-top: var(--space-6); padding-bottom: var(--space-6); }
     .ns-join__lead { display: flex; align-items: center; gap: var(--space-6); }
     .ns-join__lead .ns-btn { flex: none; order: -1; }
