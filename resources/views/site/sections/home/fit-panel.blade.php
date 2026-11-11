@@ -27,7 +27,7 @@
         @include('site.components.nutrient-stat', ['label' => 'بروتين', 'value' => $meal['macros']['protein'], 'key' => 'protein'])
         @include('site.components.nutrient-stat', ['label' => 'كربوهيدرات', 'value' => $meal['macros']['carbs'], 'key' => 'carbs'])
         @include('site.components.nutrient-stat', ['label' => 'دهون', 'value' => $meal['macros']['fat'], 'key' => 'fat'])
-        @include('site.components.nutrient-stat', ['label' => 'ألياف', 'value' => $meal['fiber']])
+        @include('site.components.nutrient-stat', ['label' => 'ألياف', 'value' => $meal['fiber'], 'key' => 'fiber'])
     </div>
 
     <div class="ns-fit">

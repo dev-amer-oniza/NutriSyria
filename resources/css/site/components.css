@@ -71,7 +71,11 @@
     .ns-macrobar span { display: block; height: 100%; transition: flex-grow .5s cubic-bezier(.2,.7,.2,1); }
     .ns-key-protein { background: var(--pine); }
     .ns-key-carbs { background: var(--sage); }
-    .ns-key-fat { background: var(--pine-soft); box-shadow: inset 0 0 0 1.5px var(--pine); }
+    /* One colour per nutrient, the same wherever it appears (the owner's design): the macro bar,
+       the stats' keys and the daily-share bars. */
+    .ns-key-fat { background: var(--terracotta); }
+    .ns-key-fiber { background: color-mix(in srgb, var(--sage) 45%, var(--surface-raised)); }
+    .ns-key-energy { background: var(--charcoal); }
 
     /* ---------- Dish card (components/dish-card) ---------- */
     .ns-dish { position: relative; display: flex; flex-direction: column; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; color: inherit; text-decoration: none; transition: box-shadow .2s ease, transform .2s ease; }
@@ -146,11 +150,11 @@
     /* ---------- Share of daily needs (components/daily-share) ---------- */
     .ns-share { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); margin: 0; }
     .ns-share div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-    .ns-share dt { font-size: 12px; line-height: 18px; color: var(--ink-muted); }
+    .ns-share dt { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; line-height: 18px; color: var(--ink-muted); }
     .ns-share dd { margin: 0; display: flex; flex-direction: column; gap: 6px; }
     .ns-share dd .ns-num { font-size: 18px; line-height: 24px; font-weight: 600; color: var(--ink); }
     .ns-share__track { height: 6px; border-radius: var(--radius-full); background: var(--sand); overflow: hidden; }
-    .ns-share__fill { display: block; height: 100%; background: var(--pine); border-radius: inherit; transition: width .5s cubic-bezier(.2,.7,.2,1); }
+    .ns-share__fill { display: block; height: 100%; border-radius: inherit; transition: width .5s cubic-bezier(.2,.7,.2,1); }
 
     /* ---------- Messages (partials/flash) ---------- */
     .ns-alert { position: relative; overflow: hidden; display: flex; align-items: flex-start; gap: var(--space-3); margin: 0 0 var(--space-5); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); font-size: 14px; line-height: 22px; }

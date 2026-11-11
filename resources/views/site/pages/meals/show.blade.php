@@ -51,7 +51,7 @@
                         @include('site.components.nutrient-stat', ['label' => 'بروتين', 'value' => $value('protein_g'), 'key' => 'protein'])
                         @include('site.components.nutrient-stat', ['label' => 'كربوهيدرات', 'value' => $value('carbohydrate_g'), 'key' => 'carbs'])
                         @include('site.components.nutrient-stat', ['label' => 'دهون', 'value' => $value('fat_g'), 'key' => 'fat'])
-                        @include('site.components.nutrient-stat', ['label' => 'ألياف', 'value' => $value('fiber_g')])
+                        @include('site.components.nutrient-stat', ['label' => 'ألياف', 'value' => $value('fiber_g'), 'key' => 'fiber'])
                     </div>
                     <dl class="ns-meal__more">
                         @foreach ($more as $code => [$label, $unit])
