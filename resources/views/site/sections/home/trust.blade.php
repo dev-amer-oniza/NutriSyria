@@ -22,6 +22,6 @@
             @endif
         </div>
 
-        @include('site.components.chain-tiles', ['pattern' => 'trust', 'tile' => 72, 'class' => 'ns-trust__art'])
+        <img class="ns-trust__art" src="{{ asset('images/site/trust-figure.svg') }}" alt="" width="360" height="420" loading="lazy">
     </div>
 </section>
