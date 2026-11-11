@@ -19,9 +19,9 @@ class AboutPageTest extends TestCase
             ->assertDontSee('ORIGIN EFFECT')                 // the concept's internal name stays internal
             ->assertDontSee('ns-chain', false)               // no tiles on this page (the owner's request)
             ->assertSeeInOrder(['عامر عنيزه', 'Co-Founder &amp; CTO', 'ماريا نظام', 'Art Director', 'كاتيا سليمان', 'Nutrition Data Reviewer'], false)
-            ->assertSee('من مؤتمر Safire Tech')
+            ->assertSee('من مؤتمر Safierr Tech')
             ->assertSee('تقدّم 160 مشروعاً، وتأهّل 16 منها')
-            ->assertSee('من مسابقة ReRoot من JCI')
+            ->assertSee('من مسابقة ReRoute من JCI')
             ->assertSee('images/about/safire-tech-640.webp', false)
             ->assertSee('images/about/reroot.jpg', false)
             ->assertDontSee('قريباً');
