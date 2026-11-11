@@ -1,26 +1,46 @@
-{{-- Param $dishes: list of meal cards (site.components.dish-card). --}}
-<section class="ns-section" aria-labelledby="dishes-title">
-    <div class="ns-wrap">
-        <div class="ns-section__head">
-            <div>
-                <p class="ns-eyebrow">من مطاعمنا</p>
-                <h2 class="t-title" id="dishes-title">وجبات نعرفها، بأرقام نعرف مصدرها</h2>
-                <p class="t-lead ns-muted">القيم لكل حصة، ومع كل وجبة مستوى التحقق من أرقامها.</p>
-            </div>
-            <a class="ns-link" href="{{ route('site.meals') }}">كل الوجبات@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
+{{--
+    "استكشف الوجبات": a banner, then the newest approved meals as photo tiles (owner's decision
+    1a: real meals, not general categories). Param $dishes: meal cards (MealFacts::card).
+--}}
+<section class="ns-explore" aria-labelledby="dishes-title">
+    <div class="ns-wrap ns-explore__in">
+        <div class="ns-banner">
+            <h2 class="ns-banner__title">تغذية أفضل<br>لحياة أكثر توازناً</h2>
+            <p class="ns-banner__text">اختر هدفك الصحي، ونحسب لك مدى مناسبة كل وجبة له.</p>
+            <a class="ns-btn ns-btn--primary" href="{{ route('site.goals') }}">اكتشف المزيد@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
         </div>
 
-        @if ($dishes)
-            <div class="ns-dishes">
-                @foreach ($dishes as $dish)
-                    @include('site.components.dish-card', ['dish' => $dish])
-                @endforeach
+        <div class="ns-explore__meals">
+            <div class="ns-explore__head">
+                <h2 class="ns-explore__title" id="dishes-title">استكشف الوجبات</h2>
+                <a class="ns-link" href="{{ route('site.meals') }}">عرض الكل@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
             </div>
-        @else
-            <div class="ns-empty">
-                @include('site.components.chain-tiles', ['pattern' => 'step-4', 'tile' => 40])
-                <p class="t-body ns-muted">قريباً تظهر هنا وجبات المطاعم بعد أن يراجع أخصائي التغذية قيمها ويعتمدها.</p>
-            </div>
-        @endif
+
+            @if ($dishes)
+                <ul class="ns-explore__strip">
+                    @foreach (array_slice($dishes, 0, 5) as $i => $dish)
+                        <li class="ns-xtile">
+                            <div class="ns-xtile__cover @if (! $dish['image']) ns-xtile__cover--tiles ns-xtile__cover--{{ $i % 4 + 1 }} @endif">
+                                @if ($dish['image'])
+                                    <img src="{{ $dish['image'] }}" alt="" loading="lazy">
+                                @endif
+                                @if ($dish['fit'] ?? null)
+                                    <span class="ns-xtile__fit">@include('site.components.fit-verdict', ['level' => $dish['fit'], 'compact' => true])</span>
+                                @endif
+                            </div>
+                            <div class="ns-xtile__foot">
+                                <a class="ns-xtile__name" href="{{ $dish['url'] }}">{{ $dish['name'] }}</a>
+                                <span class="ns-xtile__meta"><span class="ns-num">{{ $dish['kcal'] ?? '—' }}</span> سعرة ·
+                                    @if ($dish['brandUrl'] ?? null)<a class="ns-xtile__brand" href="{{ $dish['brandUrl'] }}">{{ $dish['brand'] }}</a>@else{{ $dish['brand'] }}@endif</span>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <div class="ns-empty">
+                    <p class="t-body ns-muted">قريباً تظهر هنا وجبات المطاعم بعد أن يراجع أخصائي التغذية قيمها ويعتمدها.</p>
+                </div>
+            @endif
+        </div>
     </div>
 </section>
