@@ -45,10 +45,10 @@
             </div>
             <div class="ns-about__events">
                 @include('site.components.photo', [
-                    'src' => 'images/about/safire-tech', 'small' => 640, 'full' => 1280, 'height' => 853,
+                    'src' => 'images/about/Safierr-tech', 'small' => 640, 'full' => 1280, 'height' => 853,
                     'sizes' => '(max-width: 860px) 100vw, 760px',
-                    'alt' => 'زوّار مؤتمر Safire Tech يستمعون إلى عرض المشاريع حول طاولة الحواسيب',
-                    'title' => 'من مؤتمر Safire Tech',
+                    'alt' => 'زوّار مؤتمر Safierr Tech يستمعون إلى عرض المشاريع حول طاولة الحواسيب',
+                    'title' => 'من مؤتمر Safierr Tech',
                     'caption' => 'تقدّم 160 مشروعاً، وتأهّل 16 منها إلى النهائي، وكان NutriSyria من المشاريع المؤهلة.',
                     'class' => 'ns-photo--wide',
                 ])
@@ -56,7 +56,7 @@
                     'src' => 'images/about/reroot', 'small' => 420, 'full' => 750, 'height' => 1333,
                     'sizes' => '(max-width: 860px) 100vw, 360px',
                     'alt' => 'عرض منصة الغذاء الصحي على المنصة في الحفل الختامي لمسابقة ReRoot',
-                    'title' => 'من مسابقة ReRoot من JCI',
+                    'title' => 'من مسابقة ReRoute من JCI',
                     'caption' => 'فرصة لتحليل نموذج العمل وفهمه أعمق، ثم عرض المشروع في الحفل الختامي.',
                     'class' => 'ns-photo--tall',
                 ])
