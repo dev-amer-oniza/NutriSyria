@@ -114,6 +114,14 @@
     /* The identity's tiles: the official pattern as an image (components/chain-tiles). */
     .ns-chain { flex: none; width: calc(var(--cols, 4) * var(--tile, var(--tile-unit))); height: calc(var(--rows, 1) * var(--tile, var(--tile-unit))); max-width: 100%; border-radius: var(--radius-md); background: var(--surface-raised) center / cover no-repeat; }
     .ns-chain--field { background-image: var(--tiles-pattern); border-start-start-radius: var(--radius-origin); }
+    /* A figure where a section explains itself better with a picture than with the tiles. */
+    .ns-figure { display: block; width: 100%; max-width: 400px; height: auto; }
+    .ns-figure--pine { max-width: 340px; padding: var(--space-5); background: var(--pine); border-radius: var(--radius-lg); border-start-start-radius: var(--radius-origin); }
+    .ns-empty__mark { flex: none; display: grid; place-items: center; width: 72px; height: 72px; border-radius: var(--radius-md); overflow: hidden; background: var(--pine-soft); color: var(--pine); object-fit: cover; }
+    .ns-empty__mark .ns-icon { width: 32px; height: 32px; }
+    .ns-step__icon { display: grid; place-items: center; width: 96px; height: 96px; border-radius: var(--radius-lg); border-start-start-radius: var(--radius-origin); background: var(--pine-soft); color: var(--pine); }
+    .ns-step:nth-child(even) .ns-step__icon { background: var(--terracotta-soft); color: var(--terracotta-ink); }
+    .ns-step__icon .ns-icon { width: 40px; height: 40px; }
     .ns-chain--1 { background-image: var(--tiles-cover-1); }
     .ns-chain--2 { background-image: var(--tiles-cover-2); }
     .ns-chain--3 { background-image: var(--tiles-cover-3); }

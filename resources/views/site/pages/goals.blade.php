@@ -15,7 +15,7 @@
                     @endforeach
                 </nav>
             </div>
-            @include('site.components.chain-tiles', ['pattern' => 'cta', 'tile' => 56, 'class' => 'ns-method__art'])
+            <img class="ns-method__art ns-figure" src="{{ asset('images/site/fit-figure.svg') }}" alt="" width="400" height="300" loading="lazy">
         </div>
     </section>
 

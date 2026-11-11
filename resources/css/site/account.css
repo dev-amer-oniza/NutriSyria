@@ -31,7 +31,7 @@
 
     /* ---------- Nutritionist advice ---------- */
     .ns-advice { position: relative; display: flex; gap: var(--space-4); padding: var(--space-5); margin: var(--space-5) 0; background: var(--pine-soft); border-radius: var(--radius-lg); color: var(--pine); }
-    .ns-advice__art { flex: none; }
+    .ns-advice__art { flex: none; width: 64px; height: 64px; border-radius: var(--radius-full); }
     .ns-advice__title { margin: 0 0 var(--space-2); font-size: 17px; line-height: 28px; font-weight: 600; }
     .ns-advice__reasons { margin: 0 0 var(--space-2); padding-inline-start: var(--space-5); font-size: 14px; line-height: 22px; }
     .ns-advice__text { margin: 0 0 var(--space-4); font-size: 14px; line-height: 24px; color: var(--ink); }

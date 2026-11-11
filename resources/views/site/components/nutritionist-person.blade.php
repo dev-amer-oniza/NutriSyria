@@ -4,7 +4,7 @@
         @if ($profile->photoUrl())
             <img src="{{ $profile->photoUrl() }}" alt="">
         @else
-            @include('site.components.chain-tiles', ['pattern' => 'step-4', 'tile' => 28])
+            <img src="{{ asset('images/site/nutritionist-cover.svg') }}" alt="" loading="lazy">
         @endif
     </span>
     <span>

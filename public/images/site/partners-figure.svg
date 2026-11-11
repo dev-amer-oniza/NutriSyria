@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 360" role="img" aria-label="صفحة مطعم بقيم وجباته">
+  <path d="M400 0v160A160 160 0 0 1 240 0z" fill="#a7b89f" opacity=".4"/>
+  <path d="M0 360V250a110 110 0 0 1 110 110z" fill="#c15b3f"/>
+  <path d="M60 96a44 44 0 0 1 44-44h216a20 20 0 0 1 20 20v236a20 20 0 0 1-20 20H80a20 20 0 0 1-20-20z" fill="#fbf9f5"/>
+  <rect x="244" y="80" width="68" height="68" rx="14" fill="#0f3d32"/>
+  <g fill="none" stroke="#f4f0e9" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="278" cy="116" r="13"/>
+    <path d="M257 101v10a4 4 0 0 0 8 0v-10M261 101v30M299 131v-30c-4 3-6 8-6 14v5h6"/>
+  </g>
+  <rect x="124" y="92" width="104" height="13" rx="6.5" fill="#0f3d32"/>
+  <rect x="160" y="116" width="68" height="9" rx="4.5" fill="#ddd4c6"/>
+  <rect x="88" y="172" width="224" height="1.5" fill="#ddd4c6"/>
+  <g>
+    <rect x="216" y="190" width="96" height="112" rx="14" fill="#f4f0e9"/>
+    <rect x="216" y="190" width="96" height="50" rx="14" fill="#a7b89f"/>
+    <rect x="228" y="252" width="56" height="9" rx="4.5" fill="#0f3d32"/>
+    <rect x="228" y="270" width="24" height="8" rx="4" fill="#0f3d32"/><rect x="256" y="270" width="24" height="8" rx="4" fill="#a7b89f"/><rect x="284" y="270" width="16" height="8" rx="4" fill="#ddd4c6"/>
+    <rect x="228" y="286" width="36" height="6" rx="3" fill="#ddd4c6"/>
+  </g>
+  <g>
+    <rect x="104" y="190" width="96" height="112" rx="14" fill="#f4f0e9"/>
+    <rect x="104" y="190" width="96" height="50" rx="14" fill="#f3dfd6"/>
+    <rect x="116" y="252" width="56" height="9" rx="4.5" fill="#0f3d32"/>
+    <rect x="116" y="270" width="24" height="8" rx="4" fill="#0f3d32"/><rect x="144" y="270" width="24" height="8" rx="4" fill="#a7b89f"/><rect x="172" y="270" width="16" height="8" rx="4" fill="#ddd4c6"/>
+    <rect x="116" y="286" width="36" height="6" rx="3" fill="#ddd4c6"/>
+  </g>
+  <g>
+    <circle cx="76" cy="292" r="42" fill="#0f3d32"/>
+    <circle cx="76" cy="292" r="35" fill="#dfe6dc"/>
+    <path d="M59 293l12 12 24-26" fill="none" stroke="#0f3d32" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

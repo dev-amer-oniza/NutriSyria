@@ -1,6 +1,6 @@
 {{-- Advice to see one of the platform's nutritionists (the owner's wish: first consultation free). Param $reasons (list, optional). --}}
 <aside class="ns-advice" aria-labelledby="advice-title">
-    @include('site.components.chain-tiles', ['pattern' => 'step-4', 'tile' => 28, 'class' => 'ns-advice__art'])
+    <img class="ns-advice__art" src="{{ asset('images/site/nutritionist-cover.svg') }}" alt="" width="64" height="64" loading="lazy">
     <div>
         <h2 class="ns-advice__title" id="advice-title">أرقامك محسوبة بمعادلات عامة. أخصائي التغذية يجعلها لك أنت.</h2>
         @if (! empty($reasons))

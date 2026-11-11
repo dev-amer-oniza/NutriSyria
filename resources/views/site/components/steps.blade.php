@@ -1,6 +1,6 @@
 {{--
     Numbered steps on a sand band. Params: $id (title id), $eyebrow, $title, $lead,
-    $steps (list of {title, text}; four fit one row).
+    $steps (list of {title, text, icon?}; four fit one row). A step with an icon shows it, not the tiles.
 --}}
 <section class="ns-section ns-section--sand" aria-labelledby="{{ $id }}">
     <div class="ns-wrap">
@@ -16,7 +16,11 @@
             @foreach ($steps as $i => $step)
                 <li class="ns-step">
                     <div class="ns-step__art">
-                        @include('site.components.chain-tiles', ['pattern' => 'step-'.($i + 1), 'tile' => $i === 3 ? 48 : 96])
+                        @if ($step['icon'] ?? null)
+                            <span class="ns-step__icon">@include('site.partials.icon', ['name' => $step['icon']])</span>
+                        @else
+                            @include('site.components.chain-tiles', ['pattern' => 'step-'.($i + 1), 'tile' => $i === 3 ? 48 : 96])
+                        @endif
                     </div>
                     <span class="ns-step__n ns-num">{{ sprintf('%02d', $i + 1) }}</span>
                     <h3 class="ns-step__title">{{ $step['title'] }}</h3>

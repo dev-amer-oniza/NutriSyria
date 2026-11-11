@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="المطبخ السوري">
+  <rect width="240" height="240" fill="#0f3d32"/>
+  <path d="M240 0v84a84 84 0 0 1-84-84z" fill="#c15b3f"/>
+  <path d="M0 240v-64a64 64 0 0 1 64 64z" fill="#a7b89f" opacity=".35"/>
+  <g fill="none" stroke="#f4f0e9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M62 122h116v30a34 34 0 0 1-34 34H96a34 34 0 0 1-34-34z"/>
+    <path d="M48 122h144M44 138h18M178 138h18"/>
+    <path d="M98 100c-7-9 7-15 0-25M120 100c-7-9 7-15 0-25M142 100c-7-9 7-15 0-25" opacity=".7"/>
+  </g>
+</svg>

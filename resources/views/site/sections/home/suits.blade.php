@@ -20,7 +20,7 @@
             </div>
         @else
             <div class="ns-empty ns-suits__invite">
-                @include('site.components.chain-tiles', ['pattern' => 'step-4', 'tile' => 40])
+                <span class="ns-empty__mark">@include('site.partials.icon', ['name' => 'target'])</span>
                 <div>
                     @if ($suits === null && ! auth()->check())
                         <p class="t-body">أنشئ حسابك وأخبرنا عن جسمك وهدفك، لنقترح عليك الوجبات التي تناسبك من كل المطاعم.</p>

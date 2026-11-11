@@ -29,7 +29,7 @@
                 <h1 class="t-display">كيف نصل إلى رقم تثق به</h1>
                 <p class="t-lead ns-muted">من جدول التركيب الغذائي إلى صحنك: من أين يأتي كل رقم، وكيف نحسب الوجبة، ومن يراجعها، وما الذي لا نستطيع أن نعدك به.</p>
             </div>
-            @include('site.components.chain-tiles', ['pattern' => 'trust', 'tile' => 56, 'class' => 'ns-method__art'])
+            <img class="ns-method__art ns-figure ns-figure--pine" src="{{ asset('images/site/trust-figure.svg') }}" alt="" width="360" height="420" loading="lazy">
         </div>
     </section>
 

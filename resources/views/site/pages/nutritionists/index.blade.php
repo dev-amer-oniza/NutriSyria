@@ -42,7 +42,7 @@
                 </div>
             @else
                 <div class="ns-empty">
-                    @include('site.components.chain-tiles', ['pattern' => 'step-4', 'tile' => 40])
+                    <img class="ns-empty__mark" src="{{ asset('images/site/nutritionist-cover.svg') }}" alt="" loading="lazy">
                     <p class="t-body ns-muted">
                         @if ($specialty || $city)
                             لا يوجد أخصائي بهذه الفلترة الآن. جرّب تخصصاً أو محافظة أخرى.

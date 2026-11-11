@@ -39,7 +39,7 @@
                 </div>
             @else
                 <div class="ns-empty">
-                    @include('site.components.chain-tiles', ['pattern' => 'step-4', 'tile' => 40])
+                    <span class="ns-empty__mark">@include('site.partials.icon', ['name' => 'bowl'])</span>
                     <p class="t-body ns-muted">
                         @if ($search || $onlySuiting)
                             لا وجبات تطابق ما تبحث عنه الآن. جرّب كلمة أخرى، أو اعرض كل الوجبات.
