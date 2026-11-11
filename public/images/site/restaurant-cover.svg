@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="مطعم">
+  <rect width="240" height="240" fill="#0f3d32"/>
+  <path d="M240 0v84a84 84 0 0 1-84-84z" fill="#c15b3f"/>
+  <path d="M0 240v-64a64 64 0 0 1 64 64z" fill="#a7b89f" opacity=".35"/>
+  <g fill="none" stroke="#f4f0e9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="120" cy="126" r="44"/>
+    <circle cx="120" cy="126" r="24" opacity=".55"/>
+    <path d="M52 82v30a12 12 0 0 0 24 0V82M64 82v88"/>
+    <path d="M188 170V82c-12 8-18 22-18 40v14h18"/>
+  </g>
+</svg>

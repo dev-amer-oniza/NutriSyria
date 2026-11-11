@@ -134,7 +134,7 @@
     .ns-levels { list-style: none; margin: 0 0 var(--space-8); padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
     .ns-level { padding-top: var(--space-4); border-top: 1px solid color-mix(in srgb, var(--on-pine) 22%, transparent); }
     .ns-level p { margin: var(--space-3) 0 0; font-size: 15px; line-height: 26px; color: var(--on-pine); }
-    .ns-trust__art { justify-self: end; margin-left: calc(-1 * var(--space-8)); }
+    .ns-trust__art { justify-self: end; width: 360px; height: auto; }
 
     /* ---------- Goals + call to action ---------- */
     .ns-goals { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); align-items: end; margin-bottom: var(--space-8); }

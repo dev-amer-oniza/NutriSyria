@@ -1,10 +1,10 @@
-{{-- A restaurant in a list. Param $restaurant (App\Data\Site\RestaurantFacts). The logo, or the identity tiles. --}}
+{{-- A restaurant in a list. Param $restaurant (App\Data\Site\RestaurantFacts). The logo, or the one cover every restaurant without a logo shares. --}}
 <a class="ns-rest" href="{{ route('site.brands.show', $restaurant->id) }}">
     <span class="ns-rest__logo">
         @if ($restaurant->logo)
             <img src="{{ $restaurant->logo }}" alt="شعار {{ $restaurant->name }}" loading="lazy">
         @else
-            @include('site.components.chain-tiles', ['pattern' => \App\Support\Site\ChainPatterns::dishCover($restaurant->id), 'tile' => 24])
+            <img src="{{ asset('images/site/restaurant-cover.svg') }}" alt="">
         @endif
     </span>
     <span class="ns-rest__body">

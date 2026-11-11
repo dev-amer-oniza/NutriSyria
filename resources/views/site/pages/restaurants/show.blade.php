@@ -21,7 +21,7 @@
                     @if ($restaurant->logo)
                         <img src="{{ $restaurant->logo }}" alt="شعار {{ $restaurant->name }}">
                     @else
-                        @include('site.components.chain-tiles', ['pattern' => \App\Support\Site\ChainPatterns::dishCover($restaurant->id), 'tile' => 40])
+                        <img src="{{ asset('images/site/restaurant-cover.svg') }}" alt="">
                     @endif
                 </span>
                 <div>
