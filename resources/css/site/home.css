@@ -3,7 +3,7 @@
     /* ---------- Hero: the copy, and the meal card over the identity's tiles ---------- */
     .ns-hero { position: relative; overflow: hidden; padding: var(--space-8) 0 var(--space-10); background: var(--surface-raised); }
     /* The tiles (the identity's official pattern) fill the card's side and fade toward the copy. */
-    .ns-hero::before { content: ""; position: absolute; inset: 0; inset-inline-start: 38%; background: url('/images/site/tiles/pattern.webp') center / 900px auto; opacity: .8;
+    .ns-hero::before { content: ""; position: absolute; inset: 0; inset-inline-start: 38%; background: url('/images/site/tiles/pattern.webp') center / 640px auto; opacity: .8;
         -webkit-mask-image: linear-gradient(to left, transparent 0, #000 55%); mask-image: linear-gradient(to left, transparent 0, #000 55%); }
     .ns-hero__in { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-10); align-items: start; }
     .ns-hero__copy { padding-top: var(--space-8); }
@@ -83,6 +83,8 @@
     .ns-xtile__name::after { content: ""; position: absolute; inset: 0; }   /* the whole tile opens the meal */
     .ns-xtile__meta { font-size: 12px; line-height: 18px; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+    .ns-xtile__brand { position: relative; z-index: 1; color: inherit; text-decoration: underline; text-underline-offset: 3px; }   /* above the tile's stretched link */
+
     /* ---------- Join band ---------- */
     .ns-join { position: relative; overflow: hidden; margin: var(--space-4) 0; background: var(--pine); color: var(--on-pine); }
     .ns-join::before { content: ""; position: absolute; inset: 0; background: url('/images/site/tiles/pattern.webp') center / 520px auto; opacity: .07; mix-blend-mode: luminosity; }
@@ -102,10 +104,10 @@
 
     /* ---------- How it works: four steps in a row ---------- */
     .ns-how { padding: var(--space-6) 0 var(--space-4); }
-    .ns-how__in { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--space-6); align-items: center; }
+    .ns-how__in { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: var(--space-5); align-items: center; }
     .ns-how__title { margin: 0 0 var(--space-1); padding-inline-start: var(--space-3); border-inline-start: 4px solid var(--terracotta); font-size: 24px; line-height: 32px; font-weight: 700; color: var(--pine); }
     .ns-how__lead { margin: 0; font-size: 14px; line-height: 22px; color: var(--ink-muted); }
-    .ns-how__steps { list-style: none; margin: 0; padding: var(--space-4); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+    .ns-how__steps { list-style: none; margin: 0; padding: var(--space-4); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-6); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
     .ns-how__step { position: relative; display: flex; align-items: center; gap: var(--space-3); }
     .ns-how__step:not(:last-child)::after { content: ""; position: absolute; inset-inline-end: calc(-1 * var(--space-4)); top: 50%; width: 8px; height: 8px; border-inline-end: 1.6px solid var(--line-strong); border-bottom: 1.6px solid var(--line-strong); transform: translateY(-50%) rotate(45deg); }
     [dir="ltr"] .ns-how__step:not(:last-child)::after { transform: translateY(-50%) rotate(-45deg); }

@@ -30,7 +30,8 @@
                             </div>
                             <div class="ns-xtile__foot">
                                 <a class="ns-xtile__name" href="{{ $dish['url'] }}">{{ $dish['name'] }}</a>
-                                <span class="ns-xtile__meta"><span class="ns-num">{{ $dish['kcal'] ?? '—' }}</span> سعرة · {{ $dish['brand'] }}</span>
+                                <span class="ns-xtile__meta"><span class="ns-num">{{ $dish['kcal'] ?? '—' }}</span> سعرة ·
+                                    @if ($dish['brandUrl'] ?? null)<a class="ns-xtile__brand" href="{{ $dish['brandUrl'] }}">{{ $dish['brand'] }}</a>@else{{ $dish['brand'] }}@endif</span>
                             </div>
                         </li>
                     @endforeach
