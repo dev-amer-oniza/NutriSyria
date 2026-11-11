@@ -8,12 +8,20 @@
         @include('site.components.verify-badge', ['level' => $meal['verification']])
     </div>
 
-    <div class="ns-energy__fig">
-        <span class="ns-num t-figure-xl">{{ $meal['kcal'] }}</span>
-        <span class="ns-energy__unit">سعرة حرارية</span>
+    <div class="ns-panel__main">
+        <div class="ns-panel__energy">
+            <div class="ns-energy__fig">
+                <span class="ns-num t-figure-xl">{{ $meal['kcal'] }}</span>
+                <span class="ns-energy__unit">سعرة حرارية</span>
+            </div>
+            @include('site.components.macro-bar', $meal['macros'])
+        </div>
+        <div class="ns-panel__plate">
+            @if ($meal['image'] ?? null)
+                <img src="{{ $meal['image'] }}" alt="{{ $meal['name'] }}" loading="lazy">
+            @endif
+        </div>
     </div>
-
-    @include('site.components.macro-bar', $meal['macros'])
 
     <div class="ns-panel__stats">
         @include('site.components.nutrient-stat', ['label' => 'بروتين', 'value' => $meal['macros']['protein'], 'key' => 'protein'])

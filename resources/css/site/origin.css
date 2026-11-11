@@ -5,7 +5,7 @@
  * wins over each page's own radius. Buttons, inputs, chips and menus keep their radii.
  */
 @layer components {
-    :is(.ns-dish, .ns-feature, .ns-rest, .ns-nutri, .ns-panel, .ns-cta, .ns-empty,
+    :is(.ns-dish, .ns-feature, .ns-rest, .ns-nutri, .ns-panel, .ns-cta, .ns-empty, .ns-banner, .ns-xtile, .ns-how__steps,
         .ns-needs, .ns-advice, .ns-criteria, .ns-health, .ns-template, .ns-bmi, .ns-plan,
         .ns-goal, .ns-conditions__group, .ns-method__step, .ns-method__sum, .ns-method__source, .ns-method__levels li,
         .ns-about__belief, .ns-person-card, .ns-photo__frame,

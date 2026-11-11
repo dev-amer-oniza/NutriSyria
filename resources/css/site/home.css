@@ -1,26 +1,34 @@
 /* Home page sections (pages/home + sections/home/*). */
 @layer components {
-    /* ---------- Hero ---------- */
-    .ns-hero { position: relative; overflow: hidden; padding: var(--space-8) 0; }
-    .ns-hero__in { display: grid; grid-template-columns: 500px 1fr; gap: var(--space-8); align-items: start; }
+    /* ---------- Hero: the copy, and the meal card over the identity's tiles ---------- */
+    .ns-hero { position: relative; overflow: hidden; padding: var(--space-8) 0 var(--space-10); background: var(--surface-raised); }
+    /* The tiles (the identity's official pattern) fill the card's side and fade toward the copy. */
+    .ns-hero::before { content: ""; position: absolute; inset: 0; inset-inline-start: 38%; background: url('/images/site/tiles/pattern.webp') center / 900px auto; opacity: .8;
+        -webkit-mask-image: linear-gradient(to left, transparent 0, #000 55%); mask-image: linear-gradient(to left, transparent 0, #000 55%); }
+    .ns-hero__in { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-10); align-items: start; }
     .ns-hero__copy { padding-top: var(--space-8); }
-    .ns-hero__title { margin: 0 0 var(--space-5); color: var(--ink); }
-    .ns-hero__title span { color: var(--pine); }
-    .ns-hero__lead { margin: 0 0 var(--space-6); max-width: 470px; }
+    .ns-hero__title { margin: 0 0 var(--space-5); color: var(--pine); font-weight: 700; }
+    .ns-hero__title span { color: var(--terracotta); }
+    .ns-hero__lead { margin: 0 0 var(--space-6); max-width: 500px; }
     .ns-try { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-5); }
     .ns-try > span { font-size: 14px; line-height: 22px; color: var(--ink-muted); margin-inline-end: var(--space-1); }
-    .ns-hero__visual { position: relative; min-height: 724px; }
-    .ns-hero__field { position: absolute; top: 0; left: calc(-1 * var(--space-8)); }
+    .ns-hero__visual { display: flex; justify-content: center; }
 
     /* ---------- Analysis panel with the personal fit ---------- */
-    .ns-panel { position: relative; margin-top: 64px; width: 448px; display: flex; flex-direction: column; gap: var(--space-5); padding: var(--space-6) var(--space-6) var(--space-5); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); }
+    .ns-panel { position: relative; margin-top: var(--space-4); width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: var(--space-5); padding: var(--space-6) var(--space-6) var(--space-5); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); }
     .ns-panel__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
     .ns-panel__title { margin: 0; font-size: 22px; line-height: 34px; font-weight: 600; color: var(--ink); }
     .ns-panel__sub { margin: 0; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-panel__main { display: grid; grid-template-columns: minmax(0, 1fr) 168px; gap: var(--space-5); align-items: center; }
+    .ns-panel__energy { display: flex; flex-direction: column; gap: var(--space-4); }
+    /* The plate: the meal's photo, or the tiles when it has none. */
+    .ns-panel__plate { width: 168px; height: 168px; border-radius: var(--radius-full); overflow: hidden; background: url('/images/site/tiles/cover-1.webp') center / cover; box-shadow: var(--shadow-sm); }
+    .ns-panel__plate img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .ns-energy__fig { display: flex; align-items: baseline; gap: var(--space-2); }
     .ns-energy__fig .t-figure-xl { color: var(--pine); }
     .ns-energy__unit { font-size: 15px; line-height: 24px; color: var(--ink-muted); }
-    .ns-panel__stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); margin-top: calc(-1 * var(--space-2)); }
+    .ns-panel__stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); }
+    .ns-panel__stats .ns-stat + .ns-stat { padding-inline-start: var(--space-3); border-inline-start: 1px solid var(--line); }
 
     .ns-fit { display: flex; flex-direction: column; gap: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--line); }
     .ns-fit__ask { margin: 0; font-size: 14px; line-height: 22px; font-weight: 600; color: var(--ink); }
@@ -44,6 +52,68 @@
 
     /* ---------- Dishes ---------- */
     .ns-dishes { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
+
+    /* ---------- Explore: the banner and the newest meals ---------- */
+    .ns-explore { padding: var(--space-6) 0; }
+    .ns-explore__in { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: var(--space-5); align-items: stretch; }
+    .ns-banner { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: var(--space-3); padding: var(--space-6); border-radius: var(--radius-lg); background: #dde8d8; }
+    .ns-banner::before { content: ""; position: absolute; inset: 0; background: url('/images/site/tiles/pattern-green.webp') center / cover; transform: scaleX(-1); }
+    .ns-banner > * { position: relative; }
+    .ns-banner__title { margin: 0; font-size: 28px; line-height: 42px; font-weight: 700; color: var(--pine); }
+    .ns-banner__text { margin: 0 0 var(--space-2); max-width: 220px; font-size: 14px; line-height: 24px; color: var(--ink-muted); }
+    .ns-explore__meals { min-width: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+    .ns-explore__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+    .ns-explore__title { margin: 0; font-size: 24px; line-height: 36px; font-weight: 700; color: var(--pine); }
+    .ns-explore__head .ns-link { color: var(--terracotta-ink); }
+    .ns-explore__strip { flex: 1; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-3); }
+    .ns-xtile { position: relative; display: flex; flex-direction: column; min-height: 200px; border-radius: var(--radius-md); overflow: hidden; background: var(--pine); color: var(--on-pine); box-shadow: var(--shadow-sm); transition: transform .15s ease, box-shadow .15s ease; }
+    .ns-xtile:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .ns-xtile:focus-within { box-shadow: var(--focus-ring); }
+    .ns-xtile:nth-child(3n + 2) { background: var(--pine-soft); color: var(--pine); }
+    .ns-xtile:nth-child(3n) { background: var(--terracotta-soft); color: var(--terracotta-ink); }
+    .ns-xtile__cover { position: relative; flex: 1; min-height: 120px; background: var(--sand) center / cover; }
+    .ns-xtile__cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .ns-xtile__cover--1 { background-image: url('/images/site/tiles/cover-1.webp'); }
+    .ns-xtile__cover--2 { background-image: url('/images/site/tiles/cover-2.webp'); }
+    .ns-xtile__cover--3 { background-image: url('/images/site/tiles/cover-3.webp'); }
+    .ns-xtile__cover--4 { background-image: url('/images/site/tiles/cover-4.webp'); }
+    .ns-xtile__fit { position: absolute; inset-block-start: var(--space-2); inset-inline-start: var(--space-2); padding: 2px var(--space-2); border-radius: var(--radius-sm); background: var(--surface-raised); color: var(--ink); }
+    .ns-xtile__foot { display: flex; flex-direction: column; gap: 2px; padding: var(--space-3); }
+    .ns-xtile__name { color: inherit; font-size: 16px; line-height: 24px; font-weight: 600; text-decoration: none; outline: none; }
+    .ns-xtile__name::after { content: ""; position: absolute; inset: 0; }   /* the whole tile opens the meal */
+    .ns-xtile__meta { font-size: 12px; line-height: 18px; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ---------- Join band ---------- */
+    .ns-join { position: relative; overflow: hidden; margin: var(--space-4) 0; background: var(--pine); color: var(--on-pine); }
+    .ns-join::before { content: ""; position: absolute; inset: 0; background: url('/images/site/tiles/pattern.webp') center / 520px auto; opacity: .07; mix-blend-mode: luminosity; }
+    .ns-join__in { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: var(--space-8); align-items: center; padding-top: var(--space-6); padding-bottom: var(--space-6); }
+    .ns-join__lead { display: flex; align-items: center; gap: var(--space-6); }
+    .ns-join__lead .ns-btn { flex: none; order: -1; }
+    .ns-join__title { margin: 0 0 var(--space-1); font-size: 24px; line-height: 36px; font-weight: 700; color: var(--on-pine); }
+    .ns-join__text { margin: 0; font-size: 14px; line-height: 22px; color: var(--sage); }
+    .ns-join__points { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); }
+    .ns-join__points li + li { border-inline-start: 1px solid color-mix(in srgb, var(--on-pine) 22%, transparent); }
+    .ns-join__points a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 var(--space-4); text-align: center; color: var(--on-pine); text-decoration: none; border-radius: var(--radius-sm); }
+    .ns-join__points a:focus-visible { outline: none; box-shadow: var(--focus-ring-on-pine); }
+    .ns-join__points .ns-icon { width: 30px; height: 30px; margin-bottom: var(--space-1); }
+    .ns-join__points b { font-size: 16px; line-height: 24px; font-weight: 600; }
+    .ns-join__points a:hover b { text-decoration: underline; text-underline-offset: 4px; }
+    .ns-join__points span { font-size: 13px; line-height: 20px; color: var(--sage); }
+
+    /* ---------- How it works: four steps in a row ---------- */
+    .ns-how { padding: var(--space-6) 0 var(--space-4); }
+    .ns-how__in { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--space-6); align-items: center; }
+    .ns-how__title { margin: 0 0 var(--space-1); padding-inline-start: var(--space-3); border-inline-start: 4px solid var(--terracotta); font-size: 24px; line-height: 32px; font-weight: 700; color: var(--pine); }
+    .ns-how__lead { margin: 0; font-size: 14px; line-height: 22px; color: var(--ink-muted); }
+    .ns-how__steps { list-style: none; margin: 0; padding: var(--space-4); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+    .ns-how__step { position: relative; display: flex; align-items: center; gap: var(--space-3); }
+    .ns-how__step:not(:last-child)::after { content: ""; position: absolute; inset-inline-end: calc(-1 * var(--space-4)); top: 50%; width: 8px; height: 8px; border-inline-end: 1.6px solid var(--line-strong); border-bottom: 1.6px solid var(--line-strong); transform: translateY(-50%) rotate(45deg); }
+    [dir="ltr"] .ns-how__step:not(:last-child)::after { transform: translateY(-50%) rotate(-45deg); }
+    .ns-how__icon { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--radius-md); background: var(--pine-soft); color: var(--pine); }
+    .ns-how__step:nth-child(even) .ns-how__icon { background: var(--terracotta-soft); color: var(--terracotta-ink); }
+    .ns-how__n { display: block; font-size: 13px; line-height: 18px; font-weight: 600; color: var(--terracotta-ink); }
+    .ns-how__step h3 { margin: 0; font-size: 15px; line-height: 24px; font-weight: 600; color: var(--ink); }
+    .ns-how__step p { margin: 0; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
 
     /* ---------- Steps ---------- */
     .ns-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); }
@@ -77,10 +147,14 @@
     .ns-cta__art { align-self: stretch; }
 
     @media (max-width: 1080px) {
-        .ns-hero__in { grid-template-columns: minmax(0, 1fr); }
+        .ns-hero__in { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
         .ns-hero__copy { padding-top: 0; }
-        .ns-hero__visual { min-height: 0; }
-        .ns-panel { width: auto; max-width: 480px; }
+        .ns-hero::before { inset-inline-start: 0; opacity: .35; -webkit-mask-image: linear-gradient(to bottom, transparent 30%, #000); mask-image: linear-gradient(to bottom, transparent 30%, #000); }
+        .ns-hero__visual { justify-content: flex-start; }
+        .ns-explore__in, .ns-join__in, .ns-how__in { grid-template-columns: minmax(0, 1fr); }
+        .ns-explore__strip { grid-template-columns: repeat(5, 180px); overflow-x: auto; padding-bottom: var(--space-2); }
+        .ns-how__steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .ns-how__step::after { display: none; }
         .ns-features__grid, .ns-dishes, .ns-steps { grid-template-columns: repeat(2, 1fr); }
         .ns-step::after { display: none; }
         .ns-trust__in { grid-template-columns: 1fr; }
@@ -92,9 +166,16 @@
     }
     @media (max-width: 640px) {
         .ns-features__grid, .ns-dishes, .ns-steps { grid-template-columns: 1fr; }
-        .ns-hero__field { display: none; }
-        .ns-panel { margin-top: var(--space-6); padding: var(--space-5) var(--space-4) var(--space-4); }
+        .ns-panel { margin-top: 0; padding: var(--space-5) var(--space-4) var(--space-4); }
         .ns-panel__stats, .ns-share { grid-template-columns: repeat(2, 1fr); }
+        .ns-panel__main { grid-template-columns: minmax(0, 1fr) 112px; }
+        .ns-panel__plate { width: 112px; height: 112px; }
+        .ns-panel__stats .ns-stat + .ns-stat { padding-inline-start: 0; border: 0; }
+        .ns-join__lead { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+        .ns-join__lead .ns-btn { order: 0; }
+        .ns-join__points, .ns-how__steps { grid-template-columns: 1fr; gap: var(--space-4); }
+        .ns-join__points li + li { border: 0; }
+        .ns-join__points a { align-items: flex-start; text-align: start; padding: 0; }
         .ns-cta__copy { padding: var(--space-6); }
         .ns-cta__actions { flex-wrap: wrap; }
     }
