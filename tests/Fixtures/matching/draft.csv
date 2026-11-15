@@ -1,0 +1,16 @@
+﻿pick,hint,food_name_ar,food_name_en,target_form,food_form_code,fdc_id,description,note,data_source,missing,match,form_note,score,rank
+yes,,عدس,Lentils,raw,raw,2644283,"Lentils, dry",,usda_fdc_foundation,,exact,form not stated by USDA; assumed from your wanted list,58.2,1
+yes,,عدس,Lentils,raw,raw,172420,"Lentils, raw",,usda_fdc_sr_legacy,,exact,,58.2,1
+yes,,عدس,Lentils,boiled,boiled,172421,"Lentils, mature seeds, cooked, boiled, without salt",,usda_fdc_sr_legacy,,exact,,60.4,1
+,,عدس,Lentils,boiled,boiled,175254,"Lentils, mature seeds, cooked, boiled, with salt",,usda_fdc_sr_legacy,,exact,,27.8,2
+yes,,حمص,Chickpeas,raw,raw,2644282,"Chickpeas, (garbanzo beans, bengal gram), dry",,usda_fdc_foundation,,exact,form not stated by USDA; assumed from your wanted list,53.2,1
+yes,,حمص,Chickpeas,raw,raw,173756,"Chickpeas (garbanzo beans, bengal gram), mature seeds, raw",,usda_fdc_sr_legacy,,exact,,51.3,1
+yes,,حمص,Chickpeas,boiled,boiled,173757,"Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, without salt",,usda_fdc_sr_legacy,,exact,,55.5,1
+,,حمص,Chickpeas,boiled,boiled,173799,"Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, with salt",,usda_fdc_sr_legacy,,exact,,23.0,2
+yes,,زعتر يابس,Dried wild thyme (oregano),dried,dried,171328,"Spices, oregano, dried",مطابقة نباتية: أوريغانو مجفف، والزعتر البري السوري (Origanum syriacum) من جنس الأوريغانو,usda_fdc_sr_legacy,,exact,,54.7,1
+,weak name match: check,بيض,Egg,raw,raw,748967,"Eggs, Grade A, Large, egg whole",,usda_fdc_foundation,,loose,form not stated by USDA; assumed from your wanted list,5.4,1
+yes,,بيض,Egg,raw,raw,171287,"Egg, whole, raw, fresh",,usda_fdc_sr_legacy,,exact,,51.7,1
+,,بيض,Egg,raw,raw,168773,"Egg custards, dry mix, prepared with whole milk",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,3.0,2
+yes,,بيض,Egg,boiled,boiled,173424,"Egg, whole, cooked, hard-boiled",,usda_fdc_sr_legacy,,exact,,50.4,1
+yes,,لبنة,Labneh,any,as_sold,2259794,"Yogurt, Greek, plain, whole milk",مقاربة: زبادي يوناني كامل الدسم بدل اللبنة,usda_fdc_foundation,,exact,,53.2,1
+yes,,لبنة,Labneh,any,as_sold,171304,"Yogurt, Greek, plain, whole milk",مقاربة: زبادي يوناني كامل الدسم بدل اللبنة,usda_fdc_sr_legacy,,exact,,53.2,1
