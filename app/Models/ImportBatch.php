@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property array<string, mixed>|null $stats
+ */
 class ImportBatch extends Model
 {
     protected $fillable = [
@@ -33,6 +36,7 @@ class ImportBatch extends Model
         return $this->hasMany(ImportRow::class);
     }
 
+    /** @return HasMany<FoodSourceRecord, $this> */
     public function foodSourceRecords(): HasMany
     {
         return $this->hasMany(FoodSourceRecord::class);

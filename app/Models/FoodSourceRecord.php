@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * One source's description of one food in one form (e.g. "USDA item 173757 = chickpeas,
  * boiled"). source_type/name/country/priority are NOT columns here: they come from dataSource.
  * The unique (data_source_id, external_ref) pair is the crosswalk a re-import matches against.
+ *
+ * @property FoodSourceStatus $status
  */
 class FoodSourceRecord extends Model
 {
@@ -35,6 +37,7 @@ class FoodSourceRecord extends Model
         ];
     }
 
+    /** @return BelongsTo<Food, $this> */
     public function food(): BelongsTo
     {
         return $this->belongsTo(Food::class);
@@ -50,11 +53,13 @@ class FoodSourceRecord extends Model
         return $this->belongsTo(DataSource::class);
     }
 
+    /** @return BelongsTo<ImportBatch, $this> */
     public function importBatch(): BelongsTo
     {
         return $this->belongsTo(ImportBatch::class);
     }
 
+    /** @return HasMany<FoodNutrientValue, $this> */
     public function nutrientValues(): HasMany
     {
         return $this->hasMany(FoodNutrientValue::class);

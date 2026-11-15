@@ -180,19 +180,7 @@ final class PortionResolver
      */
     public function choices(array $unit, ?array $record, array $portions): array
     {
-        if ($record === null || self::massFactor($unit) !== null) {
-            return [];
-        }
-
-        $tiers = [[], [], []];
-        foreach ($this->usable($record, $portions) as $p) {
-            $tier = $p['measure_unit_id'] === $unit['id'] ? $this->tierOf($p, $record) : null;
-            if ($tier !== null) {
-                $p['_weight'] = $p['gram_weight'] / $p['amount'];
-                $tiers[$tier][] = $p;
-            }
-        }
-        $set = current(array_filter($tiers)) ?: [];
+        $set = $this->choiceTier($unit, $record, $portions);
 
         usort($set, fn (array $a, array $b) => $a['_weight'] <=> $b['_weight']);
         $distinct = [];
@@ -218,6 +206,45 @@ final class PortionResolver
                 'grams' => $p['_weight'],
             ];
         }, $distinct);
+    }
+
+    /**
+     * Making $portionId the default of this unit for the ingredient: the ids whose is_default
+     * must be cleared (the other portions of the same unit in the same tier, so one default is
+     * left), or null when $portionId is not one of the portions choices() picks between.
+     *
+     * @return list<int>|null
+     */
+    public function defaultSwap(array $unit, ?array $record, array $portions, int $portionId): ?array
+    {
+        if ($this->choices($unit, $record, $portions) === []) {
+            return null;
+        }
+        $ids = array_map(fn (array $p) => $p['id'], $this->choiceTier($unit, $record, $portions));
+        if (! in_array($portionId, $ids, true)) {
+            return null;
+        }
+
+        return array_values(array_diff($ids, [$portionId]));
+    }
+
+    /** The portions of this unit in the most specific tier that has any (own record, same form, form-less). */
+    private function choiceTier(array $unit, ?array $record, array $portions): array
+    {
+        if ($record === null || self::massFactor($unit) !== null) {
+            return [];
+        }
+
+        $tiers = [[], [], []];
+        foreach ($this->usable($record, $portions) as $p) {
+            $tier = $p['measure_unit_id'] === $unit['id'] ? $this->tierOf($p, $record) : null;
+            if ($tier !== null) {
+                $p['_weight'] = $p['gram_weight'] / $p['amount'];
+                $tiers[$tier][] = $p;
+            }
+        }
+
+        return current(array_filter($tiers)) ?: [];
     }
 
     /** "كبيرة" for "large (3\" dia)" or "كبيرة"; null when the description does not start with a size. */

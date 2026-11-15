@@ -25,6 +25,15 @@ return [
         'rounding_tolerance_g' => 0.5,
     ],
 
+    // Review flags on the batch page (RecordFlags). A record with none may be approved with
+    // "اعتمد كل السليم"; a flagged one is approved alone, with a reason.
+    'review' => [
+        // reported kcal vs 4/9/4, in percent of the reported kcal (atwater_floor_kcal still applies)
+        'energy_mismatch_pct' => 15,
+        // a re-import that changes a value by more than this (percent of the old value)
+        'large_change_pct' => 20,
+    ],
+
     'max_issues_reported' => 50,
     'max_changed_values_logged' => 200,
 ];

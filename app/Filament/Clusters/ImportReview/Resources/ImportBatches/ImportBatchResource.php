@@ -6,6 +6,7 @@ use App\Filament\Clusters\ImportReview\ImportReviewCluster;
 use App\Filament\Clusters\ImportReview\Resources\ImportBatches\Pages\EditImportBatch;
 use App\Filament\Clusters\ImportReview\Resources\ImportBatches\Pages\ListImportBatches;
 use App\Filament\Clusters\ImportReview\Resources\ImportBatches\RelationManagers\FoodSourceRecordsRelationManager;
+use App\Filament\Clusters\ImportReview\Resources\ImportBatches\RelationManagers\PortionDecisionsRelationManager;
 use App\Filament\Clusters\ImportReview\Resources\ImportBatches\Schemas\ImportBatchForm;
 use App\Filament\Clusters\ImportReview\Resources\ImportBatches\Tables\ImportBatchesTable;
 use App\Models\ImportBatch;
@@ -49,6 +50,7 @@ class ImportBatchResource extends Resource
     {
         return [
             FoodSourceRecordsRelationManager::class,
+            PortionDecisionsRelationManager::class,
         ];
     }
 

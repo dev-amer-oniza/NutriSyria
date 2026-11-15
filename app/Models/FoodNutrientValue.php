@@ -36,6 +36,7 @@ class FoodNutrientValue extends Model
         return $this->belongsTo(FoodSourceRecord::class, 'food_source_record_id');
     }
 
+    /** @return BelongsTo<Nutrient, $this> */
     public function nutrient(): BelongsTo
     {
         return $this->belongsTo(Nutrient::class);

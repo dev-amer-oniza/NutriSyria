@@ -2,8 +2,11 @@
 
 namespace App\Filament\Clusters\ImportReview\Resources\ImportBatches\RelationManagers;
 
+use App\Data\Import\ReviewFlag;
 use App\Enums\FoodSourceStatus;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Resources\FoodSourceRecords\FoodSourceRecordResource;
+use App\Models\ImportBatch;
+use App\Services\Import\BatchReview;
 use App\Services\Import\RecordReview;
 use App\Support\ArabicSearch;
 use Filament\Actions\Action;
@@ -18,7 +21,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
+use InvalidArgumentException;
+use LogicException;
 
 class FoodSourceRecordsRelationManager extends RelationManager
 {
@@ -33,6 +38,54 @@ class FoodSourceRecordsRelationManager extends RelationManager
     // نفس أهم 4 مغذيات نتحقق منها عند مراجعة القيم يدوياً
     private const PREVIEW_NUTRIENTS = ['energy_kcal', 'protein_g', 'fat_g', 'carbohydrate_g'];
 
+    /** Filter values of "عرض". */
+    private const SHOW_PENDING = 'pending';
+
+    private const SHOW_FLAGGED = 'flagged';
+
+    private const SHOW_CLEAN = 'clean';
+
+    private ?BatchReview $batchReview = null;
+
+    /** @var list<int>|null pending flagged ids of the batch, once per request */
+    private ?array $flaggedIds = null;
+
+    /** @var array{total:int, active:int, pending:int, flagged:int, rejected:int, other:int}|null */
+    private ?array $progress = null;
+
+    private function progress(): array
+    {
+        return $this->progress ??= $this->batchReview()->progress($this->batch());
+    }
+
+    /** After a review action the counts and flags are read again. */
+    private function forget(): void
+    {
+        $this->flaggedIds = null;
+        $this->progress = null;
+    }
+
+    private function batch(): ImportBatch
+    {
+        $batch = $this->getOwnerRecord();
+        if (! $batch instanceof ImportBatch) {
+            throw new LogicException('The review queue belongs to an import batch.');
+        }
+
+        return $batch;
+    }
+
+    private function batchReview(): BatchReview
+    {
+        return $this->batchReview ??= new BatchReview;
+    }
+
+    /** @return list<int> */
+    private function flaggedIds(): array
+    {
+        return $this->flaggedIds ??= $this->batchReview()->pendingFlaggedIds($this->batch());
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -46,10 +99,16 @@ class FoodSourceRecordsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->with([
-                'food', 'foodForm', 'dataSource',
-                'nutrientValues.nutrient', 'reviewedBy',
-            ]))
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->with(['food', 'foodForm', 'dataSource', 'nutrientValues.nutrient', 'reviewedBy', 'importBatch']);
+                // Flagged records first: they are the ones that need a person.
+                if ($ids = $this->flaggedIds()) {
+                    $query->orderByRaw('case when food_source_records.id in ('.implode(',', array_map('intval', $ids)).') then 0 else 1 end');
+                }
+            })
+            ->description(fn () => new HtmlString(view('filament.clusters.import-review.components.review-progress', [
+                'progress' => $this->progress(),
+            ])->render()))
             ->recordTitleAttribute('external_ref')
             ->columns([
                 TextColumn::make('food.name_ar')
@@ -81,6 +140,15 @@ class FoodSourceRecordsRelationManager extends RelationManager
                 TextColumn::make('preview_carbs')
                     ->label('كربوهيدرات')
                     ->getStateUsing(fn ($record) => self::nutrientAmount($record, 'carbohydrate_g').' غ'),
+                TextColumn::make('review_flags')
+                    ->label('تنبيهات')
+                    ->badge()
+                    ->color('warning')
+                    ->icon('heroicon-o-exclamation-triangle')
+                    ->placeholder('—')
+                    ->getStateUsing(fn ($record) => array_map(fn (ReviewFlag $f) => $f->label, $this->batchReview()->flagsFor($record)))
+                    ->tooltip(fn ($record) => implode("\n", array_map(fn (ReviewFlag $f) => $f->detail, $this->batchReview()->flagsFor($record))) ?: null)
+                    ->wrap(),
                 TextColumn::make('status')
                     ->label('الحالة')
                     ->badge(),
@@ -95,11 +163,57 @@ class FoodSourceRecordsRelationManager extends RelationManager
                     ->color('gray'),
             ])
             ->defaultSort('id')
+            ->emptyStateHeading('لا توجد سجلات هنا')
+            ->emptyStateDescription('غيّر «عرض» أو «الحالة» لرؤية السجلات المعتمدة والمرفوضة.')
+            ->headerActions([
+                Action::make('approveClean')
+                    ->label(fn () => 'اعتمد كل السليم ('.$this->cleanCount().')')
+                    ->icon('heroicon-o-check-badge')
+                    ->color('success')
+                    ->authorize('reviewAny')
+                    ->visible(fn () => $this->cleanCount() > 0)
+                    ->requiresConfirmation()
+                    ->modalHeading('اعتماد كل السجلات السليمة')
+                    ->modalDescription(fn () => sprintf(
+                        'سيُعتمد %d سجلاً بلا أي تنبيه، من الدفعة كلها لا من هذه الصفحة فقط.%s',
+                        $this->cleanCount(),
+                        ($n = count($this->flaggedIds())) ? " السجلات الـ{$n} التي عليها تنبيه تبقى للمراجعة واحداً واحداً." : '',
+                    ))
+                    ->modalSubmitActionLabel('اعتمد')
+                    ->action(function () {
+                        $result = $this->batchReview()->approveCleanInBatch($this->batch(), auth()->user());
+                        $this->forget();
+                        Notification::make()
+                            ->title("تم اعتماد {$result['approved']} سجلاً")
+                            ->body($result['flagged'] ? "بقي {$result['flagged']} عليها تنبيه: افتح كل واحد منها." : null)
+                            ->success()
+                            ->send();
+                    }),
+            ])
             ->filters([
+                SelectFilter::make('show')
+                    ->label('عرض')
+                    ->options([
+                        self::SHOW_PENDING => 'كل الباقي (التنبيهات أولاً)',
+                        self::SHOW_FLAGGED => 'باقٍ، فيه تنبيه',
+                        self::SHOW_CLEAN => 'باقٍ، سليم',
+                    ])
+                    ->default(self::SHOW_PENDING)
+                    ->query(function (Builder $query, array $data) {
+                        $show = $data['value'] ?? null;
+                        if (! in_array($show, [self::SHOW_PENDING, self::SHOW_FLAGGED, self::SHOW_CLEAN], true)) {
+                            return;
+                        }
+                        $query->where('status', FoodSourceStatus::PendingReview->value);
+                        match ($show) {
+                            self::SHOW_FLAGGED => $query->whereKey($this->flaggedIds()),
+                            self::SHOW_CLEAN => $query->whereKeyNot($this->flaggedIds()),
+                            default => null,
+                        };
+                    }),
                 SelectFilter::make('status')
                     ->label('الحالة')
-                    ->options(FoodSourceStatus::class)
-                    ->default(FoodSourceStatus::PendingReview->value),
+                    ->options(FoodSourceStatus::class),
             ])
             ->recordActions([
                 // Details in a side panel: the reviewer stays on the batch, and needs no
@@ -110,7 +224,7 @@ class FoodSourceRecordsRelationManager extends RelationManager
                     ->color('gray')
                     ->slideOver()
                     ->modalHeading(fn ($record) => $record->food?->name_ar)
-                    ->modalContent(fn ($record) => view('filament.clusters.import-review.components.record-details', ['record' => $record]))
+                    ->modalContent(fn ($record) => view('filament.clusters.import-review.components.record-details', ['record' => $record, 'flags' => $this->batchReview()->flagsFor($record)]))
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('إغلاق'),
 
@@ -133,9 +247,25 @@ class FoodSourceRecordsRelationManager extends RelationManager
                     ->authorize('review')
                     ->requiresConfirmation()
                     ->modalHeading('اعتماد هذا السجل')
-                    ->modalDescription('سيصبح هذا السجل نشطاً، ويُحتسب في نتائج النظام. هل أنت متأكد؟')
-                    ->action(function ($record) {
-                        app(RecordReview::class)->approve($record, auth()->user());
+                    ->modalDescription(fn ($record) => $this->batchReview()->flagsFor($record)
+                        ? new HtmlString('<strong>على هذا السجل تنبيه:</strong><br>'.implode('<br>', array_map(fn (ReviewFlag $f) => '• '.e($f->detail), $this->batchReview()->flagsFor($record))).'<br><br>اعتمده فقط إن راجعت الأرقام، واكتب السبب.')
+                        : 'سيصبح هذا السجل نشطاً، ويُحتسب في نتائج النظام. هل أنت متأكد؟')
+                    ->schema(fn ($record) => $this->batchReview()->flagsFor($record) ? [
+                        Textarea::make('reason')
+                            ->label('سبب الاعتماد رغم التنبيه')
+                            ->helperText('مثال: «راجعت الملصق، الرقم صحيح». يُحفظ في ملاحظات السجل مع اسمك.')
+                            ->required()
+                            ->maxLength(RecordReview::MAX_REASON_LENGTH),
+                    ] : [])
+                    ->action(function ($record, array $data) {
+                        try {
+                            $this->batchReview()->approve($record, auth()->user(), $data['reason'] ?? null);
+                        } catch (InvalidArgumentException $e) {
+                            Notification::make()->title($e->getMessage())->danger()->send();
+
+                            return;
+                        }
+                        $this->forget();
                         Notification::make()->title('تم الاعتماد')->success()->send();
                     }),
 
@@ -167,15 +297,26 @@ class FoodSourceRecordsRelationManager extends RelationManager
                         ->color('success')
                         ->authorize('reviewAny')
                         ->requiresConfirmation()
-                        ->modalDescription('سيُعتمد كل سجل محدد بحالة "قيد المراجعة" فقط، وتُفعَّل أغذيته الجديدة.')
+                        ->modalDescription('يُعتمد من المحدد كل سجل «قيد المراجعة» بلا تنبيه، وتُفعَّل أغذيته الجديدة. ما عليه تنبيه يبقى ليُعتمد وحده مع السبب.')
                         ->action(function (Collection $records) {
-                            $review = app(RecordReview::class);
-                            $count = $records->filter(fn (Model $record) => $review->approve($record, auth()->user()))->count();
-                            Notification::make()->title("تم اعتماد {$count} سجلاً")->success()->send();
+                            $result = $this->batchReview()->approveClean($records, auth()->user());
+                            $this->forget();
+                            Notification::make()
+                                ->title("تم اعتماد {$result['approved']} سجلاً")
+                                ->body($result['flagged'] ? "تُرك {$result['flagged']} لأن عليها تنبيهاً." : null)
+                                ->success()
+                                ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
+    }
+
+    private function cleanCount(): int
+    {
+        $progress = $this->progress();
+
+        return $progress['pending'] - $progress['flagged'];
     }
 
     private static function nutrientAmount($record, string $code): string
