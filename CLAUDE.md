@@ -319,6 +319,7 @@
   - **اتصال واحد بقاعدة البيانات** (مراجعة المتانة، المرحلة 3): اتصال `central` القديم (بقية الـ tenancy) حُذف، فكل النماذج والصلاحيات والإشعارات على الاتصال الافتراضي.
   - قيد CHECK في migration جدول `food_nutrient_values` يُطبَّق على MySQL/MariaDB فقط.
 - **التثبيت:**
+  - **PHP 8.3 هو الحد الأدنى** (`composer.json`: `"php": "^8.3"`؛ قرار صاحب المشروع بتحديث PHP بدل البقاء على 8.2). XAMPP لا يصدر نسخاً بعد 8.2.12، فعلى ويندوز: استبدال مجلد `C:\xampp\php` بـ PHP 8.3 (Thread Safe x64 من windows.php.net)، أو Laragon/Herd. CI والسيرفر على 8.3.
   - `composer install` قد يحتاج `--ignore-platform-req=ext-redis` في بعض البيئات.
   - اللوحة تحتاج `npm ci && npm run build` (viteTheme).
 - **البحث العربي** (`App\Support\ArabicSearch`): "ارز" يجد "أرز"، "جبنه" يجد "جبنة"، والتشكيل يُهمَل. الكلمة تمر بـ `ArabicNormalizer`، والعمود يُوحَّد في SQL بـ `replace` متداخلة (MySQL وSQLite، بلا عمود إضافي). مستعمل في: قائمة المكوّن (والأسماء البديلة `food_aliases`)، جداول الأغذية والمنتجات والبراندات والمستخدمين والحصص وسجلات الدفعة، البحث العلوي (`ArabicGlobalSearch`)، والقوائم المنسدلة المرتبطة بـ `->arabicSearch()` بعد `->relationship()`. حقل جديد بأسماء عربية يحتاج واحداً منها.
