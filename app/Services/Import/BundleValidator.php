@@ -44,26 +44,26 @@ final class BundleValidator
             $ref = $raw['external_ref'] ?? '';
 
             if (! isset($this->l->dataSources[$ds])) {
-                $add($rid, 'error', 'unknown_data_source', "data_source_code '{$ds}' is not an active data source");
+                $add($rid, 'error', 'unknown_data_source', "مصدر البيانات «{$ds}» غير موجود أو غير مفعّل (عمود data_source_code)");
             }
             if ($ref === '') {
-                $add($rid, 'error', 'missing_external_ref', 'external_ref is required (it is how re-imports find this record)');
+                $add($rid, 'error', 'missing_external_ref', 'الرقم المرجعي (external_ref) فارغ: هو ما تجد به إعادة الاستيراد هذا السجل');
             } elseif (isset($recordRowByKey[$key])) {
-                $add($rid, 'error', 'duplicate_record', "Same data source + external_ref '{$ref}' appears twice in this bundle");
+                $add($rid, 'error', 'duplicate_record', "الرقم المرجعي «{$ref}» مكرر لنفس المصدر في هذا الملف");
             } else {
                 $recordRowByKey[$key] = $rid;
             }
 
             $form = $raw['food_form_code'] ?? '';
             if ($form === '') {
-                $add($rid, 'error', 'missing_food_form', 'food_form_code is required');
+                $add($rid, 'error', 'missing_food_form', 'شكل الغذاء (food_form_code) فارغ');
             } elseif (! isset($this->l->forms[$form])) {
-                $add($rid, 'error', 'unknown_food_form', "food_form_code '{$form}' does not exist");
+                $add($rid, 'error', 'unknown_food_form', "شكل الغذاء «{$form}» غير معروف (انظر الإعدادات المرجعية ← أشكال الغذاء)");
             }
 
             $category = trim($raw['category_path'] ?? '');
             if ($category !== '' && $this->l->resolveCategoryPath($category) === null) {
-                $add($rid, 'error', 'unknown_category', "category_path '{$category}' does not exist (categories are never created by imports)");
+                $add($rid, 'error', 'unknown_category', "التصنيف «{$category}» غير موجود (الاستيراد لا ينشئ تصنيفات)");
             }
 
             $food = $this->l->resolveFood($raw);
@@ -71,13 +71,13 @@ final class BundleValidator
                 $add($rid, 'error', $food['code'], $food['message']);
             } elseif ($food['status'] === 'new') {
                 $newFoodByKey[$key] = ArabicNormalizer::normalize($raw['food_name_ar']);
-                $add($rid, 'info', 'new_food', "Will create a new food '{$raw['food_name_ar']}' (inactive until approved)");
+                $add($rid, 'info', 'new_food', "سيُنشأ غذاء جديد «{$raw['food_name_ar']}» (لا يظهر قبل الاعتماد)");
             }
 
             if (isset($existing[$key]) && $food['status'] !== 'error') {
                 if ($food['status'] === 'new' || $food['id'] !== $existing[$key]['food_id']) {
                     $add($rid, 'error', 'record_linked_to_other_food',
-                        "This source item is already linked to food id {$existing[$key]['food_id']}; fix food_id/food_name_ar in the crosswalk");
+                        'هذا العنصر من المصدر مربوط من قبل بغذاء آخر'.$this->foodName($existing[$key]['food_id']).'؛ صحّح اسم الغذاء في المطابقة');
                 }
             }
         }
@@ -94,19 +94,19 @@ final class BundleValidator
             $code = $raw['nutrient_code'] ?? '';
 
             if (! isset($recordRowByKey[$key])) {
-                $add($rid, 'error', 'orphan_value', 'No matching row in records for this data_source_code + external_ref');
+                $add($rid, 'error', 'orphan_value', 'لا يوجد سجل بنفس المصدر والرقم المرجعي في ملف السجلات');
             }
 
             $nut = $this->l->nutrients[$code] ?? null;
             if ($nut === null) {
-                $add($rid, 'error', 'unknown_nutrient', "nutrient_code '{$code}' is not an active nutrient");
+                $add($rid, 'error', 'unknown_nutrient', "المغذّي «{$code}» غير معروف أو غير مفعّل");
 
                 continue;
             }
 
             $dupKey = $key.'|'.$code;
             if (isset($seenValue[$dupKey])) {
-                $add($rid, 'error', 'duplicate_value', "Nutrient '{$code}' appears twice for the same record");
+                $add($rid, 'error', 'duplicate_value', "{$this->nutrient($code)} مكرر لنفس السجل");
 
                 continue;
             }
@@ -115,7 +115,7 @@ final class BundleValidator
             $hadError = false;
             $qualifier = $raw['value_qualifier'] ?? '';
             if ($qualifier !== '' && ! in_array($qualifier, $cfg['value_qualifiers'], true)) {
-                $add($rid, 'error', 'bad_qualifier', "value_qualifier '{$qualifier}' is not allowed");
+                $add($rid, 'error', 'bad_qualifier', "قيمة value_qualifier «{$qualifier}» غير مسموحة");
                 $hadError = true;
             }
 
@@ -123,43 +123,43 @@ final class BundleValidator
             $amount = null;
             if ($amountRaw === '') {
                 if ($qualifier === '') {
-                    $add($rid, 'error', 'missing_amount', 'amount_per_100g is empty (leave the nutrient out instead, or use value_qualifier)');
+                    $add($rid, 'error', 'missing_amount', 'القيمة لكل 100 غ فارغة: احذف السطر بدلها، أو استعمل value_qualifier');
                     $hadError = true;
                 }
             } elseif (! is_numeric($amountRaw)) {
-                $add($rid, 'error', 'not_numeric', "amount_per_100g '{$amountRaw}' is not a number");
+                $add($rid, 'error', 'not_numeric', "القيمة لكل 100 غ «{$amountRaw}» ليست رقماً");
                 $hadError = true;
             } else {
                 $amount = (float) $amountRaw;
                 if ($amount < 0) {
-                    $add($rid, 'error', 'negative_amount', "{$code} is negative ({$amountRaw})");
+                    $add($rid, 'error', 'negative_amount', "{$this->nutrient($code)} سالب ({$amountRaw})");
                     $hadError = true;
                 } elseif (strtolower($nut['unit']) === 'g' && $amount > 100) {
-                    $add($rid, 'error', 'exceeds_100g', "{$code} = {$amountRaw} g per 100 g is impossible");
+                    $add($rid, 'error', 'exceeds_100g', "{$this->nutrient($code)} = {$amountRaw} غ لكل 100 غ: مستحيل");
                     $hadError = true;
                 }
             }
 
             $unit = $raw['unit'] ?? '';
             if ($unit !== '' && strcasecmp($unit, $nut['unit']) !== 0) {
-                $add($rid, 'error', 'unit_mismatch', "{$code} is stored in '{$nut['unit']}' but the file says '{$unit}'");
+                $add($rid, 'error', 'unit_mismatch', "وحدة {$this->nutrient($code)} عندنا «{$nut['unit']}» والملف يقول «{$unit}»");
                 $hadError = true;
             }
 
             $method = $raw['method'] ?? '';
             if ($method !== '' && ! in_array($method, $cfg['methods'], true)) {
-                $add($rid, 'error', 'bad_method', "method '{$method}' is not allowed");
+                $add($rid, 'error', 'bad_method', "طريقة القياس «{$method}» غير مسموحة");
                 $hadError = true;
             }
             $confidence = $raw['confidence_level'] ?? '';
             if ($confidence !== '' && ! in_array($confidence, $cfg['confidence_levels'], true)) {
-                $add($rid, 'error', 'bad_confidence', "confidence_level '{$confidence}' is not allowed");
+                $add($rid, 'error', 'bad_confidence', "مستوى الثقة «{$confidence}» غير مسموح");
                 $hadError = true;
             }
 
             $sampleCount = $raw['sample_count'] ?? '';
             if ($sampleCount !== '' && ! ctype_digit($sampleCount)) {
-                $add($rid, 'error', 'bad_sample_count', "sample_count '{$sampleCount}' is not a whole number");
+                $add($rid, 'error', 'bad_sample_count', "عدد العينات «{$sampleCount}» ليس عدداً صحيحاً");
                 $hadError = true;
             }
 
@@ -170,7 +170,7 @@ final class BundleValidator
                     continue;
                 }
                 if (! is_numeric($b)) {
-                    $add($rid, 'error', 'not_numeric', "{$field} '{$b}' is not a number");
+                    $add($rid, 'error', 'not_numeric', "{$field} «{$b}» ليس رقماً");
                     $hadError = true;
                 } else {
                     $bounds[$field] = (float) $b;
@@ -179,7 +179,7 @@ final class BundleValidator
             if ($amount !== null && ! $hadError) {
                 if ((isset($bounds['min_amount']) && $amount < $bounds['min_amount'] - 1e-9)
                     || (isset($bounds['max_amount']) && $amount > $bounds['max_amount'] + 1e-9)) {
-                    $add($rid, 'warning', 'outside_min_max', "{$code} = {$amountRaw} lies outside the source's min/max range");
+                    $add($rid, 'warning', 'outside_min_max', "{$this->nutrient($code)} = {$amountRaw} خارج الحد الأدنى والأعلى اللذين ذكرهما المصدر");
                 }
             }
 
@@ -206,7 +206,7 @@ final class BundleValidator
                 }
             }
             if ($missing) {
-                $add($rid, 'warning', 'missing_core_nutrients', 'No value for core nutrients: '.implode(', ', $missing));
+                $add($rid, 'warning', 'missing_core_nutrients', 'لا قيمة لمغذيات أساسية: '.implode('، ', array_map(fn (string $c) => $this->nutrient($c), $missing)));
             }
         }
 
@@ -218,32 +218,48 @@ final class BundleValidator
             $meta[$rid] = ['portions', $por['row']];
 
             if (! isset($recordRowByKey[self::key($raw)])) {
-                $add($rid, 'error', 'orphan_portion', 'No matching row in records for this data_source_code + external_ref');
+                $add($rid, 'error', 'orphan_portion', 'لا يوجد سجل بنفس المصدر والرقم المرجعي في ملف السجلات');
             }
 
             $label = trim($raw['measure_unit_label'] ?? '');
             if ($label === '') {
-                $add($rid, 'error', 'missing_unit_label', 'measure_unit_label is empty');
+                $add($rid, 'error', 'missing_unit_label', 'وحدة الحصة (measure_unit_label) فارغة');
             } elseif ($this->l->resolveUnitLabel($label) === null) {
-                $add($rid, 'error', 'unmapped_unit_label', "Unit label '{$label}' is not in measure_unit_aliases");
+                $add($rid, 'error', 'unmapped_unit_label', "وحدة الحصة «{$label}» غير معروفة: أضفها كاسم بديل لوحدة في الإعدادات المرجعية (الحصة وحدها لا تُحفظ، والغذاء يُحفظ)");
                 $unmapped[mb_strtolower($label)] = ($unmapped[mb_strtolower($label)] ?? 0) + 1;
             }
 
             $amount = $raw['amount'] ?? '';
             if ($amount !== '' && (! is_numeric($amount) || (float) $amount <= 0)) {
-                $add($rid, 'error', 'bad_portion_amount', "amount '{$amount}' must be a positive number");
+                $add($rid, 'error', 'bad_portion_amount', "كمية الحصة «{$amount}» يجب أن تكون رقماً موجباً");
             }
             $grams = $raw['gram_weight'] ?? '';
             if (! is_numeric($grams) || (float) $grams <= 0) {
-                $add($rid, 'error', 'bad_gram_weight', "gram_weight '{$grams}' must be a positive number");
+                $add($rid, 'error', 'bad_gram_weight', "وزن الحصة بالغرام «{$grams}» يجب أن يكون رقماً موجباً");
             }
             $basis = $raw['basis'] ?? '';
             if ($basis !== '' && ! in_array($basis, $cfg['portion_bases'], true)) {
-                $add($rid, 'error', 'bad_basis', "basis '{$basis}' is not allowed");
+                $add($rid, 'error', 'bad_basis', "أساس الحصة «{$basis}» غير مسموح");
             }
         }
 
         return $this->summarise($records, $values, $portions, $issues, $meta, $unmapped, $newFoodByKey, $existing);
+    }
+
+    /** "البروتين (protein_g)": the Arabic name when the nutrient is known, the code always. */
+    private function nutrient(string $code): string
+    {
+        $name = $this->l->nutrients[$code]['name_ar'] ?? null;
+
+        return $name ? "{$name} ({$code})" : $code;
+    }
+
+    /** " «عدس» (#12)" for a food id, or " (#12)" when its name is unknown. */
+    private function foodName(int $id): string
+    {
+        $name = $this->l->foodName($id);
+
+        return $name !== null ? " «{$name}» (#{$id})" : " (#{$id})";
     }
 
     /** @param array<string,float|null> $v */
@@ -256,7 +272,7 @@ final class BundleValidator
         if (! in_array(null, array_map($num, self::PROXIMATE), true)) {
             $sum = array_sum(array_map($num, self::PROXIMATE));
             if (abs($sum - 100) > $c['proximate_sum_tolerance_g']) {
-                $out[] = ['proximate_sum', sprintf('Water + protein + fat + carbohydrate + ash = %.1f g per 100 g (expected about 100)', $sum)];
+                $out[] = ['proximate_sum', sprintf('الماء + البروتين + الدهون + الكربوهيدرات + الرماد = %.1f غ لكل 100 غ (المتوقع قرابة 100)', $sum)];
             }
         }
 
@@ -267,7 +283,7 @@ final class BundleValidator
         if ($e !== null && $p !== null && $f !== null && $ch !== null) {
             $estimate = 4 * $p + 9 * $f + 4 * $ch;
             if (abs($e - $estimate) > max($c['atwater_floor_kcal'], $e * $c['atwater_tolerance_pct'] / 100)) {
-                $out[] = ['energy_mismatch', sprintf('Reported %.0f kcal but protein/fat/carbohydrate imply about %.0f kcal', $e, $estimate)];
+                $out[] = ['energy_mismatch', sprintf('السعرات المكتوبة %.0f، والمحسوبة من البروتين والدهون والكربوهيدرات قرابة %.0f', $e, $estimate)];
             }
         }
 
@@ -275,12 +291,12 @@ final class BundleValidator
         $fat = $num('fat_g');
         $fractions = array_filter([$num('fat_sat_g'), $num('fat_mono_g'), $num('fat_poly_g')], fn ($x) => $x !== null);
         if ($fat !== null && $fractions && array_sum($fractions) > $fat + $tol) {
-            $out[] = ['fat_fractions_exceed_total', sprintf('Saturated + mono + poly fat = %.1f g but total fat = %.1f g', array_sum($fractions), $fat)];
+            $out[] = ['fat_fractions_exceed_total', sprintf('الدهون المشبعة والأحادية والمتعددة معاً %.1f غ، والدهون الكلية %.1f غ', array_sum($fractions), $fat)];
         }
         if ($ch !== null) {
-            foreach (['sugars_g' => 'Sugars', 'fiber_g' => 'Fibre'] as $code => $label) {
+            foreach (['sugars_g' => 'السكريات', 'fiber_g' => 'الألياف'] as $code => $label) {
                 if (($num($code) ?? 0) > $ch + $tol) {
-                    $out[] = ["{$code}_exceed_carbohydrate", sprintf('%s = %.1f g exceeds carbohydrate = %.1f g', $label, $num($code), $ch)];
+                    $out[] = ["{$code}_exceed_carbohydrate", sprintf('%s %.1f غ، أكثر من الكربوهيدرات %.1f غ', $label, $num($code), $ch)];
                 }
             }
         }
