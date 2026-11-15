@@ -16,7 +16,7 @@ final class Lookups
     /** @var array<string,int> food_forms.code => id */
     public array $forms = [];
 
-    /** @var array<string,array{id:int,unit:string,is_core:bool}> nutrients.code => info */
+    /** @var array<string,array{id:int,unit:string,is_core:bool,name_ar?:string|null}> nutrients.code => info (name_ar for messages) */
     public array $nutrients = [];
 
     /** @var array<string,int> normalized unit label => measure_units.id */
@@ -27,6 +27,9 @@ final class Lookups
 
     /** @var array<int,true> */
     public array $foodIds = [];
+
+    /** @var array<int,string> food id => its Arabic name, for messages */
+    public array $foodNames = [];
 
     /** @var array<int,array<string,int>> parent id (0 = root) => [normalized name => category id] */
     public array $categoryChildren = [];
@@ -41,8 +44,8 @@ final class Lookups
         foreach (DB::table('food_forms')->where('is_active', true)->get(['id', 'code']) as $r) {
             $l->forms[$r->code] = (int) $r->id;
         }
-        foreach (DB::table('nutrients')->where('is_active', true)->get(['id', 'code', 'unit', 'is_core']) as $r) {
-            $l->nutrients[$r->code] = ['id' => (int) $r->id, 'unit' => $r->unit, 'is_core' => (bool) $r->is_core];
+        foreach (DB::table('nutrients')->where('is_active', true)->get(['id', 'code', 'unit', 'is_core', 'name_ar']) as $r) {
+            $l->nutrients[$r->code] = ['id' => (int) $r->id, 'unit' => $r->unit, 'is_core' => (bool) $r->is_core, 'name_ar' => $r->name_ar];
         }
         foreach (DB::table('measure_unit_aliases')->get(['label', 'measure_unit_id']) as $r) {
             $l->unitAliases[mb_strtolower(trim($r->label))] = (int) $r->measure_unit_id;
@@ -67,7 +70,13 @@ final class Lookups
     public function rememberFood(int $id, string $nameAr): void
     {
         $this->foodIds[$id] = true;
+        $this->foodNames[$id] ??= $nameAr;
         $this->foodsByName[ArabicNormalizer::normalize($nameAr)][] = $id;
+    }
+
+    public function foodName(int $id): ?string
+    {
+        return $this->foodNames[$id] ?? null;
     }
 
     /**
@@ -81,7 +90,7 @@ final class Lookups
         $id = trim($raw['food_id'] ?? '');
         if ($id !== '') {
             if (! ctype_digit($id) || ! isset($this->foodIds[(int) $id])) {
-                return ['status' => 'error', 'id' => null, 'code' => 'unknown_food_id', 'message' => "food_id '{$id}' does not exist"];
+                return ['status' => 'error', 'id' => null, 'code' => 'unknown_food_id', 'message' => "الغذاء رقم «{$id}» (food_id) غير موجود"];
             }
 
             return ['status' => 'existing', 'id' => (int) $id, 'code' => null, 'message' => null];
@@ -89,7 +98,7 @@ final class Lookups
 
         $name = trim($raw['food_name_ar'] ?? '');
         if ($name === '') {
-            return ['status' => 'error', 'id' => null, 'code' => 'missing_food', 'message' => 'Give food_id or food_name_ar'];
+            return ['status' => 'error', 'id' => null, 'code' => 'missing_food', 'message' => 'اكتب اسم الغذاء بالعربي (food_name_ar) أو رقمه (food_id)'];
         }
 
         $ids = array_values(array_unique($this->foodsByName[ArabicNormalizer::normalize($name)] ?? []));
@@ -98,7 +107,7 @@ final class Lookups
         }
         if (count($ids) > 1) {
             return ['status' => 'error', 'id' => null, 'code' => 'ambiguous_food',
-                'message' => "'{$name}' matches foods ".implode(', ', $ids).'; set food_id to choose one'];
+                'message' => "الاسم «{$name}» يطابق أكثر من غذاء (".implode('، ', $ids).'): اكتب رقم الغذاء (food_id) لتختار واحداً'];
         }
 
         return ['status' => 'existing', 'id' => $ids[0], 'code' => null, 'message' => null];

@@ -73,6 +73,30 @@ class BundleValidatorTest extends TestCase
         return array_column($result['issues'][$rowId] ?? [], 'code');
     }
 
+    private function messages(array $result, int $rowId): array
+    {
+        return array_column($result['issues'][$rowId] ?? [], 'message');
+    }
+
+    public function test_the_reasons_are_written_in_arabic(): void
+    {
+        $l = $this->lookups();
+        $l->nutrients['fat_g']['name_ar'] = 'الدهون';
+        $r = (new BundleValidator($l, $this->cfg))->validate(
+            [$this->rec(1, 'A', ['food_form_code' => 'boiledd']), $this->rec(2, 'B', ['food_name_ar' => 'ثوم']), $this->rec(5, 'C', ['food_name_ar' => 'حمص'])],
+            [$this->val(3, 'C', 'fat_g', '104'), $this->val(4, 'C', 'protein_g', '-1')],
+            [],
+            ['usda_fdc_sr_legacy|C' => ['id' => 7, 'food_id' => 11]],
+        );
+
+        $this->assertContains('شكل الغذاء «boiledd» غير معروف (انظر الإعدادات المرجعية ← أشكال الغذاء)', $this->messages($r, 1));
+        $this->assertContains('سيُنشأ غذاء جديد «أرز» (لا يظهر قبل الاعتماد)', $this->messages($r, 1));
+        $this->assertStringContainsString('الاسم «ثوم» يطابق أكثر من غذاء (11، 12)', $this->messages($r, 2)[0]);
+        $this->assertContains('الدهون (fat_g) = 104 غ لكل 100 غ: مستحيل', $this->messages($r, 3));
+        $this->assertContains('protein_g سالب (-1)', $this->messages($r, 4)); // no Arabic name known: the code
+        $this->assertContains('هذا العنصر من المصدر مربوط من قبل بغذاء آخر «ثوم» (#11)؛ صحّح اسم الغذاء في المطابقة', $this->messages($r, 5));
+    }
+
     public function test_clean_record_is_ready(): void
     {
         $r = $this->run_([$this->rec(1, 'A')], [$this->val(2, 'A', 'protein_g', '8.5', ['unit' => 'g'])]);

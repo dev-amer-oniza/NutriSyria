@@ -51,30 +51,40 @@
             @endif
 
             @if (! empty($report['issues']))
-                <table class="w-full text-sm border-t">
-                    <thead>
-                        <tr class="text-start">
-                            <th class="py-2">الصفحة</th>
-                            <th class="py-2">السطر</th>
-                            <th class="py-2">النوع</th>
-                            <th class="py-2">الرسالة</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($report['issues'] as $issue)
-                            <tr class="border-t">
-                                <td class="py-1">{{ $issue['sheet'] }}</td>
-                                <td class="py-1">{{ $issue['row'] }}</td>
-                                <td class="py-1">
-                                    <span class="{{ $issue['level'] === 'error' ? 'text-danger-600' : 'text-warning-600' }} font-bold">
-                                        {{ $issue['level'] === 'error' ? 'خطأ' : 'تحذير' }}
-                                    </span>
-                                </td>
-                                <td class="py-1">{{ $issue['message'] }}</td>
+                @php
+                    $sheets = ['records' => 'السجلات', 'nutrient_values' => 'القيم الغذائية', 'portions' => 'الحصص'];
+                @endphp
+                <p class="mb-2 text-sm text-gray-600 dark:text-gray-300">
+                    <span class="font-semibold text-danger-600 dark:text-danger-400">الخطأ</span> يمنع حفظ سجله،
+                    و<span class="font-semibold text-warning-600 dark:text-warning-400">التحذير</span> لا يمنع، لكنه يظهر تنبيهاً في المراجعة.
+                    رقم السطر كما في الملف (السطر 1 أسماء الأعمدة).
+                </p>
+                <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-white/10">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 text-gray-600 dark:bg-white/5 dark:text-gray-300">
+                            <tr>
+                                <th class="px-3 py-2 text-start">الملف</th>
+                                <th class="px-3 py-2 text-start">السطر</th>
+                                <th class="px-3 py-2 text-start">النوع</th>
+                                <th class="px-3 py-2 text-start">السبب</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($report['issues'] as $issue)
+                                <tr class="border-t border-gray-100 dark:border-white/5">
+                                    <td class="whitespace-nowrap px-3 py-1.5">{{ $sheets[$issue['sheet']] ?? $issue['sheet'] }}</td>
+                                    <td class="px-3 py-1.5 tabular-nums">{{ $issue['row'] }}</td>
+                                    <td class="px-3 py-1.5">
+                                        <span class="{{ $issue['level'] === 'error' ? 'text-danger-600 dark:text-danger-400' : 'text-warning-600 dark:text-warning-400' }} font-bold">
+                                            {{ $issue['level'] === 'error' ? 'خطأ' : 'تحذير' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-3 py-1.5">{{ $issue['message'] }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             @endif
 
             <div class="mt-6 flex flex-wrap items-center gap-3">
