@@ -86,7 +86,42 @@ class UsdaSearchTest extends TestCase
         Http::assertSentCount(1);
     }
 
-    public function test_adding_a_food_saves_it_pending_review_through_a_batch(): void
+    /** USDA answering "chickpeas" with real chickpea, lentil and hummus descriptions. */
+    private function legumes(): void
+    {
+        $foods = array_map(fn (array $f) => $f + ['foodNutrients' => []], json_decode(file_get_contents(__DIR__.'/../Fixtures/fdc/legume-descriptions.json'), true));
+        Http::swap(new Factory);
+        Http::fake(['*/foods/search*' => Http::response(['totalHits' => 640, 'foods' => $foods])]);
+    }
+
+    public function test_the_results_are_narrowed_to_every_word_the_form_and_the_exclusions(): void
+    {
+        $this->signInAs();
+        $this->legumes();
+
+        $page = Livewire::test(UsdaSearch::class)->set('query', 'chickpeas')->set('form', 'boiled')->call('search')
+            ->assertSee('2 نتيجة بتطابق شروطك')
+            ->assertSee('من أصل 640')
+            ->assertSeeInOrder(['cooked, boiled, without salt', 'cooked, boiled, with salt'])
+            ->assertDontSee('mature seeds, canned')      // canned is not boiled
+            ->assertDontSee('Lentils, raw')              // no "chickpeas"
+            ->assertDontSee('ليش انشال');
+
+        // The reasons, on demand.
+        $page->toggle('showDropped')
+            ->assertSee('ليش انشال')
+            ->assertSee('الشكل: معلّب')
+            ->assertSee('ينقصها: chickpea');
+
+        // Changing the rules re-reads the same answer: no second request to USDA.
+        $page->set('form', '')->set('exclude', 'canned; flour')->call('search')
+            ->assertSee('4 نتيجة بتطابق شروطك')
+            ->assertSee('Chickpeas, (garbanzo beans, bengal gram), dry');
+        Http::assertSentCount(1);
+        Http::assertSent(fn ($request) => (int) $request['pageSize'] === 200);
+    }
+
+    public function test_adding_a_food_saves_it_approved_through_a_batch(): void
     {
         $admin = $this->signInAs();
 
@@ -95,10 +130,13 @@ class UsdaSearchTest extends TestCase
             ->assertActionMounted('addFood')
             ->setActionData($this->choice(['note' => 'مقاربة: حمص بلدي']))->callMountedAction()
             ->assertHasNoActionErrors()
-            ->assertNotified('أُضيف بانتظار المراجعة');
+            ->assertNotified('أُضيف للقاعدة ومعتمد');
 
         $record = FoodSourceRecord::with(['food', 'nutrientValues.nutrient', 'importBatch'])->sole();
-        $this->assertSame(['حمص', '173757', FoodSourceStatus::PendingReview], [$record->food->name_ar, $record->external_ref, $record->status]);
+        // The admin saw the values before adding: approved at once, in their name.
+        $this->assertSame(['حمص', '173757', FoodSourceStatus::Active], [$record->food->name_ar, $record->external_ref, $record->status]);
+        $this->assertSame($admin->id, (int) $record->reviewed_by);
+        $this->assertTrue($record->food->is_active);
         $this->assertStringStartsWith('مقاربة: حمص بلدي | FDC: Chickpeas', $record->notes);
         $this->assertEqualsWithDelta(164.0, (float) $record->nutrientValues->firstWhere('nutrient.code', 'energy_kcal')->amount_per_100g, 1e-6);
         $this->assertCount(6, $record->nutrientValues);

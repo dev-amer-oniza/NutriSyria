@@ -1,0 +1,117 @@
+[
+{
+"fdcId": 168427,
+"description": "Lentils, sprouted, raw",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 168428,
+"description": "Lentils, sprouted, cooked, stir-fried, without salt",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 168551,
+"description": "Lentils, sprouted, cooked, stir-fried, with salt",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 171549,
+"description": "Soup, lentil with ham, canned, ready-to-serve",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 171577,
+"description": "SMART SOUP, French Lentil",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 172420,
+"description": "Lentils, raw",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 172421,
+"description": "Lentils, mature seeds, cooked, boiled, without salt",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 172454,
+"description": "Hummus, home prepared",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 173756,
+"description": "Chickpeas (garbanzo beans, bengal gram), mature seeds, raw",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 173757,
+"description": "Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, without salt",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 173799,
+"description": "Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, with salt",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 173800,
+"description": "Chickpeas (garbanzo beans, bengal gram), mature seeds, canned, drained solids",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 173801,
+"description": "Chickpeas (garbanzo beans, bengal gram), mature seeds, canned, drained, rinsed in tap water",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 174284,
+"description": "Lentils, pink or red, raw",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 174288,
+"description": "Chickpea flour (besan)",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 174289,
+"description": "Hummus, commercial",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 175206,
+"description": "Chickpeas (garbanzo beans, bengal gram), mature seeds, canned, solids and liquids",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 175250,
+"description": "Chickpeas (garbanzo beans, bengal gram), mature seeds, canned, solids and liquids, low sodium",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 175254,
+"description": "Lentils, mature seeds, cooked, boiled, with salt",
+"dataType": "SR Legacy"
+},
+{
+"fdcId": 321358,
+"description": "Hummus, commercial",
+"dataType": "Foundation"
+},
+{
+"fdcId": 2644282,
+"description": "Chickpeas, (garbanzo beans, bengal gram), dry",
+"dataType": "Foundation"
+},
+{
+"fdcId": 2644283,
+"description": "Lentils, dry",
+"dataType": "Foundation"
+},
+{
+"fdcId": 2644288,
+"description": "Chickpeas (garbanzo beans, bengal gram), canned, sodium added, drained and rinsed",
+"dataType": "Foundation"
+}
+]
