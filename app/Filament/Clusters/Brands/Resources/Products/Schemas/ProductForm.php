@@ -5,20 +5,20 @@ namespace App\Filament\Clusters\Brands\Resources\Products\Schemas;
 use App\Auth\BrandScope;
 use App\Enums\RecipeStatus;
 use App\Filament\Clusters\Brands\Resources\Categories\ProductCategoryResource;
-use App\Models\ProductCategory;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use App\Livewire\ReviewNotesPanel;
-use Filament\Schemas\Components\Livewire;
-use Illuminate\Validation\Rule;
+use App\Models\ProductCategory;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
+use Illuminate\Validation\Rule;
 
 class ProductForm
 {

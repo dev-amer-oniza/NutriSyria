@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Nutrition;
 
 /**
@@ -11,7 +12,7 @@ final readonly class RecipeAnalysisResult
 {
     /**
      * @param  array<int, array{nutrient: array, amount: ?float, missing_from: string[], borrowed: array<string, string>, computed: string[]}>  $totals
-     *     absolute amount for the WHOLE recipe, keyed by nutrient_id
+     *                                                                                                                                                   absolute amount for the WHOLE recipe, keyed by nutrient_id
      */
     public function __construct(
         public array $totals,
@@ -23,8 +24,7 @@ final readonly class RecipeAnalysisResult
         public ?string $weightWarning,
         /** @var list<array{label: string, problem: ?string}> lines with unknown grams, left out of every total */
         public array $unconvertedIngredients = [],
-    ) {
-    }
+    ) {}
 
     /** Per 100g of the ingredient weights themselves (sanity view — should track the absolute totals closely). */
     public function per100gRaw(): array
@@ -71,35 +71,36 @@ final readonly class RecipeAnalysisResult
     {
         if ($factor === null) {
             return array_map(
-                fn(array $row) => [ ...$row, 'amount' => null],
+                fn (array $row) => [...$row, 'amount' => null],
                 $this->totals,
             );
         }
 
         return array_map(
-            fn(array $row) => [
-                 ...$row,
+            fn (array $row) => [
+                ...$row,
                 'amount' => $row['amount'] !== null ? round($row['amount'] * $factor, 4) : null,
             ],
             $this->totals,
         );
     }
+
     public function toArray(): array
     {
         return [
-            'totals'                  => $this->totals,
-            'per_100g_raw'            => $this->per100gRaw(),
+            'totals' => $this->totals,
+            'per_100g_raw' => $this->per100gRaw(),
             'per_100g_before_cooking' => $this->per100gBeforeCooking(),
-            'per_100g_after_cooking'  => $this->per100gAfterCooking(),
-            'per_serving'             => $this->perServing(),
-            'grams_before_cooking'    => $this->gramsBeforeCooking,
-            'grams_total'             => $this->gramsTotal,
+            'per_100g_after_cooking' => $this->per100gAfterCooking(),
+            'per_serving' => $this->perServing(),
+            'grams_before_cooking' => $this->gramsBeforeCooking,
+            'grams_total' => $this->gramsTotal,
             'weight_before_cooking_g' => $this->weightBeforeCookingG,
-            'weight_after_cooking_g'  => $this->weightAfterCookingG,
-            'servings'                => $this->servings,
-            'weight_warning'          => $this->weightWarning,
+            'weight_after_cooking_g' => $this->weightAfterCookingG,
+            'servings' => $this->servings,
+            'weight_warning' => $this->weightWarning,
             'unconverted_ingredients' => $this->unconvertedIngredients,
-            'filled_value_count'      => $this->filledValueCount(),
+            'filled_value_count' => $this->filledValueCount(),
             'has_weight_after_cooking' => $this->hasWeightAfterCooking(),
             'can_save_official_value' => $this->canSaveOfficialValue(),
         ];

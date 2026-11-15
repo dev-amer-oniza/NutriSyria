@@ -4,8 +4,8 @@ namespace Tests\Feature;
 
 use App\Filament\Clusters\Consultations\Resources\Clients\Pages\ViewClient;
 use App\Http\Middleware\EnsureProfileUnlocked;
-use App\Models\User;
 use App\Notifications\SiteNotification;
+use App\Services\Consultations\ClientWorkspace;
 use App\Services\Consultations\ConsultationService;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
 use Filament\Facades\Filament;
@@ -67,7 +67,7 @@ class SiteBellAndProfileLockTest extends TestCase
     {
         $reem = $this->nutritionist();
         $link = $this->linked($client = $this->client(), $reem);
-        app(\App\Services\Consultations\ClientWorkspace::class)->setCriterion($reem->user, $link, 'sodium_mg', 1500);
+        app(ClientWorkspace::class)->setCriterion($reem->user, $link, 'sodium_mg', 1500);
 
         $this->actingAs($client)->getJson(route('site.notifications'))->assertJson(['unread' => 2]);
         $this->postJson(route('site.notifications.read'))->assertJson(['unread' => 0]);
@@ -157,7 +157,7 @@ class SiteBellAndProfileLockTest extends TestCase
         $reem = $this->nutritionist();
         $link = $this->linked($client = $this->client(), $reem);
 
-        app(\App\Services\Consultations\ClientWorkspace::class)->updateProfile($reem->user, $link, [
+        app(ClientWorkspace::class)->updateProfile($reem->user, $link, [
             'sex' => 'male', 'birth_year' => 1990, 'height_cm' => 178, 'weight_kg' => 80,
             'activity_level' => 'light', 'goal' => 'maintain',
             'health_conditions' => ['diabetes', 'pregnant_or_breastfeeding'], 'allergies' => [],

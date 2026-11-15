@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 /** The three panel roles: their permissions can be changed, the roles themselves cannot (RolePolicy). */
 class RoleResource extends Resource
@@ -44,7 +45,7 @@ class RoleResource extends Resource
         return parent::getEloquentQuery()->whereIn('name', Access::PANEL_ROLES);
     }
 
-    public static function getRecordTitle(?\Illuminate\Database\Eloquent\Model $record): string
+    public static function getRecordTitle(?Model $record): string
     {
         return Access::roles()[$record?->name] ?? (string) $record?->name;
     }

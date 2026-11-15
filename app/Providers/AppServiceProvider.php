@@ -11,10 +11,10 @@ use App\Models\ProductCategory;
 use App\Models\ProductRecipe;
 use App\Models\ProductRecipeIngredient;
 use App\Services\Site\PublicCatalogCache;
-use Illuminate\Database\Eloquent\Model;
 use App\View\Composers\NotificationBellComposer;
 use App\View\Composers\ProfileReminderComposer;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
@@ -22,13 +22,13 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 
-
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
         //
     }
+
     /**
      * What the public site shows is cached (PublicCatalogCache): any change to it clears the
      * cache, so the next visitor sees it at once.

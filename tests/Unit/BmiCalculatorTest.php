@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Data\Nutrition\BmiAssessment;
 use App\Enums\Goal;
 use App\Services\Nutrition\Criteria\BmiCalculator;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +16,7 @@ class BmiCalculatorTest extends TestCase
     }
 
     /** A weight giving exactly this index for 1.70 m. */
-    private function at(float $bmi, ?Goal $goal = null, array $conditions = []): \App\Data\Nutrition\BmiAssessment
+    private function at(float $bmi, ?Goal $goal = null, array $conditions = []): BmiAssessment
     {
         return $this->calculator()->assess(170, $bmi * 1.7 ** 2, $goal, $conditions);
     }

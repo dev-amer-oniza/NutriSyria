@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Storage;
  */
 class NutritionistProfile extends Model
 {
-
     public const MIN_BIO = 40;
 
     protected $fillable = [

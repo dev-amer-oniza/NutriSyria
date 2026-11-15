@@ -4,6 +4,7 @@ namespace App\Services\Auth;
 
 use App\Enums\AuthCodePurpose;
 use App\Enums\LoginOutcome;
+use App\Exceptions\CodeDeliveryFailed;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -19,7 +20,7 @@ class LoginService
      * An unknown email, a wrong password and a stopped account all read the same to the
      * visitor. A right password on an unconfirmed email sends a new code instead of signing in.
      *
-     * @throws \App\Exceptions\CodeDeliveryFailed
+     * @throws CodeDeliveryFailed
      */
     public function attempt(string $email, #[\SensitiveParameter] string $password, bool $remember): LoginOutcome
     {

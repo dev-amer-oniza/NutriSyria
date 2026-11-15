@@ -13,7 +13,9 @@ namespace App\Auth;
 final class Access
 {
     public const SUPER_ADMIN = 'super-admin';
+
     public const BRAND_OWNER = 'brand-owner';
+
     public const NUTRITIONIST = 'nutritionist';
 
     /** Only these roles may sign in to the admin panel. */
@@ -21,17 +23,23 @@ final class Access
 
     // Food composition database (foods, records, portions, data sources, comparison).
     public const FOODS_VIEW = 'foods.view';
+
     public const FOODS_MANAGE = 'foods.manage';
 
     // Imports: see batches, approve/reject their records, upload and match new data.
     public const IMPORTS_VIEW = 'imports.view';
+
     public const IMPORTS_REVIEW = 'imports.review';
+
     public const IMPORTS_UPLOAD = 'imports.upload';
 
     // Brands and their products/recipes.
     public const BRANDS_MANAGE_ALL = 'brands.manage-all';
+
     public const BRANDS_MANAGE_OWN = 'brands.manage-own';
+
     public const PRODUCTS_VIEW_ALL = 'products.view-all';
+
     public const NUTRITION_APPROVE = 'nutrition.approve';
 
     // Consultations: a public profile on the site and clients who book (nutritionists).

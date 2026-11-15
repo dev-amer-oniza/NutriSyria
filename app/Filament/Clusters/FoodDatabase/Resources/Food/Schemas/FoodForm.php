@@ -3,7 +3,6 @@
 namespace App\Filament\Clusters\FoodDatabase\Resources\Food\Schemas;
 
 use App\Enums\Allergen;
-use App\Models\FoodCategory;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;

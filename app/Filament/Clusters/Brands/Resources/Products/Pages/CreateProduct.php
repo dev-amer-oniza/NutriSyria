@@ -2,8 +2,8 @@
 
 namespace App\Filament\Clusters\Brands\Resources\Products\Pages;
 
-use App\Filament\Support\Concerns\HiddenFromAdmin;
 use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
+use App\Filament\Support\Concerns\HiddenFromAdmin;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateProduct extends CreateRecord

@@ -63,7 +63,7 @@ final class PortionResolver
     /**
      * @param  array{id:int, code:string, name_ar:string, dimension:?string, base_factor:?float}  $unit
      * @param  array{id:int, food_form_id:?int, food_name_ar:?string, form_name_ar:?string}|null  $record
-     *     the ingredient's food_source_record, or null when it does not exist
+     *                                                                                                     the ingredient's food_source_record, or null when it does not exist
      * @param  list<array{
      *     id:int, measure_unit_id:int, unit_name_ar:string, unit_dimension:?string, unit_base_factor:?float,
      *     unit_labels:list<string>, amount:float, gram_weight:float, description:?string,
@@ -176,7 +176,7 @@ final class PortionResolver
      * one per distinct weight. Empty when there is nothing to choose, i.e. fewer than two
      * different weights, or a mass unit.
      *
-     * @return list<array{id:int, label:string, grams:float}>  grams per one unit
+     * @return list<array{id:int, label:string, grams:float}> grams per one unit
      */
     public function choices(array $unit, ?array $record, array $portions): array
     {

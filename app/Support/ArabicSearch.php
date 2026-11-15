@@ -33,12 +33,12 @@ final class ArabicSearch
         }
 
         // "!" escapes the wildcards: a backslash means different things to MySQL and SQLite.
-        $pattern = '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $term) . '%';
+        $pattern = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $term).'%';
         $grammar = $query->getQuery()->getGrammar();
 
         return $query->where(function (Builder $query) use ($columns, $pattern, $grammar) {
             foreach ($columns as $column) {
-                $query->orWhereRaw(self::fold($grammar->wrap($column)) . " like ? escape '!'", [$pattern]);
+                $query->orWhereRaw(self::fold($grammar->wrap($column))." like ? escape '!'", [$pattern]);
             }
         });
     }

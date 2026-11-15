@@ -8,6 +8,7 @@ use App\Enums\CriterionSource;
 use App\Filament\Clusters\Consultations\Resources\Clients\ClientResource;
 use App\Filament\Clusters\Consultations\Resources\Clients\Pages\ListClients;
 use App\Filament\Clusters\Consultations\Resources\Clients\Pages\ViewClient;
+use App\Models\User;
 use App\Notifications\SiteNotification;
 use App\Services\Consultations\ClientWorkspace;
 use App\Services\Consultations\ConsultationService;
@@ -33,7 +34,7 @@ class ClientWorkspaceTest extends TestCase
         Notification::fake();
     }
 
-    private function signInAsNutritionist(\App\Models\User $nutritionist): void
+    private function signInAsNutritionist(User $nutritionist): void
     {
         $this->actingAs($nutritionist);
         Filament::setCurrentPanel('admin');

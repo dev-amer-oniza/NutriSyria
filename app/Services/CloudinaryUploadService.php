@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Services;
 
 use Cloudinary\Cloudinary;
@@ -46,7 +45,7 @@ class CloudinaryUploadService
         // public_id = central/categories/file
         preg_match('/\/upload\/(?:v\d+\/)?(.+)\.[a-z]+$/i', $url, $matches);
 
-        if (!empty($matches[1])) {
+        if (! empty($matches[1])) {
             $this->cloudinary->uploadApi()->destroy($matches[1]);
         }
     }

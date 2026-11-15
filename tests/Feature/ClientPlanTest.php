@@ -14,6 +14,7 @@ use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Tests\Concerns\ConsultationFixtures;
 use Tests\TestCase;
@@ -42,7 +43,7 @@ class ClientPlanTest extends TestCase
         Filament::setCurrentPanel('admin');
     }
 
-    private function plan(): \Livewire\Features\SupportTesting\Testable
+    private function plan(): Testable
     {
         return Livewire::test(ClientPlan::class, ['record' => $this->link->getKey()]);
     }
@@ -142,6 +143,7 @@ class ClientPlanTest extends TestCase
 
         $this->get(ClientPlan::getUrl(['record' => $this->link]))->assertNotFound();
     }
+
     public function test_the_standard_split_fills_five_meals_with_their_grams(): void
     {
         $page = $this->plan()->callAction(TestAction::make('preset_standard')->schemaComponent('mealsSection', 'form'));

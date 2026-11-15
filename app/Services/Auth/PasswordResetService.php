@@ -4,6 +4,7 @@ namespace App\Services\Auth;
 
 use App\Enums\AuthCodeCheck;
 use App\Enums\AuthCodePurpose;
+use App\Exceptions\CodeDeliveryFailed;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -17,7 +18,7 @@ class PasswordResetService
      * Sends a code when the email belongs to an active account, and does nothing otherwise:
      * the page answers the same either way, so it cannot be used to find accounts.
      *
-     * @throws \App\Exceptions\CodeDeliveryFailed
+     * @throws CodeDeliveryFailed
      */
     public function sendCode(string $email): void
     {

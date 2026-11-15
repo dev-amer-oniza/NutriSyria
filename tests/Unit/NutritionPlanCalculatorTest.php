@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Data\Nutrition\NutritionPlanResult;
 use App\Services\Nutrition\Plan\NutritionPlanCalculator;
 use PHPUnit\Framework\TestCase;
 
@@ -18,7 +19,7 @@ class NutritionPlanCalculatorTest extends TestCase
         'carbs_pct' => 50, 'protein_pct' => 20, 'fat_pct' => 30, 'fluids_ml' => null,
     ];
 
-    private function calculate(array $plan = [], array $profile = []): \App\Data\Nutrition\NutritionPlanResult
+    private function calculate(array $plan = [], array $profile = []): NutritionPlanResult
     {
         return (new NutritionPlanCalculator(require __DIR__.'/../../config/nutrition_criteria.php'))
             ->calculate($profile + self::MAN, $plan + self::PLAN);
@@ -86,6 +87,7 @@ class NutritionPlanCalculatorTest extends TestCase
         $this->assertFalse($dialysis->isValid());
         $this->assertTrue($this->calculate(['fluids_ml' => 1000], ['conditions' => ['dialysis']])->isValid());
     }
+
     /** The standard five meals, filled by distribute() (2a). */
     private function standardMeals(): array
     {

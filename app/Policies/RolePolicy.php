@@ -16,8 +16,15 @@ class RolePolicy
 {
     use DeniesByDefault;
 
-    public function viewAny(User $user): bool { return $user->allows(Access::USERS_MANAGE); }
-    public function view(User $user, Role $role): bool { return $user->allows(Access::USERS_MANAGE); }
+    public function viewAny(User $user): bool
+    {
+        return $user->allows(Access::USERS_MANAGE);
+    }
+
+    public function view(User $user, Role $role): bool
+    {
+        return $user->allows(Access::USERS_MANAGE);
+    }
 
     public function update(User $user, Role $role): bool
     {

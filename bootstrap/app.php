@@ -1,20 +1,20 @@
 <?php
 
-
+use App\Http\Middleware\EnsureProfileUnlocked;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Illuminate\Validation\ValidationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__ . '/../routes/web.php',
-        commands: __DIR__ . '/../routes/console.php',
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -27,7 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             // A person linked to a nutritionist cannot change their profile or criteria.
-            'profile.unlocked' => \App\Http\Middleware\EnsureProfileUnlocked::class,
+            'profile.unlocked' => EnsureProfileUnlocked::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -35,7 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Resource not found.',
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ], 404);
             }
         });
@@ -44,12 +44,12 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'The requested resource was not found.',
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ], 404);
             }
         });
 
-        $exceptions->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
+        $exceptions->renderable(function (AuthenticationException $e, $request) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Unauthenticated.',
@@ -57,11 +57,11 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-       /* $exceptions->renderable(function (Throwable $e, $request) {
-            return response()->json([
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ], 500);
-        });*/
+        /* $exceptions->renderable(function (Throwable $e, $request) {
+             return response()->json([
+                 'message' => $e->getMessage(),
+                 'file' => $e->getFile(),
+                 'line' => $e->getLine(),
+             ], 500);
+         });*/
     })->create();

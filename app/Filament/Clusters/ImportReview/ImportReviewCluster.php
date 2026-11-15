@@ -12,10 +12,15 @@ use UnitEnum;
 class ImportReviewCluster extends Cluster
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedInboxArrowDown;
+
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::InboxArrowDown;
+
     protected static ?string $navigationLabel = 'الاستيراد والمراجعة';
+
     protected static ?string $clusterBreadcrumb = 'الاستيراد والمراجعة';
+
     protected static string|UnitEnum|null $navigationGroup = 'البيانات الغذائية';
+
     protected static ?int $navigationSort = 2;
 
     /** How many imported records wait for approval: the admin sees it from any page. */

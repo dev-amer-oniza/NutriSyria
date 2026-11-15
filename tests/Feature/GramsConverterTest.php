@@ -84,7 +84,7 @@ class GramsConverterTest extends TestCase
 
     private function converter(): GramsConverter
     {
-        return new GramsConverter();
+        return new GramsConverter;
     }
 
     public function test_boiled_and_raw_chickpeas_each_use_their_own_cup_weight(): void
@@ -201,7 +201,7 @@ class GramsConverterTest extends TestCase
         $line($oil, 'tbsp', 1, 2);                    // 13.5 g
         $mlLine = $line($oil, 'ml', 30, 3);           // no volume portion for oil: not convertible
 
-        $service = new RecipeAnalysisService();
+        $service = new RecipeAnalysisService;
         $result = $service->analyze($product);
 
         $this->assertSame(341.5, $result->gramsTotal);
@@ -226,6 +226,7 @@ class GramsConverterTest extends TestCase
         $service->approve($product, $fixed);
         $this->assertSame(1, FoodNutrientValue::where('product_id', $product->id)->count());
     }
+
     public function test_a_recipe_line_can_choose_the_portion_size(): void
     {
         $energy = Nutrient::create(['code' => 'energy_kcal', 'name_ar' => 'الطاقة', 'name_en' => 'Energy', 'unit' => 'kcal', 'group' => 'energy', 'is_core' => true]);
@@ -254,7 +255,7 @@ class GramsConverterTest extends TestCase
             'measure_unit_id' => $piece->id, 'food_portion_id' => $sizes[150]->id, 'amount' => 2, 'sort_order' => 1,
         ]);
 
-        $service = new RecipeAnalysisService();
+        $service = new RecipeAnalysisService;
         $result = $service->analyze($product);
         $this->assertSame(300.0, $result->gramsTotal);
         $this->assertEqualsWithDelta(120.0, $result->totals[$energy->id]['amount'], 1e-6);

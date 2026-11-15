@@ -3,14 +3,15 @@
 namespace Tests\Feature;
 
 use App\Auth\Access;
+use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\ListBrands;
 use App\Filament\Clusters\Brands\Resources\Categories\Pages\ManageProductCategories;
 use App\Filament\Clusters\Brands\Resources\Categories\ProductCategoryResource;
+use App\Models\Brand;
 use App\Models\ProductCategory;
 use Filament\Actions\CreateAction;
 use Filament\Actions\Testing\TestAction;
-use App\Models\Brand;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -30,7 +31,7 @@ class MyRestaurantTest extends TestCase
         $this->assertSame($edit, BrandResource::getNavigationUrl());
         Livewire::test(ListBrands::class)->assertRedirect($edit);
 
-        $this->assertSame('مطعمي ومنتجاته', \App\Filament\Clusters\Brands\BrandsCluster::getNavigationLabel());
+        $this->assertSame('مطعمي ومنتجاته', BrandsCluster::getNavigationLabel());
         $this->get($edit)->assertOk()->assertSee('مطعمي')->assertSee('التصنيفات')->assertSee('المنتجات');
     }
 
@@ -58,7 +59,7 @@ class MyRestaurantTest extends TestCase
     {
         $this->signInAs(Access::NUTRITIONIST);
 
-        $this->assertSame('منتجات المطاعم', \App\Filament\Clusters\Brands\BrandsCluster::getNavigationLabel());
+        $this->assertSame('منتجات المطاعم', BrandsCluster::getNavigationLabel());
     }
 
     public function test_the_admin_keeps_the_list_of_brands(): void
@@ -120,7 +121,7 @@ class MyRestaurantTest extends TestCase
         $this->signInAs();
 
         $this->assertSame([], BrandResource::getRelations());
-        $this->assertSame('البراندات', \App\Filament\Clusters\Brands\BrandsCluster::getNavigationLabel());
+        $this->assertSame('البراندات', BrandsCluster::getNavigationLabel());
         $this->get(ProductCategoryResource::getUrl())->assertNotFound();
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Auth\Access;
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,8 +18,8 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -35,7 +36,6 @@ class User extends Authenticatable implements FilamentUser
         'email_verified_at',
         'is_active',
     ];
-
 
     /**
      * The attributes that should be hidden for serialization.
@@ -61,7 +61,6 @@ class User extends Authenticatable implements FilamentUser
             'is_active' => 'boolean',
         ];
     }
-
 
     /**
      * Only active accounts with one of the three panel roles get in. Filament asks on every

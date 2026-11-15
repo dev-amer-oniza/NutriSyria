@@ -2,21 +2,21 @@
 
 namespace App\Filament\Clusters\FoodDatabase\Resources\Food\Tables;
 
+use App\Enums\Allergen;
+use App\Filament\Support\Placeholders;
+use App\Models\Food;
 use App\Support\ArabicSearch;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use App\Enums\Allergen;
-use App\Models\Food;
 use Filament\Tables\Columns\IconColumn;
-use Illuminate\Support\Collection;
-use App\Filament\Support\Placeholders;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Collection;
 
 class FoodTable
 {

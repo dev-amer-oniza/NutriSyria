@@ -1,7 +1,7 @@
 <?php
+
 namespace App\Filament\Clusters\FoodDatabase\Resources\Food;
 
-use App\Filament\Support\ArabicGlobalSearch;
 use App\Filament\Clusters\FoodDatabase\FoodDatabaseCluster;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Pages\CreateFood;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Pages\EditFood;
@@ -9,6 +9,7 @@ use App\Filament\Clusters\FoodDatabase\Resources\Food\Pages\ListFood;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\RelationManagers\SourceRecordsRelationManager;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Schemas\FoodForm;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Tables\FoodTable;
+use App\Filament\Support\ArabicGlobalSearch;
 use App\Models\Food;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -36,7 +37,8 @@ class FoodResource extends Resource
     {
         return ['name_ar', 'name_en'];
     }
-    protected static ?string $navigationLabel      = 'الأغذية';
+
+    protected static ?string $navigationLabel = 'الأغذية';
 
     protected static ?string $modelLabel = 'غذاء';
 
@@ -62,9 +64,9 @@ class FoodResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListFood::route('/'),
+            'index' => ListFood::route('/'),
             'create' => CreateFood::route('/create'),
-            'edit'   => EditFood::route('/{record}/edit'),
+            'edit' => EditFood::route('/{record}/edit'),
         ];
     }
 }

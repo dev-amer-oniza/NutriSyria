@@ -1,12 +1,13 @@
 <?php
+
 namespace App\Filament\Clusters\Brands\Resources\Products\RelationManagers;
 
-use App\Support\ArabicSearch;
 use App\Enums\FoodSourceStatus;
 use App\Models\FoodSourceRecord;
 use App\Services\Nutrition\GramsConversion;
 use App\Services\Nutrition\GramsConverter;
 use App\Services\Nutrition\PortionResolver;
+use App\Support\ArabicSearch;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -125,7 +126,7 @@ class RecipeIngredientsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->with([
+            ->modifyQueryUsing(fn (Builder $query) => $query->with([
                 'ingredientRecord.food', 'ingredientRecord.foodForm', 'measureUnit', 'foodPortion',
             ]))
             ->recordTitleAttribute('id')
@@ -154,14 +155,14 @@ class RecipeIngredientsRelationManager extends RelationManager
                     ->getStateUsing(function (Model $record) {
                         $grams = $this->conversionFor($record)->grams;
 
-                        return $grams !== null ? number_format($grams, 1) . ' غ' : '⚠ غير متوفر';
+                        return $grams !== null ? number_format($grams, 1).' غ' : '⚠ غير متوفر';
                     })
                     ->badge()
-                    ->color(fn(Model $record) => $this->conversionFor($record)->ok() ? 'success' : 'warning')
-                    ->tooltip(fn(Model $record) => $this->conversionFor($record)->message ?? $this->conversionFor($record)->basis),
+                    ->color(fn (Model $record) => $this->conversionFor($record)->ok() ? 'success' : 'warning')
+                    ->tooltip(fn (Model $record) => $this->conversionFor($record)->message ?? $this->conversionFor($record)->basis),
                 TextColumn::make('is_added_after_cooking')
                     ->label('بعد الطبخ')
-                    ->formatStateUsing(fn(bool $state) => $state ? 'نعم' : '—'),
+                    ->formatStateUsing(fn (bool $state) => $state ? 'نعم' : '—'),
             ])
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
@@ -282,5 +283,4 @@ class RecipeIngredientsRelationManager extends RelationManager
 
         return array_values($missing);
     }
-
 }

@@ -26,7 +26,7 @@ class FoodDatabaseStats extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $overview = new DatabaseOverview();
+        $overview = new DatabaseOverview;
         $foods = $overview->foods();
         $sources = $overview->sources();
         $batches = $overview->batches();

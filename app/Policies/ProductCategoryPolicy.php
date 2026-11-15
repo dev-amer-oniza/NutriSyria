@@ -12,9 +12,7 @@ class ProductCategoryPolicy
 {
     use DeniesByDefault;
 
-    public function __construct(private readonly ProductPolicy $products = new ProductPolicy())
-    {
-    }
+    public function __construct(private readonly ProductPolicy $products = new ProductPolicy) {}
 
     public function viewAny(User $user): bool
     {

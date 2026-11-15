@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Filament\Clusters\ImportReview\Pages;
 
 use App\Auth\Access;
+use App\Exceptions\ImportFileRejected;
 use App\Filament\Clusters\ImportReview\ImportReviewCluster;
 use App\Filament\Clusters\ImportReview\Resources\ImportBatches\ImportBatchResource;
-use App\Exceptions\ImportFileRejected;
 use App\Services\Import\BundleImporter;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
@@ -16,12 +17,12 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
-use Filament\Support\Icons\Heroicon;
 
 class UploadImportBatch extends Page implements HasForms
 {
@@ -47,7 +48,8 @@ class UploadImportBatch extends Page implements HasForms
 
     protected static ?string $title = 'رفع دفعة استيراد جديدة';
 
-    public ?array $data         = [];
+    public ?array $data = [];
+
     public ?array $selectorData = [];
 
     public ?int $batchId = null;
@@ -79,8 +81,8 @@ class UploadImportBatch extends Page implements HasForms
         }
 
         $this->batchId = $existing;
-        $stats         = json_decode($batch->stats ?? '[]', true) ?: [];
-        $this->report  = $stats['validation'] ?? (new BundleImporter())->validate($existing);
+        $stats = json_decode($batch->stats ?? '[]', true) ?: [];
+        $this->report = $stats['validation'] ?? (new BundleImporter)->validate($existing);
     }
 
     public function form(Schema $schema): Schema
@@ -121,26 +123,26 @@ class UploadImportBatch extends Page implements HasForms
     {
         $state = $this->form->getState();
 
-        $tempDir = storage_path('app/import-staging/' . (string) Str::uuid());
+        $tempDir = storage_path('app/import-staging/'.(string) Str::uuid());
         File::ensureDirectoryExists($tempDir);
 
         $map = [
-            'records_file'         => 'records.csv',
+            'records_file' => 'records.csv',
             'nutrient_values_file' => 'nutrient_values.csv',
-            'portions_file'        => 'portions.csv',
+            'portions_file' => 'portions.csv',
         ];
 
         foreach ($map as $field => $canonicalName) {
             if (empty($state[$field])) {
                 continue;
             }
-            File::copy(Storage::disk('local')->path($state[$field]), $tempDir . DIRECTORY_SEPARATOR . $canonicalName);
+            File::copy(Storage::disk('local')->path($state[$field]), $tempDir.DIRECTORY_SEPARATOR.$canonicalName);
         }
 
-        $this->report       = null;
+        $this->report = null;
         $this->errorMessage = null;
 
-        $importer = new BundleImporter();
+        $importer = new BundleImporter;
 
         try {
             $this->batchId = $importer->stage($tempDir, auth()->id());
@@ -158,7 +160,7 @@ class UploadImportBatch extends Page implements HasForms
             if ($this->batchId) {
                 $importer->discard($this->batchId);
             }
-            $this->batchId      = null;
+            $this->batchId = null;
             // Our own messages are written for the reader; anything else is a bug, logged.
             $this->errorMessage = $e instanceof ImportFileRejected ? $e->getMessage() : 'حدث خطأ غير متوقع أثناء فحص الملفات. أرسل الملفات للدعم.';
             if (! $e instanceof ImportFileRejected) {
@@ -183,7 +185,7 @@ class UploadImportBatch extends Page implements HasForms
         }
 
         try {
-            $stats = (new BundleImporter())->commit($this->batchId);
+            $stats = (new BundleImporter)->commit($this->batchId);
 
             Notification::make()
                 ->title('تم الحفظ بنجاح')
@@ -203,7 +205,7 @@ class UploadImportBatch extends Page implements HasForms
     protected function getForms(): array
     {
         return [
-            'form'         => $this->form(Schema::make($this)),
+            'form' => $this->form(Schema::make($this)),
             'selectorForm' => $this->makeSelectorForm(),
         ];
     }
@@ -216,17 +218,17 @@ class UploadImportBatch extends Page implements HasForms
                 Select::make('batch_id')
                     ->label('فتح دفعة سابقة')
                     ->helperText('اختر دفعة لعرض تفاصيلها ومراجعتها')
-                    ->options(fn() => DB::table('import_batches')
-                            ->orderByDesc('id')
-                            ->get(['id', 'original_filename'])
-                            ->mapWithKeys(fn($b) => [$b->id => "{$b->original_filename} (#{$b->id})"])
-                            ->all())
+                    ->options(fn () => DB::table('import_batches')
+                        ->orderByDesc('id')
+                        ->get(['id', 'original_filename'])
+                        ->mapWithKeys(fn ($b) => [$b->id => "{$b->original_filename} (#{$b->id})"])
+                        ->all())
                     ->searchable()
                     ->native(false)
                     ->live()
                     ->afterStateUpdated(function ($state) {
                         if ($state) {
-                            $this->redirect(static::getUrl() . '?batch=' . $state);
+                            $this->redirect(static::getUrl().'?batch='.$state);
                         }
                     }),
             ]);

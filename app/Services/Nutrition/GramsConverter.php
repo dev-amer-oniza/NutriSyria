@@ -18,9 +18,8 @@ use Illuminate\Database\Eloquent\Builder;
 final class GramsConverter
 {
     public function __construct(
-        private readonly PortionResolver $resolver = new PortionResolver(),
-    ) {
-    }
+        private readonly PortionResolver $resolver = new PortionResolver,
+    ) {}
 
     /** Grams, or null when the line cannot be converted (resolve() says why). */
     public function convert(int $foodSourceRecordId, int $measureUnitId, float $amount, ?int $chosenPortionId = null): ?float

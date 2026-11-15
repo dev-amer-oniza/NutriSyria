@@ -23,7 +23,7 @@ final class NutrientGapFiller
     /**
      * @param  array<int, array{amount: float, unit: string}>  $own  the chosen record's values, keyed by nutrient_id
      * @param  list<array{source: string, values: array<int, array{amount: float, unit: string}>}>  $donors
-     *     other records of the same food and form, best (lowest priority number) first
+     *                                                                                                       other records of the same food and form, best (lowest priority number) first
      * @param  array<string, int>  $idByCode  nutrient code => nutrient_id for every nutrient to report
      * @return array<int, array{amount: float, unit: string, origin?: array{type: string, source?: string}}>
      */

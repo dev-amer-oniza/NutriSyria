@@ -13,7 +13,6 @@ class UserCriterionChange extends Model
 {
     public const UPDATED_AT = null;
 
-
     protected $table = 'user_criteria_changes';
 
     protected $fillable = ['user_id', 'criterion', 'source', 'old_value', 'new_value', 'old_text', 'new_text', 'changed_by'];

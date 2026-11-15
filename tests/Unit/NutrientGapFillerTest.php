@@ -16,7 +16,7 @@ class NutrientGapFillerTest extends TestCase
 
     private function fill(array $own, array $donors = []): array
     {
-        return (new NutrientGapFiller())->fill($own, $donors, self::IDS);
+        return (new NutrientGapFiller)->fill($own, $donors, self::IDS);
     }
 
     public function test_the_chosen_record_values_always_win(): void

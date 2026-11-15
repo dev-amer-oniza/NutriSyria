@@ -13,7 +13,7 @@ class DataSourcesOverview extends TableWidget
 {
     protected static ?int $sort = 2;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     /** Database-wide numbers: for those who build the food database; the other roles get their own widgets. */
     public static function canView(): bool
@@ -29,7 +29,7 @@ class DataSourcesOverview extends TableWidget
         return $table
             ->heading('السجلات حسب المصدر')
             ->description('المصدر الأعلى أولوية أولاً: أرقامه تُستعمل في الوصفات قبل غيره.')
-            ->records(fn () => collect((new DatabaseOverview())->sources())->keyBy('id')->all())
+            ->records(fn () => collect((new DatabaseOverview)->sources())->keyBy('id')->all())
             ->columns([
                 TextColumn::make('name')->label('المصدر')->weight('bold'),
                 TextColumn::make('approved')->label('معتمد')->badge()->color('success'),

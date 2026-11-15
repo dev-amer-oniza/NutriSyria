@@ -15,7 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Food extends Model
 {
     protected $fillable = ['name_ar', 'name_en', 'scientific_name', 'food_category_id', 'img', 'is_active', 'allergens', 'allergens_checked'];
-    protected $table = 'foods'; 
+
+    protected $table = 'foods';
 
     protected function casts(): array
     {

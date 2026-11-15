@@ -20,7 +20,7 @@ class RecipeCalculatorTest extends TestCase
 
     private function calc(): RecipeCalculator
     {
-        return new RecipeCalculator();
+        return new RecipeCalculator;
     }
 
     public function test_simple_two_ingredient_sum(): void
