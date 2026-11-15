@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +36,6 @@ class User extends Authenticatable implements FilamentUser
         'is_active',
     ];
 
-    protected $connection = 'central';
 
     /**
      * The attributes that should be hidden for serialization.
@@ -74,15 +72,6 @@ class User extends Authenticatable implements FilamentUser
         return $panel->getId() === 'admin'
             && $this->is_active !== false
             && $this->hasAnyRole(Access::PANEL_ROLES);
-    }
-
-    /**
-     * Panel notifications live with the users, on the "central" connection (Laravel's default
-     * model would use the default connection).
-     */
-    public function notifications(): MorphMany
-    {
-        return $this->morphMany(CentralDatabaseNotification::class, 'notifiable')->latest();
     }
 
     public function isSuperAdmin(): bool

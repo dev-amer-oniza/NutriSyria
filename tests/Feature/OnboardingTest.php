@@ -97,7 +97,7 @@ class OnboardingTest extends TestCase
         $profile = $this->user->fresh()->profile;
         $this->assertSame(['diabetes'], $profile->health_conditions);
         $this->assertNotNull($profile->health_consent_at);
-        $raw = DB::connection('central')->table('user_profiles')->value('health_conditions');
+        $raw = DB::table('user_profiles')->value('health_conditions');
         $this->assertStringNotContainsString('diabetes', $raw, 'stored encrypted');
 
         $sheet = app(PersonalCriteria::class)->for($this->user->fresh());

@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /** A site user's nutrition profile (App\Services\Nutrition\UserProfileService). */
 class UserProfile extends Model
 {
-    protected $connection = 'central';
 
     protected $fillable = [
         'sex', 'birth_year', 'height_cm', 'weight_kg', 'activity_level', 'goal',

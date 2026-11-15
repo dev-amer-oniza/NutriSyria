@@ -108,7 +108,7 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             // The bell: review notes reach brand owners and nutritionists here.
             ->databaseNotifications()
-            ->databaseNotificationsPolling('10s')
+            ->databaseNotificationsPolling('60s')
             // Livewire nearly stops polling in a background tab, so a note sent meanwhile would wait
             // minutes. Check again the moment the user comes back to the tab.
             ->renderHook(PanelsRenderHook::BODY_END, fn (): string => <<<'HTML'

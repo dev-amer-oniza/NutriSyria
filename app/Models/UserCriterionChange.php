@@ -13,7 +13,6 @@ class UserCriterionChange extends Model
 {
     public const UPDATED_AT = null;
 
-    protected $connection = 'central';
 
     protected $table = 'user_criteria_changes';
 

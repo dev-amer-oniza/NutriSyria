@@ -113,7 +113,6 @@ return [
 
     'teams' => false,
 
-    'connection' => 'central',
     /*
      * The class to use to resolve the permissions team id
      */
