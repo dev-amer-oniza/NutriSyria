@@ -4,7 +4,9 @@ namespace App\Filament\Clusters\ImportReview\Pages;
 
 use App\Auth\Access;
 use App\Filament\Clusters\ImportReview\ImportReviewCluster;
+use App\Models\FoodForm;
 use App\Services\Import\BundleImporter;
+use App\Services\Import\MatchingDraft;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -59,6 +61,22 @@ class SourceMatchingTools extends Page implements HasForms
     public ?array $buildData = [];
 
     public ?string $errorMessage = null;
+
+    /** The draft being reviewed on the page (storage/app/suggestions/<id>.csv), null before step 1. */
+    public ?string $draftId = null;
+
+    /** The source and releases the draft was made from: build uses the same. */
+    public ?array $draftSource = null;
+
+    /** @var array<int, bool> chosen draft rows */
+    public array $picks = [];
+
+    public string $batchLabel = '';
+
+    /** Show only the foods that still need a decision. */
+    public bool $onlyUndecided = false;
+
+    private ?MatchingDraft $draft = null;
 
     public function mount(): void
     {
@@ -235,22 +253,117 @@ class SourceMatchingTools extends Page implements HasForms
             return null;
         }
 
-        Notification::make()->title('تم توليد المسودة')->body(trim($result->output()))->success()->send();
+        $this->draftId = pathinfo($outPath, PATHINFO_FILENAME);
+        $this->draftSource = $source;
+        $this->draft = null;
+        $this->picks = $this->draft()?->initialPicks() ?? [];
+        $summary = $this->draft()?->summary($this->picks);
 
-        return response()->streamDownload(
-            fn () => print (File::get($outPath)),
-            'draft_crosswalk.csv',
-        );
+        Notification::make()
+            ->title('الاقتراحات جاهزة: راجعها في الجدول')
+            ->body($summary ? "مختار سلفاً: {$summary['chosen']} من {$summary['pairs']} · تحتاج قرارك: {$summary['undecided']} · بلا مرشح: {$summary['no_candidate']}" : null)
+            ->success()
+            ->send();
+
+        return null;
     }
 
-    public function buildBundle()
+    /** The draft on the page, or null when there is none (or its file is gone). */
+    public function draft(): ?MatchingDraft
     {
-        $this->allowLongRun();
+        if ($this->draftId === null || ! Str::isUuid($this->draftId)) {
+            return null;
+        }
+        $path = storage_path("app/suggestions/{$this->draftId}.csv");
+
+        return $this->draft ??= File::exists($path) ? MatchingDraft::fromCsv(File::get($path)) : null;
+    }
+
+    public function togglePick(int $row): void
+    {
+        if ($draft = $this->draft()) {
+            $this->picks = $draft->toggle($this->picks, $row);
+        }
+    }
+
+    /** @return list<string> */
+    public function getProblems(): array
+    {
+        return $this->draft()?->problems($this->picks) ?? [];
+    }
+
+    /** @return array<string, string> form code => Arabic name */
+    public function getFormNames(): array
+    {
+        return FoodForm::query()->pluck('name_ar', 'code')->all();
+    }
+
+    /** The draft with the page's picks, as a CSV: the Excel way stays open. */
+    public function downloadDraft()
+    {
+        $draft = $this->draft();
+        if ($draft === null) {
+            return null;
+        }
+
+        return response()->streamDownload(fn () => print ($draft->toCsv($this->picks)), 'draft_crosswalk.csv');
+    }
+
+    public function discardDraft(): void
+    {
+        if ($this->draftId !== null && Str::isUuid($this->draftId)) {
+            File::delete(storage_path("app/suggestions/{$this->draftId}.csv"));
+        }
+        $this->reset('draftId', 'draftSource', 'picks', 'batchLabel', 'onlyUndecided', 'errorMessage');
+        $this->draft = null;
+    }
+
+    /** Step 2 without Excel: the picks made on the page go straight to build. */
+    public function buildFromPicks(): void
+    {
+        $this->validate(['batchLabel' => ['required', 'string', 'max:255']], attributes: ['batchLabel' => 'اسم الدفعة']);
+        $draft = $this->draft();
+        if ($draft === null || $this->draftSource === null) {
+            Notification::make()->title('المسودة غير موجودة: اقترح المطابقة من جديد')->danger()->send();
+
+            return;
+        }
+        if ($problems = $draft->problems($this->picks)) {
+            Notification::make()->title('لا يمكن بناء الدفعة بعد')->body(implode(' · ', $problems))->danger()->persistent()->send();
+
+            return;
+        }
+
+        $reviewed = storage_path("app/suggestions/{$this->draftId}-reviewed.csv");
+        File::put($reviewed, $draft->toCsv($this->picks));
+
+        try {
+            $this->runBuild($reviewed, trim($this->batchLabel), $this->draftSource);
+        } finally {
+            File::delete($reviewed);
+        }
+    }
+
+    /** Step 2 the Excel way: a draft reviewed outside and uploaded. */
+    public function buildBundle(): void
+    {
         $source = $this->source()->getState();
         $state = $this->buildForm->getState();
-        $this->errorMessage = null;
 
-        $crosswalkPath = Storage::disk('local')->path($state['crosswalk_file']);
+        $this->runBuild(Storage::disk('local')->path($state['crosswalk_file']), $state['batch_label'], $source);
+    }
+
+    /** @param  array<string, mixed>  $source  the source form state (or the one a draft was made from) */
+    private function runBuild(string $crosswalkPath, string $batchLabel, array $source): void
+    {
+        $this->allowLongRun();
+        $this->errorMessage = null;
+        if (! is_array(config('source_adapters.'.($source['adapter'] ?? '')))) {
+            Notification::make()->title('المصدر غير معروف: اختره من جديد')->danger()->send();
+
+            return;
+        }
+
         $outDir = storage_path('app/bundles/'.Str::uuid());
         File::ensureDirectoryExists($outDir);
 
@@ -279,7 +392,7 @@ class SourceMatchingTools extends Page implements HasForms
             $batchId = $importer->stage($outDir, auth()->id());
             DB::table('import_batches')
                 ->where('id', $batchId)
-                ->update(['original_filename' => $state['batch_label']]);
+                ->update(['original_filename' => $batchLabel]);
             $importer->validate($batchId);
 
             Notification::make()->title('بُنيت الدفعة وفُحصت: راجع النتيجة ثم احفظ')->success()->send();
