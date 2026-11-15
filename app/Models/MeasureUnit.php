@@ -26,9 +26,4 @@ class MeasureUnit extends Model
     {
         return $this->hasMany(FoodPortion::class);
     }
-
-    public function recipeIngredients(): HasMany
-    {
-        return $this->hasMany(RecipeIngredient::class);
-    }
 }

@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * One source's description of one food in one form (e.g. "USDA item 173757 = chickpeas,
@@ -65,18 +64,6 @@ class FoodSourceRecord extends Model
     public function portions(): HasMany
     {
         return $this->hasMany(FoodPortion::class);
-    }
-
-    /** Present only when this record is a calculated dish (dataSource type = recipe). */
-    public function recipe(): HasOne
-    {
-        return $this->hasOne(Recipe::class);
-    }
-
-    /** Recipe lines that use this record as an ingredient (e.g. this garlic, used in many dishes). */
-    public function usedAsIngredientIn(): HasMany
-    {
-        return $this->hasMany(RecipeIngredient::class);
     }
 
     #[Scope]
