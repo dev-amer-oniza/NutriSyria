@@ -40,6 +40,12 @@ return [
         'model' => env('OPENROUTER_MODEL', 'openai/gpt-4o-mini'),
     ],
 
+    /* The Python the matching tools run with (SourceMatchingTools). Read here, never with env()
+       in the code: after `php artisan config:cache` env() outside config returns null. */
+    'python' => [
+        'bin' => env('PYTHON_BIN', 'python'),
+    ],
+
     /* USDA FoodData Central: the admin's live search (ImportReview\Pages\UsdaSearch). A free key
        from api.data.gov, in .env only. */
     'fdc' => [

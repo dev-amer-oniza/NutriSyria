@@ -312,6 +312,8 @@
 - اختبارات: `tests/Feature/AboutPageTest.php`.
 
 ## معلومات تشغيل وتطوير
+- **الرفع على السيرفر:** `docs/DEPLOY.md` (سيرفر واحد صغير: Nginx + PHP-FPM + MySQL؛ بلا Redis ولا queue worker ولا Python) و`.env.production.example` (`APP_DEBUG=false`، كاش على القرص `CACHE_STORE=file`، `QUEUE_CONNECTION=sync`، جلسات في القاعدة لأن تغيير كلمة المرور يُنهي الجلسات الأخرى عبرها، سجل يومي 14 يوماً). السيرفر يشغّل `php artisan optimize`، فـ **`env()` ممنوعة خارج `config/*.php`** (تعود null بعد تجميع الإعدادات)؛ يحرسها `tests/Unit/ProductionReadinessTest.php`. مسار Python في `config('services.python.bin')`. `AdminSeed` على السيرفر يسأل عن بريد المدير وكلمة مروره (لا كلمة افتراضية)، ومحلياً `admin1@gmail.com` / `1234`.
+- **مراجعة المتانة والكلفة** (قرارات صاحب المشروع 1أ 2أ 3أ 4أ، بالترتيب): 1) جاهزية الرفع (تم). 2) حذف الكود الميت والمكتبات والجداول القديمة (`recipes`، `recipe_ingredients`، `sham_cash_accounts`) بـ migration. 3) تخفيف الحمل (جرس اللوحة كل 60 ثانية، اتصال قاعدة بيانات واحد بدل `central`). 4) CI (الاختبارات + Pint + Larastan). أداة المطابقة بـ Python تُشغَّل على جهاز صاحب المشروع لا السيرفر (2أ)، وCloudinary يبقى في الإعدادات فقط والصور على قرص السيرفر (3أ).
 - **الاختبارات:** `php vendor/bin/phpunit` (SQLite في الذاكرة). كلها تنجح.
 - **قاعدة البيانات:**
   - `User` ونماذج أخرى تستعمل اتصال `central` الثابت على MySQL. في سكربتات tinker على SQLite نفّذ أولاً: `config(['database.connections.central' => config('database.connections.sqlite')]);`

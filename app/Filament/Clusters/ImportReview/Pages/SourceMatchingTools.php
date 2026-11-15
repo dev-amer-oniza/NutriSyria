@@ -200,7 +200,7 @@ class SourceMatchingTools extends Page implements HasForms
         $adapter = config("source_adapters.{$state['adapter']}");
 
         $result = Process::timeout(self::TOOL_TIMEOUT_SECONDS)->run([
-            env('PYTHON_BIN', 'python'),
+            config('services.python.bin'),
             base_path('tools/' . $adapter['script']),
             'suggest',
             ...$this->releaseArgs($state['adapter'], $state['release']),
@@ -236,7 +236,7 @@ class SourceMatchingTools extends Page implements HasForms
         $adapter = config("source_adapters.{$state['adapter']}");
 
         $result = Process::timeout(self::TOOL_TIMEOUT_SECONDS)->run([
-            env('PYTHON_BIN', 'python'),
+            config('services.python.bin'),
             base_path('tools/' . $adapter['script']),
             'build',
             ...$this->releaseArgs($state['adapter'], $state['release']),
