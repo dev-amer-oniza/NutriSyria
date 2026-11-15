@@ -6,15 +6,19 @@ use App\Exceptions\ImportFileRejected;
 use App\Models\FoodSourceRecord;
 use App\Models\Nutrient;
 use App\Models\NutrientSourceCode;
+use App\Models\User;
 use App\Services\Import\BundleImporter;
+use App\Services\Import\RecordReview;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 /**
- * Brings one USDA food into the database the way every import comes in (the owner's
- * decision 3a): a one-food batch, staged, checked by the same validator and saved as
- * "pending review". A food already in the database is reported, never added twice.
+ * Brings one USDA food into the database through the same import path as every other: a
+ * one-food batch, staged and checked by the same validator. The admin saw its values and
+ * portions before adding it, so it is approved at once (the owner's later decision): the
+ * batch stays as the record of who added what and when. A food already in the database is
+ * reported, never added twice.
  */
 class FdcImporter
 {
@@ -74,10 +78,10 @@ class FdcImporter
     }
 
     /**
-     * Adds the food as a pending-review record through a one-food batch.
+     * Adds the food through a one-food batch and approves it in the name of $userId.
      *
      * @param  array{food_id?: ?int, food_name_ar?: ?string, food_name_en?: ?string, food_form_code: string, note?: ?string}  $choice
-     * @return array{batch: int, stats: array}
+     * @return array{batch: int, stats: array, record: FoodSourceRecord}
      *
      * @throws ImportFileRejected when it is already in the database, or the checks block it
      */
@@ -115,7 +119,11 @@ class FdcImporter
                 throw new ImportFileRejected('الفحص العلمي منع إضافة هذا الغذاء'.($reasons !== '' ? ': '.$reasons : '.'));
             }
 
-            return ['batch' => $batch, 'stats' => $importer->commit($batch)];
+            $stats = $importer->commit($batch);
+            $record = FoodSourceRecord::query()->where('import_batch_id', $batch)->where('external_ref', (string) $fdcId)->firstOrFail();
+            app(RecordReview::class)->approve($record, $userId !== null ? User::find($userId) : null);
+
+            return ['batch' => $batch, 'stats' => $stats, 'record' => $record->refresh()];
         } catch (ImportFileRejected $e) {
             if ($batch) {
                 $importer->discard($batch);   // a batch that saved nothing would hang in the list

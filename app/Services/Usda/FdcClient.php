@@ -17,7 +17,8 @@ class FdcClient
     /** FDC dataType => data_sources.code */
     public const DATA_TYPES = ['Foundation' => 'usda_fdc_foundation', 'SR Legacy' => 'usda_fdc_sr_legacy'];
 
-    public const PAGE_SIZE = 25;
+    /** As many as one request may bring: the page narrows and ranks them itself (FdcSearchFilter). */
+    public const PAGE_SIZE = 200;
 
     private const CACHE_HOURS = 24;
 
@@ -30,25 +31,25 @@ class FdcClient
     }
 
     /**
-     * @return array{hits: int, pages: int, page: int, foods: list<array{fdcId: int, description: string, dataType: string, published: ?string, category: ?string, kcal: ?float, protein: ?float, fat: ?float, carbs: ?float}>}
+     * The most relevant foods USDA has for the words, in one request (PAGE_SIZE of them).
+     *
+     * @return array{hits: int, foods: list<array{fdcId: int, description: string, dataType: string, published: ?string, category: ?string, kcal: ?float, protein: ?float, fat: ?float, carbs: ?float}>}
      */
-    public function search(string $query, int $page = 1): array
+    public function search(string $query): array
     {
         $query = trim($query);
-        $key = 'fdc.search.'.md5(mb_strtolower($query)).'.'.$page;
+        $key = 'fdc.search.v2.'.md5(mb_strtolower($query));
 
-        return Cache::remember($key, now()->addHours(self::CACHE_HOURS), function () use ($query, $page) {
+        return Cache::remember($key, now()->addHours(self::CACHE_HOURS), function () use ($query) {
             $data = $this->get('foods/search', [
                 'query' => $query,
                 'dataType' => implode(',', array_keys(self::DATA_TYPES)),
                 'pageSize' => self::PAGE_SIZE,
-                'pageNumber' => $page,
+                'pageNumber' => 1,
             ]);
 
             return [
                 'hits' => (int) ($data['totalHits'] ?? 0),
-                'pages' => (int) ($data['totalPages'] ?? 0),
-                'page' => $page,
                 'foods' => array_values(array_map(self::summary(...), array_filter(
                     $data['foods'] ?? [],
                     fn (array $food) => isset(self::DATA_TYPES[$food['dataType'] ?? '']),

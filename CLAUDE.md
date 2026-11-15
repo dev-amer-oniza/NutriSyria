@@ -29,7 +29,7 @@
 الأسلوب المتبع في الكود: المنطق الحسابي في كلاسات **pure** بلا قاعدة بيانات (Validator، Calculator، PortionResolver، GapFiller) لتُختبر بسهولة، وكلاس رفيع يقرأ من DB ويمرر لها arrays.
 
 ## القواعد المتفق عليها (لا تغيّرها دون موافقة)
-1. **كل رقم له مصدر.** `food_source_records.data_source_id` إلزامي. السجلات المستوردة تبدأ `pending_review`، ولا تُستخدم في الوصفات قبل اعتمادها.
+1. **كل رقم له مصدر.** `food_source_records.data_source_id` إلزامي. السجلات المستوردة تبدأ `pending_review`، ولا تُستخدم في الوصفات قبل اعتمادها. **استثناء (قرار صاحب المشروع):** الغذاء المضاف من "بحث في USDA" يُعتمد فوراً باسم المدير، لأنه رأى قيمه وحصصه قبل الإضافة (الدفعة تبقى سجلاً لمن أضاف ومتى).
 2. **أولوية المصادر** في `data_sources.priority`، والرقم الأصغر يُستخدم أولاً: تحليل مخبري أو جدول محلي (10–50)، ثم Foundation (90)، ثم SR Legacy (100)، ثم FNDDS (120).
 3. **تحويل الكمية لغرام** (PortionResolver):
    - وحدات الوزن (g, kg, mg, oz, lb) تتحول عبر `measure_units.base_factor`.
@@ -283,7 +283,8 @@
 - **الخدمات** في `app/Services/Usda`:
   - `FdcClient`: `search()` و`food()` من `api.nal.usda.gov/fdc/v1`، المفتاح في ترويسة `X-Api-Key` (لا يظهر في العناوين)، والنتائج تُحفظ 24 ساعة. الأخطاء `App\Exceptions\FdcUnavailable` برسائل عربية (بلا مفتاح، مفتاح خاطئ، 429 تجاوز الحد، لا اتصال).
   - `FdcBundle` (pure، `tests/Unit/FdcBundleTest.php`): يحوّل غذاء الـ API إلى أسطر الحزمة الثلاثة **كما يبنيها `usda_to_template.py`**: لكل مغذٍّ أول رمز حسب `priority` في `nutrient_source_codes`، القيم السالبة تُترك، اسم الحصة = الوحدة وإلا الـ modifier، والملاحظة "FDC: … (published YYYY-MM-DD)" (وملاحظة المشرف قبلها).
-  - `FdcImporter`: `existing()` (ما في القاعدة من أرقام FDC)، `preview()`، و`add()`: يكتب CSV مؤقتة ثم `BundleImporter` stage ← validate ← commit (السجل `pending_review`)، واسم الدفعة "USDA: …". إن منعه الفحص تُحذف الدفعة وتُعرض الأسباب.
+  - `FdcImporter`: `existing()` (ما في القاعدة من أرقام FDC)، `preview()`، و`add()`: يكتب CSV مؤقتة ثم `BundleImporter` stage ← validate ← commit ثم **يعتمد السجل فوراً** (`RecordReview::approve` باسم المدير؛ قرار صاحب المشروع)، واسم الدفعة "USDA: …". إن منعه الفحص تُحذف الدفعة وتُعرض الأسباب. الإشعار "أُضيف للقاعدة ومعتمد" مع زر "افتح السجل"، وإن كان عليه تنبيه (`BatchReview::flagsFor`) يذكره ويبقى ظاهراً.
+  - **البحث الدقيق** (قرارات صاحب المشروع: إنكليزي فقط حالياً، و"اعرض المستبعد"): `FdcClient::search` يطلب **200 نتيجة بطلب واحد** (`PAGE_SIZE`، الكاش بالكلمات فقط)، و`App\Services\Usda\FdcSearchFilter` (pure، `tests/Unit/FdcSearchFilterTest.php` على أوصاف حقيقية `tests/Fixtures/fdc/legume-descriptions.json`، والترتيب المتوقع هو ما تعطيه أداة المطابقة نفسها) يفلتر ويرتّب **بقواعد `usda_to_template.py`**: كل كلمة إلزامية (الجمع = المفرد، `stem`)، الشكل (`FORM_RULES` و`fit_form`؛ المعلّب والمجمّد والمجفف والمخلل لا تُعطى لشكل آخر)، الاستبعاد التلقائي `OUTSIDE` (أكل أطفال، وجبات سريعة، مطاعم…)، كلمات "استبعد" (`;`)، والمصدر؛ والترتيب `score_description` (الاسم في الرأس أولاً، بلا ملح قبل مع ملح، الأقصر أولاً). الصفحة: حقول الاسم والشكل واستبعد والمصدر (`$form`/`$exclude` في الرابط `form`/`x`)، 25 بالصفحة محلياً، سطر "USDA رجّعت N من أصل M، ونحنا شلنا K"، وزر "اعرض المستبعد" بسبب كل واحد. نتائج USDA لا تُخزَّن في حالة الصفحة (من الكاش)، فتغيير الشروط لا يرسل طلباً جديداً.
 - **المفتاح:** `FDC_API_KEY` في `.env` (مجاني من api.data.gov/signup، 1000 طلب/ساعة)، والإعداد `config/services.php` (`fdc`). بلا مفتاح تشرح الصفحة كيف يُضاف.
 - اختبارات: `tests/Feature/UsdaSearchTest.php` (Http مُحاكى، عيّنات في `tests/Fixtures/fdc`). **لم تُجرَّب بعد على USDA الحقيقية** (لا مفتاح في بيئة التطوير).
 

@@ -4,12 +4,14 @@ namespace App\Filament\Clusters\ImportReview\Pages;
 
 use App\Exceptions\FdcUnavailable;
 use App\Exceptions\ImportFileRejected;
+use App\Filament\Clusters\FoodDatabase\Resources\Food\Resources\FoodSourceRecords\FoodSourceRecordResource;
 use App\Filament\Clusters\ImportReview\ImportReviewCluster;
-use App\Filament\Clusters\ImportReview\Resources\ImportBatches\ImportBatchResource;
 use App\Models\Food;
 use App\Models\FoodForm;
+use App\Services\Import\BatchReview;
 use App\Services\Usda\FdcClient;
 use App\Services\Usda\FdcImporter;
+use App\Services\Usda\FdcSearchFilter;
 use App\Support\ArabicSearch;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Radio;
@@ -26,8 +28,10 @@ use Throwable;
 
 /**
  * Search USDA FoodData Central live and add one food to the database (the owner's decisions
- * 1a 2a 3a 4a): Foundation and SR Legacy only, the admin alone, and an added food arrives as
- * a one-food import batch, pending review like any other. One already in the database is
+ * 1a 2a 3a 4a): Foundation and SR Legacy only, the admin alone. USDA's answer is narrowed and
+ * ranked here with the matching tool's rules (FdcSearchFilter): every word, the chosen form,
+ * the admin's exclusions. An added food goes through a one-food batch and is approved at once
+ * (the owner's later decision: the admin has seen its values). One already in the database is
  * pointed out instead of added again.
  */
 class UsdaSearch extends Page
@@ -50,10 +54,26 @@ class UsdaSearch extends Page
     #[Url(as: 'q')]
     public string $query = '';
 
+    /** A form from FdcSearchFilter::FORMS, or '' for any. */
+    #[Url(as: 'form')]
+    public string $form = '';
+
+    /** Words that drop a result, separated by ";" (like the wanted list's exclude column). */
+    #[Url(as: 'x')]
+    public string $exclude = '';
+
+    /** @var list<string> FDC data types to show */
+    public array $sources = ['Foundation', 'SR Legacy'];
+
     public int $page = 1;
 
-    /** FdcClient::search(), or null before the first search. */
-    public ?array $results = null;
+    /** Shows what the rules left out, with the reason. */
+    public bool $showDropped = false;
+
+    /** True once a search ran: the foods themselves stay in the cache, not in the page state. */
+    public bool $searched = false;
+
+    public const PER_PAGE = 25;
 
     public ?string $errorMessage = null;
 
@@ -77,39 +97,96 @@ class UsdaSearch extends Page
     public function search(): void
     {
         $this->page = 1;
+        $this->showDropped = false;
         $this->load();
     }
 
     public function goTo(int $page): void
     {
-        $this->page = max(1, min($page, $this->results['pages'] ?? 1));
-        $this->load();
+        $this->page = max(1, $page);
     }
 
     private function load(): void
     {
         $this->query = trim($this->query);
         $this->errorMessage = null;
+        $this->searched = false;
 
         if (mb_strlen($this->query) < 2) {
-            $this->results = null;
-            $this->errorMessage = 'اكتب اسم الغذاء بالإنكليزية (حرفان على الأقل)، مثل: chickpeas cooked.';
+            $this->errorMessage = 'اكتب اسم الغذاء بالإنكليزية (حرفان على الأقل)، مثل: chickpeas.';
 
             return;
         }
 
         try {
-            $this->results = app(FdcClient::class)->search($this->query, $this->page);
+            app(FdcClient::class)->search($this->query);
+            $this->searched = true;
         } catch (FdcUnavailable $e) {
-            $this->results = null;
             $this->errorMessage = $e->getMessage();
         }
+    }
+
+    /** USDA's answer for the current words (from the day's cache), or null before a search. */
+    private function answer(): ?array
+    {
+        if (! $this->searched) {
+            return null;
+        }
+
+        try {
+            return app(FdcClient::class)->search($this->query);
+        } catch (FdcUnavailable $e) {
+            $this->errorMessage = $e->getMessage();
+
+            return null;
+        }
+    }
+
+    /**
+     * What the page shows: USDA's count, the foods that pass the rules (one page of them),
+     * and the ones left out with the reason.
+     *
+     * @return array{hits: int, received: int, total: int, pages: int, page: int, foods: list<array>, dropped: list<array{food: array, reason: string}>}|null
+     */
+    public function results(): ?array
+    {
+        $answer = $this->answer();
+        if ($answer === null) {
+            return null;
+        }
+
+        $filtered = (new FdcSearchFilter)->apply(
+            $answer['foods'],
+            $this->query,
+            $this->form !== '' ? $this->form : null,
+            FdcSearchFilter::excludeList($this->exclude),
+            array_values(array_intersect($this->sources, array_keys(FdcClient::DATA_TYPES))) ?: array_keys(FdcClient::DATA_TYPES),
+        );
+        $total = count($filtered['shown']);
+        $pages = max(1, (int) ceil($total / self::PER_PAGE));
+        $page = min($this->page, $pages);
+
+        return [
+            'hits' => $answer['hits'],
+            'received' => count($answer['foods']),
+            'total' => $total,
+            'pages' => $pages,
+            'page' => $page,
+            'foods' => array_slice($filtered['shown'], ($page - 1) * self::PER_PAGE, self::PER_PAGE),
+            'dropped' => $filtered['dropped'],
+        ];
+    }
+
+    /** @return array<string, string> */
+    public function formOptions(): array
+    {
+        return FdcSearchFilter::FORMS;
     }
 
     /** The found foods the database already holds, by fdc id (for the "موجود" mark). */
     public function existing(): array
     {
-        return app(FdcImporter::class)->existing(array_column($this->results['foods'] ?? [], 'fdcId'));
+        return app(FdcImporter::class)->existing(array_column($this->results()['foods'] ?? [], 'fdcId'));
     }
 
     /** "أضف للقاعدة": says so when it is already there, otherwise asks which food it is. */
@@ -139,7 +216,7 @@ class UsdaSearch extends Page
         return Action::make('addFood')
             ->modalHeading('إضافة إلى قاعدة الأغذية')
             ->modalDescription(fn (array $arguments) => ($this->found($arguments['fdcId'])['description'] ?? '').' · '.($this->found($arguments['fdcId'])['dataType'] ?? ''))
-            ->modalSubmitActionLabel('أضف بانتظار المراجعة')
+            ->modalSubmitActionLabel('أضف للقاعدة')
             ->fillForm(fn (array $arguments) => ['target' => 'new', 'food_name_en' => $this->found($arguments['fdcId'])['description'] ?? null])
             ->schema([
                 Radio::make('target')
@@ -194,19 +271,26 @@ class UsdaSearch extends Page
                     return;
                 }
 
-                Notification::make()
-                    ->title('أُضيف بانتظار المراجعة')
-                    ->body('راجعه واعتمده من صفحة الدفعة حتى يُستعمل في الوصفات.')
-                    ->success()
-                    ->actions([Action::make('open')->label('افتح الدفعة')->url(ImportBatchResource::getUrl('edit', ['record' => $result['batch']]))])
-                    ->send();
+                $flags = (new BatchReview)->flagsFor($result['record']);
+                $record = $result['record'];
+                $notice = Notification::make()
+                    ->title('أُضيف للقاعدة ومعتمد')
+                    ->body($flags
+                        ? 'انتبه: '.implode('، ', array_map(fn ($f) => $f->label, $flags)).'. افتح السجل لتراجع القيم.'
+                        : 'صار يُستعمل في الوصفات مباشرة.')
+                    ->status($flags ? 'warning' : 'success')
+                    ->actions([Action::make('open')->label('افتح السجل')->url(FoodSourceRecordResource::getUrl('edit', ['food' => $record->food_id, 'record' => $record->id]))]);
+                if ($flags) {
+                    $notice->persistent();
+                }
+                $notice->send();
             });
     }
 
     /** A food of the current results, by its fdc id. */
     private function found(int|string $fdcId): ?array
     {
-        return collect($this->results['foods'] ?? [])->firstWhere('fdcId', (int) $fdcId);
+        return collect($this->answer()['foods'] ?? [])->firstWhere('fdcId', (int) $fdcId);
     }
 
     private function detailsView(int $fdcId): View
