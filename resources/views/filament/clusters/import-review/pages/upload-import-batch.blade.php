@@ -1,18 +1,18 @@
 
 <x-filament-panels::page>
-    <x-filament::section heading="دفعة سابقة">
-    {{ $this->selectorForm }}
-</x-filament::section>
+    @include('filament.clusters.import-review.components.import-steps', ['current' => 3, 'matching' => $fromMatching])
 
-    <form wire:submit.prevent="validateBundle">
-        {{ $this->form }}
+    @unless ($report)
+        <form wire:submit.prevent="validateBundle">
+            {{ $this->form }}
 
-        <div class="mt-4">
-            <x-filament::button type="submit" color="primary">
-                فحص الملفات
-            </x-filament::button>
-        </div>
-    </form>
+            <div class="mt-4">
+                <x-filament::button type="submit" icon="heroicon-o-magnifying-glass">
+                    افحص الملفات
+                </x-filament::button>
+            </div>
+        </form>
+    @endunless
 
     @if ($errorMessage)
         <x-filament::section class="mt-6">
@@ -21,7 +21,7 @@
     @endif
 
     @if ($report)
-        <x-filament::section heading="نتيجة الفحص" class="mt-6">
+        <x-filament::section heading="نتيجة الفحص" description="لا شيء حُفظ بعد. السجلات السليمة تُحفظ «قيد المراجعة» ولا تُستعمل قبل اعتمادها.">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                 <div>
                     <div class="text-sm text-gray-500">السجلات</div>
@@ -77,12 +77,20 @@
                 </table>
             @endif
 
-            @if ($report['records']['ready'] > 0)
-                <div class="mt-6">
-                    <x-filament::button wire:click="commitBundle" color="success">
-                        حفظ ({{ $report['records']['ready'] }} سجل سيُحفظ كـ"قيد المراجعة")
+            <div class="mt-6 flex flex-wrap items-center gap-3">
+                @if ($report['records']['ready'] > 0)
+                    <x-filament::button wire:click="commitBundle" color="success" icon="heroicon-o-check">
+                        احفظ وافتح المراجعة ({{ $report['records']['ready'] }} سجل)
                     </x-filament::button>
-                </div>
+                @endif
+                <x-filament::button wire:click="startOver" color="gray" icon="heroicon-o-arrow-path">
+                    ابدأ من جديد
+                </x-filament::button>
+            </div>
+            @if ($report['records']['blocked'] > 0)
+                <p class="mt-3 text-sm text-danger-600 dark:text-danger-400">
+                    {{ $report['records']['blocked'] }} سجل فيه خطأ لن يُحفظ (انظر الجدول أعلاه). صحّح الملف وارفعه من جديد لإضافتها.
+                </p>
             @endif
         </x-filament::section>
     @endif
