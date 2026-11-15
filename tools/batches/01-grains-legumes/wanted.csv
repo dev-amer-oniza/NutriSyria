@@ -1,0 +1,19 @@
+﻿food_name_ar,food_name_en,forms,search_terms,exclude,note
+أرز طويل الحبة,"Rice, long grain",raw;cooked,"rice, white, long grain;rice, white, long-grain",brown;wild;flour;bran;instant;precooked;parboiled;noodle;cake;cracker;cereal;pudding;milk;vinegar;syrup;seasoned;flavored;mix;dessert;glutinous;short-grain;medium-grain;enriched,
+أرز مصري,"Rice, medium grain (Egyptian)",raw;cooked,"rice, white, medium-grain",brown;wild;flour;bran;instant;precooked;parboiled;enriched;glutinous,أرز مصري ≈ متوسط الحبة
+برغل,Bulgur wheat,raw;cooked,bulgur,,
+فريكة,Freekeh,raw,"wheat, durum",flour;bran;germ;sprouted;bread;cereal;pasta;cracker;bulgur;gluten;starch;malt;protein,"مقاربة: قمح قاسي (Wheat, durum)، الفريكة قمح قاسي أخضر محمّص"
+قمح,Wheat,raw,"wheat, durum",flour;bran;germ;sprouted;bread;cereal;pasta;cracker;bulgur;gluten;starch;malt;protein,
+شوفان,Oats,raw;cooked,"cereals, oats;oats",instant;flavored;sweetened;granola;cereal bar;cookie;bran;fortified;maple;brown sugar;cinnamon,
+شعير,Barley,raw;cooked,"barley, pearled;barley",flour;malt;germ;bran;soup;hulled,
+دخن,Millet,raw;cooked,millet,flour;puffed;flakes,
+كينوا,Quinoa,raw;cooked,quinoa,flour;puffed;flakes,
+كسكس,Couscous,raw;cooked,couscous,flavored;instant;boxed,
+معكرونة,Pasta,raw;cooked,"pasta;pasta, dry;pasta, cooked",with added salt;flavored;instant;sauce;canned;gluten-free;corn;homemade;whole;spinach;vegetable;fresh-refrigerated;protein-fortified;enriched;rice,
+عدس,Lentils,raw;boiled,lentils,sprouted;soup;mix;pink;red,
+عدس أحمر,Red lentils,raw,"lentils, pink or red",sprouted;soup;mix,
+حمص,Chickpeas,raw;boiled;canned,chickpeas;garbanzo beans,flour;hummus;falafel;salted;roasted;snack,
+فاصولياء بيضاء,White beans,raw;boiled,white beans,sprouted;baked;soup;salad,
+فول,Fava beans,raw;boiled;canned,fava beans;broadbeans,immature;sprouted;in pod,
+لوبيا,Black-eyed peas,raw;boiled,"cowpeas, common;black-eyed peas;cowpeas",sprouted;canned;seasoned;leafy;young pods;catjang;immature,
+ترمس,Lupini beans,raw;boiled,lupini beans;lupin,salted;pickled;snack,
