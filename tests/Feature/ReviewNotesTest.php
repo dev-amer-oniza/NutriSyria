@@ -88,7 +88,7 @@ class ReviewNotesTest extends TestCase
 
         Livewire::test(ReviewNotesPanel::class, ['productId' => $this->product->id])
             ->callAction('sendNote', ['body' => 'كمية العدس 200 غ لصحن واحد؟ تأكد من الوزن.'])
-            ->assertHasNoFormErrors();
+            ->assertHasNoErrors();
 
         $note = ProductReviewNote::sole();
         $this->assertTrue($note->isOpen());
