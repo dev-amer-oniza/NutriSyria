@@ -66,10 +66,12 @@ class PortionsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            // Also the option labels of "ربط": those portions come as a list, so the unit is loaded
+            // with them (recordSelectOptionsQuery below), never one portion at a time.
             ->recordTitle(fn ($record) => sprintf(
                 '%s %s = %s غ%s',
                 $record->amount,
-                $record->measureUnit?->name_ar,
+                $record->loadMissing('measureUnit')->measureUnit?->name_ar,
                 $record->gram_weight,
                 $record->description ? " ({$record->description})" : '',
             ))
@@ -98,7 +100,7 @@ class PortionsRelationManager extends RelationManager
                         return $data;
                     }),
                 AssociateAction::make()
-                    ->recordSelectOptionsQuery(fn ($query) => $query->where('food_id', $this->getOwnerRecord()->food_id))
+                    ->recordSelectOptionsQuery(fn ($query) => $query->where('food_id', $this->getOwnerRecord()->food_id)->with('measureUnit'))
                     ->preloadRecordSelect(),
             ])
             ->recordActions([
