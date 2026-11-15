@@ -267,8 +267,9 @@ class AccessControlTest extends TestCase
         $other = $this->pendingRecord();
         $page = ['ownerRecord' => $record->importBatch, 'pageClass' => EditImportBatch::class];
 
+        // A record without values is flagged ("ناقص"), so approving it takes a reason.
         Livewire::test(FoodSourceRecordsRelationManager::class, $page)
-            ->callAction(TestAction::make('approve')->table($record));
+            ->callAction(TestAction::make('approve')->table($record), ['reason' => 'تجربة']);
         $record->refresh();
         $this->assertSame(FoodSourceStatus::Active, $record->status);
         $this->assertSame($nutritionist->id, (int) $record->reviewed_by);

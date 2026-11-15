@@ -7,6 +7,7 @@ use App\Models\FoodSourceRecord;
 use App\Models\MeasureUnit;
 use App\Models\MeasureUnitAlias;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Turns a recipe line ("2 cups of boiled chickpeas") into grams. Shared by the live preview in
@@ -50,6 +51,62 @@ final class GramsConverter
         return $loaded === null ? [] : $this->resolver->choices($loaded['unit'], $loaded['record'], $loaded['portions']);
     }
 
+    /**
+     * The units in which this record's portions cannot be told apart (several weights, no
+     * default), each with the portions to choose from. A food that is used by cups and by pieces
+     * may be ambiguous in one unit and not the other.
+     *
+     * @return list<array{unit_id:int, unit_name_ar:string, message:string, choices:list<array{id:int, label:string, grams:float}>}>
+     */
+    public function ambiguousUnits(int $foodSourceRecordId): array
+    {
+        $loaded = $this->loadRecord($foodSourceRecordId);
+        if ($loaded === null) {
+            return [];
+        }
+
+        $unitIds = array_values(array_unique(array_map(fn (array $p) => $p['measure_unit_id'], $loaded['portions'])));
+        $out = [];
+        foreach (MeasureUnit::whereKey($unitIds)->orderBy('id')->get() as $unit) {
+            $unitData = self::unitData($unit);
+            $conversion = $this->resolver->resolve($unitData, $loaded['record'], $loaded['portions'], 1.0);
+            if ($conversion->status === GramsConversion::AMBIGUOUS_PORTION) {
+                $out[] = [
+                    'unit_id' => $unitData['id'],
+                    'unit_name_ar' => $unitData['name_ar'],
+                    'message' => $conversion->message,
+                    'choices' => $this->resolver->choices($unitData, $loaded['record'], $loaded['portions']),
+                ];
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Marks $portionId as the default of its unit for this record, and clears the other
+     * defaults it competes with. False (nothing written) when it is not one of the record's
+     * choices in that unit.
+     */
+    public function makeDefault(int $foodSourceRecordId, int $measureUnitId, int $portionId): bool
+    {
+        $loaded = $this->load($foodSourceRecordId, $measureUnitId);
+        if ($loaded === null || $loaded['record'] === null) {
+            return false;
+        }
+        $clear = $this->resolver->defaultSwap($loaded['unit'], $loaded['record'], $loaded['portions'], $portionId);
+        if ($clear === null) {
+            return false;
+        }
+
+        DB::transaction(function () use ($clear, $portionId) {
+            FoodPortion::whereKey($clear)->where('is_default', true)->get()->each->update(['is_default' => false]);
+            FoodPortion::findOrFail($portionId)->update(['is_default' => true]);
+        });
+
+        return true;
+    }
+
     /** @return array{unit: array, record: ?array, portions: list<array>}|null  null when the unit does not exist */
     private function load(int $foodSourceRecordId, int $measureUnitId): ?array
     {
@@ -57,23 +114,33 @@ final class GramsConverter
         if (! $unit) {
             return null;
         }
-
-        $unitData = [
-            'id' => (int) $unit->id,
-            'code' => $unit->code,
-            'name_ar' => $unit->name_ar,
-            'dimension' => $unit->dimension,
-            'base_factor' => $unit->base_factor !== null ? (float) $unit->base_factor : null,
-        ];
+        $unitData = self::unitData($unit);
 
         // Mass units need no record and no portion.
         if (PortionResolver::massFactor($unitData) !== null) {
             return ['unit' => $unitData, 'record' => null, 'portions' => []];
         }
 
+        return ['unit' => $unitData] + ($this->loadRecord($foodSourceRecordId) ?? ['record' => null, 'portions' => []]);
+    }
+
+    private static function unitData(MeasureUnit $unit): array
+    {
+        return [
+            'id' => (int) $unit->id,
+            'code' => $unit->code,
+            'name_ar' => $unit->name_ar,
+            'dimension' => $unit->dimension,
+            'base_factor' => $unit->base_factor !== null ? (float) $unit->base_factor : null,
+        ];
+    }
+
+    /** @return array{record: array, portions: list<array>}|null  null when the record does not exist */
+    private function loadRecord(int $foodSourceRecordId): ?array
+    {
         $record = FoodSourceRecord::with(['food:id,name_ar', 'foodForm:id,name_ar'])->find($foodSourceRecordId);
         if (! $record) {
-            return ['unit' => $unitData, 'record' => null, 'portions' => []];
+            return null;
         }
 
         $portions = FoodPortion::query()
@@ -120,7 +187,7 @@ final class GramsConverter
             ];
         })->all();
 
-        return ['unit' => $unitData, 'record' => [
+        return ['record' => [
             'id' => (int) $record->id,
             'food_form_id' => $record->food_form_id !== null ? (int) $record->food_form_id : null,
             'food_name_ar' => $record->food?->name_ar,

@@ -5,6 +5,16 @@
 @endphp
 
 <div class="grid gap-6">
+    @if (! empty($flags))
+        <section class="grid gap-2 rounded-xl border border-warning-300 bg-warning-50 p-3 dark:border-warning-500/40 dark:bg-warning-500/10">
+            <h3 class="text-sm font-semibold text-warning-700 dark:text-warning-400">تنبيهات قبل الاعتماد ({{ count($flags) }})</h3>
+            <ul class="grid gap-1 text-sm text-gray-800 dark:text-gray-100">
+                @foreach ($flags as $flag)
+                    <li><span class="font-semibold">{{ $flag->label }}:</span> {{ $flag->detail }}</li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
     <dl class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
         <div><dt class="text-gray-500 dark:text-gray-400">الغذاء</dt><dd class="font-semibold text-gray-950 dark:text-white">{{ $record->food?->name_ar }} @if ($record->food?->name_en) <span class="font-normal text-gray-500" dir="ltr">({{ $record->food->name_en }})</span> @endif</dd></div>
         <div><dt class="text-gray-500 dark:text-gray-400">الشكل</dt><dd class="text-gray-950 dark:text-white">{{ $record->foodForm?->name_ar ?? '—' }}</dd></div>
