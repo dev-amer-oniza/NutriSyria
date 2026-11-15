@@ -1,0 +1,108 @@
+﻿pick,hint,food_name_ar,food_name_en,target_form,food_form_code,fdc_id,description,note,data_source,missing,match,form_note,score,rank
+yes,,باذنجان,Eggplant,raw,raw,2685577,"Eggplant, raw",,usda_fdc_foundation,,exact,,58.0,1
+yes,,باذنجان,Eggplant,raw,raw,169228,"Eggplant, raw",,usda_fdc_sr_legacy,,exact,,58.0,1
+yes,,باذنجان,Eggplant,cooked,boiled,169229,"Eggplant, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.0,1
+,,باذنجان,Eggplant,cooked,boiled,169352,"Eggplant, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,28.4,2
+yes,,ثوم,Garlic,raw,raw,1104647,"Garlic, raw",,usda_fdc_foundation,,exact,,58.4,1
+yes,,ثوم,Garlic,raw,raw,169230,"Garlic, raw",,usda_fdc_sr_legacy,,exact,,58.4,1
+,,ثوم,Garlic,raw,raw,170789,"PIZZA HUT, breadstick, parmesan garlic",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,4.3,2
+,,ثوم,Garlic,raw,raw,168318,"HORMEL ALWAYS TENDER, Pork Loin Filets, Lemon Garlic-Flavored",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,0.8,3
+yes,,جزر,Carrots,raw,raw,2258586,"Carrots, mature, raw",,usda_fdc_foundation,,exact,,57.0,1
+yes,,جزر,Carrots,raw,raw,170393,"Carrots, raw",,usda_fdc_sr_legacy,,exact,,58.2,1
+,,جزر,Carrots,raw,raw,174932,"Cake, pudding-type, carrot, dry mix",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,4.8,2
+,,جزر,Carrots,raw,raw,171184,"SMART SOUP, Vietnamese Carrot Lemongrass",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,4.0,3
+yes,,جزر,Carrots,cooked,boiled,170394,"Carrots, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.1,1
+,,جزر,Carrots,cooked,boiled,169339,"Carrots, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,28.6,2
+yes,,خيار,Cucumber,raw,raw,2346406,"Cucumber, with peel, raw",,usda_fdc_foundation,,exact,,56.4,1
+yes,,خيار,Cucumber,raw,raw,168409,"Cucumber, with peel, raw",,usda_fdc_sr_legacy,,exact,,56.4,1
+,,خيار,Cucumber,raw,raw,167618,"Sea cucumber, yane (Alaska Native)",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,4.9,2
+yes,,شمندر,Beetroot,raw,raw,2685576,"Beets, raw",,usda_fdc_foundation,,exact,,58.5,1
+yes,,شمندر,Beetroot,raw,raw,169145,"Beets, raw",,usda_fdc_sr_legacy,,exact,,58.5,1
+yes,,شمندر,Beetroot,cooked,boiled,169146,"Beets, cooked, boiled, drained",,usda_fdc_sr_legacy,,exact,,55.5,1
+,,شمندر,Beetroot,cooked,boiled,168506,"Beets, cooked, boiled. drained, with salt",,usda_fdc_sr_legacy,,exact,,28.9,2
+yes,,فاصولياء خضراء,Green beans,raw,raw,2346400,"Beans, snap, green, raw",,usda_fdc_foundation,,exact,,54.5,1
+yes,,فاصولياء خضراء,Green beans,raw,raw,169961,"Beans, snap, green, raw",,usda_fdc_sr_legacy,,exact,,54.5,1
+yes,,فاصولياء خضراء,Green beans,cooked,boiled,169141,"Beans, snap, green, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,57.5,1
+,,فاصولياء خضراء,Green beans,cooked,boiled,169321,"Beans, snap, green, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,24.9,2
+yes,,فجل,Radish,raw,raw,2747665,"Radishes, red, raw",,usda_fdc_foundation,,exact,,57.3,1
+yes,,فجل,Radish,raw,raw,169276,"Radishes, raw",,usda_fdc_sr_legacy,,exact,,58.0,1
+yes,,قرنبيط,Cauliflower,raw,raw,2685573,"Cauliflower, raw",,usda_fdc_foundation,,exact,,57.6,1
+yes,,قرنبيط,Cauliflower,raw,raw,169986,"Cauliflower, raw",,usda_fdc_sr_legacy,,exact,,57.6,1
+yes,,قرنبيط,Cauliflower,cooked,boiled,170397,"Cauliflower, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,60.5,1
+,,قرنبيط,Cauliflower,cooked,boiled,168520,"Cauliflower, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,27.9,2
+yes,,لفت,Turnip,raw,raw,2747674,"Turnips, raw",,usda_fdc_foundation,,exact,,58.2,1
+yes,,لفت,Turnip,raw,raw,170465,"Turnips, raw",,usda_fdc_sr_legacy,,exact,,58.2,1
+,,لفت,Turnip,raw,raw,169818,"Prairie Turnips, raw (Northern Plains Indians)",,usda_fdc_sr_legacy,,loose,,3.1,2
+yes,,لفت,Turnip,cooked,boiled,170058,"Turnips, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.1,1
+,,لفت,Turnip,cooked,boiled,170547,"Turnips, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,28.6,2
+,,لفت,Turnip,cooked,boiled,168996,"Prairie Turnips, boiled (Northern Plains Indians)",,usda_fdc_sr_legacy,,loose,,2.7,3
+yes,,ملفوف,Cabbage,raw,raw,2346407,"Cabbage, green, raw",,usda_fdc_foundation,,exact,,57.1,1
+yes,,ملفوف,Cabbage,raw,raw,169975,"Cabbage, raw",,usda_fdc_sr_legacy,,exact,,58.2,1
+yes,,ملفوف,Cabbage,cooked,boiled,169976,"Cabbage, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.1,1
+yes,,بازلاء,Green peas,raw,raw,170419,"Peas, green, raw",,usda_fdc_sr_legacy,,exact,,52.6,1
+yes,,بازلاء,Green peas,boiled,boiled,170420,"Peas, green, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,55.5,1
+,,بازلاء,Green peas,boiled,boiled,170102,"Peas, green, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,22.9,2
+yes,,بامية,Okra,raw,raw,169260,"Okra, raw",,usda_fdc_sr_legacy,,exact,,58.6,1
+yes,,بامية,Okra,cooked,boiled,169261,"Okra, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.5,1
+,,بامية,Okra,cooked,boiled,170098,"Okra, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,29.0,2
+,several similar candidates: choose one,بصل,Onions,raw,raw,790577,"Onions, red, raw",,usda_fdc_foundation,,exact,,57.6,1
+,,بصل,Onions,raw,raw,1104962,"Onions, white, raw",,usda_fdc_foundation,,exact,,57.3,2
+yes,,بصل,Onions,raw,raw,790646,"Onions, yellow, raw",,usda_fdc_foundation,,exact,,57.1,3
+yes,,بصل,Onions,raw,raw,170000,"Onions, raw",,usda_fdc_sr_legacy,,exact,,58.4,1
+,,بصل,Onions,raw,raw,174899,"Bagels, plain, enriched, with calcium propionate (includes onion, poppy, sesame)",,usda_fdc_sr_legacy,,alias,form not stated by USDA; assumed from your wanted list,38.0,2
+,,بصل,Onions,raw,raw,175050,"Bagels, plain, unenriched, with calcium propionate (includes onion, poppy, sesame)",,usda_fdc_sr_legacy,,alias,form not stated by USDA; assumed from your wanted list,37.7,3
+yes,,بصل,Onions,cooked,boiled,170001,"Onions, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.2,1
+,,بصل,Onions,cooked,boiled,170100,"Onions, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,28.7,2
+yes,,بطاطا,Potatoes,raw,raw,170026,"Potatoes, flesh and skin, raw",,usda_fdc_sr_legacy,,exact,,50.6,1
+yes,,بطاطا,Potatoes,raw,raw,2346403,"Potatoes, gold, without skin, raw",,usda_fdc_foundation,,manual,,,
+yes,,بطاطا,Potatoes,boiled,boiled,170440,"Potatoes, boiled, cooked without skin, flesh, without salt",,usda_fdc_sr_legacy,,exact,,57.3,1
+,,بطاطا,Potatoes,boiled,boiled,170520,"Potatoes, boiled, cooked without skin, flesh, with salt",,usda_fdc_sr_legacy,,exact,,24.8,2
+yes,,بقدونس,Parsley,raw,raw,170416,"Parsley, fresh",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,52.9,1
+yes,several similar candidates: choose one,بندورة,Tomatoes,raw,raw,1999634,"Tomato, roma",,usda_fdc_foundation,,exact,form not stated by USDA; assumed from your wanted list,58.2,1
+,,بندورة,Tomatoes,raw,raw,321360,"Tomatoes, grape, raw",,usda_fdc_foundation,,exact,,57.0,2
+yes,,بندورة,Tomatoes,raw,raw,170457,"Tomatoes, red, ripe, raw, year round average",,usda_fdc_sr_legacy,,exact,,53.4,1
+,,بندورة,Tomatoes,raw,raw,169777,"Spanish rice mix, dry mix, prepared (with canola/vegetable oil blend or diced tomatoes and margarine)",,usda_fdc_sr_legacy,,alias,form not stated by USDA; assumed from your wanted list,34.9,2
+,,بندورة,Tomatoes,raw,raw,170461,Tomato powder,,usda_fdc_sr_legacy,,starts-with,form not stated by USDA; assumed from your wanted list,28.1,3
+,several similar candidates: choose one,خس,Lettuce,raw,raw,2346390,"Lettuce, leaf, red, raw",,usda_fdc_foundation,,exact,,56.5,1
+,,خس,Lettuce,raw,raw,2346391,"Lettuce, leaf, green, raw",,usda_fdc_foundation,,exact,,56.2,2
+,,خس,Lettuce,raw,raw,169249,"Lettuce, green leaf, raw",,usda_fdc_sr_legacy,,exact,,56.4,1
+,,خس,Lettuce,raw,raw,170316,"SUBWAY, tuna sub on white bread with lettuce and tomato",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,1.8,2
+,,خس,Lettuce,raw,raw,170315,"SUBWAY, cold cut sub on white bread with lettuce and tomato",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,1.2,3
+yes,,خس,Lettuce,raw,raw,2346389,"Lettuce, romaine, green, raw",,usda_fdc_foundation,,manual,,,
+yes,,خس,Lettuce,raw,raw,169247,"Lettuce, cos or romaine, raw",,usda_fdc_sr_legacy,,manual,,,
+,several similar candidates: choose one,سبانخ,Spinach,raw,raw,1999632,"Spinach, baby",,usda_fdc_foundation,,exact,form not stated by USDA; assumed from your wanted list,58.0,1
+yes,,سبانخ,Spinach,raw,raw,1999633,"Spinach, mature",,usda_fdc_foundation,,exact,form not stated by USDA; assumed from your wanted list,57.8,2
+yes,,سبانخ,Spinach,raw,raw,168462,"Spinach, raw",,usda_fdc_sr_legacy,,exact,,58.2,1
+,,سبانخ,Spinach,raw,raw,168911,"Spaghetti, spinach, dry",,usda_fdc_sr_legacy,,loose,form not stated by USDA; assumed from your wanted list,6.6,2
+,,سبانخ,Spinach,raw,raw,168438,"Mustard spinach, (tendergreen), raw",,usda_fdc_sr_legacy,,loose,,4.8,3
+yes,,سبانخ,Spinach,cooked,boiled,168463,"Spinach, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,61.1,1
+,,سبانخ,Spinach,cooked,boiled,170531,"Spinach, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,28.6,2
+,,سبانخ,Spinach,cooked,boiled,168439,"Mustard spinach, (tendergreen), cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,loose,,7.7,3
+yes,,سلق,Chard,raw,raw,169991,"Chard, swiss, raw",,usda_fdc_sr_legacy,,exact,,57.5,1
+yes,,سلق,Chard,cooked,boiled,170401,"Chard, swiss, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,60.4,1
+,,سلق,Chard,cooked,boiled,169343,"Chard, swiss, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,27.8,2
+yes,,فلفل أحمر,Red pepper,raw,raw,170108,"Peppers, sweet, red, raw",,usda_fdc_sr_legacy,,exact,,54.4,1
+yes,,فلفل أحمر,Red pepper,raw,raw,2258590,"Peppers, bell, red, raw",,usda_fdc_foundation,,manual,,,
+yes,,فلفل أحمر,Red pepper,cooked,boiled,170110,"Peppers, sweet, red, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,57.3,1
+,,فلفل أحمر,Red pepper,cooked,boiled,170515,"Peppers, sweet, red, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,24.8,2
+yes,,فلفل أخضر,Green pepper,raw,raw,170427,"Peppers, sweet, green, raw",,usda_fdc_sr_legacy,,exact,,54.1,1
+yes,,فلفل أخضر,Green pepper,raw,raw,2258588,"Peppers, bell, green, raw",,usda_fdc_foundation,,manual,,,
+yes,,فلفل أخضر,Green pepper,cooked,boiled,170428,"Peppers, sweet, green, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,57.0,1
+,,فلفل أخضر,Green pepper,cooked,boiled,170109,"Peppers, sweet, green, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,24.5,2
+yes,,كزبرة خضراء,Cilantro,raw,raw,169997,"Coriander (cilantro) leaves, raw",,usda_fdc_sr_legacy,,alias,,45.2,1
+yes,weak name match: check,كوسا,Zucchini,raw,raw,2685568,"Squash, summer, green, zucchini, includes skin, raw",,usda_fdc_foundation,,loose,,2.4,1
+yes,,كوسا,Zucchini,raw,raw,169291,"Squash, summer, zucchini, includes skin, raw",,usda_fdc_sr_legacy,,exact,,51.4,1
+yes,,كوسا,Zucchini,cooked,boiled,169292,"Squash, summer, zucchini, includes skin, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,54.3,1
+,,كوسا,Zucchini,cooked,boiled,170534,"Squash, summer, zucchini, includes skin, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,21.8,2
+yes,,ملوخية,Mallow,raw,raw,168419,"Jute, potherb, raw",,usda_fdc_sr_legacy,,exact,,52.3,1
+yes,,ملوخية,Mallow,cooked,boiled,168420,"Jute, potherb, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,55.2,1
+,,ملوخية,Mallow,cooked,boiled,169354,"Jute, potherb, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,22.6,2
+yes,,نعنع,Mint,raw,raw,173475,"Spearmint, fresh",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,52.6,1
+yes,,ورق عنب,Grape leaves,raw,raw,168575,"Grape leaves, raw",,usda_fdc_sr_legacy,,exact,,57.5,1
+yes,,ورق عنب,Grape leaves,canned,canned,169393,"Grape leaves, canned",,usda_fdc_sr_legacy,,exact,,57.0,1
+yes,,ريحان,Basil,raw,raw,172232,"Basil, fresh",,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,53.2,1
+yes,,زعتر أخضر,Thyme,raw,raw,173470,"Thyme, fresh",مقاربة: زعتر أوروبي أخضر (Thymus) بدل الزعتر البري السوري,usda_fdc_sr_legacy,,exact,form not stated by USDA; assumed from your wanted list,53.2,1
+yes,,ذرة,Corn,raw,raw,169998,"Corn, sweet, yellow, raw",,usda_fdc_sr_legacy,,exact,,54.4,1
+yes,,ذرة,Corn,raw,raw,2710826,"Corn, sweet, yellow and white kernels,  fresh, raw",,usda_fdc_foundation,,manual,,,
+yes,,ذرة,Corn,cooked,boiled,169999,"Corn, sweet, yellow, cooked, boiled, drained, without salt",,usda_fdc_sr_legacy,,exact,,57.3,1
+,,ذرة,Corn,cooked,boiled,168525,"Corn, sweet, yellow, cooked, boiled, drained, with salt",,usda_fdc_sr_legacy,,exact,,24.8,2
