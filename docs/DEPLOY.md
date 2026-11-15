@@ -5,7 +5,7 @@
 
 ## ما يحتاجه السيرفر
 
-- **PHP 8.3** مع الإضافات: `pdo_mysql`، `mbstring`، `intl`، `gd`، `zip`، `exif`، `bcmath`، `opcache`.
+- **PHP 8.3.36 أو أحدث** (أو 8.4.27+ / 8.5.12+): النسخ الأقدم فيها ثغرتا **PHP2Shell** (CVE-2026-109618 وCVE-2026-109619، تنفيذ أوامر عن بُعد بلا تسجيل دخول)، و`composer install` يرفضها. حدّث PHP دورياً (`apt upgrade`)، مع الإضافات: `pdo_mysql`، `mbstring`، `intl`، `gd`، `zip`، `exif`، `bcmath`، `opcache`.
 - **MySQL 8** أو **MariaDB 10.6+**.
 - **Nginx** و**Composer**.
 - **Node.js** غير لازم على السيرفر إن بُنيت الواجهة على جهازك ورُفع مجلد `public/build`.
@@ -92,6 +92,7 @@ opcache.memory_consumption=128
 opcache.max_accelerated_files=20000
 opcache.validate_timestamps=0        ; أسرع؛ لذلك أعد تشغيل php-fpm بعد كل تحديث
 memory_limit=256M
+session.upload_progress.enabled=0  ; حماية إضافية من PHP2Shell؛ المشروع لا يستعمل هذه الميزة
 upload_max_filesize=10M
 post_max_size=12M
 ```
