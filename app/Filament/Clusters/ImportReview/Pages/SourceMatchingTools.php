@@ -12,7 +12,6 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +20,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use LogicException;
 use Throwable;
 
 class SourceMatchingTools extends Page implements HasForms
@@ -45,9 +45,14 @@ class SourceMatchingTools extends Page implements HasForms
 
     protected static ?string $navigationLabel = 'أدوات مطابقة المصادر';
 
-    protected static ?string $title = 'أدوات مطابقة المصادر الكبيرة (USDA وغيره)';
+    protected static ?string $title = 'مطابقة قائمة أغذية';
+
+    /** A step of "إضافة أغذية", reached from its card. */
+    protected static bool $shouldRegisterNavigation = false;
 
     private const TOOL_TIMEOUT_SECONDS = 600;
+
+    public ?array $sourceData = [];
 
     public ?array $matchData = [];
 
@@ -57,6 +62,11 @@ class SourceMatchingTools extends Page implements HasForms
 
     public function mount(): void
     {
+        $adapter = array_key_first(config('source_adapters')) ?: null;
+        $this->source()->fill([
+            'adapter' => $adapter,
+            'release' => $this->recommendedReleases($adapter),
+        ]);
         $this->matchForm->fill();
         $this->buildForm->fill();
     }
@@ -64,6 +74,7 @@ class SourceMatchingTools extends Page implements HasForms
     protected function getForms(): array
     {
         return [
+            'sourceForm' => $this->makeSourceForm(),
             'matchForm' => $this->makeMatchForm(),
             'buildForm' => $this->makeBuildForm(),
         ];
@@ -117,36 +128,62 @@ class SourceMatchingTools extends Page implements HasForms
         return $args;
     }
 
+    /**
+     * The releases matched by default: the newest Foundation and SR Legacy, together (the
+     * project's rule: FNDDS is for ready dishes only, never for ingredients).
+     *
+     * @return list<string>
+     */
+    private function recommendedReleases(?string $adapterKey): array
+    {
+        $releases = array_keys($this->releaseOptions($adapterKey));
+        $foundation = array_values(array_filter($releases, fn (string $r) => str_contains(strtolower($r), 'foundation')));
+        rsort($foundation);
+        $legacy = array_values(array_filter($releases, fn (string $r) => str_contains(strtolower($r), 'sr_legacy')));
+
+        return array_values(array_filter([$foundation[0] ?? null, $legacy[0] ?? null]));
+    }
+
+    private function source(): Schema
+    {
+        return $this->getForm('sourceForm') ?? throw new LogicException('The source form is missing.');
+    }
+
+    public function makeSourceForm(): Schema
+    {
+        return Schema::make($this)
+            ->statePath('sourceData')
+            ->components([
+                Select::make('adapter')
+                    ->label('المصدر')
+                    ->options($this->adapterOptions())
+                    ->required()
+                    ->live()
+                    ->native(false)
+                    ->afterStateUpdated(fn ($state, $set) => $set('release', $this->recommendedReleases($state))),
+                Select::make('release')
+                    ->label('النسخ')
+                    ->multiple()
+                    ->options(fn (Get $get) => $this->releaseOptions($get('adapter')))
+                    ->required()
+                    ->native(false)
+                    ->helperText(fn (Get $get) => $get('adapter') && empty($this->releaseOptions($get('adapter')))
+                        ? 'لا توجد نسخة مفكوكة الضغط لهذا المصدر في '.config("source_adapters.{$get('adapter')}.releases_path").' بعد.'
+                        : 'المنصوح: Foundation وSR Legacy معاً (مختاران سلفاً). كل نسخة تُرتَّب وحدها.'),
+            ]);
+    }
+
     public function makeMatchForm(): Schema
     {
         return Schema::make($this)
             ->statePath('matchData')
             ->components([
-                Section::make('الخطوة 1: توليد مسودة المطابقة')
-                    ->description('ارفع قائمة الأغذية المطلوبة (نفس صيغة wanted_foods.csv)، واختر نسخة USDA')
-                    ->components([
-                        Select::make('adapter')
-                            ->label('المصدر')
-                            ->options($this->adapterOptions())
-                            ->required()
-                            ->live()
-                            ->native(false)
-                            ->afterStateUpdated(fn ($set) => $set('release', null)),
-                        Select::make('release')
-                            ->label('النسخ/الإصدارات')
-                            ->multiple()
-                            ->options(fn (Get $get) => $this->releaseOptions($get('adapter')))
-                            ->required()
-                            ->native(false)
-                            ->helperText(fn (Get $get) => empty($this->releaseOptions($get('adapter')))
-                                    ? 'لا توجد أي نسخة مفكوكة الضغط لهذا المصدر بعد'
-                                    : 'يمكن اختيار أكثر من نسخة (مثلاً Foundation وSR Legacy): يُقترح الأفضل من كل منها، والوصفات تأخذ من الأعلى أولوية وتكمل الناقص من الأخرى'),
-                        FileUpload::make('wanted_file')
-                            ->label('ملف الأغذية المطلوبة')
-                            ->disk('local')
-                            ->directory('import-uploads')
-                            ->required(),
-                    ]),
+                FileUpload::make('wanted_file')
+                    ->label('ملف الأغذية المطلوبة')
+                    ->helperText('CSV بأعمدة: food_name_ar، food_name_en، forms، search_terms، exclude، note (الأولان إلزاميان). ضع الأغذية الجديدة فقط.')
+                    ->disk('local')
+                    ->directory('import-uploads')
+                    ->required(),
             ]);
     }
 
@@ -155,43 +192,24 @@ class SourceMatchingTools extends Page implements HasForms
         return Schema::make($this)
             ->statePath('buildData')
             ->components([
-                Section::make('الخطوة 2: بناء الحزمة من المسودة المراجَعة')
-                    ->description('بعد أن تراجع المسودة بالإكسل وتضع yes على الاختيار الصحيح، ارفعها هنا')
-                    ->components([
-                        TextInput::make('batch_label')
-                            ->label('اسم الدفعة')
-                            ->helperText('مثال: "أغذية USDA - أيلول 2026"')
-                            ->required()
-                            ->maxLength(255),
-
-                        Select::make('adapter')
-                            ->label('المصدر')
-                            ->options($this->adapterOptions())
-                            ->required()
-                            ->live()
-                            ->native(false)
-                            ->afterStateUpdated(fn ($set) => $set('release', null)),
-                        Select::make('release')
-                            ->label('النسخ/الإصدارات')
-                            ->multiple()
-                            ->options(fn (Get $get) => $this->releaseOptions($get('adapter')))
-                            ->required()
-                            ->native(false)
-                            ->helperText(fn (Get $get) => empty($this->releaseOptions($get('adapter')))
-                                    ? 'لا توجد أي نسخة مفكوكة الضغط لهذا المصدر بعد'
-                                    : 'يمكن اختيار أكثر من نسخة (مثلاً Foundation وSR Legacy): يُقترح الأفضل من كل منها، والوصفات تأخذ من الأعلى أولوية وتكمل الناقص من الأخرى'),
-                        FileUpload::make('crosswalk_file')
-                            ->label('ملف المطابقة المراجَع')
-                            ->disk('local')
-                            ->directory('import-uploads')
-                            ->required(),
-                    ]),
+                TextInput::make('batch_label')
+                    ->label('اسم الدفعة')
+                    ->helperText('مثال: "أغذية USDA - تشرين الثاني 2026"')
+                    ->required()
+                    ->maxLength(255),
+                FileUpload::make('crosswalk_file')
+                    ->label('المسودة المراجَعة')
+                    ->helperText('نفس الملف الذي نزّلته من الخطوة 1، بعد وضع yes على الاختيار الصحيح. احفظه من الإكسل بصيغة CSV UTF-8.')
+                    ->disk('local')
+                    ->directory('import-uploads')
+                    ->required(),
             ]);
     }
 
     public function generateDraft()
     {
         $this->allowLongRun();
+        $source = $this->source()->getState();
         $state = $this->matchForm->getState();
         $this->errorMessage = null;
 
@@ -199,13 +217,13 @@ class SourceMatchingTools extends Page implements HasForms
         $outPath = storage_path('app/suggestions/'.Str::uuid().'.csv');
         File::ensureDirectoryExists(dirname($outPath));
 
-        $adapter = config("source_adapters.{$state['adapter']}");
+        $adapter = config("source_adapters.{$source['adapter']}");
 
         $result = Process::timeout(self::TOOL_TIMEOUT_SECONDS)->run([
             config('services.python.bin'),
             base_path('tools/'.$adapter['script']),
             'suggest',
-            ...$this->releaseArgs($state['adapter'], $state['release']),
+            ...$this->releaseArgs($source['adapter'], $source['release']),
             '--wanted', $wantedPath,
             '--out', $outPath,
         ]);
@@ -228,6 +246,7 @@ class SourceMatchingTools extends Page implements HasForms
     public function buildBundle()
     {
         $this->allowLongRun();
+        $source = $this->source()->getState();
         $state = $this->buildForm->getState();
         $this->errorMessage = null;
 
@@ -235,13 +254,13 @@ class SourceMatchingTools extends Page implements HasForms
         $outDir = storage_path('app/bundles/'.Str::uuid());
         File::ensureDirectoryExists($outDir);
 
-        $adapter = config("source_adapters.{$state['adapter']}");
+        $adapter = config("source_adapters.{$source['adapter']}");
 
         $result = Process::timeout(self::TOOL_TIMEOUT_SECONDS)->run([
             config('services.python.bin'),
             base_path('tools/'.$adapter['script']),
             'build',
-            ...$this->releaseArgs($state['adapter'], $state['release']),
+            ...$this->releaseArgs($source['adapter'], $source['release']),
             '--nutrients', database_path('seeders/data/nutrients.csv'),
             '--source-codes', database_path('seeders/data/nutrient_source_codes.csv'),
             '--crosswalk', $crosswalkPath,
@@ -263,8 +282,8 @@ class SourceMatchingTools extends Page implements HasForms
                 ->update(['original_filename' => $state['batch_label']]);
             $importer->validate($batchId);
 
-            Notification::make()->title('تم البناء والفحص، جارٍ الانتقال للمراجعة')->success()->send();
-            $this->redirect(UploadImportBatch::getUrl().'?batch='.$batchId);
+            Notification::make()->title('بُنيت الدفعة وفُحصت: راجع النتيجة ثم احفظ')->success()->send();
+            $this->redirect(UploadImportBatch::getUrl().'?batch='.$batchId.'&from=matching');
         } catch (Throwable $e) {
             $this->errorMessage = $e->getMessage();
             Notification::make()->title('تعذّر فحص الحزمة الناتجة')->body($e->getMessage())->danger()->send();

@@ -9,7 +9,6 @@ use App\Filament\Clusters\ImportReview\Resources\ImportBatches\ImportBatchResour
 use App\Services\Import\BundleImporter;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -46,11 +45,15 @@ class UploadImportBatch extends Page implements HasForms
 
     protected static ?string $navigationLabel = 'رفع دفعة جديدة';
 
-    protected static ?string $title = 'رفع دفعة استيراد جديدة';
+    protected static ?string $title = 'رفع ملفات جاهزة';
+
+    /** A step of "إضافة أغذية", reached from its card (or from matching, with ?batch=). */
+    protected static bool $shouldRegisterNavigation = false;
 
     public ?array $data = [];
 
-    public ?array $selectorData = [];
+    /** Came from the matching page: the steps show "المطابقة" as done. */
+    public bool $fromMatching = false;
 
     public ?int $batchId = null;
 
@@ -61,7 +64,7 @@ class UploadImportBatch extends Page implements HasForms
     public function mount(): void
     {
         $this->form->fill();
-        $this->selectorForm->fill();
+        $this->fromMatching = request()->query('from') === 'matching';
 
         $existing = (int) request()->query('batch');
         if (! $existing) {
@@ -91,7 +94,7 @@ class UploadImportBatch extends Page implements HasForms
             ->statePath('data')
             ->components([
                 Section::make('ملفات الدفعة')
-                    ->description('ناتج أمر build من السكربت: records.csv و nutrient_values.csv، والحصص إن وُجدت')
+                    ->description('ملف السجلات وملف القيم (وملف الحصص إن وُجد). الأعمدة المطلوبة في القوالب أعلى الصفحة.')
                     ->components([
                         TextInput::make('batch_label')
                             ->label('اسم الدفعة')
@@ -178,6 +181,16 @@ class UploadImportBatch extends Page implements HasForms
         }
     }
 
+    /** Drops the checked but unsaved batch, so it does not linger in the batch list. */
+    public function startOver(): void
+    {
+        if ($this->batchId) {
+            (new BundleImporter)->discard($this->batchId); // a saved batch is left alone
+        }
+
+        $this->redirect(static::getUrl());
+    }
+
     public function commitBundle(): void
     {
         if (! $this->batchId) {
@@ -200,38 +213,6 @@ class UploadImportBatch extends Page implements HasForms
                 ->danger()
                 ->send();
         }
-    }
-
-    protected function getForms(): array
-    {
-        return [
-            'form' => $this->form(Schema::make($this)),
-            'selectorForm' => $this->makeSelectorForm(),
-        ];
-    }
-
-    public function makeSelectorForm(): Schema
-    {
-        return Schema::make($this)
-            ->statePath('selectorData')
-            ->components([
-                Select::make('batch_id')
-                    ->label('فتح دفعة سابقة')
-                    ->helperText('اختر دفعة لعرض تفاصيلها ومراجعتها')
-                    ->options(fn () => DB::table('import_batches')
-                        ->orderByDesc('id')
-                        ->get(['id', 'original_filename'])
-                        ->mapWithKeys(fn ($b) => [$b->id => "{$b->original_filename} (#{$b->id})"])
-                        ->all())
-                    ->searchable()
-                    ->native(false)
-                    ->live()
-                    ->afterStateUpdated(function ($state) {
-                        if ($state) {
-                            $this->redirect(static::getUrl().'?batch='.$state);
-                        }
-                    }),
-            ]);
     }
 
     protected function getHeaderActions(): array
