@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Clusters\ReferenceSettings\Resources\DataSources;
 
 use App\Filament\Clusters\ReferenceSettings\ReferenceSettingsCluster;
@@ -27,9 +28,12 @@ class DataSourceResource extends Resource
     protected static ?string $cluster = ReferenceSettingsCluster::class;
 
     protected static ?string $recordTitleAttribute = 'name';
-    protected static ?string $navigationLabel      = 'مصادر البيانات';
-    protected static ?string $modelLabel           = 'مصدر بيانات';
-    protected static ?string $pluralModelLabel     = 'مصادر البيانات';
+
+    protected static ?string $navigationLabel = 'مصادر البيانات';
+
+    protected static ?string $modelLabel = 'مصدر بيانات';
+
+    protected static ?string $pluralModelLabel = 'مصادر البيانات';
 
     public static function form(Schema $schema): Schema
     {
@@ -51,9 +55,9 @@ class DataSourceResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListDataSources::route('/'),
+            'index' => ListDataSources::route('/'),
             'create' => CreateDataSource::route('/create'),
-            'edit'   => EditDataSource::route('/{record}/edit'),
+            'edit' => EditDataSource::route('/{record}/edit'),
         ];
     }
 }

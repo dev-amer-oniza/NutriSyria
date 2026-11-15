@@ -1,43 +1,46 @@
 <?php
+
 namespace App\Enums;
 
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
-use Filament\Support\Icons\Heroicon;
 use Filament\Support\Contracts\HasLabel;
+use Filament\Support\Icons\Heroicon;
 
-enum ImportBatchStatus: string implements HasLabel, HasColor, HasIcon {
-    case Uploaded  = 'uploaded';
+enum ImportBatchStatus: string implements HasColor, HasIcon, HasLabel
+{
+    case Uploaded = 'uploaded';
     case Validated = 'validated';
     case Committed = 'committed';
-    case Failed    = 'failed';
+    case Failed = 'failed';
 
     public function getLabel(): string
     {
         return match ($this) {
-            self::Uploaded  => 'مرفوعة',
+            self::Uploaded => 'مرفوعة',
             self::Validated => 'مفحوصة',
             self::Committed => 'محفوظة (قيد المراجعة)',
-            self::Failed    => 'فشلت',
+            self::Failed => 'فشلت',
         };
     }
+
     public function getColor(): string
     {
         return match ($this) {
-            self::Uploaded  => 'gray',
+            self::Uploaded => 'gray',
             self::Validated => 'info',
             self::Committed => 'success',
-            self::Failed    => 'danger',
+            self::Failed => 'danger',
         };
     }
 
     public function getIcon(): Heroicon
     {
         return match ($this) {
-            self::Uploaded  => Heroicon::OutlinedArrowUpTray,
+            self::Uploaded => Heroicon::OutlinedArrowUpTray,
             self::Validated => Heroicon::OutlinedMagnifyingGlass,
             self::Committed => Heroicon::OutlinedCheckCircle,
-            self::Failed    => Heroicon::OutlinedXCircle,
+            self::Failed => Heroicon::OutlinedXCircle,
         };
     }
 }

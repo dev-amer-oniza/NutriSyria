@@ -158,6 +158,7 @@ class MealFitCalculatorTest extends TestCase
 
         $this->assertSame(['grams' => 70, 'kcal' => 420, 'whole' => false], $fit->portion);
     }
+
     /** The nutritionist's plan lunch: 35% of 2240 = 784 kcal, with carbs kept to 60 g on purpose. */
     private function withLunch(): CriteriaSheet
     {

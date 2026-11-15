@@ -2,8 +2,8 @@
 
 namespace App\Filament\Clusters\Brands\Resources\Categories\Pages;
 
-use App\Filament\Support\Concerns\HiddenFromAdmin;
 use App\Filament\Clusters\Brands\Resources\Categories\ProductCategoryResource;
+use App\Filament\Support\Concerns\HiddenFromAdmin;
 use App\Models\ProductCategory;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;

@@ -67,7 +67,7 @@ class NutrientBorrowingTest extends TestCase
         ProductRecipeIngredient::create(['product_recipe_id' => $recipe->id, 'food_source_record_id' => $record->id,
             'measure_unit_id' => $g->id, 'amount' => 100]);
 
-        $service = new RecipeAnalysisService();
+        $service = new RecipeAnalysisService;
         $result = $service->analyze($product);
         $service->approve($product, $result);
 

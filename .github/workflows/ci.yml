@@ -1,0 +1,56 @@
+# Runs on every pull request and on main: tests, code style and static analysis.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, gd, zip, exif, bcmath, pdo_sqlite
+          coverage: none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - name: Install PHP packages
+        run: composer install --no-interaction --prefer-dist --no-progress --ignore-platform-req=ext-redis
+
+      - name: Build the front end (the tests render pages that load it)
+        run: npm ci && npm run build
+
+      - name: Prepare the environment
+        run: cp .env.example .env && php artisan key:generate
+
+      - name: Code style (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Static analysis (Larastan)
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
+      - name: Tests
+        run: php vendor/bin/phpunit
+
+      - name: Known vulnerabilities in packages
+        run: composer audit --no-dev

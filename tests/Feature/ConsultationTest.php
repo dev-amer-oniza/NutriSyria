@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Auth\Access;
 use App\Enums\ConsultationStatus;
 use App\Enums\CriterionSource;
+use App\Exceptions\ConsultationRefused;
 use App\Filament\Clusters\Consultations\Resources\ConsultationRequests\ConsultationRequestResource;
 use App\Filament\Clusters\Consultations\Resources\ConsultationRequests\Pages\ListConsultationRequests;
 use App\Models\ConsultationRequest;
@@ -15,10 +16,13 @@ use App\Notifications\SiteNotification;
 use App\Services\Consultations\ConsultationService;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
 use Filament\Actions\Testing\TestAction;
+use Filament\Facades\Filament;
 use Filament\Notifications\DatabaseNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Testing\TestResponse;
 use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\Concerns\ConsultationFixtures;
 use Tests\TestCase;
 
@@ -34,7 +38,7 @@ class ConsultationTest extends TestCase
         Notification::fake();
     }
 
-    private function send(User $client, NutritionistProfile $profile, array $input = []): \Illuminate\Testing\TestResponse
+    private function send(User $client, NutritionistProfile $profile, array $input = []): TestResponse
     {
         return $this->actingAs($client)->post(route('site.consultations.create', $profile), $input + [
             'reason' => 'عندي سكري من النوع الثاني وأريد خطة تناسب أكلنا.',
@@ -153,7 +157,7 @@ class ConsultationTest extends TestCase
 
         $this->actingAs($client)->get(route('site.my-nutritionist'))->assertOk()->assertSee('انتهت مدته');
         $this->assertSame(ConsultationStatus::Expired, $request->fresh()->status);
-        $this->expectException(\App\Exceptions\ConsultationRefused::class);
+        $this->expectException(ConsultationRefused::class);
         app(ConsultationService::class)->accept($profile->user, $request);
     }
 
@@ -165,7 +169,7 @@ class ConsultationTest extends TestCase
         $someoneElses = $this->pending($this->client('lina@example.com'), $this->nutritionist('omar@example.com'), '+963944444444');
 
         $this->actingAs($profile->user);
-        \Filament\Facades\Filament::setCurrentPanel('admin');
+        Filament::setCurrentPanel('admin');
 
         $this->assertSame('1', ConsultationRequestResource::getNavigationBadge());
         Livewire::test(ListConsultationRequests::class)
@@ -190,7 +194,7 @@ class ConsultationTest extends TestCase
         $request = $this->pending($client, $profile);
 
         $this->actingAs($profile->user);
-        \Filament\Facades\Filament::setCurrentPanel('admin');
+        Filament::setCurrentPanel('admin');
 
         Livewire::test(ListConsultationRequests::class)
             ->callAction(TestAction::make('decline')->table($request), ['reason' => 'جدولي ممتلئ هذا الشهر.']);
@@ -209,7 +213,7 @@ class ConsultationTest extends TestCase
 
         $this->assertFalse($omar->can('respond', $request));
         $this->assertFalse($omar->can('view', $request));
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
+        $this->expectException(NotFoundHttpException::class);
         app(ConsultationService::class)->accept($omar, $request);
     }
 

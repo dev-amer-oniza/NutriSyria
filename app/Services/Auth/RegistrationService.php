@@ -5,6 +5,7 @@ namespace App\Services\Auth;
 use App\Data\Auth\RegistrationData;
 use App\Enums\AuthCodeCheck;
 use App\Enums\AuthCodePurpose;
+use App\Exceptions\CodeDeliveryFailed;
 use App\Models\User;
 
 /** Sign-up on the public site: create the account, then confirm the email with a code. */
@@ -16,7 +17,7 @@ class RegistrationService
      * The account starts unverified. A brand owner or nutritionist gets no role yet: the
      * request waits for the super-admin (RoleRequestService).
      *
-     * @throws \App\Exceptions\CodeDeliveryFailed the account exists; the user can ask again
+     * @throws CodeDeliveryFailed the account exists; the user can ask again
      */
     public function register(RegistrationData $data): User
     {

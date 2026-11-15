@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Clusters\ImportReview\Resources\ImportBatches;
 
 use App\Filament\Clusters\ImportReview\ImportReviewCluster;
@@ -27,8 +28,11 @@ class ImportBatchResource extends Resource
     protected static ?string $cluster = ImportReviewCluster::class;
 
     protected static ?string $recordTitleAttribute = 'original_filename';
+
     protected static ?string $navigationLabel = 'دفعات الاستيراد';
+
     protected static ?string $modelLabel = 'دفعة استيراد';
+
     protected static ?string $pluralModelLabel = 'دفعات الاستيراد';
 
     public static function form(Schema $schema): Schema
@@ -47,6 +51,7 @@ class ImportBatchResource extends Resource
             FoodSourceRecordsRelationManager::class,
         ];
     }
+
     public static function canCreate(): bool
     {
         return false;
@@ -56,8 +61,7 @@ class ImportBatchResource extends Resource
     {
         return [
             'index' => ListImportBatches::route('/'),
-            'edit'  => EditImportBatch::route('/{record}/edit'),
+            'edit' => EditImportBatch::route('/{record}/edit'),
         ];
     }
 }
-

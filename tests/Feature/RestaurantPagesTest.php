@@ -2,13 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Auth\Access;
+use App\Filament\Clusters\Brands\Resources\Brands\Pages\EditBrand;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\User;
-use App\Filament\Clusters\Brands\Resources\Brands\Pages\EditBrand;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
 use Illuminate\Support\Facades\DB;
+use Livewire\Livewire;
 use Tests\Concerns\MealFixtures;
 use Tests\TestCase;
 
@@ -157,7 +158,7 @@ class RestaurantPagesTest extends TestCase
 
     public function test_the_details_are_entered_in_the_panel_and_links_must_be_web_links(): void
     {
-        $this->signInAs(\App\Auth\Access::SUPER_ADMIN);
+        $this->signInAs(Access::SUPER_ADMIN);
 
         Livewire::test(EditBrand::class, ['record' => $this->brand->id])
             ->fillForm(['instagram_url' => 'javascript:alert(1)'])

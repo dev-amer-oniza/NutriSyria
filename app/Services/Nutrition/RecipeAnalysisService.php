@@ -11,7 +11,6 @@ use App\Models\FoodSourceRecord;
 use App\Models\Nutrient;
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -28,11 +27,10 @@ use RuntimeException;
 final class RecipeAnalysisService
 {
     public function __construct(
-        private readonly RecipeCalculator $calculator = new RecipeCalculator(),
-        private readonly GramsConverter $gramsConverter = new GramsConverter(),
-        private readonly NutrientGapFiller $gapFiller = new NutrientGapFiller(),
-    ) {
-    }
+        private readonly RecipeCalculator $calculator = new RecipeCalculator,
+        private readonly GramsConverter $gramsConverter = new GramsConverter,
+        private readonly NutrientGapFiller $gapFiller = new NutrientGapFiller,
+    ) {}
 
     public function analyze(Product $product): RecipeAnalysisResult
     {

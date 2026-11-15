@@ -1,16 +1,17 @@
 <?php
+
 namespace App\Filament\Clusters\Brands\Pages;
 
-use App\Filament\Support\Concerns\HiddenFromAdmin;
 use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
+use App\Filament\Support\Concerns\HiddenFromAdmin;
 use App\Models\Product;
-use Illuminate\Support\Facades\Gate;
-use Livewire\Attributes\Locked;
-use Livewire\Attributes\On;
 use App\Services\Nutrition\RecipeAnalysisService;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Throwable;
 
 class RecipeAnalysis extends Page
@@ -41,7 +42,7 @@ class RecipeAnalysis extends Page
 
     public function mount(): void
     {
-        $productId     = (int) request()->query('product');
+        $productId = (int) request()->query('product');
         $this->product = Product::with('brand')->find($productId);
 
         // Another brand's product answers exactly like a missing one: no hint that it exists.
@@ -59,9 +60,7 @@ class RecipeAnalysis extends Page
 
     /** A note was sent or closed in the notes panel below: show or hide the approve button. */
     #[On('review-notes-changed')]
-    public function refreshNotes(): void
-    {
-    }
+    public function refreshNotes(): void {}
 
     public function canApprove(): bool
     {
@@ -77,7 +76,7 @@ class RecipeAnalysis extends Page
     public function runAnalysis(): void
     {
         $this->errorMessage = null;
-        $this->result       = null;
+        $this->result = null;
 
         try {
             $this->result = app(RecipeAnalysisService::class)->analyze($this->product)->toArray();
@@ -85,6 +84,7 @@ class RecipeAnalysis extends Page
             $this->errorMessage = $e->getMessage();
         }
     }
+
     public function approveAnalysis(): void
     {
         // Checked again here, not only by hiding the button.

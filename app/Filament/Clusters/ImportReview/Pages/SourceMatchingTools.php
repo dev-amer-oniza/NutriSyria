@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Clusters\ImportReview\Pages;
 
 use App\Auth\Access;
@@ -14,13 +15,13 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
-use Filament\Support\Icons\Heroicon;
 
 class SourceMatchingTools extends Page implements HasForms
 {
@@ -67,10 +68,11 @@ class SourceMatchingTools extends Page implements HasForms
             'buildForm' => $this->makeBuildForm(),
         ];
     }
+
     private function adapterOptions(): array
     {
         return collect(config('source_adapters'))
-            ->mapWithKeys(fn($cfg, $key) => [$key => $cfg['label']])
+            ->mapWithKeys(fn ($cfg, $key) => [$key => $cfg['label']])
             ->all();
     }
 
@@ -86,7 +88,7 @@ class SourceMatchingTools extends Page implements HasForms
         }
 
         return collect(File::directories($dir))
-            ->mapWithKeys(fn($path) => [basename($path) => basename($path)])
+            ->mapWithKeys(fn ($path) => [basename($path) => basename($path)])
             ->all();
     }
 
@@ -108,7 +110,7 @@ class SourceMatchingTools extends Page implements HasForms
         $args = [];
         foreach ((array) $releases as $release) {
             if (in_array($release, $known, true)) {
-                array_push($args, '--fdc-dir', base_path($adapter['releases_path'] . '/' . $release));
+                array_push($args, '--fdc-dir', base_path($adapter['releases_path'].'/'.$release));
             }
         }
 
@@ -129,14 +131,14 @@ class SourceMatchingTools extends Page implements HasForms
                             ->required()
                             ->live()
                             ->native(false)
-                            ->afterStateUpdated(fn($set) => $set('release', null)),
+                            ->afterStateUpdated(fn ($set) => $set('release', null)),
                         Select::make('release')
                             ->label('النسخ/الإصدارات')
                             ->multiple()
-                            ->options(fn(Get $get) => $this->releaseOptions($get('adapter')))
+                            ->options(fn (Get $get) => $this->releaseOptions($get('adapter')))
                             ->required()
                             ->native(false)
-                            ->helperText(fn(Get $get) => empty($this->releaseOptions($get('adapter')))
+                            ->helperText(fn (Get $get) => empty($this->releaseOptions($get('adapter')))
                                     ? 'لا توجد أي نسخة مفكوكة الضغط لهذا المصدر بعد'
                                     : 'يمكن اختيار أكثر من نسخة (مثلاً Foundation وSR Legacy): يُقترح الأفضل من كل منها، والوصفات تأخذ من الأعلى أولوية وتكمل الناقص من الأخرى'),
                         FileUpload::make('wanted_file')
@@ -161,21 +163,21 @@ class SourceMatchingTools extends Page implements HasForms
                             ->helperText('مثال: "أغذية USDA - أيلول 2026"')
                             ->required()
                             ->maxLength(255),
-                      
+
                         Select::make('adapter')
                             ->label('المصدر')
                             ->options($this->adapterOptions())
                             ->required()
                             ->live()
                             ->native(false)
-                            ->afterStateUpdated(fn($set) => $set('release', null)),
+                            ->afterStateUpdated(fn ($set) => $set('release', null)),
                         Select::make('release')
                             ->label('النسخ/الإصدارات')
                             ->multiple()
-                            ->options(fn(Get $get) => $this->releaseOptions($get('adapter')))
+                            ->options(fn (Get $get) => $this->releaseOptions($get('adapter')))
                             ->required()
                             ->native(false)
-                            ->helperText(fn(Get $get) => empty($this->releaseOptions($get('adapter')))
+                            ->helperText(fn (Get $get) => empty($this->releaseOptions($get('adapter')))
                                     ? 'لا توجد أي نسخة مفكوكة الضغط لهذا المصدر بعد'
                                     : 'يمكن اختيار أكثر من نسخة (مثلاً Foundation وSR Legacy): يُقترح الأفضل من كل منها، والوصفات تأخذ من الأعلى أولوية وتكمل الناقص من الأخرى'),
                         FileUpload::make('crosswalk_file')
@@ -190,18 +192,18 @@ class SourceMatchingTools extends Page implements HasForms
     public function generateDraft()
     {
         $this->allowLongRun();
-        $state              = $this->matchForm->getState();
+        $state = $this->matchForm->getState();
         $this->errorMessage = null;
 
         $wantedPath = Storage::disk('local')->path($state['wanted_file']);
-        $outPath    = storage_path('app/suggestions/' . Str::uuid() . '.csv');
+        $outPath = storage_path('app/suggestions/'.Str::uuid().'.csv');
         File::ensureDirectoryExists(dirname($outPath));
 
         $adapter = config("source_adapters.{$state['adapter']}");
 
         $result = Process::timeout(self::TOOL_TIMEOUT_SECONDS)->run([
-            env('PYTHON_BIN', 'python'),
-            base_path('tools/' . $adapter['script']),
+            config('services.python.bin'),
+            base_path('tools/'.$adapter['script']),
             'suggest',
             ...$this->releaseArgs($state['adapter'], $state['release']),
             '--wanted', $wantedPath,
@@ -218,7 +220,7 @@ class SourceMatchingTools extends Page implements HasForms
         Notification::make()->title('تم توليد المسودة')->body(trim($result->output()))->success()->send();
 
         return response()->streamDownload(
-            fn() => print(File::get($outPath)),
+            fn () => print (File::get($outPath)),
             'draft_crosswalk.csv',
         );
     }
@@ -226,18 +228,18 @@ class SourceMatchingTools extends Page implements HasForms
     public function buildBundle()
     {
         $this->allowLongRun();
-        $state              = $this->buildForm->getState();
+        $state = $this->buildForm->getState();
         $this->errorMessage = null;
 
         $crosswalkPath = Storage::disk('local')->path($state['crosswalk_file']);
-        $outDir        = storage_path('app/bundles/' . Str::uuid());
+        $outDir = storage_path('app/bundles/'.Str::uuid());
         File::ensureDirectoryExists($outDir);
 
         $adapter = config("source_adapters.{$state['adapter']}");
 
         $result = Process::timeout(self::TOOL_TIMEOUT_SECONDS)->run([
-            env('PYTHON_BIN', 'python'),
-            base_path('tools/' . $adapter['script']),
+            config('services.python.bin'),
+            base_path('tools/'.$adapter['script']),
             'build',
             ...$this->releaseArgs($state['adapter'], $state['release']),
             '--nutrients', database_path('seeders/data/nutrients.csv'),
@@ -254,15 +256,15 @@ class SourceMatchingTools extends Page implements HasForms
         }
 
         try {
-            $importer = new BundleImporter();
-            $batchId  = $importer->stage($outDir, auth()->id());
+            $importer = new BundleImporter;
+            $batchId = $importer->stage($outDir, auth()->id());
             DB::table('import_batches')
                 ->where('id', $batchId)
                 ->update(['original_filename' => $state['batch_label']]);
             $importer->validate($batchId);
 
             Notification::make()->title('تم البناء والفحص، جارٍ الانتقال للمراجعة')->success()->send();
-            $this->redirect(UploadImportBatch::getUrl() . '?batch=' . $batchId);
+            $this->redirect(UploadImportBatch::getUrl().'?batch='.$batchId);
         } catch (Throwable $e) {
             $this->errorMessage = $e->getMessage();
             Notification::make()->title('تعذّر فحص الحزمة الناتجة')->body($e->getMessage())->danger()->send();

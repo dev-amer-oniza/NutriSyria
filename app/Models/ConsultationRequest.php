@@ -14,8 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class ConsultationRequest extends Model
 {
-    protected $connection = 'central';
-
     protected $guarded = ['*'];
 
     protected function casts(): array

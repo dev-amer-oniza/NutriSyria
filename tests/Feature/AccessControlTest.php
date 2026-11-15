@@ -7,10 +7,10 @@ use App\Enums\FoodSourceStatus;
 use App\Filament\Clusters\Brands\Pages\RecipeAnalysis;
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\ListBrands;
+use App\Filament\Clusters\Brands\Resources\Categories\ProductCategoryResource;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\CreateProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\ListProducts;
-use App\Filament\Clusters\Brands\Resources\Categories\ProductCategoryResource;
 use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
 use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
 use App\Filament\Clusters\FoodDatabase\Pages\CompareFoodSources;
@@ -29,6 +29,7 @@ use App\Models\ImportBatch;
 use App\Models\MeasureUnit;
 use App\Models\Product;
 use App\Models\ProductRecipe;
+use App\Models\Role;
 use App\Models\User;
 use App\Policies\UserPolicy;
 use Filament\Actions\CreateAction;
@@ -108,7 +109,7 @@ class AccessControlTest extends TestCase
     {
         $this->assertSame(
             [Access::BRAND_OWNER, Access::NUTRITIONIST, Access::SUPER_ADMIN],
-            \App\Models\Role::query()->orderBy('name')->pluck('name')->all(),
+            Role::query()->orderBy('name')->pluck('name')->all(),
         );
         $this->postJson('/api/set-password', ['email' => 'a@b.c', 'new_password' => 'x'])->assertNotFound();
     }
@@ -161,7 +162,7 @@ class AccessControlTest extends TestCase
         }
 
         $user = auth()->user();
-        $this->assertFalse($user->can('viewAny', \App\Models\Product::class));
+        $this->assertFalse($user->can('viewAny', Product::class));
         $this->assertFalse($user->can('update', $this->theirProduct));
         $this->assertFalse(ProductResource::canGloballySearch());
         $this->get(BrandResource::getUrl('index'))->assertOk()->assertDontSee('عدد المنتجات');

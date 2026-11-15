@@ -1,15 +1,16 @@
 <?php
+
 namespace App\Filament\Clusters\Brands\Resources\Brands;
 
-use App\Filament\Support\ArabicGlobalSearch;
+use App\Auth\Access;
+use App\Auth\BrandScope;
 use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\CreateBrand;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\EditBrand;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\ListBrands;
 use App\Filament\Clusters\Brands\Resources\Brands\Schemas\BrandForm;
 use App\Filament\Clusters\Brands\Resources\Brands\Tables\BrandsTable;
-use App\Auth\Access;
-use App\Auth\BrandScope;
+use App\Filament\Support\ArabicGlobalSearch;
 use App\Models\Brand;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -109,9 +110,9 @@ class BrandResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListBrands::route('/'),
+            'index' => ListBrands::route('/'),
             'create' => CreateBrand::route('/create'),
-            'edit'   => EditBrand::route('/{record}/edit'),
+            'edit' => EditBrand::route('/{record}/edit'),
         ];
     }
 }

@@ -5,6 +5,9 @@ namespace Tests\Feature;
 use App\Auth\Access;
 use App\Enums\FoodSourceStatus;
 use App\Enums\NutritionApprovalStatus;
+use App\Filament\Clusters\Brands\Pages\RecipeAnalysis;
+use App\Filament\Clusters\Brands\Resources\Products\Pages\ListProducts;
+use App\Filament\Clusters\Brands\Resources\Products\Pages\ViewProduct;
 use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
 use App\Filament\Clusters\ImportReview\Resources\ImportBatches\Pages\EditImportBatch;
 use App\Filament\Clusters\ImportReview\Resources\ImportBatches\RelationManagers\FoodSourceRecordsRelationManager;
@@ -161,7 +164,7 @@ class RoleDashboardsTest extends TestCase
         $product->recipe->update(['weight_after_cooking_g' => 250]);
 
         Livewire::withQueryParams(['product' => $product->id])
-            ->test(\App\Filament\Clusters\Brands\Pages\RecipeAnalysis::class)
+            ->test(RecipeAnalysis::class)
             ->call('approveAnalysis')
             ->assertRedirect(ProductResource::getUrl('view', ['record' => $product]));
 
@@ -178,9 +181,9 @@ class RoleDashboardsTest extends TestCase
 
         $this->assertSame($edit, ProductResource::pageUrlFor($product));
         $this->assertSame($edit, ProductResource::getGlobalSearchResultUrl($product));
-        Livewire::test(\App\Filament\Clusters\Brands\Resources\Products\Pages\ListProducts::class)
+        Livewire::test(ListProducts::class)
             ->assertTableActionHidden('view', $product);
-        Livewire::test(\App\Filament\Clusters\Brands\Resources\Products\Pages\ViewProduct::class, ['record' => $product->getRouteKey()])
+        Livewire::test(ViewProduct::class, ['record' => $product->getRouteKey()])
             ->assertRedirect($edit);
     }
 }

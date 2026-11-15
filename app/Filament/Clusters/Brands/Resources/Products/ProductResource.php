@@ -1,7 +1,8 @@
 <?php
+
 namespace App\Filament\Clusters\Brands\Resources\Products;
 
-use App\Filament\Support\ArabicGlobalSearch;
+use App\Auth\BrandScope;
 use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\CreateProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
@@ -10,7 +11,7 @@ use App\Filament\Clusters\Brands\Resources\Products\Pages\ViewProduct;
 use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
 use App\Filament\Clusters\Brands\Resources\Products\Schemas\ProductForm;
 use App\Filament\Clusters\Brands\Resources\Products\Tables\ProductsTable;
-use App\Auth\BrandScope;
+use App\Filament\Support\ArabicGlobalSearch;
 use App\Models\Product;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -79,10 +80,10 @@ class ProductResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListProducts::route('/'),
+            'index' => ListProducts::route('/'),
             'create' => CreateProduct::route('/create'),
-            'edit'   => EditProduct::route('/{record}/edit'),
-            'view'   => ViewProduct::route('/{record}'),
+            'edit' => EditProduct::route('/{record}/edit'),
+            'view' => ViewProduct::route('/{record}'),
         ];
     }
 }

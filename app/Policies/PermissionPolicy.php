@@ -12,6 +12,13 @@ class PermissionPolicy
 {
     use DeniesByDefault;
 
-    public function viewAny(User $user): bool { return $user->allows(Access::USERS_MANAGE); }
-    public function view(User $user, Permission $permission): bool { return $user->allows(Access::USERS_MANAGE); }
+    public function viewAny(User $user): bool
+    {
+        return $user->allows(Access::USERS_MANAGE);
+    }
+
+    public function view(User $user, Permission $permission): bool
+    {
+        return $user->allows(Access::USERS_MANAGE);
+    }
 }

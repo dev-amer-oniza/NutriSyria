@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Brand;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\MealFixtures;
@@ -74,7 +76,7 @@ class MealPagesTest extends TestCase
     public function test_an_unapproved_or_hidden_meal_is_not_found(): void
     {
         $hidden = $this->approvedMeal('موقوفة', ['is_active' => false]);
-        $draft = \App\Models\Product::create(['brand_id' => $this->brand->id, 'name' => 'مسودة']);
+        $draft = Product::create(['brand_id' => $this->brand->id, 'name' => 'مسودة']);
 
         $this->get(route('site.meals.show', $hidden))->assertNotFound();
         $this->get(route('site.meals.show', $draft))->assertNotFound();
@@ -84,7 +86,7 @@ class MealPagesTest extends TestCase
     public function test_search_finds_a_meal_or_its_restaurant_whatever_the_spelling(): void
     {
         $this->approvedMeal('مجدرة');
-        $this->approvedMeal('فتة باذنجان')->update(['brand_id' => \App\Models\Brand::create(['name' => 'مطعم الشام'])->id]);
+        $this->approvedMeal('فتة باذنجان')->update(['brand_id' => Brand::create(['name' => 'مطعم الشام'])->id]);
 
         $this->get(route('site.meals', ['q' => 'مجدره']))->assertSee('مجدرة')->assertDontSee('فتة باذنجان');
         $this->get(route('site.meals', ['q' => 'الشآم']))->assertSee('فتة باذنجان')->assertDontSee('>مجدرة<', false);

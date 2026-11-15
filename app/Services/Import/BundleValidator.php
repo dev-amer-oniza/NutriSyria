@@ -14,9 +14,7 @@ final class BundleValidator
 {
     private const PROXIMATE = ['water_g', 'protein_g', 'fat_g', 'carbohydrate_g', 'ash_g'];
 
-    public function __construct(private Lookups $l, private array $cfg)
-    {
-    }
+    public function __construct(private Lookups $l, private array $cfg) {}
 
     /**
      * @param  list<array{id:int,row:int,raw:array<string,string>}>  $records
@@ -102,12 +100,14 @@ final class BundleValidator
             $nut = $this->l->nutrients[$code] ?? null;
             if ($nut === null) {
                 $add($rid, 'error', 'unknown_nutrient', "nutrient_code '{$code}' is not an active nutrient");
+
                 continue;
             }
 
             $dupKey = $key.'|'.$code;
             if (isset($seenValue[$dupKey])) {
                 $add($rid, 'error', 'duplicate_value', "Nutrient '{$code}' appears twice for the same record");
+
                 continue;
             }
             $seenValue[$dupKey] = true;

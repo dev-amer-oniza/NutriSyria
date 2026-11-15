@@ -3,19 +3,17 @@
 namespace App\Models;
 
 use App\Data\Nutrition\BmiAssessment;
-use App\Services\Nutrition\Criteria\BmiCalculator;
 use App\Enums\ActivityLevel;
 use App\Enums\Goal;
 use App\Enums\OnboardingStep;
 use App\Enums\Sex;
+use App\Services\Nutrition\Criteria\BmiCalculator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** A site user's nutrition profile (App\Services\Nutrition\UserProfileService). */
 class UserProfile extends Model
 {
-    protected $connection = 'central';
-
     protected $fillable = [
         'sex', 'birth_year', 'height_cm', 'weight_kg', 'activity_level', 'goal',
         'health_conditions', 'allergies', 'health_consent_at', 'completed_at',

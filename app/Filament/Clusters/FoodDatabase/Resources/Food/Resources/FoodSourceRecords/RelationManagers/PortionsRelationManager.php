@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Clusters\FoodDatabase\Resources\Food\Resources\FoodSourceRecords\RelationManagers;
 
 use App\Support\ArabicSearch;
@@ -24,7 +25,8 @@ class PortionsRelationManager extends RelationManager
     protected static ?string $modelLabel = 'حصة';
 
     protected static ?string $pluralModelLabel = 'الحصص';
-    protected static string $relationship      = 'portions';
+
+    protected static string $relationship = 'portions';
 
     protected static ?string $title = 'الحصص';
 
@@ -64,7 +66,7 @@ class PortionsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitle(fn($record) => sprintf(
+            ->recordTitle(fn ($record) => sprintf(
                 '%s %s = %s غ%s',
                 $record->amount,
                 $record->measureUnit?->name_ar,
@@ -96,7 +98,7 @@ class PortionsRelationManager extends RelationManager
                         return $data;
                     }),
                 AssociateAction::make()
-                    ->recordSelectOptionsQuery(fn($query) => $query->where('food_id', $this->getOwnerRecord()->food_id))
+                    ->recordSelectOptionsQuery(fn ($query) => $query->where('food_id', $this->getOwnerRecord()->food_id))
                     ->preloadRecordSelect(),
             ])
             ->recordActions([

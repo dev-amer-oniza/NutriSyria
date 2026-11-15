@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Services\Import;
 
+use App\Exceptions\ImportFileRejected;
 use App\Services\Nutrition\PortionResolver;
 use App\Services\Site\PublicCatalogCache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use App\Exceptions\ImportFileRejected;
 use RuntimeException;
 use Throwable;
 
@@ -21,22 +22,22 @@ use Throwable;
 final class BundleImporter
 {
     private const SHEETS = [
-        'records'         => 'records.csv',
+        'records' => 'records.csv',
         'nutrient_values' => 'nutrient_values.csv',
-        'portions'        => 'portions.csv',
+        'portions' => 'portions.csv',
     ];
 
     /** Columns a sheet cannot do without (the rest are optional); records also need food_id or food_name_ar. */
     private const REQUIRED_COLUMNS = [
-        'records'         => ['data_source_code', 'external_ref', 'food_form_code'],
+        'records' => ['data_source_code', 'external_ref', 'food_form_code'],
         'nutrient_values' => ['data_source_code', 'external_ref', 'nutrient_code', 'amount_per_100g', 'unit'],
-        'portions'        => ['data_source_code', 'external_ref', 'measure_unit_label', 'amount', 'gram_weight'],
+        'portions' => ['data_source_code', 'external_ref', 'measure_unit_label', 'amount', 'gram_weight'],
     ];
 
     private const SHEET_LABELS = [
-        'records'         => 'ملف السجلات',
+        'records' => 'ملف السجلات',
         'nutrient_values' => 'ملف القيم الغذائية',
-        'portions'        => 'ملف الحصص',
+        'portions' => 'ملف الحصص',
     ];
 
     /** Spreadsheets saved in Arabic often separate with ";" (or a tab): any of them is read. */
@@ -59,7 +60,7 @@ final class BundleImporter
 
         $files = [];
         foreach (self::SHEETS as $sheet => $name) {
-            $path = $dir . DIRECTORY_SEPARATOR . $name;
+            $path = $dir.DIRECTORY_SEPARATOR.$name;
             if (is_file($path)) {
                 $files[$sheet] = $path;
             }
@@ -68,7 +69,7 @@ final class BundleImporter
             throw new RuntimeException("records.csv not found in {$dir}");
         }
 
-        $hash = hash('sha256', implode('', array_map(fn($p) => hash_file('sha256', $p), $files)));
+        $hash = hash('sha256', implode('', array_map(fn ($p) => hash_file('sha256', $p), $files)));
         if (! $force && DB::table('import_batches')->where('file_sha256', $hash)->where('status', 'committed')->exists()) {
             throw new ImportFileRejected('هذه الملفات نفسها استوردت وحُفظت من قبل.');
         }
@@ -78,30 +79,30 @@ final class BundleImporter
 
         return DB::transaction(function () use ($dir, $files, $sheets, $hash, $userId) {
             $batchId = DB::table('import_batches')->insertGetId([
-                'user_id'           => $userId,
+                'user_id' => $userId,
                 'original_filename' => basename($dir),
-                'file_path'         => "imports/pending",
-                'file_sha256'       => $hash,
-                'status'            => 'uploaded',
-                'created_at'        => now(),
-                'updated_at'        => now(),
+                'file_path' => 'imports/pending',
+                'file_sha256' => $hash,
+                'status' => 'uploaded',
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
             foreach ($sheets as $sheet => $rows) {
                 foreach (array_chunk($rows, 500, true) as $chunk) {
                     DB::table('import_rows')->insert(array_map(fn (array $raw, int $rowNumber) => [
                         'import_batch_id' => $batchId,
-                        'sheet'           => $sheet,
-                        'row_number'      => $rowNumber,
-                        'raw'             => json_encode($raw, JSON_UNESCAPED_UNICODE),
-                        'status'          => 'pending',
-                        'created_at'      => now(),
-                        'updated_at'      => now(),
+                        'sheet' => $sheet,
+                        'row_number' => $rowNumber,
+                        'raw' => json_encode($raw, JSON_UNESCAPED_UNICODE),
+                        'status' => 'pending',
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ], $chunk, array_keys($chunk)));
                 }
             }
             foreach ($files as $path) {
-                Storage::disk('local')->put("imports/{$batchId}/" . basename($path), file_get_contents($path));
+                Storage::disk('local')->put("imports/{$batchId}/".basename($path), file_get_contents($path));
             }
 
             DB::table('import_batches')->where('id', $batchId)->update(['file_path' => "imports/{$batchId}"]);
@@ -208,13 +209,13 @@ final class BundleImporter
 
         $this->persistRowResults($result);
 
-        $report                 = $result['report'];
-        $report['issues']       = array_slice($result['issueList'], 0, $this->cfg['max_issues_reported']);
+        $report = $result['report'];
+        $report['issues'] = array_slice($result['issueList'], 0, $this->cfg['max_issues_reported']);
         $report['issues_total'] = count($result['issueList']);
 
         DB::table('import_batches')->where('id', $batchId)->update([
-            'status'     => 'validated',
-            'stats'      => json_encode(['validation' => $report], JSON_UNESCAPED_UNICODE),
+            'status' => 'validated',
+            'stats' => json_encode(['validation' => $report], JSON_UNESCAPED_UNICODE),
             'updated_at' => now(),
         ]);
 
@@ -224,7 +225,7 @@ final class BundleImporter
     /** @return array<string,array{id:int,food_id:int}> */
     private function existingRecords(array $recordRows): array
     {
-        $refs   = array_values(array_unique(array_filter(array_map(fn($r) => $r['raw']['external_ref'] ?? '', $recordRows))));
+        $refs = array_values(array_unique(array_filter(array_map(fn ($r) => $r['raw']['external_ref'] ?? '', $recordRows))));
         $wanted = [];
         foreach ($recordRows as $r) {
             $wanted[BundleValidator::key($r['raw'])] = true;
@@ -237,7 +238,7 @@ final class BundleImporter
                 ->whereIn('r.external_ref', $chunk)
                 ->get(['d.code as source_code', 'r.external_ref', 'r.id', 'r.food_id']);
             foreach ($found as $f) {
-                $key = $f->source_code . '|' . $f->external_ref;
+                $key = $f->source_code.'|'.$f->external_ref;
                 if (isset($wanted[$key])) {
                     $existing[$key] = ['id' => (int) $f->id, 'food_id' => (int) $f->food_id];
                 }
@@ -253,8 +254,8 @@ final class BundleImporter
         foreach ($result['rowStatus'] as $rowId => $status) {
             if (isset($result['issues'][$rowId])) {
                 DB::table('import_rows')->where('id', $rowId)->update([
-                    'status'     => $status,
-                    'errors'     => json_encode($result['issues'][$rowId], JSON_UNESCAPED_UNICODE),
+                    'status' => $status,
+                    'errors' => json_encode($result['issues'][$rowId], JSON_UNESCAPED_UNICODE),
                     'updated_at' => now(),
                 ]);
             } else {
@@ -275,12 +276,12 @@ final class BundleImporter
             throw new RuntimeException("Batch {$batchId} is '{$batch->status}': validate it first (or it was already committed).");
         }
 
-        $l     = Lookups::load();
+        $l = Lookups::load();
         $stats = [
-            'records_created' => 0, 'records_updated' => 0, 'records_unchanged' => 0, 'records_skipped'  => 0,
-            'foods_created'   => 0, 'values_written'  => 0, 'values_unchanged'  => 0, 'portions_written' => 0,
+            'records_created' => 0, 'records_updated' => 0, 'records_unchanged' => 0, 'records_skipped' => 0,
+            'foods_created' => 0, 'values_written' => 0, 'values_unchanged' => 0, 'portions_written' => 0,
             'portions_updated' => 0, 'portions_kept' => 0, 'notes_updated' => 0,
-            'changed_values'  => [],
+            'changed_values' => [],
         ];
 
         try {
@@ -289,11 +290,12 @@ final class BundleImporter
             $hasPortionSheet = DB::table('import_rows')->where('import_batch_id', $batchId)->where('sheet', 'portions')->exists();
 
             foreach ($recordRows as $key => $recordRow) {
-                $values  = $valuesByKey[$key] ?? [];
+                $values = $valuesByKey[$key] ?? [];
                 $blocked = $recordRow->status !== 'valid'
-                || count(array_filter($values, fn($v) => $v->status === 'error')) > 0;
+                || count(array_filter($values, fn ($v) => $v->status === 'error')) > 0;
                 if ($blocked) {
                     $stats['records_skipped']++;
+
                     continue;
                 }
 
@@ -307,18 +309,18 @@ final class BundleImporter
                 ->update(['status' => 'skipped', 'updated_at' => now()]);
         } catch (Throwable $e) {
             DB::table('import_batches')->where('id', $batchId)->update([
-                'status'     => 'failed',
-                'stats'      => json_encode(array_merge($this->statsOf($batch), ['error' => $e->getMessage()]), JSON_UNESCAPED_UNICODE),
+                'status' => 'failed',
+                'stats' => json_encode(array_merge($this->statsOf($batch), ['error' => $e->getMessage()]), JSON_UNESCAPED_UNICODE),
                 'updated_at' => now(),
             ]);
             throw $e;
         }
 
         DB::table('import_batches')->where('id', $batchId)->update([
-            'status'       => 'committed',
+            'status' => 'committed',
             'committed_at' => now(),
-            'stats'        => json_encode(array_merge($this->statsOf($batch), ['commit' => $stats]), JSON_UNESCAPED_UNICODE),
-            'updated_at'   => now(),
+            'stats' => json_encode(array_merge($this->statsOf($batch), ['commit' => $stats]), JSON_UNESCAPED_UNICODE),
+            'updated_at' => now(),
         ]);
 
         return $stats;
@@ -327,17 +329,17 @@ final class BundleImporter
     /** @return array{0:array<string,object>,1:array<string,list<object>>,2:array<string,list<object>>} */
     private function loadRowsForCommit(int $batchId): array
     {
-        $records  = [];
-        $values   = [];
+        $records = [];
+        $values = [];
         $portions = [];
         foreach (DB::table('import_rows')->where('import_batch_id', $batchId)
             ->whereIn('status', ['valid', 'error'])->orderBy('id')->cursor() as $r) {
             $r->raw = json_decode($r->raw, true);
-            $key    = BundleValidator::key($r->raw);
+            $key = BundleValidator::key($r->raw);
             match ($r->sheet) {
-                'records'         => $records[$key] ??= $r,
+                'records' => $records[$key] ??= $r,
                 'nutrient_values' => $values[$key][] = $r,
-                'portions'        => $portions[$key][]      = $r,
+                'portions' => $portions[$key][] = $r,
             };
             // A duplicated record row makes the whole key ambiguous: keep it blocked.
             if ($r->sheet === 'records' && $records[$key] !== $r) {
@@ -351,23 +353,23 @@ final class BundleImporter
     /** @param  list<object>|null  $portionRows  null when the bundle has no portions sheet */
     private function commitRecord(int $batchId, Lookups $l, object $recordRow, array $valueRows, ?array $portionRows, array &$stats): void
     {
-        $raw    = $recordRow->raw;
-        $dsId   = $l->dataSources[$raw['data_source_code']];
+        $raw = $recordRow->raw;
+        $dsId = $l->dataSources[$raw['data_source_code']];
         $formId = $l->forms[$raw['food_form_code']];
-        $ref    = $raw['external_ref'];
-        $now    = now();
+        $ref = $raw['external_ref'];
+        $now = now();
 
         // ---- food
         $food = $l->resolveFood($raw);
         if ($food['status'] === 'new') {
             $category = trim($raw['category_path'] ?? '');
-            $foodId   = DB::table('foods')->insertGetId([
-                'name_ar'          => trim($raw['food_name_ar']),
-                'name_en'          => ($raw['food_name_en'] ?? '') !== '' ? $raw['food_name_en'] : null,
+            $foodId = DB::table('foods')->insertGetId([
+                'name_ar' => trim($raw['food_name_ar']),
+                'name_en' => ($raw['food_name_en'] ?? '') !== '' ? $raw['food_name_en'] : null,
                 'food_category_id' => $category !== '' ? $l->resolveCategoryPath($category) : null,
-                'is_active'        => false, // becomes active when a record of it is approved
-                'created_at'       => $now,
-                'updated_at'       => $now,
+                'is_active' => false, // becomes active when a record of it is approved
+                'created_at' => $now,
+                'updated_at' => $now,
             ]);
             $l->rememberFood($foodId, $raw['food_name_ar']);
             $stats['foods_created']++;
@@ -381,29 +383,29 @@ final class BundleImporter
             if ($vr->status !== 'valid') {
                 continue;
             }
-            $v               = $vr->raw;
-            $nut             = $l->nutrients[$v['nutrient_code']];
+            $v = $vr->raw;
+            $nut = $l->nutrients[$v['nutrient_code']];
             $new[$nut['id']] = [
-                'code'   => $v['nutrient_code'],
+                'code' => $v['nutrient_code'],
                 'row_id' => $vr->id,
-                'data'   => [
-                    'nutrient_id'      => $nut['id'],
-                    'amount_per_100g'  => ($v['amount_per_100g'] ?? '') === '' ? null : round((float) $v['amount_per_100g'], 6),
-                    'unit'             => $nut['unit'],
-                    'value_qualifier'  => ($v['value_qualifier'] ?? '') ?: null,
-                    'method'           => ($v['method'] ?? '') ?: null,
+                'data' => [
+                    'nutrient_id' => $nut['id'],
+                    'amount_per_100g' => ($v['amount_per_100g'] ?? '') === '' ? null : round((float) $v['amount_per_100g'], 6),
+                    'unit' => $nut['unit'],
+                    'value_qualifier' => ($v['value_qualifier'] ?? '') ?: null,
+                    'method' => ($v['method'] ?? '') ?: null,
                     'confidence_level' => ($v['confidence_level'] ?? '') ?: $this->cfg['default_confidence'],
-                    'sample_count'     => ($v['sample_count'] ?? '') === '' ? null : (int) $v['sample_count'],
-                    'min_amount'       => ($v['min_amount'] ?? '') === '' ? null : round((float) $v['min_amount'], 6),
-                    'max_amount'       => ($v['max_amount'] ?? '') === '' ? null : round((float) $v['max_amount'], 6),
-                    'notes'            => ($v['notes'] ?? '') ?: null,
+                    'sample_count' => ($v['sample_count'] ?? '') === '' ? null : (int) $v['sample_count'],
+                    'min_amount' => ($v['min_amount'] ?? '') === '' ? null : round((float) $v['min_amount'], 6),
+                    'max_amount' => ($v['max_amount'] ?? '') === '' ? null : round((float) $v['max_amount'], 6),
+                    'notes' => ($v['notes'] ?? '') ?: null,
                 ],
             ];
         }
 
         // ---- source record (find by the crosswalk key, else create)
         $existing = DB::table('food_source_records')->where('data_source_id', $dsId)->where('external_ref', $ref)->first();
-        $old      = $existing
+        $old = $existing
             ? DB::table('food_nutrient_values')->where('food_source_record_id', $existing->id)->get()->keyBy('nutrient_id')
             : collect();
 
@@ -413,6 +415,7 @@ final class BundleImporter
             $prev = $old->get($nutrientId);
             if ($prev && $this->sameValue($prev, $item['data'])) {
                 $stats['values_unchanged']++;
+
                 continue;
             }
             $toWrite[] = $item['data'];
@@ -422,21 +425,21 @@ final class BundleImporter
         }
 
         $formChanged = $existing && (int) $existing->food_form_id !== $formId;
-        $changed     = ! $existing || $formChanged || count($toWrite) > 0;
+        $changed = ! $existing || $formChanged || count($toWrite) > 0;
 
         if (! $existing) {
             $recordId = DB::table('food_source_records')->insertGetId([
-                'food_id'         => $foodId,
-                'food_form_id'    => $formId,
-                'data_source_id'  => $dsId,
+                'food_id' => $foodId,
+                'food_form_id' => $formId,
+                'data_source_id' => $dsId,
                 'import_batch_id' => $batchId,
-                'external_ref'    => $ref,
-                'status'          => 'pending_review',
-                'is_preferred'    => false,
-                'imported_at'     => $now,
-                'notes'           => ($raw['notes'] ?? '') ?: null,
-                'created_at'      => $now,
-                'updated_at'      => $now,
+                'external_ref' => $ref,
+                'status' => 'pending_review',
+                'is_preferred' => false,
+                'imported_at' => $now,
+                'notes' => ($raw['notes'] ?? '') ?: null,
+                'created_at' => $now,
+                'updated_at' => $now,
             ]);
             $stats['records_created']++;
         } elseif ($changed) {
@@ -444,12 +447,12 @@ final class BundleImporter
             // Changed data must be reviewed again, but never resurrect a rejected/superseded record.
             $status = in_array($existing->status, ['rejected', 'superseded'], true) ? $existing->status : 'pending_review';
             DB::table('food_source_records')->where('id', $recordId)->update([
-                'food_form_id'    => $formId,
+                'food_form_id' => $formId,
                 'import_batch_id' => $batchId,
-                'status'          => $status,
-                'imported_at'     => $now,
-                'notes'           => ($raw['notes'] ?? '') ?: $existing->notes,
-                'updated_at'      => $now,
+                'status' => $status,
+                'imported_at' => $now,
+                'notes' => ($raw['notes'] ?? '') ?: $existing->notes,
+                'updated_at' => $now,
             ]);
             $stats['records_updated']++;
             array_push($stats['changed_values'], ...$changes);
@@ -470,7 +473,7 @@ final class BundleImporter
 
         // ---- values
         if ($toWrite) {
-            $rows  = array_map(fn($d) => $d + ['food_source_record_id' => $recordId, 'created_at' => $now, 'updated_at' => $now], $toWrite);
+            $rows = array_map(fn ($d) => $d + ['food_source_record_id' => $recordId, 'created_at' => $now, 'updated_at' => $now], $toWrite);
             DB::table('food_nutrient_values')->upsert(
                 $rows,
                 ['food_source_record_id', 'nutrient_id'],
@@ -520,30 +523,30 @@ final class BundleImporter
             if ($pr->status !== 'valid') {
                 continue; // portion errors never block a record; the row is simply skipped
             }
-            $p      = $pr->raw;
-            $label  = trim($p['measure_unit_label']);
+            $p = $pr->raw;
+            $label = trim($p['measure_unit_label']);
             $unitId = $l->resolveUnitLabel($label);
             $amount = ($p['amount'] ?? '') === '' ? 1.0 : (float) $p['amount'];
-            $grams  = (float) $p['gram_weight'];
+            $grams = (float) $p['gram_weight'];
 
             $fields = [
-                'food_id'               => $foodId,
+                'food_id' => $foodId,
                 // keep the source wording ("cup, chopped") when the label carried more than the unit,
                 // and always keep a size word ("small" is a piece alias, but it is not just "piece")
-                'description'           => ($p['description'] ?? '') ?: ($l->isExactUnitLabel($label) && ! PortionResolver::isSizeWord($label) ? null : $label),
-                'food_form_id'          => $formId,
-                'basis'                 => ($p['basis'] ?? '') ?: $this->cfg['default_portion_basis'],
-                'evidence'              => json_encode([
-                    'import_batch_id'      => $batchId,
-                    'source_row'           => $pr->row_number,
-                    'modifier'             => ($p['modifier'] ?? '') ?: null,
-                    'source_label'         => $label,
+                'description' => ($p['description'] ?? '') ?: ($l->isExactUnitLabel($label) && ! PortionResolver::isSizeWord($label) ? null : $label),
+                'food_form_id' => $formId,
+                'basis' => ($p['basis'] ?? '') ?: $this->cfg['default_portion_basis'],
+                'evidence' => json_encode([
+                    'import_batch_id' => $batchId,
+                    'source_row' => $pr->row_number,
+                    'modifier' => ($p['modifier'] ?? '') ?: null,
+                    'source_label' => $label,
                     'imported_gram_weight' => $grams,
                 ], JSON_UNESCAPED_UNICODE),
-                'updated_at'            => $now,
+                'updated_at' => $now,
             ];
 
-            $key   = self::portionKey($unitId, $amount, $label);
+            $key = self::portionKey($unitId, $amount, $label);
             $match = isset($existing[$key]) ? array_shift($existing[$key]) : null;
 
             if ($match) {
@@ -555,13 +558,13 @@ final class BundleImporter
                 $stats['portions_updated']++;
             } else {
                 DB::table('food_portions')->insert($fields + [
-                    'measure_unit_id'       => $unitId,
-                    'amount'                => $amount,
-                    'gram_weight'           => $grams,
+                    'measure_unit_id' => $unitId,
+                    'amount' => $amount,
+                    'gram_weight' => $grams,
                     'food_source_record_id' => $recordId,
-                    'confidence_level'      => $this->cfg['default_confidence'],
-                    'is_default'            => false,
-                    'created_at'            => $now,
+                    'confidence_level' => $this->cfg['default_confidence'],
+                    'is_default' => false,
+                    'created_at' => $now,
                 ]);
                 $stats['portions_written']++;
             }
@@ -599,7 +602,7 @@ final class BundleImporter
 
     private function sameValue(object $prev, array $new): bool
     {
-        $num = fn($x) => $x === null ? null : round((float) $x, 6);
+        $num = fn ($x) => $x === null ? null : round((float) $x, 6);
 
         return $num($prev->amount_per_100g) === $new['amount_per_100g']
             && ($prev->value_qualifier ?: null) === $new['value_qualifier']
@@ -620,11 +623,11 @@ final class BundleImporter
         }
 
         $stats = DB::transaction(function () use ($batchId) {
-            $pending = fn() => DB::table('food_source_records')
+            $pending = fn () => DB::table('food_source_records')
                 ->where('import_batch_id', $batchId)->where('status', 'pending_review');
 
-            $foodIds   = $pending()->pluck('food_id')->unique()->values()->all();
-            $approved  = $pending()->update(['status' => 'active', 'updated_at' => now()]);
+            $foodIds = $pending()->pluck('food_id')->unique()->values()->all();
+            $approved = $pending()->update(['status' => 'active', 'updated_at' => now()]);
             $activated = $foodIds
                 ? DB::table('foods')->whereIn('id', $foodIds)->where('is_active', false)->update(['is_active' => true, 'updated_at' => now()])
                 : 0;

@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /** A hashed 6-digit code emailed to a user (App\Services\Auth\AuthCodeService). */
 class AuthCode extends Model
 {
-    protected $connection = 'central';
-
     protected $fillable = ['user_id', 'purpose', 'code_hash', 'attempts', 'expires_at', 'sent_at'];
 
     protected $hidden = ['code_hash'];

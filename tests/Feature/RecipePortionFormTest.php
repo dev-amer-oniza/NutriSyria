@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Auth\Access;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
 use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
 use App\Models\Brand;
@@ -14,12 +15,9 @@ use App\Models\MeasureUnit;
 use App\Models\Product;
 use App\Models\ProductRecipe;
 use App\Models\ProductRecipeIngredient;
-use App\Models\User;
 use Filament\Actions\CreateAction;
 use Filament\Actions\Testing\TestAction;
-use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -31,7 +29,7 @@ class RecipePortionFormTest extends TestCase
     {
         // Recipes are the restaurant's side of the panel: the admin does not see them.
         $brand = Brand::create(['name' => 'مطعم']);
-        $this->signInAs(\App\Auth\Access::BRAND_OWNER)->brands()->attach($brand->id);
+        $this->signInAs(Access::BRAND_OWNER)->brands()->attach($brand->id);
 
         $source = DataSource::create(['code' => 'usda_fdc_sr_legacy', 'name' => 'USDA SR Legacy', 'type' => 'usda_fdc']);
         $onion = FoodSourceRecord::create([

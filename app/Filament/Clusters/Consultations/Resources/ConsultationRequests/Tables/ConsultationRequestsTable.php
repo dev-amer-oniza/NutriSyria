@@ -3,8 +3,8 @@
 namespace App\Filament\Clusters\Consultations\Resources\ConsultationRequests\Tables;
 
 use App\Enums\ConsultationStatus;
-use App\Filament\Clusters\Consultations\Resources\Clients\Pages\ViewClient;
 use App\Exceptions\ConsultationRefused;
+use App\Filament\Clusters\Consultations\Resources\Clients\Pages\ViewClient;
 use App\Models\ConsultationRequest;
 use App\Services\Consultations\ConsultationService;
 use Filament\Actions\Action;

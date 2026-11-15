@@ -4,7 +4,4 @@ namespace App\Models;
 
 use Spatie\Permission\Models\Permission as SpatiePermission;
 
-class Permission extends SpatiePermission
-{
-    protected $connection = 'central';
-}
+class Permission extends SpatiePermission {}

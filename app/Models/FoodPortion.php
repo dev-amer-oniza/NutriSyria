@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Enums\ConfidenceLevel;
@@ -32,14 +33,14 @@ class FoodPortion extends Model
     protected function casts(): array
     {
         return [
-            'amount'           => 'decimal:4',
-            'gram_weight'      => 'decimal:6',
-            'basis'            => PortionBasis::class,
+            'amount' => 'decimal:4',
+            'gram_weight' => 'decimal:6',
+            'basis' => PortionBasis::class,
             'confidence_level' => ConfidenceLevel::class,
-            'is_default'       => 'boolean',
-            'valid_from'       => 'datetime',
-            'valid_to'         => 'datetime',
-            'evidence'         => 'array',
+            'is_default' => 'boolean',
+            'valid_from' => 'datetime',
+            'valid_to' => 'datetime',
+            'evidence' => 'array',
         ];
     }
 
@@ -57,6 +58,7 @@ class FoodPortion extends Model
     {
         return $this->belongsTo(FoodSourceRecord::class, 'food_source_record_id');
     }
+
     /** اسم بديل: Filament يخمّن هذا الاسم تلقائياً من FoodSourceRecord عند الربط/فك الربط. */
     public function foodSourceRecord(): BelongsTo
     {

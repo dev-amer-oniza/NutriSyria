@@ -9,11 +9,8 @@ use App\Models\DataSource;
 use App\Models\Food;
 use App\Models\FoodSourceRecord;
 use App\Models\ImportBatch;
-use App\Models\User;
-use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -45,7 +42,7 @@ class PanelPolishTest extends TestCase
 
     public function test_validation_messages_are_arabic_in_the_panel(): void
     {
-        (new UseArabicInPanel())->handle(new Request(), fn () => response(''));
+        (new UseArabicInPanel)->handle(new Request, fn () => response(''));
 
         $message = Validator::make(['amount' => ''], ['amount' => 'required'], [], ['amount' => 'الكمية'])->errors()->first('amount');
 

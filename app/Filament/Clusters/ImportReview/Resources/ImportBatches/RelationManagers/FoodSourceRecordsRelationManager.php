@@ -1,11 +1,11 @@
 <?php
+
 namespace App\Filament\Clusters\ImportReview\Resources\ImportBatches\RelationManagers;
 
-use App\Support\ArabicSearch;
 use App\Enums\FoodSourceStatus;
-use App\Services\Import\RecordReview;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Resources\FoodSourceRecords\FoodSourceRecordResource;
-use App\Models\Nutrient;
+use App\Services\Import\RecordReview;
+use App\Support\ArabicSearch;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -46,7 +46,7 @@ class FoodSourceRecordsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->with([
+            ->modifyQueryUsing(fn (Builder $query) => $query->with([
                 'food', 'foodForm', 'dataSource',
                 'nutrientValues.nutrient', 'reviewedBy',
             ]))
@@ -71,16 +71,16 @@ class FoodSourceRecordsRelationManager extends RelationManager
                 // أهم 4 قيم تظهر مباشرة في الجدول، بلا فتح أي شيء
                 TextColumn::make('preview_energy')
                     ->label('طاقة')
-                    ->getStateUsing(fn($record) => self::nutrientAmount($record, 'energy_kcal') . ' kcal'),
+                    ->getStateUsing(fn ($record) => self::nutrientAmount($record, 'energy_kcal').' kcal'),
                 TextColumn::make('preview_protein')
                     ->label('بروتين')
-                    ->getStateUsing(fn($record) => self::nutrientAmount($record, 'protein_g') . ' غ'),
+                    ->getStateUsing(fn ($record) => self::nutrientAmount($record, 'protein_g').' غ'),
                 TextColumn::make('preview_fat')
                     ->label('دهون')
-                    ->getStateUsing(fn($record) => self::nutrientAmount($record, 'fat_g') . ' غ'),
+                    ->getStateUsing(fn ($record) => self::nutrientAmount($record, 'fat_g').' غ'),
                 TextColumn::make('preview_carbs')
                     ->label('كربوهيدرات')
-                    ->getStateUsing(fn($record) => self::nutrientAmount($record, 'carbohydrate_g') . ' غ'),
+                    ->getStateUsing(fn ($record) => self::nutrientAmount($record, 'carbohydrate_g').' غ'),
                 TextColumn::make('status')
                     ->label('الحالة')
                     ->badge(),
@@ -119,7 +119,7 @@ class FoodSourceRecordsRelationManager extends RelationManager
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('gray')
                     ->authorize('update')
-                    ->url(fn($record) => FoodSourceRecordResource::getUrl('edit', [
+                    ->url(fn ($record) => FoodSourceRecordResource::getUrl('edit', [
                         'food' => $record->food_id,
                         'record' => $record->id,
                     ]))
@@ -180,7 +180,7 @@ class FoodSourceRecordsRelationManager extends RelationManager
 
     private static function nutrientAmount($record, string $code): string
     {
-        $value = $record->nutrientValues->first(fn($v) => $v->nutrient?->code === $code);
+        $value = $record->nutrientValues->first(fn ($v) => $v->nutrient?->code === $code);
 
         return $value?->amount_per_100g !== null ? number_format((float) $value->amount_per_100g, 1) : '—';
     }

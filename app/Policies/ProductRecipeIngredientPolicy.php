@@ -12,9 +12,7 @@ class ProductRecipeIngredientPolicy
 {
     use DeniesByDefault;
 
-    public function __construct(private readonly ProductPolicy $products = new ProductPolicy())
-    {
-    }
+    public function __construct(private readonly ProductPolicy $products = new ProductPolicy) {}
 
     /** The admin reaches recipe lines only from the kitchen's dishes (their lines are checked one by one). */
     public function viewAny(User $user): bool

@@ -66,12 +66,12 @@ return [
         'tenant_uploads' => [
             'driver' => 'local',
             'root' => storage_path('app/public/uploads'),
-            'url' => env('APP_URL') . '/storage/uploads',
+            'url' => env('APP_URL').'/storage/uploads',
             'visibility' => 'public',
             'serve' => true,
             'throw' => false,
         ],
-        
+
         'cloudinary' => [
             'driver' => 'cloudinary',
             'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),

@@ -21,7 +21,7 @@ final class RecipeCalculator
      *     amount is the source's amount_per_100g (not yet scaled by grams). grams is null when
      *     the line could not be converted to grams; problem says why
      * @param  list<array{id: int, code: string, name_ar: string, unit: string, is_core: bool, display_order: int}>  $nutrientDefs
-     *     every nutrient to report on, even ones no ingredient has a value for
+     *                                                                                                                              every nutrient to report on, even ones no ingredient has a value for
      */
     public function calculate(
         array $ingredients,

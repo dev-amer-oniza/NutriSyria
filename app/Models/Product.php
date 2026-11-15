@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -38,6 +39,7 @@ class Product extends Model
     {
         return $this->hasOne(ProductRecipe::class);
     }
+
     /** اسم بديل: Filament يخمّن هذا الاسم أحياناً من ProductRecipe مباشرة. */
     public function productRecipes(): HasOne
     {
@@ -53,8 +55,9 @@ class Product extends Model
     /** True once this product's nutrition has actually been calculated and stored. */
     protected function isAnalyzed(): Attribute
     {
-        return Attribute::make(get: fn() => $this->nutrientValues()->exists());
+        return Attribute::make(get: fn () => $this->nutrientValues()->exists());
     }
+
     public function recipeIngredients(): HasManyThrough
     {
         return $this->hasManyThrough(

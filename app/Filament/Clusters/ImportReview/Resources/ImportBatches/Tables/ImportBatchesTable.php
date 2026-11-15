@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\ImportReview\Resources\ImportBatches\Tables;
 
+use App\Enums\ImportBatchStatus;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -39,7 +40,7 @@ class ImportBatchesTable
             ->filters([
                 SelectFilter::make('status')
                     ->label('الحالة')
-                    ->options(\App\Enums\ImportBatchStatus::class),
+                    ->options(ImportBatchStatus::class),
             ])
             ->recordActions([
                 EditAction::make()->label('مراجعة'),

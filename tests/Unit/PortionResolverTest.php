@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 class PortionResolverTest extends TestCase
 {
     private const RAW = 1;
+
     private const BOILED = 8;
 
     private const UNITS = [
@@ -35,7 +36,7 @@ class PortionResolverTest extends TestCase
 
     private function resolver(): PortionResolver
     {
-        return new PortionResolver();
+        return new PortionResolver;
     }
 
     /** Boiled chickpeas, source record #17. */

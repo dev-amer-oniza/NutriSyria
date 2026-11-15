@@ -2,21 +2,21 @@
 
 namespace App\Filament\Clusters\Brands\Resources\Products\Tables;
 
-use App\Support\ArabicSearch;
 use App\Auth\BrandScope;
 use App\Enums\NutritionApprovalStatus;
 use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
+use App\Filament\Support\Placeholders;
+use App\Models\Brand;
+use App\Support\ArabicSearch;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
-use App\Filament\Support\Placeholders;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
-use App\Models\Brand;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 

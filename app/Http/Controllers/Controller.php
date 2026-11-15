@@ -13,7 +13,6 @@ abstract class Controller
      * @param  mixed|null  $data  The response data (optional).
      * @param  string  $message  The success message (default: "Operation successful").
      * @param  int  $status  The HTTP status code (default: 200).
-     * @return \Illuminate\Http\JsonResponse
      */
     public static function success($data = null, $message = 'Operation successful', $status = 200): JsonResponse
     {
@@ -34,7 +33,6 @@ abstract class Controller
      * @param  string|array  $message  The error message or an array containing additional error details.
      * @param  int  $status  The HTTP status code (default: 400).
      * @param  mixed|null  $data  Additional data to include in the response (optional).
-     * @return \Illuminate\Http\JsonResponse
      */
     public static function error($message = 'Operation failed', $status = 400, $data = null): JsonResponse
     {
@@ -65,7 +63,6 @@ abstract class Controller
      * @param  LengthAwarePaginator  $paginator  The paginator instance containing paginated results.
      * @param  string  $message  The success message (default: "Operation successful").
      * @param  int  $status  The HTTP status code (default: 200).
-     * @return \Illuminate\Http\JsonResponse
      */
     public static function paginated(LengthAwarePaginator $paginator, $message = 'Operation successful', $status = 200): JsonResponse
     {

@@ -72,7 +72,7 @@ class BundleImporterPortionsTest extends TestCase
             ));
         }
 
-        $importer = new BundleImporter();
+        $importer = new BundleImporter;
         $batch = $importer->stage($this->dir, null, true);
         $importer->validate($batch);
 

@@ -4,13 +4,13 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Auth\Access;
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
@@ -18,8 +18,8 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -36,8 +36,6 @@ class User extends Authenticatable implements FilamentUser
         'email_verified_at',
         'is_active',
     ];
-
-    protected $connection = 'central';
 
     /**
      * The attributes that should be hidden for serialization.
@@ -64,7 +62,6 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
-
     /**
      * Only active accounts with one of the three panel roles get in. Filament asks on every
      * request, so deactivating a user or removing their role locks them out immediately.
@@ -74,15 +71,6 @@ class User extends Authenticatable implements FilamentUser
         return $panel->getId() === 'admin'
             && $this->is_active !== false
             && $this->hasAnyRole(Access::PANEL_ROLES);
-    }
-
-    /**
-     * Panel notifications live with the users, on the "central" connection (Laravel's default
-     * model would use the default connection).
-     */
-    public function notifications(): MorphMany
-    {
-        return $this->morphMany(CentralDatabaseNotification::class, 'notifiable')->latest();
     }
 
     public function isSuperAdmin(): bool

@@ -33,7 +33,7 @@ final class Lookups
 
     public static function load(): self
     {
-        $l = new self();
+        $l = new self;
 
         foreach (DB::table('data_sources')->where('is_active', true)->get(['id', 'code']) as $r) {
             $l->dataSources[$r->code] = (int) $r->id;
@@ -74,7 +74,7 @@ final class Lookups
      * Decide which food a record row refers to.
      *
      * @param  array<string,string>  $raw
-     * @return array{status:string,id:?int,code:?string,message:?string}  status: existing | new | error
+     * @return array{status:string,id:?int,code:?string,message:?string} status: existing | new | error
      */
     public function resolveFood(array $raw): array
     {

@@ -24,6 +24,7 @@ use InvalidArgumentException;
 final class ProductReviewNotes
 {
     public const MAX_NOTE = 2000;
+
     public const MAX_REPLY = 1000;
 
     public function send(Product $product, User $author, string $body): ProductReviewNote
@@ -33,7 +34,7 @@ final class ProductReviewNotes
             throw new InvalidArgumentException('اكتب الملاحظة.');
         }
 
-        $note = new ProductReviewNote();
+        $note = new ProductReviewNote;
         $note->forceFill([
             'product_id' => $product->id,
             'author_id' => $author->id,

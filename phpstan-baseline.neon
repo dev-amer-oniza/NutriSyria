@@ -1,0 +1,1249 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$has_official_values\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Enums/NutritionApprovalStatus.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$has_open_notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Enums/NutritionApprovalStatus.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$ingredients_changed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Enums/NutritionApprovalStatus.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nutrition_approved_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Enums/NutritionApprovalStatus.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Enums/NutritionApprovalStatus.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/AccessControl/Resources/Roles/RoleResource.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Filament\\Clusters\\AccessControl\\Resources\\Users\\Pages\\CreateUser\:\:applyRole\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Clusters/AccessControl/Resources/Users/Pages/CreateUser.php
+
+		-
+			message: '#^Cannot access property \$roles on Illuminate\\Database\\Eloquent\\Model\|int\|string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Filament/Clusters/AccessControl/Resources/Users/Pages/EditUser.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Filament\\Clusters\\AccessControl\\Resources\\Users\\Pages\\EditUser\:\:applyRole\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Clusters/AccessControl/Resources/Users/Pages/EditUser.php
+
+		-
+			message: '#^Call to an undefined method Filament\\Forms\\Components\\Select\:\:arabicSearch\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/Clusters/AccessControl/Resources/Users/Schemas/UserForm.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\:\:role\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/Clusters/AccessControl/Resources/Users/Tables/UsersTable.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany\:\:open\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/Clusters/Brands/Pages/RecipeAnalysis.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Clusters/Brands/Resources/Brands/Pages/EditBrand.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:restaurants\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/Clusters/Brands/Resources/Categories/ProductCategoryResource.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>brand_id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Filament/Clusters/Brands/Resources/Categories/ProductCategoryResource.php
+
+		-
+			message: '#^Cannot access property \$id on Illuminate\\Database\\Eloquent\\Model\|int\|string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Filament/Clusters/Brands/Resources/Products/Pages/EditProduct.php
+
+		-
+			message: '#^Cannot access property \$id on Illuminate\\Database\\Eloquent\\Model\|int\|string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Filament/Clusters/Brands/Resources/Products/Pages/ViewProduct.php
+
+		-
+			message: '#^Parameter \#1 \$product of static method App\\Filament\\Clusters\\Brands\\Resources\\Products\\ProductResource\:\:pageUrlFor\(\) expects App\\Models\\Product, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Clusters/Brands/Resources/Products/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/Brands/Resources/Products/RelationManagers/RecipeIngredientsRelationManager.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$foodPortion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Clusters/Brands/Resources/Products/RelationManagers/RecipeIngredientsRelationManager.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$food_portion_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/Brands/Resources/Products/RelationManagers/RecipeIngredientsRelationManager.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$food_source_record_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/Brands/Resources/Products/RelationManagers/RecipeIngredientsRelationManager.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$measure_unit_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/Brands/Resources/Products/RelationManagers/RecipeIngredientsRelationManager.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Clusters/Brands/Resources/Products/RelationManagers/RecipeIngredientsRelationManager.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name_ar\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/Brands/Resources/Products/RelationManagers/RecipeIngredientsRelationManager.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$recipe\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Clusters/Brands/Resources/Products/RelationManagers/RecipeIngredientsRelationManager.php
+
+		-
+			message: '#^Call to an undefined method Filament\\Forms\\Components\\Select\:\:arabicSearch\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/Clusters/Brands/Resources/Products/RelationManagers/RecipeIngredientsRelationManager.php
+
+		-
+			message: '#^Call to an undefined method Filament\\Forms\\Components\\Select\:\:arabicSearch\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/Clusters/Brands/Resources/Products/Schemas/ProductForm.php
+
+		-
+			message: '#^Access to an undefined property App\\Filament\\Clusters\\Consultations\\Pages\\NutritionistProfilePage\:\:\$form\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/Consultations/Pages/NutritionistProfilePage.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$phone\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Clusters/Consultations/Resources/Clients/ClientResource.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Nutrition\\Criteria\\PersonalCriteria\:\:for\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Clusters/Consultations/Resources/Clients/ClientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Filament\\Clusters\\Consultations\\Resources\\Clients\\Pages\\ClientPlan\:\:\$form\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/Consultations/Resources/Clients/Pages/ClientPlan.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Clusters/Consultations/Resources/Clients/Pages/ClientPlan.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$plan\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Clusters/Consultations/Resources/Clients/Pages/ClientPlan.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$profile\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/Consultations/Resources/Clients/Pages/ClientPlan.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/Consultations/Resources/Clients/Pages/ClientPlan.php
+
+		-
+			message: '#^Parameter \#1 \$link of method App\\Services\\Nutrition\\Plan\\NutritionPlans\:\:defaults\(\) expects App\\Models\\ConsultationRequest, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Clusters/Consultations/Resources/Clients/Pages/ClientPlan.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Nutrition\\Criteria\\PersonalCriteria\:\:for\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Clusters/Consultations/Resources/Clients/Pages/ClientPlan.php
+
+		-
+			message: '#^Property App\\Filament\\Clusters\\Consultations\\Resources\\Clients\\Pages\\ClientPlan\:\:\$record \(App\\Models\\ConsultationRequest\) does not accept Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Filament/Clusters/Consultations/Resources/Clients/Pages/ClientPlan.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>macros" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Filament/Clusters/Consultations/Resources/Clients/Pages/ClientPlan.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Filament/Clusters/Consultations/Resources/Clients/Pages/ViewClient.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$phone\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/Consultations/Resources/Clients/Pages/ViewClient.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Nutrition\\Criteria\\PersonalCriteria\:\:for\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Clusters/Consultations/Resources/Clients/Pages/ViewClient.php
+
+		-
+			message: '#^Property App\\Filament\\Clusters\\Consultations\\Resources\\Clients\\Pages\\ViewClient\:\:\$record \(App\\Models\\ConsultationRequest\) does not accept Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Filament/Clusters/Consultations/Resources/Clients/Pages/ViewClient.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/Consultations/Resources/ConsultationRequests/Tables/ConsultationRequestsTable.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$phone\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/Consultations/Resources/ConsultationRequests/Tables/ConsultationRequestsTable.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\ConsultationStatus\:\:Declined will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Filament/Clusters/Consultations/Resources/ConsultationRequests/Tables/ConsultationRequestsTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Filament\\Clusters\\FoodDatabase\\Pages\\CompareFoodSources\:\:\$form\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/FoodDatabase/Pages/CompareFoodSources.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$amount_per_100g\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/FoodDatabase/Pages/CompareFoodSources.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Clusters/FoodDatabase/Pages/CompareFoodSources.php
+
+		-
+			message: '#^Cannot call method getLabel\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Filament/Clusters/FoodDatabase/Pages/CompareFoodSources.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$food_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/FoodDatabase/Resources/Food/Resources/FoodSourceRecords/RelationManagers/PortionsRelationManager.php
+
+		-
+			message: '#^Call to an undefined method Filament\\Forms\\Components\\Select\:\:arabicSearch\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/Clusters/FoodDatabase/Resources/Food/Resources/FoodSourceRecords/RelationManagers/PortionsRelationManager.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name_ar\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Clusters/FoodDatabase/Resources/Food/Resources/FoodSourceRecords/Schemas/FoodSourceRecordForm.php
+
+		-
+			message: '#^Call to an undefined method Filament\\Forms\\Components\\Select\:\:arabicSearch\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Filament/Clusters/FoodDatabase/Resources/Food/Resources/FoodSourceRecords/Schemas/FoodSourceRecordForm.php
+
+		-
+			message: '#^Call to an undefined method Filament\\Forms\\Components\\Select\:\:arabicSearch\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/Clusters/FoodDatabase/Resources/Food/Schemas/FoodForm.php
+
+		-
+			message: '#^Access to an undefined property App\\Filament\\Clusters\\ImportReview\\Pages\\SourceMatchingTools\:\:\$buildForm\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/ImportReview/Pages/SourceMatchingTools.php
+
+		-
+			message: '#^Access to an undefined property App\\Filament\\Clusters\\ImportReview\\Pages\\SourceMatchingTools\:\:\$matchForm\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/ImportReview/Pages/SourceMatchingTools.php
+
+		-
+			message: '#^Access to an undefined property App\\Filament\\Clusters\\ImportReview\\Pages\\UploadImportBatch\:\:\$form\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Clusters/ImportReview/Pages/UploadImportBatch.php
+
+		-
+			message: '#^Access to an undefined property App\\Filament\\Clusters\\ImportReview\\Pages\\UploadImportBatch\:\:\$selectorForm\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Clusters/ImportReview/Pages/UploadImportBatch.php
+
+		-
+			message: '#^Cannot access property \$status on array\<mixed\>\|object\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Filament/Clusters/ImportReview/Pages/UploadImportBatch.php
+
+		-
+			message: '#^Cannot access property \$original_filename on Illuminate\\Database\\Eloquent\\Model\|int\|string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Filament/Clusters/ImportReview/Resources/ImportBatches/Pages/EditImportBatch.php
+
+		-
+			message: '#^Call to method App\\Services\\Import\\RecordReview\:\:approve\(\) on a separate line has no effect\.$#'
+			identifier: method.resultUnused
+			count: 1
+			path: app/Filament/Clusters/ImportReview/Resources/ImportBatches/RelationManagers/FoodSourceRecordsRelationManager.php
+
+		-
+			message: '#^Constant App\\Filament\\Clusters\\ImportReview\\Resources\\ImportBatches\\RelationManagers\\FoodSourceRecordsRelationManager\:\:PREVIEW_NUTRIENTS is unused\.$#'
+			identifier: classConstant.unused
+			count: 1
+			path: app/Filament/Clusters/ImportReview/Resources/ImportBatches/RelationManagers/FoodSourceRecordsRelationManager.php
+
+		-
+			message: '#^Parameter \#1 \$record of method App\\Services\\Import\\RecordReview\:\:approve\(\) expects App\\Models\\FoodSourceRecord, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Clusters/ImportReview/Resources/ImportBatches/RelationManagers/FoodSourceRecordsRelationManager.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Filament/Clusters/ImportReview/Resources/ImportBatches/Schemas/ImportBatchForm.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isPlatform\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/Clusters/Kitchen/Resources/Categories/KitchenCategoryResource.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isPlatform\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/Clusters/Kitchen/Resources/Dishes/KitchenDishResource.php
+
+		-
+			message: '#^Cannot access property \$id on Illuminate\\Database\\Eloquent\\Model\|int\|string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Filament/Clusters/Kitchen/Resources/Dishes/Pages/EditKitchenDish.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: App\\Enums\\NutritionApprovalStatus, Closure\(App\\Models\\Product\)\: App\\Enums\\NutritionApprovalStatus given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Widgets/ProductsWorkStats.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:nextStep\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Site/Account/ConsultationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Site\\Account\\ConsultationController\:\:own\(\) should return App\\Models\\ConsultationRequest but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Http/Controllers/Site/Account/ConsultationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Site/Account/CriteriaController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:bmi\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Site/Account/CriteriaController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:hasActivity\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Site/Account/CriteriaController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:hasBody\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Site/Account/CriteriaController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:nextStep\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Site/Account/CriteriaController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>display_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Site/Account/CriteriaController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:bmi\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Site/Account/OnboardingController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:hasActivity\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Site/Account/OnboardingController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:hasBody\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Site/Account/OnboardingController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:nextStep\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Site/Account/OnboardingController.php
+
+		-
+			message: '#^Parameter \#1 \$sex of static method App\\Enums\\HealthCondition\:\:grouped\(\) expects App\\Enums\\Sex\|null, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Site/Account/OnboardingController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$sex\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Requests/Profile/HealthStepRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Livewire\\ReviewNotesPanel\:\:\$product\.$#'
+			identifier: property.notFound
+			count: 6
+			path: app/Livewire/ReviewNotesPanel.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$profile\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/ConsultationRequest.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\ConsultationStatus\:\:Accepted will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Models/ConsultationRequest.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\ConsultationStatus\:\:Pending will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Models/ConsultationRequest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/FoodNutrientValue.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>unit" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/FoodNutrientValue.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Models/NutritionPlan.php
+
+		-
+			message: '#^Cannot call method needsAddress\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Models/NutritionistProfile.php
+
+		-
+			message: '#^Parameter \#1 \$user of static method App\\Models\\NutritionistProfile\:\:eligible\(\) expects App\\Models\\User\|null, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/NutritionistProfile.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_platform\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Product.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_platform\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/ProductCategory.php
+
+		-
+			message: '#^Parameter \#3 \$goal of method App\\Services\\Nutrition\\Criteria\\BmiCalculator\:\:assess\(\) expects App\\Enums\\Goal\|null, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/UserProfile.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/SiteNotification.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>display_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Notifications/SiteNotification.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: app/Policies/FoodSourceRecordPolicy.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\FoodSourceStatus\:\:PendingReview will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Policies/FoodSourceRecordPolicy.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$product\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Policies/ProductRecipeIngredientPolicy.php
+
+		-
+			message: '#^Call to method getRelated\(\) on an unknown class Znck\\Eloquent\\Relations\\BelongsToThrough\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Providers/Filament/AdminPanelProvider.php
+
+		-
+			message: '#^PHPDoc tag @var with type Filament\\Forms\\Components\\Select is not subtype of native type \$this\(App\\Providers\\Filament\\AdminPanelProvider\)\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: app/Providers/Filament/AdminPanelProvider.php
+
+		-
+			message: '#^Cannot call method diffInSeconds\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/Auth/AuthCodeService.php
+
+		-
+			message: '#^Cannot call method isPast\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/Auth/AuthCodeService.php
+
+		-
+			message: '#^Call to an undefined method Laravel\\Socialite\\Contracts\\Provider\:\:scopes\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Auth/GoogleAuthService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>password" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Auth/LoginService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$profile\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Consultations/ClientWorkspace.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:inputs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Consultations/ClientWorkspace.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:notify\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Consultations/ClientWorkspace.php
+
+		-
+			message: '#^Cannot call method gt\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/Consultations/ClientWorkspace.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Nutrition\\Criteria\\PersonalCriteria\:\:resetByNutritionist\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Services/Consultations/ClientWorkspace.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Nutrition\\Criteria\\PersonalCriteria\:\:resetTemplateByNutritionist\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Consultations/ClientWorkspace.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Nutrition\\Criteria\\PersonalCriteria\:\:setByNutritionist\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Services/Consultations/ClientWorkspace.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Nutrition\\Criteria\\PersonalCriteria\:\:setTemplateByNutritionist\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Consultations/ClientWorkspace.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Nutrition\\UserProfileService\:\:saveActivity\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Services/Consultations/ClientWorkspace.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Nutrition\\UserProfileService\:\:saveBody\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Consultations/ClientWorkspace.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Nutrition\\UserProfileService\:\:saveHealth\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Consultations/ClientWorkspace.php
+
+		-
+			message: '#^Parameter \#2 \$activity of method App\\Services\\Nutrition\\UserProfileService\:\:saveActivity\(\) expects array\{activity_level\: string, goal\: string\}, array\{activity_level\: string\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Consultations/ClientWorkspace.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Consultations/ConsultationService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nutritionist\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Consultations/ConsultationService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:hasActivity\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Consultations/ConsultationService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:hasBody\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Consultations/ConsultationService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:notify\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: app/Services/Consultations/ConsultationService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany\:\:open\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Consultations/ConsultationService.php
+
+		-
+			message: '#^Method App\\Services\\Consultations\\ConsultationService\:\:history\(\) should return Illuminate\\Support\\Collection\<int, App\\Models\\ConsultationRequest\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Consultations/ConsultationService.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Services\\Nutrition\\Criteria\\PersonalCriteria\:\:clearNutritionist\(\) expects App\\Models\\User, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Consultations/ConsultationService.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and App\\Enums\\ConsultationStatus\:\:Pending will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Services/Consultations/ConsultationService.php
+
+		-
+			message: '#^Cannot call method needsAddress\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/Consultations/NutritionistDirectory.php
+
+		-
+			message: '#^Method App\\Services\\Consultations\\NutritionistDirectory\:\:profileOf\(\) should return App\\Models\\NutritionistProfile but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Consultations/NutritionistDirectory.php
+
+		-
+			message: '#^Cannot access property \$status on array\<mixed\>\|object\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Services/Import/BundleImporter.php
+
+		-
+			message: '#^Match expression does not handle remaining value\: mixed$#'
+			identifier: match.unhandled
+			count: 1
+			path: app/Services/Import/BundleImporter.php
+
+		-
+			message: '#^Parameter &\$committedIds by\-ref type of method App\\Services\\Import\\BundleImporter\:\:syncPortions\(\) expects list\<int\>, non\-empty\-list\<mixed\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: app/Services/Import/BundleImporter.php
+
+		-
+			message: '#^Method App\\Services\\Import\\RecordReview\:\:mark\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/Import/RecordReview.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and App\\Enums\\FoodSourceStatus\:\:PendingReview will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 2
+			path: app/Services/Import/RecordReview.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 2
+			path: app/Services/Import/RecordReview.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:canCalculate\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Nutrition/Criteria/PersonalCriteria.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: app/Services/Nutrition/Criteria/PersonalCriteria.php
+
+		-
+			message: '#^Cannot call method label\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/Nutrition/Criteria/PersonalCriteria.php
+
+		-
+			message: '#^Parameter \#1 \$profile of method App\\Services\\Nutrition\\Criteria\\PersonalCriteria\:\:asArray\(\) expects App\\Models\\UserProfile, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Nutrition/Criteria/PersonalCriteria.php
+
+		-
+			message: '#^Parameter \#1 \$source of method App\\Data\\Nutrition\\CriterionValue\:\:overriddenBy\(\) expects App\\Enums\\CriterionSource, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Nutrition/Criteria/PersonalCriteria.php
+
+		-
+			message: '#^Parameter \#8 \$source of class App\\Data\\Nutrition\\CriterionValue constructor expects App\\Enums\\CriterionSource, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Nutrition/Criteria/PersonalCriteria.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\CriterionSource\:\:Nutritionist\|App\\Enums\\CriterionSource\:\:User will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 2
+			path: app/Services/Nutrition/Criteria/PersonalCriteria.php
+
+		-
+			message: '#^Method App\\Services\\Nutrition\\Fit\\MealFitCalculator\:\:energyReason\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Services/Nutrition/Fit/MealFitCalculator.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$base_factor\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/GramsConverter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/GramsConverter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$dimension\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/GramsConverter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$foodForm\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/GramsConverter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$food_form_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/GramsConverter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name_ar\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Services/Nutrition/GramsConverter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name_en\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/GramsConverter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/GramsConverter.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Services/Nutrition/GramsConverter.php
+
+		-
+			message: '#^Offset ''modifier'' on string\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Nutrition/GramsConverter.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\FoodPortion\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Nutrition/GramsConverter.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name_ar" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Nutrition/GramsConverter.php
+
+		-
+			message: '#^Using nullsafe property access on non\-nullable type string\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Nutrition/GramsConverter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$profile\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Nutrition/Plan/NutritionPlans.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:inputs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Nutrition/Plan/NutritionPlans.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Services/Nutrition/Plan/NutritionPlans.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/ProductReviewNotes.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/ProductReviewNotes.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/ProductReviewNotes.php
+
+		-
+			message: '#^Offset ''borrowed'' on array\{nutrient\: array, amount\: float\|null, missing_from\: array\<string\>, borrowed\: array\<string, string\>, computed\: array\<string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Nutrition/RecipeAnalysisResult.php
+
+		-
+			message: '#^Offset ''computed'' on array\{nutrient\: array, amount\: float\|null, missing_from\: array\<string\>, borrowed\: array\<string, string\>, computed\: array\<string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Nutrition/RecipeAnalysisResult.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\FoodSourceRecord\:\:\$source_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/RecipeAnalysisService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$servings\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/RecipeAnalysisService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$weight_after_cooking_g\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/RecipeAnalysisService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$weight_before_cooking_g\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Nutrition/RecipeAnalysisService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:ingredients\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Nutrition/RecipeAnalysisService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany\:\:open\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Nutrition/RecipeAnalysisService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name_ar" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Nutrition/RecipeAnalysisService.php
+
+		-
+			message: '#^Method App\\Services\\Nutrition\\UserProfileService\:\:profileOf\(\) should return App\\Models\\UserProfile but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Nutrition/UserProfileService.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_filter expects array, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Nutrition/UserProfileService.php
+
+		-
+			message: '#^Property App\\Models\\UserProfile\:\:\$health_conditions \(string\|null\) does not accept list\<mixed\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Services/Nutrition/UserProfileService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\:\:\$uses_proxy\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$amount_per_100g\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$food\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_platform\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$method\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nutrient\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nutrition_approved_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$servings\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$weight_after_cooking_g\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Method App\\Services\\Site\\MealCatalog\:\:approved\(\) should return Illuminate\\Support\\Collection\<int, App\\Models\\Product\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: mixed, Closure\(App\\Models\\ProductRecipeIngredient\)\: mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:filter\(\) expects \(callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: bool\)\|null, Closure\(App\\Models\\Product\)\: bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:sortByDesc\(\) expects array\<array\{string, string\}\|\(callable\(Illuminate\\Database\\Eloquent\\Model, Illuminate\\Database\\Eloquent\\Model\)\: mixed\)\|\(callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: mixed\)\|string\>\|\(callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: mixed\)\|string, Closure\(App\\Models\\Product\)\: mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>servings" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>weight_after_cooking_g" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Site/MealCatalog.php
+
+		-
+			message: '#^Template type T of method App\\Services\\Site\\PublicCatalogCache\:\:remember\(\) is not referenced in a parameter\.$#'
+			identifier: method.templateTypeNotInParameter
+			count: 1
+			path: app/Services/Site/PublicCatalogCache.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Brand\:\:\$address\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/RestaurantDirectory.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Brand\:\:\$city\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/RestaurantDirectory.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Brand\:\:\$delivery_note\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/RestaurantDirectory.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Brand\:\:\$facebook_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/RestaurantDirectory.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Brand\:\:\$instagram_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/RestaurantDirectory.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Brand\:\:\$opening_hours\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/RestaurantDirectory.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Brand\:\:\$whatsapp\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Site/RestaurantDirectory.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:markAsRead\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Site/SiteNotifications.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: string, kind\: mixed, title\: mixed, body\: mixed, time\: string, read\: bool, open\: string\}, Closure\(Illuminate\\Notifications\\DatabaseNotification\)\: array\{id\: string, kind\: mixed, title\: mixed, body\: mixed, time\: string, read\: bool, open\: string\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Site/SiteNotifications.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Usda/FdcImporter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name_ar\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Usda/FdcImporter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Usda/FdcImporter.php
+
+		-
+			message: '#^Cannot call method getLabel\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/Usda/FdcImporter.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\NutrientSourceCode\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Usda/FdcImporter.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name_ar" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Usda/FdcImporter.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:nextStep\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/View/Composers/ProfileReminderComposer.php

@@ -14,7 +14,7 @@ final readonly class CriteriaSheet
      * @param  list<string>  $advice  reasons to see a nutritionist
      * @param  list<string>  $allergens  App\Enums\Allergen values to avoid
      * @param  array{name: string, time: ?string, share: float, kcal: int, targets: array<string, float>}|null  $meal
-     *         the nutritionist's plan lunch that restaurant dishes are judged against (else meal_share of the day)
+     *                                                                                                                 the nutritionist's plan lunch that restaurant dishes are judged against (else meal_share of the day)
      */
     public function __construct(
         public array $criteria,

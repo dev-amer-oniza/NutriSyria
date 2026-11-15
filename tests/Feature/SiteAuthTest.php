@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Auth\Access;
 use App\Enums\AuthCodePurpose;
+use App\Filament\Clusters\AccessControl\Resources\Users\Pages\ListUsers;
 use App\Http\Controllers\Site\Auth\EmailVerificationController;
 use App\Http\Controllers\Site\Auth\PasswordResetController;
 use App\Models\AuthCode;
@@ -14,6 +15,8 @@ use App\Services\Auth\RoleRequestService;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Testing\TestResponse;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class SiteAuthTest extends TestCase
@@ -27,7 +30,7 @@ class SiteAuthTest extends TestCase
         Notification::fake();
     }
 
-    private function register(array $overrides = []): \Illuminate\Testing\TestResponse
+    private function register(array $overrides = []): TestResponse
     {
         return $this->post('/register', $overrides + [
             'account_type' => 'member',
@@ -272,7 +275,7 @@ class SiteAuthTest extends TestCase
 
         $this->signInAs(Access::SUPER_ADMIN);
 
-        \Livewire\Livewire::test(\App\Filament\Clusters\AccessControl\Resources\Users\Pages\ListUsers::class)
+        Livewire::test(ListUsers::class)
             ->assertCanSeeTableRecords([$applicant])
             ->callTableAction('approveRole', $applicant);
 

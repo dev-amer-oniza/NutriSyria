@@ -29,7 +29,7 @@ class BundleValidatorTest extends TestCase
 
     private function lookups(): Lookups
     {
-        $l = new Lookups();
+        $l = new Lookups;
         $l->dataSources = ['usda_fdc_sr_legacy' => 1];
         $l->forms = ['raw' => 1, 'boiled' => 2];
         foreach ([

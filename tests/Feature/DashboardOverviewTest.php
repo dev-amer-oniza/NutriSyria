@@ -8,11 +8,8 @@ use App\Models\DataSource;
 use App\Models\Food;
 use App\Models\FoodSourceRecord;
 use App\Models\ImportBatch;
-use App\Models\User;
 use App\Services\Dashboard\DatabaseOverview;
-use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -52,12 +49,12 @@ class DashboardOverviewTest extends TestCase
         $this->assertSame([
             'approved_foods' => 2, 'review_foods' => 2, 'records' => 6,
             'approved_records' => 3, 'review_records' => 2, 'rejected_records' => 1,
-        ], (new DatabaseOverview())->foods());
+        ], (new DatabaseOverview)->foods());
     }
 
     public function test_sources_with_records_only_best_priority_first(): void
     {
-        $sources = (new DatabaseOverview())->sources();
+        $sources = (new DatabaseOverview)->sources();
 
         $this->assertSame(['USDA Foundation', 'USDA SR Legacy'], array_column($sources, 'name'));
         $this->assertSame([1, 0, 0], [$sources[0]['approved'], $sources[0]['review'], $sources[0]['rejected']]);
@@ -66,7 +63,7 @@ class DashboardOverviewTest extends TestCase
 
     public function test_batches(): void
     {
-        $batches = (new DatabaseOverview())->batches();
+        $batches = (new DatabaseOverview)->batches();
 
         $this->assertSame([1, 1, 1], [$batches['committed'], $batches['unfinished'], $batches['failed']]);
         $this->assertStringStartsWith('2026-10-17', $batches['last_committed_at']);

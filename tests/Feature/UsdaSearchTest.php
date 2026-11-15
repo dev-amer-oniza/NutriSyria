@@ -14,7 +14,9 @@ use App\Models\MeasureUnit;
 use App\Models\MeasureUnitAlias;
 use App\Models\Nutrient;
 use App\Models\NutrientSourceCode;
+use App\Services\Usda\FdcImporter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Factory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
@@ -143,7 +145,7 @@ class UsdaSearchTest extends TestCase
             ->mountAction('details', ['fdcId' => 173757])
             ->assertActionMounted('details');
 
-        $preview = app(\App\Services\Usda\FdcImporter::class)->preview(173757);
+        $preview = app(FdcImporter::class)->preview(173757);
         $this->assertSame(['name' => 'الطاقة', 'amount' => 164.0, 'unit' => 'kcal'], collect($preview['values'])->firstWhere('name', 'الطاقة'));
         $this->view('filament.clusters.import-review.components.usda-food', $preview + ['error' => null])
             ->assertSee('البروتين')->assertSee('8.86')->assertSee('الحصص (3)')->assertSee('164 g');
@@ -158,7 +160,7 @@ class UsdaSearchTest extends TestCase
             ->set('query', 'lentils')->call('search')->assertSee('أضف FDC_API_KEY');
 
         config(['services.fdc.key' => 'test-key']);
-        Http::swap(new \Illuminate\Http\Client\Factory);
+        Http::swap(new Factory);
         Http::fake(['*' => Http::response(['error' => ['code' => 'OVER_RATE_LIMIT']], 429)]);
         Livewire::test(UsdaSearch::class)->set('query', 'lentils')->call('search')->assertSee('تجاوزنا حد الطلبات');
     }

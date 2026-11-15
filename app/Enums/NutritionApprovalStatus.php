@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
  * Read from a product loaded through withApprovalData(). "Changed" catches an ingredient added
  * or edited after the approval; a removed ingredient leaves no trace and is not detected.
  */
-enum NutritionApprovalStatus: string implements HasLabel, HasColor, HasIcon
+enum NutritionApprovalStatus: string implements HasColor, HasIcon, HasLabel
 {
     case NoRecipe = 'no_recipe';
     case ChangesRequested = 'changes_requested';

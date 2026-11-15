@@ -10,13 +10,40 @@ trait FoodDataPolicy
 {
     use DeniesByDefault;
 
-    public function viewAny(User $user): bool { return $this->canRead($user); }
-    public function view(User $user, mixed $record): bool { return $this->canRead($user); }
-    public function create(User $user): bool { return $user->allows(Access::FOODS_MANAGE); }
-    public function update(User $user, mixed $record): bool { return $user->allows(Access::FOODS_MANAGE); }
-    public function delete(User $user, mixed $record): bool { return $user->allows(Access::FOODS_MANAGE); }
-    public function deleteAny(User $user): bool { return $user->allows(Access::FOODS_MANAGE); }
-    public function reorder(User $user): bool { return $user->allows(Access::FOODS_MANAGE); }
+    public function viewAny(User $user): bool
+    {
+        return $this->canRead($user);
+    }
+
+    public function view(User $user, mixed $record): bool
+    {
+        return $this->canRead($user);
+    }
+
+    public function create(User $user): bool
+    {
+        return $user->allows(Access::FOODS_MANAGE);
+    }
+
+    public function update(User $user, mixed $record): bool
+    {
+        return $user->allows(Access::FOODS_MANAGE);
+    }
+
+    public function delete(User $user, mixed $record): bool
+    {
+        return $user->allows(Access::FOODS_MANAGE);
+    }
+
+    public function deleteAny(User $user): bool
+    {
+        return $user->allows(Access::FOODS_MANAGE);
+    }
+
+    public function reorder(User $user): bool
+    {
+        return $user->allows(Access::FOODS_MANAGE);
+    }
 
     protected function canRead(User $user): bool
     {
