@@ -7,7 +7,7 @@
         <div class="ns-wrap ns-restaurant">
             <header class="ns-restaurant__head">
                 <span class="ns-restaurant__logo">
-                    <img src="{{ asset('images/site/kitchen-cover.svg') }}" alt="" loading="lazy">
+                    <img src="{{ $logo }}" alt="{{ $kitchen->logo ? 'شعار المطبخ السوري' : '' }}" loading="lazy">
                 </span>
                 <div>
                     <p class="ns-eyebrow">من المنصة</p>
