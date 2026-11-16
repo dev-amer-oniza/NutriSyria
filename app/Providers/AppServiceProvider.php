@@ -78,5 +78,8 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('auth-forms', fn (Request $request) => Limit::perMinute(10)->by($request->ip())->response($tooMany));
         RateLimiter::for('auth-codes', fn (Request $request) => Limit::perMinute(3)->by($request->ip())->response($tooMany));
+        // "اطبخها على طريقتك": each analysis runs the full calculation, so a visitor gets 20 a minute.
+        RateLimiter::for('recipe-analyze', fn (Request $request) => Limit::perMinute(20)->by($request->user()?->id ?: $request->ip())
+            ->response(fn () => response()->json(['message' => 'حلّلت كثيراً خلال دقيقة. انتظر قليلاً ثم حاول.'], 429)));
     }
 }

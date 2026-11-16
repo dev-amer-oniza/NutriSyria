@@ -80,6 +80,8 @@ class CustomRecipeAnalyzer
         $records = FoodSourceRecord::with('food:id,name_ar,allergens,allergens_checked')
             ->whereKey($ids)
             ->where('status', FoodSourceStatus::Active)
+            // A dish's own values (type "recipe") are never an ingredient (KitchenIngredientCatalog).
+            ->whereHas('dataSource', fn ($q) => $q->where('is_active', true)->where('type', '!=', 'recipe'))
             ->get()
             ->keyBy('id');
 
