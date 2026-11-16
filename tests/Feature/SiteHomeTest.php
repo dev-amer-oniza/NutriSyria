@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use App\Support\Site\ChainPatterns;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -58,5 +59,13 @@ class SiteHomeTest extends TestCase
     {
         $this->assertSame(ChainPatterns::dishCover('mujaddara'), ChainPatterns::dishCover('mujaddara'));
         $this->assertMatchesRegularExpression('/^dish-[1-4]$/', ChainPatterns::dishCover(42));
+    }
+
+    public function test_the_phone_menu_carries_the_account_links(): void
+    {
+        $this->get('/')->assertOk()->assertSeeInOrder(['ns-drawer__account', 'تسجيل الدخول', 'أنشئ حسابك']);
+
+        $this->actingAs(User::factory()->create(['name' => 'سارة']));
+        $this->get('/')->assertOk()->assertSeeInOrder(['ns-drawer__account', 'معاييري (سارة)', 'خروج']);
     }
 }

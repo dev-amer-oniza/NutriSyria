@@ -1,11 +1,36 @@
 /* "اطبخها على طريقتك": a kitchen dish's recipe, changed by the visitor (pages/kitchen-recipe). */
 @layer components {
-    .ns-meal__mine { justify-self: start; }
+    /* The invitation on a kitchen dish's page. */
+    .ns-cook { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); padding: var(--space-5); background: var(--pine-soft); border-radius: var(--radius-lg); }
+    .ns-cook__icon { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--pine); color: var(--surface-raised); }
+    .ns-cook__body { flex: 1 1 260px; min-width: 0; }
+    .ns-cook__title { margin: 0; font-size: 20px; line-height: 30px; font-weight: 700; color: var(--pine); }
+    .ns-cook__text { margin: var(--space-1) 0 0; font-size: 15px; line-height: 24px; color: var(--ink); }
+    .ns-cook__go { flex: none; }
+    @media (max-width: 640px) { .ns-cook__go { width: 100%; justify-content: center; } }
     .ns-meal__mine-note { margin: calc(var(--space-2) * -1) 0 0; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--terracotta-ink); }
 
     .ns-mine-page { display: grid; gap: var(--space-6); max-width: 960px; }
     .ns-mine-page__head .t-title { margin: var(--space-2) 0; }
     .ns-mine-form { display: grid; gap: var(--space-5); }
+
+    /* The three steps, said once at the top and repeated as numbered blocks. */
+    .ns-mine-steps { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin: var(--space-4) 0 0; padding: 0; list-style: none; font-size: 14px; line-height: 22px; color: var(--ink); }
+    .ns-mine-steps li { display: inline-flex; align-items: center; gap: var(--space-2); }
+    .ns-mine-steps .ns-num, .ns-mine-block__title .ns-num {
+        flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+        background: var(--terracotta-soft); color: var(--terracotta-ink); font-size: 13px; font-weight: 700;
+    }
+    .ns-mine-block { display: grid; gap: var(--space-3); padding: var(--space-5); background: var(--sand); border-radius: var(--radius-lg); }
+    .ns-mine-block__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2) var(--space-4); }
+    .ns-mine-block__title { display: inline-flex; align-items: center; gap: var(--space-2); margin: 0; font-size: 20px; line-height: 30px; font-weight: 700; color: var(--pine); }
+    .ns-mine-block__meta { margin: 0; font-size: 14px; font-weight: 600; color: var(--ink-muted); }
+    .ns-mine-add { justify-self: start; }
+    .ns-mine-form__totals { align-items: start; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 640px) { .ns-mine-form__totals { grid-template-columns: minmax(0, 1fr); } }
+    .ns-mine-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+    .ns-mine-actions .ns-btn--primary .ns-num { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-inline-end: var(--space-1); border-radius: 50%; background: color-mix(in srgb, #fff 22%, transparent); font-size: 12px; }
+    .ns-mine__title { margin: 0; color: var(--pine); }
     .ns-mine-lines { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
     .ns-mine-line {
         display: grid; gap: var(--space-3); align-items: end;
@@ -14,7 +39,9 @@
     }
     .ns-mine-line .ns-input { height: 46px; }
     .ns-mine-line__food { position: relative; }
+    .ns-mine-line__foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-4); padding-top: var(--space-3); border-top: 1px dashed var(--line); }
     .ns-mine-line__after { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 14px; }
+    .ns-mine-line__after small { color: var(--ink-muted); }
     .ns-mine-line__grams { margin: 0; font-size: 14px; font-weight: 600; color: var(--pine); }
     .ns-mine-line__remove { justify-self: end; border: 0; background: none; color: var(--terracotta-ink); font: inherit; font-size: 14px; cursor: pointer; text-decoration: underline; }
     .ns-mine-results {
@@ -39,6 +66,21 @@
 
     @media (max-width: 760px) {
         .ns-mine-line { grid-template-columns: 1fr 1fr; }
-        .ns-mine-line__food { grid-column: 1 / -1; }
+        .ns-mine-line__food, .ns-mine-line__size { grid-column: 1 / -1; }
+    }
+    /* A phone: the line stacks, and the calculate button stays at hand at the bottom of the screen. */
+    @media (max-width: 640px) {
+        .ns-mine-block { padding: var(--space-4) var(--space-3); }
+        .ns-mine-line { padding: var(--space-3); }
+        .ns-mine-line__foot { flex-direction: column; align-items: flex-start; }
+        .ns-mine-line__remove { justify-self: auto; }
+        .ns-mine-add { justify-self: stretch; justify-content: center; }
+        .ns-mine-actions {
+            position: sticky; bottom: 0; z-index: 5; margin-inline: calc(var(--space-4) * -1); padding: var(--space-3) var(--space-4);
+            background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(8px); border-top: 1px solid var(--line);
+        }
+        .ns-mine-actions { flex-wrap: nowrap; }
+        .ns-mine-actions .ns-btn--primary { flex: 1 1 auto; }
+        .ns-mine-actions .ns-btn--ghost { flex: none; padding-inline: var(--space-3); }
     }
 }

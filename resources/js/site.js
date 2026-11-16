@@ -288,6 +288,11 @@ Alpine.data('customRecipe', (config) => ({
         return grams === null ? 'اكتب الكمية' : '= ' + Math.round(grams * 10) / 10 + ' غرام';
     },
 
+    totalText() {
+        const total = this.lines.reduce((sum, line) => sum + (this.grams(line) ?? 0), 0);
+        return 'المجموع ' + Math.round(total) + ' غرام';
+    },
+
     add() {
         if (this.lines.length < this.maxLines) this.lines.push(this.line({ amount: 1 }));
     },

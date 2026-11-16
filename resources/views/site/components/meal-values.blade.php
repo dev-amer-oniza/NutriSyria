@@ -24,7 +24,18 @@
         <p class="ns-meal__mine-note">{{ $note }}</p>
     @endisset
     @if ($meal->withBread)
-        <p class="ns-meal__bread">الأرقام للصحن وحده، بلا خبز أو مرافقات: الخبز يزيد السعرات والكربوهيدرات.</p>
+        @php $loaf = app(\App\Services\Site\BreadReference::class)->loaf(); @endphp
+        <div class="ns-bread" role="note">
+            <span class="ns-bread__icon">@include('site.partials.icon', ['name' => 'bread'])</span>
+            <div>
+                <p class="ns-bread__title">تؤكل عادةً مع الخبز، والأرقام هنا للصحن وحده</p>
+                @if ($loaf)
+                    <p class="ns-bread__text">كل رغيف خبز عربي (نحو <span class="ns-num">{{ $loaf['grams'] }}</span> غ) يضيف تقريباً <strong><span class="ns-num">{{ $loaf['kcal'] }}</span> سعرة</strong> و<strong><span class="ns-num">{{ $loaf['carbs'] }}</span> غ كربوهيدرات</strong>.</p>
+                @else
+                    <p class="ns-bread__text">الخبز والمرافقات تزيد السعرات والكربوهيدرات، فاحسبها فوق هذه الأرقام.</p>
+                @endif
+            </div>
+        </div>
     @endif
     <div class="ns-energy__fig">
         <span class="ns-num t-figure-xl">{{ $value('energy_kcal') }}</span>

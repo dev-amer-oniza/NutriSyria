@@ -14,6 +14,7 @@
 @endphp
 
 <div class="ns-mine">
+    <h2 class="t-heading ns-mine__title">نتيجة طبختك</h2>
     @if ($result->unconverted)
         <div class="ns-mine__warn" role="alert">
             <p>لم نستطع حساب وزن هذه المكوّنات، فلم تدخل في الأرقام:</p>

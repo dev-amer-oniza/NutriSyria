@@ -1,6 +1,12 @@
 {{-- Line icons, 24px grid, stroke 1.6. Params: $name, $size ('sm' optional). --}}
 <svg @class(['ns-icon', 'ns-icon--sm' => ($size ?? null) === 'sm']) viewBox="0 0 24 24" aria-hidden="true">
     @switch($name)
+        @case('bread')
+            <path d="M5 11.5a3.5 3.5 0 0 1 1-6.9h12a3.5 3.5 0 0 1 1 6.9V19a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1Z"/><path d="M9 11v5M12 10v6M15 11v5"/>
+            @break
+        @case('pot')
+            <path d="M4 10h16v7a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3Z"/><path d="M2.5 10h19"/><path d="M9 6.5c0-1 .8-1 .8-2M12 6.5c0-1 .8-1 .8-2M15 6.5c0-1 .8-1 .8-2"/>
+            @break
         @case('search')
             <circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4 20 20"/>
             @break

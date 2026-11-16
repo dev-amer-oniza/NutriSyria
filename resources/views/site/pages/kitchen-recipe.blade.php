@@ -14,13 +14,23 @@
              ]))">
             <a class="ns-link" href="{{ route('site.meals.show', $meal->id) }}">{{ $meal->name }}</a>
             <header class="ns-mine-page__head">
-                <p class="ns-eyebrow">المطبخ السوري</p>
-                <h1 class="t-title">اطبخها على طريقتك: {{ $meal->name }}</h1>
-                <p class="t-body ns-muted">هذه وصفتنا. غيّر المقادير والمكوّنات وعدد الحصص كما تطبخها في بيتك، ثم اضغط «حلّل». لا نحفظ شيئاً منها: تبقى في هذا التبويب فقط.</p>
+                <p class="ns-eyebrow">المطبخ السوري · اطبخها على طريقتك</p>
+                <h1 class="t-title">{{ $meal->name }} على طريقتك</h1>
+                <p class="t-body ns-muted">بدأنا لك بوصفتنا. غيّرها كما تطبخها في بيتك، ونحسب لك قيم طبختك أنت. لا نحفظ شيئاً: تبقى تعديلاتك في هذا التبويب فقط.</p>
+                <ol class="ns-mine-steps">
+                    <li><span class="ns-num">1</span> عدّل المكوّنات والكميات، أو أضف واحذف</li>
+                    <li><span class="ns-num">2</span> اكتب عدد الحصص، ووزن الطبخة إن وزنتها</li>
+                    <li><span class="ns-num">3</span> اضغط «احسب قيم طبختي»</li>
+                </ol>
             </header>
 
             <form class="ns-mine-form" @submit.prevent="analyze" novalidate>
                 @csrf
+                <section class="ns-mine-block" aria-labelledby="mine-ingredients">
+                <div class="ns-mine-block__head">
+                    <h2 class="ns-mine-block__title" id="mine-ingredients"><span class="ns-num">1</span> المكوّنات</h2>
+                    <p class="ns-mine-block__meta" x-text="lines.length + ' مكوّن · ' + totalText()"></p>
+                </div>
                 <p class="ns-field__hint" x-show="loading">نحضّر قائمة المكوّنات…</p>
 
                 <ol class="ns-mine-lines">
@@ -71,19 +81,25 @@
                                 </select>
                             </div>
 
-                            <label class="ns-mine-line__after">
-                                <input type="checkbox" x-model="line.after">
-                                <span>يُضاف بعد الطبخ</span>
-                            </label>
-
-                            <p class="ns-mine-line__grams" x-text="gramsText(line)"></p>
-                            <button type="button" class="ns-mine-line__remove" @click="remove(i)" :aria-label="'احذف ' + label(line.record_id)">حذف</button>
+                            <div class="ns-mine-line__foot">
+                                <label class="ns-mine-line__after">
+                                    <input type="checkbox" x-model="line.after">
+                                    <span>يُضاف بعد الطبخ <small>(كزيت على الوجه أو بقدونس للتزيين)</small></span>
+                                </label>
+                                <p class="ns-mine-line__grams" x-text="gramsText(line)"></p>
+                                <button type="button" class="ns-mine-line__remove" @click="remove(i)" :aria-label="'احذف ' + label(line.record_id)">احذف المكوّن</button>
+                            </div>
                         </li>
                     </template>
                 </ol>
 
-                <button type="button" class="ns-btn ns-btn--ghost" @click="add()" :disabled="lines.length >= maxLines">أضف مكوّناً</button>
+                <button type="button" class="ns-btn ns-btn--ghost ns-mine-add" @click="add()" :disabled="lines.length >= maxLines">+ أضف مكوّناً</button>
+                </section>
 
+                <section class="ns-mine-block" aria-labelledby="mine-servings">
+                <div class="ns-mine-block__head">
+                    <h2 class="ns-mine-block__title" id="mine-servings"><span class="ns-num">2</span> الحصص والوزن</h2>
+                </div>
                 <div class="ns-form__cols ns-mine-form__totals">
                     <div class="ns-field">
                         <label class="ns-field__label" for="servings">عدد الحصص</label>
@@ -95,12 +111,13 @@
                         <p class="ns-field__hint">إن تركته فارغاً قدّرناه بنسبة ما تخسره وصفتنا في الطبخ.</p>
                     </div>
                 </div>
+                </section>
 
                 <p class="ns-mine-form__error" role="alert" x-show="error" x-text="error"></p>
 
-                <div class="ns-book__actions">
+                <div class="ns-mine-actions">
                     <button type="submit" class="ns-btn ns-btn--primary" :disabled="busy || loading">
-                        <span x-show="!busy">حلّل</span><span x-show="busy">نحلّل…</span>
+                        <span x-show="!busy"><span class="ns-num">3</span> احسب قيم طبختي</span><span x-show="busy">نحسب…</span>
                     </button>
                     <button type="button" class="ns-btn ns-btn--ghost" @click="reset()">ارجع لوصفتنا</button>
                 </div>
