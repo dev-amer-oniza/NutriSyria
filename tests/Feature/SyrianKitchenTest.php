@@ -6,6 +6,7 @@ use App\Auth\Access;
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\ListProducts;
 use App\Filament\Clusters\Kitchen\Pages\KitchenRecipeAnalysis;
+use App\Filament\Clusters\Kitchen\Pages\KitchenSettings;
 use App\Filament\Clusters\Kitchen\Resources\Categories\KitchenCategoryResource;
 use App\Filament\Clusters\Kitchen\Resources\Categories\Pages\ManageKitchenCategories;
 use App\Filament\Clusters\Kitchen\Resources\Dishes\KitchenDishResource;
@@ -17,6 +18,8 @@ use App\Services\Site\RestaurantDirectory;
 use Filament\Actions\CreateAction;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\Concerns\MealFixtures;
 use Tests\TestCase;
@@ -136,5 +139,41 @@ class SyrianKitchenTest extends TestCase
         $this->get(route('site.meals.show', $dish))->assertOk()
             ->assertSee('محسوبة من مكوّنات موثّقة المصدر وفق كمياتها في الوصفة.')
             ->assertDontSee('وراجعها أخصائي تغذية');
+    }
+
+    public function test_the_admin_sets_the_kitchens_logo_and_description_for_the_site(): void
+    {
+        Storage::fake('public');
+        $this->signInAs();
+
+        // Before: the kitchen's own drawing and the default line.
+        $this->get(route('site.kitchen'))->assertOk()
+            ->assertSee('images/site/kitchen-cover.svg', false)
+            ->assertSee('أكلات البيت السوري بقيمها الغذائية');
+
+        $this->get(KitchenSettings::getUrl())->assertOk()->assertSee('معلومات المطبخ');
+        Livewire::test(KitchenSettings::class)
+            ->set('data.logo', UploadedFile::fake()->image('logo.png'))
+            ->set('data.description', 'طبخات أمهاتنا، بأرقام تعرف مصدرها.')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertNotified('حُفظت معلومات المطبخ، وظهرت في الموقع.');
+
+        $kitchen = $this->kitchen->fresh();
+        $this->assertSame('المطبخ السوري', $kitchen->name);
+        $this->assertNotNull($kitchen->logo);
+        Storage::disk('public')->assertExists($kitchen->logo);
+
+        // The site shows them at once (a Brand save renews the cache).
+        $this->get(route('site.kitchen'))->assertOk()
+            ->assertSee(Storage::disk('public')->url($kitchen->logo), false)
+            ->assertSee('طبخات أمهاتنا، بأرقام تعرف مصدرها.')
+            ->assertDontSee('images/site/kitchen-cover.svg', false);
+    }
+
+    public function test_only_the_admin_opens_the_kitchen_settings(): void
+    {
+        $this->signInAs(Access::BRAND_OWNER);
+        $this->get(KitchenSettings::getUrl())->assertForbidden();
     }
 }
