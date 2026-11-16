@@ -16,8 +16,9 @@
     /* Mobile menu: the same nav items, opened by the menu button. */
     .ns-drawer { border-top: 1px solid var(--line); background: var(--surface-raised); }
     .ns-drawer nav { display: flex; flex-direction: column; padding: var(--space-3) var(--space-4) var(--space-5); }
-    .ns-drawer a { padding: var(--space-3) var(--space-2); font-size: 16px; line-height: 24px; color: var(--ink); text-decoration: none; border-radius: var(--radius-sm); }
-    .ns-drawer a[aria-current="page"] { color: var(--pine); font-weight: 600; }
+    .ns-drawer nav a, .ns-drawer__account > a:not(.ns-btn) { padding: var(--space-3) var(--space-2); font-size: 16px; line-height: 24px; color: var(--ink); text-decoration: none; border-radius: var(--radius-sm); }
+    .ns-drawer nav a[aria-current="page"] { color: var(--pine); font-weight: 600; }
+    .ns-drawer__account { display: none; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-4); border-top: 1px solid var(--line); }
 
     /* ---------- Sections ---------- */
     .ns-section { padding: var(--space-10) 0; }
@@ -57,6 +58,13 @@
         .ns-section__head { flex-direction: column; align-items: flex-start; }
         .ns-foot__top { grid-template-columns: 1fr; }
         .ns-foot__base { flex-direction: column; }
+        .ns-drawer__account { display: flex; }
+    }
+    /* A narrow phone: logo, search, bell and menu only; the account buttons move to the menu. */
+    @media (max-width: 480px) {
+        .ns-header__wide { display: none; }
+        .ns-header__in { gap: var(--space-2); }
+        .ns-header__in .ns-logo { font-size: 22px; }
     }
 }
 
@@ -65,6 +73,10 @@
     .ns-soon { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); min-height: 50vh; }
     .ns-soon h1 { margin: 0 0 var(--space-3); }
     .ns-soon .t-lead { margin: 0 0 var(--space-6); max-width: 560px; }
+    @media (max-width: 640px) {
+        .ns-soon { flex-direction: column; align-items: flex-start; min-height: 0; }
+        .ns-soon > div { min-width: 0; }
+    }
 }
 
 @layer components {

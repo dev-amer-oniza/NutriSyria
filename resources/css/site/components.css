@@ -20,6 +20,10 @@
     .ns-btn--secondary { border-color: var(--pine); color: var(--pine); }
     .ns-btn--secondary:hover { background: var(--pine-soft); }
     .ns-btn--ghost:hover { background: var(--sand); }
+    /* A phone: a long label wraps inside its button instead of pushing past the screen. */
+    @media (max-width: 640px) {
+        .ns-btn:not(.ns-btn--icon):not(.ns-btn--sm) { max-width: 100%; height: auto; min-height: 48px; padding-block: var(--space-2); white-space: normal; text-align: center; }
+    }
     .ns-btn--on-pine { background: var(--on-pine); color: var(--pine); }
     .ns-btn--on-pine:hover { background: var(--sand); }
     .ns-btn--on-pine:focus-visible { box-shadow: var(--focus-ring-on-pine); }

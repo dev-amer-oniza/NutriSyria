@@ -33,7 +33,14 @@
 
                 @include('site.components.meal-values', ['meal' => $meal])
                 @if ($meal->platform)
-                    <a class="ns-btn ns-btn--ghost ns-meal__mine" href="{{ route('site.kitchen.recipe', $meal->id) }}">اطبخها على طريقتك: غيّر المقادير واعرف قيمها</a>
+                    <aside class="ns-cook" aria-labelledby="cook-title">
+                        <span class="ns-cook__icon">@include('site.partials.icon', ['name' => 'pot'])</span>
+                        <div class="ns-cook__body">
+                            <h2 class="ns-cook__title" id="cook-title">اطبخها على طريقتك</h2>
+                            <p class="ns-cook__text">بتطبخها بغير مقادير؟ زيت أقل، بندورة مطبوخة، أو حصص أكثر؟ افتح الوصفة، عدّلها كما تطبخها في بيتك، ونحسب لك قيم طبختك أنت ومدى مناسبتها لك.</p>
+                        </div>
+                        <a class="ns-btn ns-btn--primary ns-cook__go" href="{{ route('site.kitchen.recipe', $meal->id) }}">افتح الوصفة وعدّلها</a>
+                    </aside>
                 @endif
 
                 @if ($meal->ingredients)
