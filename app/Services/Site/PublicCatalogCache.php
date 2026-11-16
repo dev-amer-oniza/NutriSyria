@@ -16,13 +16,19 @@ class PublicCatalogCache
 {
     private const VERSION_KEY = 'site.catalog.version';
 
+    /**
+     * Raise it whenever a cached object changes shape (a new MealFacts field): entries cached
+     * by the old code are then never read back, where a missing readonly property would fail.
+     */
+    private const SHAPE = 2;
+
     /** Old versions are left to expire after this long. */
     private const TTL_SECONDS = 86400;
 
     /** @template T @param Closure(): T $build @return T */
     public function remember(string $name, Closure $build): mixed
     {
-        return Cache::remember("site.catalog.{$this->version()}.{$name}", self::TTL_SECONDS, $build);
+        return Cache::remember('site.catalog.v'.self::SHAPE.".{$this->version()}.{$name}", self::TTL_SECONDS, $build);
     }
 
     /** Called whenever public data changes. */

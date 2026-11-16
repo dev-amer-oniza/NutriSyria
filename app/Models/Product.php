@@ -11,11 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Product extends Model
 {
-    protected $fillable = ['brand_id', 'category_id', 'name', 'img', 'description', 'is_active'];
+    protected $fillable = ['brand_id', 'category_id', 'name', 'img', 'description', 'is_active', 'eaten_with_bread'];
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
+        return ['is_active' => 'boolean', 'eaten_with_bread' => 'boolean'];
     }
 
     public function brand(): BelongsTo

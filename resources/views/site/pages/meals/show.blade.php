@@ -45,6 +45,9 @@
                             القيم لكل <span class="ns-num">100</span> غ <small class="ns-muted">(لا نعرف وزن الحصة بعد)</small>
                         @endif
                     </h2>
+                    @if ($meal->withBread)
+                        <p class="ns-meal__bread">الأرقام للصحن وحده، بلا خبز أو مرافقات: الخبز يزيد السعرات والكربوهيدرات.</p>
+                    @endif
                     <div class="ns-energy__fig">
                         <span class="ns-num t-figure-xl">{{ $value('energy_kcal') }}</span>
                         <span class="ns-energy__unit">سعرة حرارية</span>

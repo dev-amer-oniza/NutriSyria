@@ -6,6 +6,7 @@ use App\Data\Nutrition\CriteriaSheet;
 use App\Data\Nutrition\CriterionValue;
 use App\Enums\CriterionSource;
 use App\Enums\EnergyEquation;
+use App\Enums\HealthCondition;
 use App\Enums\Sex;
 use InvalidArgumentException;
 
@@ -78,6 +79,10 @@ final class CriteriaCalculator
             ],
             advice: array_values(array_unique(array_filter(array_column($sources, 'see_nutritionist')))),
             allergens: array_values(array_unique([...($profile['allergens'] ?? []), ...array_merge(...array_map(fn ($s) => $s['allergens'] ?? [], $sources))])),
+            sensitiveDigestion: array_filter(
+                $profile['conditions'] ?? [],
+                fn ($c) => HealthCondition::tryFrom((string) $c)?->feelsLegumeFibre() ?? false,
+            ) !== [],
         );
     }
 

@@ -24,6 +24,8 @@ final readonly class CriteriaSheet
         public array $advice = [],
         public array $allergens = [],
         public ?array $meal = null,
+        /** A condition whose digestion may suffer from much legume fibre at once (HealthCondition::feelsLegumeFibre). */
+        public bool $sensitiveDigestion = false,
     ) {}
 
     public function get(string $key): ?CriterionValue
@@ -34,18 +36,18 @@ final readonly class CriteriaSheet
     /** The note left with the chosen template (the nutritionist's "why"). */
     public function withTemplateNote(string $note): self
     {
-        return new self($this->criteria, $this->energy, $this->mealShare, [...$this->template, 'note' => $note], $this->advice, $this->allergens, $this->meal);
+        return new self($this->criteria, $this->energy, $this->mealShare, [...$this->template, 'note' => $note], $this->advice, $this->allergens, $this->meal, $this->sensitiveDigestion);
     }
 
     public function with(CriterionValue $value): self
     {
-        return new self([...$this->criteria, $value->key => $value], $this->energy, $this->mealShare, $this->template, $this->advice, $this->allergens, $this->meal);
+        return new self([...$this->criteria, $value->key => $value], $this->energy, $this->mealShare, $this->template, $this->advice, $this->allergens, $this->meal, $this->sensitiveDigestion);
     }
 
     /** One restaurant dish is compared with this meal from the nutritionist's plan (phase 3, 1a). */
     public function withMeal(array $meal): self
     {
-        return new self($this->criteria, $this->energy, $meal['share'], $this->template, $this->advice, $this->allergens, $meal);
+        return new self($this->criteria, $this->energy, $meal['share'], $this->template, $this->advice, $this->allergens, $meal, $this->sensitiveDigestion);
     }
 
     /**

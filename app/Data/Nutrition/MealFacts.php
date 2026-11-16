@@ -33,6 +33,8 @@ final readonly class MealFacts
         public ?int $categoryId = null,
         /** A dish of the platform's own kitchen ("المطبخ السوري"), approved with no review. */
         public bool $platform = false,
+        /** Usually eaten with bread: its values are for the plate alone (4b). */
+        public bool $withBread = false,
     ) {}
 
     /** The grams the values describe. */

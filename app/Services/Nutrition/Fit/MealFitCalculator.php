@@ -30,7 +30,7 @@ class MealFitCalculator
     /** Below this share of the serving, a smaller portion is not offered. */
     private const MIN_PORTION_SHARE = 0.4;
 
-    /** @param  array{fit_tolerance: array{suits: int, moderate: int, unfit: int}, fit_target_limits: list<string>}  $rules  config('nutrition_criteria') */
+    /** @param  array{fit_tolerance: array{suits: int, moderate: int, unfit: int}, fit_target_limits: list<string>, fit_near_pct?: int, legume_fibre?: array{min_fiber_g: float, foods: list<string>}}  $rules  config('nutrition_criteria') */
     public function __construct(private readonly array $rules) {}
 
     public function judge(CriteriaSheet $sheet, MealFacts $meal): MealFit
@@ -87,6 +87,7 @@ class MealFitCalculator
         }
 
         $notes = [
+            ...$this->legumeNote($sheet, $meal),
             ...array_map(fn (array $u) => $this->underNote($sheet, ...$u), $unders),
             ...($missing ? ['لا تتوفر قيمة '.implode(' و', array_unique($missing)).' لهذه الوجبة، فلم تدخل في التقييم.'] : []),
         ];
@@ -125,6 +126,14 @@ class MealFitCalculator
     {
         $share = $criterion->scope === 'meal' ? 'حدّك للوجبة' : ($sheet->meal ? 'غداؤك في خطتك' : 'حصة وجبة من احتياجك');
 
+        // Just over (15.1 g against 15 g): "within", not "1% more" between two equal-looking numbers.
+        if ($over < ($this->rules['fit_near_pct'] ?? 0)) {
+            $within = $criterion->scope === 'meal' ? 'حدّك للوجبة' : ($sheet->meal ? 'غدائك في خطتك' : 'حصة وجبة من احتياجك');
+
+            return sprintf('%s فيها %s %s، أي بحدود %s (%s %s).',
+                $criterion->label, self::number($amount), $criterion->unit, $within, self::number($limit), $criterion->unit);
+        }
+
         return sprintf('%s فيها %s %s، و%s %s %s، أي أكثر بـ%d%%.',
             $criterion->label, self::number($amount), $criterion->unit,
             $share, self::number($limit), $criterion->unit, (int) round($over));
@@ -146,6 +155,19 @@ class MealFitCalculator
         return $kcal !== null && $day
             ? sprintf('سعراتها %s، أي %d%% من احتياجك اليومي، %s، وكل حدودك محترمة.', self::number($kcal), (int) round($kcal / $day * 100), $within)
             : 'كل حدودك محترمة في هذه الوجبة.';
+    }
+
+    /** @return list<string> the legume fibre note, for a sensitive digestion only (2a) */
+    private function legumeNote(CriteriaSheet $sheet, MealFacts $meal): array
+    {
+        $rule = $this->rules['legume_fibre'] ?? null;
+        $fiber = $meal->amount('fiber_g');
+        if (! $rule || ! $sheet->sensitiveDigestion || $fiber === null || $fiber < $rule['min_fiber_g']
+            || array_intersect($meal->ingredients, $rule['foods']) === []) {
+            return [];
+        }
+
+        return [sprintf('فيها %s غ ألياف من البقوليات، وقد تسبّب غازات أو انتفاخاً لبعض من حالتهم مثل حالتك. إن لم تعتدها فابدأ بكمية صغيرة، وتقشير الحب يسهّل هضمه.', self::number($fiber))];
     }
 
     /** @return array{energy: ?int, protein: ?int, carbs: ?int, fat: ?int} */

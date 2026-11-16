@@ -96,6 +96,10 @@ class KitchenDishResource extends Resource
                         ->label('ظاهرة على الموقع')
                         ->default(true)
                         ->helperText('تظهر بعد اعتماد تحليلها فقط.'),
+                    Toggle::make('eaten_with_bread')
+                        ->label('تؤكل عادةً مع الخبز')
+                        ->default(false)
+                        ->helperText('تقول صفحتها إن القيم للصحن وحده، بلا خبز.'),
                     Textarea::make('description')->label('الوصف')->columnSpanFull(),
                 ]),
             ...ProductForm::recipeSections(),

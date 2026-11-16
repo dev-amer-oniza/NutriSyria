@@ -144,6 +144,7 @@ class MealCatalog
             brandId: $product->brand_id,
             categoryId: $product->category_id,
             platform: (bool) $product->brand->is_platform,
+            withBread: (bool) $product->eaten_with_bread,
         );
     }
 
