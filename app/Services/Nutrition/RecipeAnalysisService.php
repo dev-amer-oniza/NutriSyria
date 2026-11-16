@@ -2,6 +2,8 @@
 
 namespace App\Services\Nutrition;
 
+use App\Data\Nutrition\RecipeDraft;
+use App\Data\Nutrition\RecipeLine;
 use App\Enums\ConfidenceLevel;
 use App\Enums\FoodSourceStatus;
 use App\Enums\NutrientValueMethod;
@@ -10,8 +12,10 @@ use App\Models\FoodNutrientValue;
 use App\Models\FoodSourceRecord;
 use App\Models\Nutrient;
 use App\Models\Product;
+use App\Models\ProductRecipeIngredient;
 use App\Models\User;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -34,21 +38,51 @@ final class RecipeAnalysisService
 
     public function analyze(Product $product): RecipeAnalysisResult
     {
+        return $this->analyzeDraft($this->draftOf($product));
+    }
+
+    /** A product's saved recipe, as the analysis reads it. */
+    public function draftOf(Product $product): RecipeDraft
+    {
         $recipe = $product->recipe;
         if (! $recipe) {
             throw new RuntimeException("Product #{$product->id} has no recipe row (should be auto-created on product creation).");
         }
 
-        $ingredientModels = $recipe->ingredients()->with(['ingredientRecord.food'])->get();
-        if ($ingredientModels->isEmpty()) {
+        return new RecipeDraft(
+            lines: $recipe->ingredients()->orderBy('sort_order')->orderBy('id')->get()
+                ->map(fn (ProductRecipeIngredient $i) => new RecipeLine(
+                    recordId: (int) $i->food_source_record_id,
+                    unitId: (int) $i->measure_unit_id,
+                    amount: (float) $i->amount,
+                    portionId: $i->food_portion_id !== null ? (int) $i->food_portion_id : null,
+                    addedAfterCooking: (bool) $i->is_added_after_cooking,
+                ))->all(),
+            servings: (int) $recipe->servings,
+            weightBeforeCookingG: $recipe->weight_before_cooking_g !== null ? (float) $recipe->weight_before_cooking_g : null,
+            weightAfterCookingG: $recipe->weight_after_cooking_g !== null ? (float) $recipe->weight_after_cooking_g : null,
+        );
+    }
+
+    /**
+     * Any recipe, saved or not. A fixed number of queries whatever the number of lines: the
+     * records, their donors, their values, the nutrients and the gram conversions are each
+     * loaded once for the whole recipe.
+     */
+    public function analyzeDraft(RecipeDraft $draft): RecipeAnalysisResult
+    {
+        if ($draft->lines === []) {
             throw new RuntimeException('الوصفة لا تحتوي أي مكوّنات بعد.');
         }
 
-        $sourceRecordIds = $ingredientModels->pluck('food_source_record_id')->unique()->values();
-        $donorsByRecord = $this->donorsFor($ingredientModels->pluck('ingredientRecord')->filter()->unique('id'));
+        $records = FoodSourceRecord::with('food:id,name_ar')
+            ->whereKey(array_unique(array_map(fn (RecipeLine $l) => $l->recordId, $draft->lines)))
+            ->get()
+            ->keyBy('id');
+        $donorsByRecord = $this->donorsFor($records->values());
 
         $valuesByRecord = FoodNutrientValue::query()
-            ->whereIn('food_source_record_id', $sourceRecordIds->merge($donorsByRecord->flatten(1)->pluck('id'))->unique())
+            ->whereIn('food_source_record_id', $records->keys()->merge($donorsByRecord->flatten(1)->pluck('id'))->unique())
             ->whereNotNull('amount_per_100g')
             ->get()
             ->groupBy('food_source_record_id');
@@ -56,44 +90,31 @@ final class RecipeAnalysisService
             ->mapWithKeys(fn (FoodNutrientValue $v) => [$v->nutrient_id => ['amount' => (float) $v->amount_per_100g, 'unit' => $v->unit]])
             ->all();
 
-        $nutrientDefs = Nutrient::query()
-            ->where('is_active', true)
-            ->orderBy('display_order')
-            ->get()
-            ->map(fn (Nutrient $n) => [
-                'id' => $n->id, 'code' => $n->code, 'name_ar' => $n->name_ar,
-                'unit' => $n->unit, 'is_core' => $n->is_core, 'display_order' => $n->display_order,
-            ])
-            ->all();
+        $nutrientDefs = $this->nutrientDefs();
+        $idByCode = array_column($nutrientDefs, 'id', 'code');
+        $conversions = $this->gramsConverter->resolveMany(array_map(fn (RecipeLine $l) => $l->toConversion(), $draft->lines));
 
         $lines = [];
-        foreach ($ingredientModels as $ingredient) {
-            $conversion = $this->gramsConverter->resolve(
-                $ingredient->food_source_record_id,
-                $ingredient->measure_unit_id,
-                (float) $ingredient->amount,
-                $ingredient->food_portion_id !== null ? (int) $ingredient->food_portion_id : null,
-            );
-
-            $label = $ingredient->ingredientRecord?->food?->name_ar ?? "سجل #{$ingredient->food_source_record_id}";
+        foreach ($draft->lines as $i => $line) {
+            $conversion = $conversions[$i];
 
             // The chosen record's own values; what it does not report is filled from the same
             // food and form in the other approved sources (see NutrientGapFiller).
             $nutrientValues = $this->gapFiller->fill(
-                $valuesOf($ingredient->food_source_record_id),
-                $donorsByRecord->get($ingredient->food_source_record_id, collect())
+                $valuesOf($line->recordId),
+                $donorsByRecord->get($line->recordId, collect())
                     ->map(fn (array $d) => ['source' => $d['source'], 'values' => $valuesOf($d['id'])])
                     ->all(),
-                collect($nutrientDefs)->pluck('id', 'code')->all(),
+                $idByCode,
             );
 
             $lines[] = [
-                'label' => $label,
+                'label' => $records->get($line->recordId)?->food?->name_ar ?? "سجل #{$line->recordId}",
                 // null = not convertible: the calculator reports the line and blocks approval
                 // instead of counting it as zero grams.
                 'grams' => $conversion->grams,
                 'problem' => $conversion->message,
-                'is_added_after_cooking' => (bool) $ingredient->is_added_after_cooking,
+                'is_added_after_cooking' => $line->addedAfterCooking,
                 'nutrients' => $nutrientValues,
             ];
         }
@@ -101,10 +122,29 @@ final class RecipeAnalysisService
         return $this->calculator->calculate(
             ingredients: $lines,
             nutrientDefs: $nutrientDefs,
-            weightBeforeCookingG: $recipe->weight_before_cooking_g !== null ? (float) $recipe->weight_before_cooking_g : null,
-            weightAfterCookingG: $recipe->weight_after_cooking_g !== null ? (float) $recipe->weight_after_cooking_g : null,
-            servings: (int) $recipe->servings,
+            weightBeforeCookingG: $draft->weightBeforeCookingG,
+            weightAfterCookingG: $draft->weightAfterCookingG,
+            servings: $draft->servings,
         );
+    }
+
+    /**
+     * The active nutrients, in display order. Seed data that changes only with a deploy, so it
+     * is cached (a minute is enough to take the query off every analysis).
+     *
+     * @return list<array{id: int, code: string, name_ar: string, unit: string, is_core: bool, display_order: int}>
+     */
+    private function nutrientDefs(): array
+    {
+        return Cache::remember('nutrition.nutrient_defs', 60, fn () => Nutrient::query()
+            ->where('is_active', true)
+            ->orderBy('display_order')
+            ->get()
+            ->map(fn (Nutrient $n) => [
+                'id' => (int) $n->id, 'code' => $n->code, 'name_ar' => $n->name_ar,
+                'unit' => $n->unit, 'is_core' => (bool) $n->is_core, 'display_order' => (int) $n->display_order,
+            ])
+            ->all());
     }
 
     /**
