@@ -164,4 +164,31 @@ class MealPagesTest extends TestCase
             ->assertSee(route('site.meals.show', $meal), false)
             ->assertDontSee('مثال توضيحي لطريقة العرض');
     }
+
+    public function test_the_meal_page_lists_every_known_value_in_its_groups(): void
+    {
+        $meal = $this->approvedMeal('فول مدمس', per100g: self::PER_100G + [
+            'fat_sat_g' => 0.9, 'fat_mono_g' => 4.2, 'fat_poly_g' => 0.8, 'potassium_mg' => 245, 'vitamin_c_mg' => 7.3,
+        ]);
+
+        $this->get(route('site.meals.show', $meal))->assertOk()
+            // The four main figures stay as they were.
+            ->assertSee('سعرة حرارية')->assertSee('بروتين')
+            ->assertSeeInOrder(['الدهون', 'المشبعة', 'الأحادية غير المشبعة', 'المتعددة غير المشبعة', 'المعادن', 'البوتاسيوم'])
+            ->assertSee('10.5') // 4.2 g per 100 g, 250 g a serving
+            // The values always shown keep their dash when unknown; the others are left out.
+            ->assertSee('السكريات الكلية')->assertSee('الصوديوم')
+            ->assertDontSee('الكوليسترول')->assertDontSee('المغنيسيوم')
+            // Vitamins are folded, and only the known ones are listed.
+            ->assertSee('<details class="ns-meal__group">', false)->assertSee('عرض الفيتامينات')
+            ->assertSee('فيتامين C')->assertDontSee('فيتامين D');
+    }
+
+    public function test_a_meal_with_no_vitamin_has_no_vitamins_group(): void
+    {
+        $meal = $this->approvedMeal('مجدرة');
+
+        $this->get(route('site.meals.show', $meal))->assertOk()
+            ->assertSee('الدهون')->assertDontSee('عرض الفيتامينات');
+    }
 }

@@ -21,10 +21,17 @@ class MealCatalog
 {
     public function __construct(private readonly PublicCatalogCache $cache) {}
 
-    /** Nutrient codes read for a meal: what cards show and what meals are judged on. */
+    /**
+     * Nutrient codes read for a meal: what cards show and what meals are judged on (the first
+     * ten), then the rest of what a meal's page lists (config/site.php meal_values).
+     */
     public const NUTRIENTS = [
         'energy_kcal', 'protein_g', 'carbohydrate_g', 'fat_g', 'fiber_g',
         'fat_sat_g', 'sugars_g', 'sodium_mg', 'iron_mg', 'calcium_mg',
+        'fat_mono_g', 'fat_poly_g', 'cholesterol_mg',
+        'potassium_mg', 'magnesium_mg', 'phosphorus_mg', 'zinc_mg',
+        'vitamin_a_rae_ug', 'vitamin_c_mg', 'vitamin_d_ug', 'vitamin_e_mg', 'vitamin_k_ug',
+        'thiamin_mg', 'riboflavin_mg', 'niacin_mg', 'vitamin_b6_mg', 'vitamin_b12_ug', 'folate_ug',
     ];
 
     /** Notes of a food record that stands in for a food USDA does not have start with this. */

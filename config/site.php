@@ -104,4 +104,44 @@ return [
         1 => 'غير مناسبة لك الآن',
     ],
 
+    /*
+     * A meal's values under its four main figures (pages/meals/show), in groups. Each value:
+     * code => [label, unit, always]. "always" values show "—" when unknown; the others show
+     * only when the meal has them (the owner's decision 1a). A folded group opens on a click (2a).
+     * Every code here is read by App\Services\Site\MealCatalog::NUTRIENTS.
+     */
+    'meal_values' => [
+        ['title' => 'الدهون', 'folded' => false, 'values' => [
+            'fat_sat_g' => ['المشبعة', 'غ', true],
+            'fat_mono_g' => ['الأحادية غير المشبعة', 'غ', false],
+            'fat_poly_g' => ['المتعددة غير المشبعة', 'غ', false],
+            'cholesterol_mg' => ['الكوليسترول', 'ملغ', false],
+        ]],
+        ['title' => 'الكربوهيدرات', 'folded' => false, 'values' => [
+            'sugars_g' => ['السكريات الكلية', 'غ', true],
+        ]],
+        ['title' => 'المعادن', 'folded' => false, 'values' => [
+            'sodium_mg' => ['الصوديوم', 'ملغ', true],
+            'potassium_mg' => ['البوتاسيوم', 'ملغ', false],
+            'calcium_mg' => ['الكالسيوم', 'ملغ', true],
+            'iron_mg' => ['الحديد', 'ملغ', true],
+            'magnesium_mg' => ['المغنيسيوم', 'ملغ', false],
+            'phosphorus_mg' => ['الفوسفور', 'ملغ', false],
+            'zinc_mg' => ['الزنك', 'ملغ', false],
+        ]],
+        ['title' => 'الفيتامينات', 'folded' => true, 'values' => [
+            'vitamin_a_rae_ug' => ['فيتامين A', 'مكغ', false],
+            'vitamin_c_mg' => ['فيتامين C', 'ملغ', false],
+            'vitamin_d_ug' => ['فيتامين D', 'مكغ', false],
+            'vitamin_e_mg' => ['فيتامين E', 'ملغ', false],
+            'vitamin_k_ug' => ['فيتامين K', 'مكغ', false],
+            'thiamin_mg' => ['فيتامين B1', 'ملغ', false],
+            'riboflavin_mg' => ['فيتامين B2', 'ملغ', false],
+            'niacin_mg' => ['فيتامين B3', 'ملغ', false],
+            'vitamin_b6_mg' => ['فيتامين B6', 'ملغ', false],
+            'vitamin_b12_ug' => ['فيتامين B12', 'مكغ', false],
+            'folate_ug' => ['الفولات', 'مكغ', false],
+        ]],
+    ],
+
 ];
