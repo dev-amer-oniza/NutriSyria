@@ -43,11 +43,13 @@ class FoodSourceRecord extends Model
         return $this->belongsTo(Food::class);
     }
 
+    /** @return BelongsTo<FoodForm, $this> */
     public function foodForm(): BelongsTo
     {
         return $this->belongsTo(FoodForm::class);
     }
 
+    /** @return BelongsTo<DataSource, $this> */
     public function dataSource(): BelongsTo
     {
         return $this->belongsTo(DataSource::class);

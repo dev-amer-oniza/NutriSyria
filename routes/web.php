@@ -12,6 +12,7 @@ use App\Http\Controllers\Site\Auth\RegisterController;
 use App\Http\Controllers\Site\GoalsController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\KitchenController;
+use App\Http\Controllers\Site\KitchenRecipeController;
 use App\Http\Controllers\Site\MealController;
 use App\Http\Controllers\Site\MethodController;
 use App\Http\Controllers\Site\NutritionistController;
@@ -51,6 +52,11 @@ Route::name('site.')->group(function () {
     // The restaurants (active brands), each with its details and menu (RestaurantDirectory).
     // The platform's own dishes (المطبخ السوري).
     Route::get('/syrian-kitchen', KitchenController::class)->name('kitchen');
+    // "اطبخها على طريقتك": a kitchen dish's recipe, changed by the visitor and analysed, never stored.
+    Route::get('/syrian-kitchen/ingredients', [KitchenRecipeController::class, 'ingredients'])->name('kitchen.ingredients');
+    Route::get('/syrian-kitchen/{dish}/my-recipe', [KitchenRecipeController::class, 'show'])->whereNumber('dish')->name('kitchen.recipe');
+    Route::post('/syrian-kitchen/{dish}/my-recipe', [KitchenRecipeController::class, 'analyze'])->whereNumber('dish')
+        ->middleware('throttle:recipe-analyze')->name('kitchen.recipe.analyze');
 
     Route::get('/restaurants', [RestaurantController::class, 'index'])->name('brands');
     Route::get('/restaurants/{restaurant}', [RestaurantController::class, 'show'])->whereNumber('restaurant')->name('brands.show');

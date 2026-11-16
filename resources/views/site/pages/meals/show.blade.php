@@ -4,12 +4,6 @@
 
 @section('content')
     @php
-        $value = fn (string $code) => $meal->amount($code) !== null ? \App\Services\Nutrition\Fit\MealFitCalculator::number($meal->amount($code)) : '—';
-        $grams = fn (string $code) => (int) round($meal->amount($code) ?? 0);
-        // Each group of config('site.meal_values'), with the values it shows for this meal.
-        $groups = collect(config('site.meal_values'))
-            ->map(fn (array $group) => $group + ['shown' => array_filter($group['values'], fn (array $v, string $code) => $v[2] || $meal->amount($code) !== null, ARRAY_FILTER_USE_BOTH)])
-            ->filter(fn (array $group) => $group['shown'] !== []);
         $allergens = collect($meal->allergens)->map(fn ($a) => \App\Enums\Allergen::tryFrom($a)?->label())->filter();
     @endphp
 
@@ -37,48 +31,10 @@
                     </div>
                 </div>
 
-                <section class="ns-meal__values" aria-labelledby="values-title">
-                    <h2 class="t-heading" id="values-title">
-                        @if ($meal->servingGrams)
-                            القيم لحصة <span class="ns-num">{{ round($meal->servingGrams) }}</span> غ
-                        @else
-                            القيم لكل <span class="ns-num">100</span> غ <small class="ns-muted">(لا نعرف وزن الحصة بعد)</small>
-                        @endif
-                    </h2>
-                    @if ($meal->withBread)
-                        <p class="ns-meal__bread">الأرقام للصحن وحده، بلا خبز أو مرافقات: الخبز يزيد السعرات والكربوهيدرات.</p>
-                    @endif
-                    <div class="ns-energy__fig">
-                        <span class="ns-num t-figure-xl">{{ $value('energy_kcal') }}</span>
-                        <span class="ns-energy__unit">سعرة حرارية</span>
-                    </div>
-                    @include('site.components.macro-bar', ['protein' => $grams('protein_g'), 'carbs' => $grams('carbohydrate_g'), 'fat' => $grams('fat_g')])
-                    <div class="ns-panel__stats">
-                        @include('site.components.nutrient-stat', ['label' => 'بروتين', 'value' => $value('protein_g'), 'key' => 'protein'])
-                        @include('site.components.nutrient-stat', ['label' => 'كربوهيدرات', 'value' => $value('carbohydrate_g'), 'key' => 'carbs'])
-                        @include('site.components.nutrient-stat', ['label' => 'دهون', 'value' => $value('fat_g'), 'key' => 'fat'])
-                        @include('site.components.nutrient-stat', ['label' => 'ألياف', 'value' => $value('fiber_g'), 'key' => 'fiber'])
-                    </div>
-                    @foreach ($groups as $group)
-                        @if ($group['folded'])
-                            <details class="ns-meal__group">
-                                <summary class="ns-meal__group-title">عرض {{ $group['title'] }}</summary>
-                        @else
-                            <div class="ns-meal__group">
-                                <h3 class="ns-meal__group-title">{{ $group['title'] }}</h3>
-                        @endif
-                                <dl class="ns-meal__more">
-                                    @foreach ($group['shown'] as $code => [$label, $unit])
-                                        <div><dt>{{ $label }}</dt><dd><span class="ns-num">{{ $value($code) }}</span> {{ $meal->amount($code) !== null ? $unit : '' }}</dd></div>
-                                    @endforeach
-                                </dl>
-                        @if ($group['folded'])
-                            </details>
-                        @else
-                            </div>
-                        @endif
-                    @endforeach
-                </section>
+                @include('site.components.meal-values', ['meal' => $meal])
+                @if ($meal->platform)
+                    <a class="ns-btn ns-btn--ghost ns-meal__mine" href="{{ route('site.kitchen.recipe', $meal->id) }}">اطبخها على طريقتك: غيّر المقادير واعرف قيمها</a>
+                @endif
 
                 @if ($meal->ingredients)
                     <section aria-labelledby="ingredients-title">

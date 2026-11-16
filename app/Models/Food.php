@@ -38,6 +38,7 @@ class Food extends Model
         return $this->hasMany(FoodPortion::class);
     }
 
+    /** @return HasMany<FoodAlias, $this> */
     public function aliases(): HasMany
     {
         return $this->hasMany(FoodAlias::class);

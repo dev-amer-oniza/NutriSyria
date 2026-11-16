@@ -44,7 +44,7 @@ final class RecipeAnalysisService
     /** A product's saved recipe, as the analysis reads it. */
     public function draftOf(Product $product): RecipeDraft
     {
-        $recipe = $product->recipe;
+        $recipe = $product->loadMissing('recipe')->recipe;
         if (! $recipe) {
             throw new RuntimeException("Product #{$product->id} has no recipe row (should be auto-created on product creation).");
         }

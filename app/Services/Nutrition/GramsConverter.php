@@ -71,6 +71,56 @@ final class GramsConverter
     }
 
     /**
+     * The units a visitor can measure each record in (its portions' units, plus grams and
+     * kilograms), each with the grams of one unit, or the sizes to choose from when one unit
+     * has several weights. For the site's recipe form, which shows "= … غرام" while typing:
+     * the server still converts every line again when the recipe is analysed.
+     *
+     * @param  list<int>  $recordIds
+     * @param  list<string>  $massCodes  the mass units offered for every record
+     * @return array<int, list<array{id: int, name: string, grams: ?float, choices: list<array{id: int, label: string, grams: float}>, default: ?int}>>
+     */
+    public function unitOptions(array $recordIds, array $massCodes = ['g', 'kg']): array
+    {
+        $records = $this->loadRecords($recordIds);
+        $unitIds = [];
+        foreach ($records as $loaded) {
+            foreach ($loaded['portions'] as $p) {
+                $unitIds[$p['measure_unit_id']] = true;
+            }
+        }
+        $units = MeasureUnit::query()
+            ->whereKey(array_keys($unitIds))
+            ->orWhereIn('code', $massCodes)
+            ->get()
+            ->mapWithKeys(fn (MeasureUnit $u) => [(int) $u->id => self::unitData($u)]);
+        $mass = $units->filter(fn (array $u) => in_array($u['code'], $massCodes, true));
+
+        $options = [];
+        foreach ($records as $recordId => $loaded) {
+            $list = [];
+            foreach ($mass as $unit) {
+                $list[] = ['id' => $unit['id'], 'name' => $unit['name_ar'], 'grams' => PortionResolver::massFactor($unit), 'choices' => [], 'default' => null];
+            }
+            foreach (array_unique(array_column($loaded['portions'], 'measure_unit_id')) as $unitId) {
+                $unit = $units[$unitId] ?? null;
+                if ($unit === null || $mass->has($unitId)) {
+                    continue;
+                }
+                $one = $this->resolver->resolve($unit, $loaded['record'], $loaded['portions'], 1.0);
+                $choices = $this->resolver->choices($unit, $loaded['record'], $loaded['portions']);
+                if (! $one->ok() && $choices === []) {
+                    continue; // only another form's portion: never offered
+                }
+                $list[] = ['id' => $unit['id'], 'name' => $unit['name_ar'], 'grams' => $one->grams, 'choices' => $choices, 'default' => $one->ok() ? $one->portionId : null];
+            }
+            $options[$recordId] = $list;
+        }
+
+        return $options;
+    }
+
+    /**
      * The portion sizes a recipe line can pick between for this ingredient and unit
      * (see PortionResolver::choices()); empty when there is nothing to choose.
      *

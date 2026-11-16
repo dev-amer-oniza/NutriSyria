@@ -130,5 +130,204 @@ Alpine.data('bell', (initial, urls) => ({
     },
 }));
 
+/** Arabic search key, as App\Services\Import\ArabicNormalizer: "ارز" finds "أرز". */
+function normalizeArabic(text) {
+    return String(text ?? '')
+        .trim()
+        .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+        .replace(/[ً-ٰٟـ]/g, '')
+        .replace(/[أإآٱ]/g, 'ا')
+        .replace(/ى/g, 'ي')
+        .replace(/ة/g, 'ه')
+        .toLowerCase()
+        .replace(/\s+/g, ' ');
+}
+
+/**
+ * "اطبخها على طريقتك": a kitchen dish's recipe, changed by the visitor. The ingredient list
+ * comes once from the server's cache; "= … غ" is worked out here while typing, and the server
+ * converts and analyses everything again on «حلّل». The draft stays in this tab only
+ * (sessionStorage), never on the server.
+ */
+Alpine.data('customRecipe', (config) => ({
+    ingredients: [],
+    byId: {},
+    loading: true,
+    lines: [],
+    servings: 1,
+    weightAfter: null,
+    maxLines: config.maxLines,
+    busy: false,
+    error: '',
+    resultHtml: '',
+    nextKey: 1,
+
+    async init() {
+        this.load(this.saved() ?? config.recipe);
+        this.$watch('lines', () => this.save(), { deep: true });
+        this.$watch('servings', () => this.save());
+        this.$watch('weightAfter', () => this.save());
+        try {
+            const response = await fetch(config.ingredientsUrl, { headers: { Accept: 'application/json' } });
+            this.ingredients = await response.json();
+            this.byId = Object.fromEntries(this.ingredients.map((item) => [item.id, item]));
+        } catch {
+            this.error = 'تعذّر تحميل قائمة المكوّنات. حدّث الصفحة.';
+        } finally {
+            this.loading = false;
+        }
+    },
+
+    load(recipe) {
+        this.lines = recipe.lines.map((line) => this.line(line));
+        this.servings = recipe.servings || 1;
+        this.weightAfter = recipe.weight_after || null;
+    },
+
+    line(data = {}) {
+        return {
+            key: this.nextKey++,
+            record_id: data.record_id ?? null,
+            unit_id: data.unit_id ?? null,
+            amount: data.amount ?? null,
+            portion_id: data.portion_id ?? null,
+            after: Boolean(data.after),
+            query: '',
+            open: false,
+        };
+    },
+
+    saved() {
+        try {
+            return JSON.parse(sessionStorage.getItem(config.storageKey));
+        } catch {
+            return null;
+        }
+    },
+
+    save() {
+        try {
+            sessionStorage.setItem(config.storageKey, JSON.stringify({
+                lines: this.lines.map(({ record_id, unit_id, amount, portion_id, after }) => ({ record_id, unit_id, amount, portion_id, after })),
+                servings: this.servings,
+                weight_after: this.weightAfter,
+            }));
+        } catch {
+            // Private mode or full storage: the draft simply is not kept.
+        }
+    },
+
+    reset() {
+        try { sessionStorage.removeItem(config.storageKey); } catch { /* nothing kept */ }
+        this.load(config.recipe);
+        this.resultHtml = '';
+        this.error = '';
+    },
+
+    label(id) {
+        const item = this.byId[id];
+        return item ? item.name + (item.form ? ' (' + item.form + ')' : '') : '';
+    },
+
+    matches(query) {
+        const q = normalizeArabic(query);
+        const found = q === '' ? this.ingredients : this.ingredients.filter((item) => item.search.includes(q));
+        return found.slice(0, 12);
+    },
+
+    openSearch(line) {
+        line.query = '';
+        line.open = true;
+    },
+
+    closeLater(line) {
+        setTimeout(() => { line.open = false; }, 150);
+    },
+
+    choose(line, option) {
+        line.record_id = option.id;
+        line.open = false;
+        const units = option.units;
+        if (!units.some((unit) => unit.id === line.unit_id)) {
+            line.unit_id = units[0]?.id ?? null;
+        }
+        this.presetSize(line);
+    },
+
+    unitsOf(line) {
+        return this.byId[line.record_id]?.units ?? [];
+    },
+
+    unitOf(line) {
+        return this.unitsOf(line).find((unit) => unit.id === line.unit_id) ?? null;
+    },
+
+    choicesOf(line) {
+        return this.unitOf(line)?.choices ?? [];
+    },
+
+    presetSize(line) {
+        const unit = this.unitOf(line);
+        const valid = unit?.choices.some((choice) => choice.id === line.portion_id);
+        if (!valid) line.portion_id = unit?.default ?? null;
+    },
+
+    grams(line) {
+        const unit = this.unitOf(line);
+        if (!unit || !(line.amount > 0)) return null;
+        const choice = unit.choices.find((c) => c.id === line.portion_id);
+        const perUnit = choice ? choice.grams : unit.grams;
+        return perUnit === null ? null : line.amount * perUnit;
+    },
+
+    gramsText(line) {
+        if (!line.record_id) return 'اختر المكوّن';
+        if (!this.unitOf(line)) return 'اختر الوحدة';
+        if (this.choicesOf(line).length && !line.portion_id && this.unitOf(line).grams === null) return 'اختر حجم الحصة';
+        const grams = this.grams(line);
+        return grams === null ? 'اكتب الكمية' : '= ' + Math.round(grams * 10) / 10 + ' غرام';
+    },
+
+    add() {
+        if (this.lines.length < this.maxLines) this.lines.push(this.line({ amount: 1 }));
+    },
+
+    remove(i) {
+        this.lines.splice(i, 1);
+    },
+
+    async analyze() {
+        this.error = '';
+        this.busy = true;
+        try {
+            const response = await fetch(config.analyzeUrl, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': this.$root.querySelector('input[name=_token]')?.value,
+                },
+                body: JSON.stringify({
+                    lines: this.lines.map(({ record_id, unit_id, amount, portion_id, after }) => ({ record_id, unit_id, amount, portion_id, after })),
+                    servings: this.servings,
+                    weight_after: this.weightAfter || null,
+                }),
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                const first = data.errors ? Object.values(data.errors)[0]?.[0] : null;
+                this.error = first || data.message || 'تعذّر التحليل. حاول مرة أخرى.';
+                return;
+            }
+            this.resultHtml = data.html;
+            this.$nextTick(() => this.$refs.result.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        } catch {
+            this.error = 'لا اتصال الآن. حاول بعد قليل.';
+        } finally {
+            this.busy = false;
+        }
+    },
+}));
+
 window.Alpine = Alpine;
 Alpine.start();
