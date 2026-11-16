@@ -6,7 +6,10 @@
     @php
         $value = fn (string $code) => $meal->amount($code) !== null ? \App\Services\Nutrition\Fit\MealFitCalculator::number($meal->amount($code)) : '—';
         $grams = fn (string $code) => (int) round($meal->amount($code) ?? 0);
-        $more = ['fat_sat_g' => ['الدهون المشبعة', 'غ'], 'sugars_g' => ['السكريات الكلية', 'غ'], 'sodium_mg' => ['الصوديوم', 'ملغ'], 'iron_mg' => ['الحديد', 'ملغ'], 'calcium_mg' => ['الكالسيوم', 'ملغ']];
+        // Each group of config('site.meal_values'), with the values it shows for this meal.
+        $groups = collect(config('site.meal_values'))
+            ->map(fn (array $group) => $group + ['shown' => array_filter($group['values'], fn (array $v, string $code) => $v[2] || $meal->amount($code) !== null, ARRAY_FILTER_USE_BOTH)])
+            ->filter(fn (array $group) => $group['shown'] !== []);
         $allergens = collect($meal->allergens)->map(fn ($a) => \App\Enums\Allergen::tryFrom($a)?->label())->filter();
     @endphp
 
@@ -53,11 +56,25 @@
                         @include('site.components.nutrient-stat', ['label' => 'دهون', 'value' => $value('fat_g'), 'key' => 'fat'])
                         @include('site.components.nutrient-stat', ['label' => 'ألياف', 'value' => $value('fiber_g'), 'key' => 'fiber'])
                     </div>
-                    <dl class="ns-meal__more">
-                        @foreach ($more as $code => [$label, $unit])
-                            <div><dt>{{ $label }}</dt><dd><span class="ns-num">{{ $value($code) }}</span> {{ $meal->amount($code) !== null ? $unit : '' }}</dd></div>
-                        @endforeach
-                    </dl>
+                    @foreach ($groups as $group)
+                        @if ($group['folded'])
+                            <details class="ns-meal__group">
+                                <summary class="ns-meal__group-title">عرض {{ $group['title'] }}</summary>
+                        @else
+                            <div class="ns-meal__group">
+                                <h3 class="ns-meal__group-title">{{ $group['title'] }}</h3>
+                        @endif
+                                <dl class="ns-meal__more">
+                                    @foreach ($group['shown'] as $code => [$label, $unit])
+                                        <div><dt>{{ $label }}</dt><dd><span class="ns-num">{{ $value($code) }}</span> {{ $meal->amount($code) !== null ? $unit : '' }}</dd></div>
+                                    @endforeach
+                                </dl>
+                        @if ($group['folded'])
+                            </details>
+                        @else
+                            </div>
+                        @endif
+                    @endforeach
                 </section>
 
                 @if ($meal->ingredients)
