@@ -30,12 +30,44 @@ final class GramsConverter
 
     public function resolve(int $foodSourceRecordId, int $measureUnitId, float $amount, ?int $chosenPortionId = null): GramsConversion
     {
-        $loaded = $this->load($foodSourceRecordId, $measureUnitId);
-        if ($loaded === null) {
-            return GramsConversion::failed(GramsConversion::UNKNOWN_UNIT, 'وحدة القياس غير موجودة.');
+        return $this->resolveMany([[
+            'record_id' => $foodSourceRecordId, 'unit_id' => $measureUnitId, 'amount' => $amount, 'portion_id' => $chosenPortionId,
+        ]])[0];
+    }
+
+    /**
+     * Every line of a recipe at once, with a fixed number of queries however many lines there
+     * are (units, records, portions and aliases each loaded once), so a long recipe costs no
+     * more round trips than a short one. Same rules as resolve(), line by line, in order.
+     *
+     * @param  list<array{record_id: int, unit_id: int, amount: float, portion_id: ?int}>  $lines
+     * @return list<GramsConversion>
+     */
+    public function resolveMany(array $lines): array
+    {
+        if ($lines === []) {
+            return [];
         }
 
-        return $this->resolver->resolve($loaded['unit'], $loaded['record'], $loaded['portions'], $amount, $chosenPortionId);
+        $units = MeasureUnit::whereKey(array_unique(array_column($lines, 'unit_id')))->get()
+            ->mapWithKeys(fn (MeasureUnit $u) => [(int) $u->id => self::unitData($u)]);
+
+        // Mass units need no record and no portion: only the other lines' records are loaded.
+        $needRecords = array_filter($lines, fn (array $l) => isset($units[$l['unit_id']])
+            && PortionResolver::massFactor($units[$l['unit_id']]) === null);
+        $records = $this->loadRecords(array_column($needRecords, 'record_id'));
+
+        return array_map(function (array $line) use ($units, $records): GramsConversion {
+            $unit = $units[$line['unit_id']] ?? null;
+            if ($unit === null) {
+                return GramsConversion::failed(GramsConversion::UNKNOWN_UNIT, 'وحدة القياس غير موجودة.');
+            }
+            $loaded = PortionResolver::massFactor($unit) !== null
+                ? ['record' => null, 'portions' => []]
+                : ($records[$line['record_id']] ?? ['record' => null, 'portions' => []]);
+
+            return $this->resolver->resolve($unit, $loaded['record'], $loaded['portions'], (float) $line['amount'], $line['portion_id']);
+        }, $lines);
     }
 
     /**
@@ -138,60 +170,93 @@ final class GramsConverter
     /** @return array{record: array, portions: list<array>}|null  null when the record does not exist */
     private function loadRecord(int $foodSourceRecordId): ?array
     {
-        $record = FoodSourceRecord::with(['food:id,name_ar', 'foodForm:id,name_ar'])->find($foodSourceRecordId);
-        if (! $record) {
-            return null;
+        return $this->loadRecords([$foodSourceRecordId])[$foodSourceRecordId] ?? null;
+    }
+
+    /**
+     * Records with the portions of their foods, for many records in one go.
+     *
+     * @param  list<int>  $recordIds
+     * @return array<int, array{record: array, portions: list<array>}> keyed by record id; missing records left out
+     */
+    private function loadRecords(array $recordIds): array
+    {
+        $recordIds = array_values(array_unique(array_map('intval', $recordIds)));
+        if ($recordIds === []) {
+            return [];
+        }
+
+        $records = FoodSourceRecord::with(['food:id,name_ar', 'foodForm:id,name_ar'])->whereKey($recordIds)->get();
+        if ($records->isEmpty()) {
+            return [];
         }
 
         $portions = FoodPortion::query()
-            ->where('food_id', $record->food_id)
+            ->whereIn('food_id', $records->pluck('food_id')->unique())
             ->where(fn (Builder $q) => $q->whereNull('valid_from')->orWhere('valid_from', '<=', now()))
             ->where(fn (Builder $q) => $q->whereNull('valid_to')->orWhere('valid_to', '>', now()))
             ->with(['measureUnit', 'foodForm:id,name_ar', 'sourceRecord:id,food_form_id,status', 'sourceRecord.foodForm:id,name_ar'])
             ->orderBy('id')
             ->get();
 
-        $aliases = MeasureUnitAlias::query()
-            ->whereIn('measure_unit_id', $portions->pluck('measure_unit_id')->unique())
-            ->get(['measure_unit_id', 'label'])
-            ->groupBy('measure_unit_id');
+        /** @var array<int, list<string>> $aliases measure unit id => its alias labels */
+        $aliases = [];
+        foreach (MeasureUnitAlias::query()->whereIn('measure_unit_id', $portions->pluck('measure_unit_id')->unique())->get(['measure_unit_id', 'label']) as $alias) {
+            $aliases[(int) $alias->measure_unit_id][] = (string) $alias->label;
+        }
 
-        $portionData = $portions->map(function (FoodPortion $p) use ($aliases) {
-            $u = $p->measureUnit;
-            // A portion entered on a source record's page has no form of its own: it inherits the record's.
-            $formId = $p->food_form_id ?? $p->sourceRecord?->food_form_id;
-            $recordId = $p->food_source_record_id;
-            $formName = $p->food_form_id !== null ? $p->foodForm?->name_ar : $p->sourceRecord?->foodForm?->name_ar;
+        /** @var array<int, list<array<string, mixed>>> $portionsByFood */
+        $portionsByFood = [];
+        foreach ($portions as $portion) {
+            $portionsByFood[(int) $portion->food_id][] = self::portionData($portion, $aliases[(int) $portion->measure_unit_id] ?? []);
+        }
 
-            return [
-                'id' => (int) $p->id,
-                'measure_unit_id' => (int) $p->measure_unit_id,
-                'unit_name_ar' => $u?->name_ar ?? '',
-                'unit_dimension' => $u?->dimension,
-                'unit_base_factor' => $u?->base_factor !== null ? (float) $u->base_factor : null,
-                'unit_labels' => array_values(array_filter([
-                    $u?->code, $u?->name_en, $u?->name_ar,
-                    ...$aliases->get($p->measure_unit_id, collect())->pluck('label')->all(),
-                ])),
-                'amount' => (float) $p->amount,
-                'gram_weight' => (float) $p->gram_weight,
-                // Imports used to drop a bare size word ("small") because it is also a unit alias;
-                // the source label survives in evidence.modifier.
-                'description' => $p->description ?? ($p->evidence['modifier'] ?? null),
-                'food_source_record_id' => $recordId !== null ? (int) $recordId : null,
-                'food_form_id' => $formId !== null ? (int) $formId : null,
-                'form_name_ar' => $formName,
-                'record_status' => $p->sourceRecord?->status?->value,
-                'is_default' => (bool) $p->is_default,
-                'confidence_level' => $p->confidence_level?->value,
+        $loaded = [];
+        foreach ($records as $record) {
+            $loaded[(int) $record->id] = [
+                'record' => [
+                    'id' => (int) $record->id,
+                    'food_form_id' => $record->food_form_id !== null ? (int) $record->food_form_id : null,
+                    'food_name_ar' => $record->food?->name_ar,
+                    'form_name_ar' => $record->foodForm?->name_ar,
+                ],
+                'portions' => $portionsByFood[(int) $record->food_id] ?? [],
             ];
-        })->all();
+        }
 
-        return ['record' => [
-            'id' => (int) $record->id,
-            'food_form_id' => $record->food_form_id !== null ? (int) $record->food_form_id : null,
-            'food_name_ar' => $record->food?->name_ar,
-            'form_name_ar' => $record->foodForm?->name_ar,
-        ], 'portions' => $portionData];
+        return $loaded;
+    }
+
+    /** @param  list<string>  $aliasLabels  the alias labels of the portion's unit */
+    private static function portionData(FoodPortion $p, array $aliasLabels): array
+    {
+        $u = $p->measureUnit;
+        // A portion entered on a source record's page has no form of its own: it inherits the record's.
+        $formId = $p->food_form_id ?? $p->sourceRecord?->food_form_id;
+        $recordId = $p->food_source_record_id;
+        $formName = $p->food_form_id !== null ? $p->foodForm?->name_ar : $p->sourceRecord?->foodForm?->name_ar;
+
+        return [
+            'id' => (int) $p->id,
+            'measure_unit_id' => (int) $p->measure_unit_id,
+            'unit_name_ar' => $u?->name_ar ?? '',
+            'unit_dimension' => $u?->dimension,
+            'unit_base_factor' => $u?->base_factor !== null ? (float) $u->base_factor : null,
+            'unit_labels' => array_values(array_filter([
+                $u?->code, $u?->name_en, $u?->name_ar,
+                ...$aliasLabels,
+            ])),
+            'amount' => (float) $p->amount,
+            'gram_weight' => (float) $p->gram_weight,
+            // Imports used to drop a bare size word ("small") because it is also a unit alias;
+            // the source label survives in evidence.modifier.
+            'description' => $p->description ?? ($p->evidence['modifier'] ?? null),
+            'food_source_record_id' => $recordId !== null ? (int) $recordId : null,
+            'food_form_id' => $formId !== null ? (int) $formId : null,
+            'form_name_ar' => $formName,
+            'record_status' => $p->sourceRecord?->status?->value,
+            'is_default' => (bool) $p->is_default,
+            'confidence_level' => $p->confidence_level?->value,
+        ];
     }
 }

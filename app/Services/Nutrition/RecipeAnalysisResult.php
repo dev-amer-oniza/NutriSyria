@@ -26,6 +26,19 @@ final readonly class RecipeAnalysisResult
         public array $unconvertedIngredients = [],
     ) {}
 
+    /** The same totals with a cooked weight given afterwards (a visitor's estimate): no new calculation. */
+    public function withWeightAfterCooking(float $grams): self
+    {
+        return new self($this->totals, $this->gramsBeforeCooking, $this->gramsTotal, $this->weightBeforeCookingG,
+            $grams, $this->servings, $this->weightWarning, $this->unconvertedIngredients);
+    }
+
+    /** Grams added after cooking (garnish, oil on top): weighed as they are, never cooked. */
+    public function gramsAddedAfterCooking(): float
+    {
+        return $this->gramsTotal - $this->gramsBeforeCooking;
+    }
+
     /** Per 100g of the ingredient weights themselves (sanity view — should track the absolute totals closely). */
     public function per100gRaw(): array
     {
