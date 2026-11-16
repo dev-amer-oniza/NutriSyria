@@ -83,15 +83,35 @@ enum HealthCondition: string
     }
 
     /**
-     * A line under the choice, for a condition that is a sign rather than a diagnosis: jaundice
-     * has several causes, each with its own diet (the owner's decision a).
+     * A line under the choice. Jaundice is a sign rather than a diagnosis, with several causes
+     * each with its own diet (the owner's decision a). The others say how the stages of a
+     * recovery are told: by adding "عدم تحمّل الدسم" while fat still troubles, and removing it
+     * after (the owner's decision c, instead of a condition per stage).
      */
     public function hint(): ?string
     {
         return match ($this) {
-            self::Jaundice => 'إن عرفت السبب، اختره بدلاً منه: الكبد الوبائي أو التليّف، أو عدم تحمّل الدسم (انسداد المرارة).',
+            self::Jaundice => 'إن عرفت السبب، اختره بدلاً منه: الكبد الوبائي أو التليّف، أو عدم تحمّل الدسم (انسداد المرارة). وإن كان الدسم لا يزال يتعبك، اختر معه «عدم تحمّل الدسم».',
+            self::GallbladderRemoved => 'في الأسابيع الأولى بعد العملية، أو إن كان الدسم لا يزال يتعبك، اختر معها «عدم تحمّل الدسم»، وأزلها حين ترتاح.',
+            self::Reflux => 'إن كان الطعام الدسم يزيد الحرقة عندك، اختر معها «عدم تحمّل الدسم».',
+            self::FatIntolerance => 'حالة تمرّ غالباً: أزلها حين تتحمّل الدسم براحة. نذكّرك بها كل أربعة أسابيع.',
             default => null,
         };
+    }
+
+    /** Passing states: the person is asked every few weeks whether they still hold. */
+    public function isTemporary(): bool
+    {
+        return in_array($this, [self::FatIntolerance, self::Jaundice], true);
+    }
+
+    /**
+     * A digestion that may suffer from a lot of legume fibre at once (gas, bloating): such a
+     * meal gets a gentle note, never a lower level (the owner's decision 2a).
+     */
+    public function feelsLegumeFibre(): bool
+    {
+        return in_array($this, [self::Reflux, self::GallbladderRemoved, self::FatIntolerance, self::Pancreatitis, self::Jaundice], true);
     }
 
     /** Pregnancy, gestational diabetes and menopause are offered to women only. */

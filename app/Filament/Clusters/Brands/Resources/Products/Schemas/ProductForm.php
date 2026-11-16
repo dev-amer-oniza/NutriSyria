@@ -84,6 +84,10 @@ class ProductForm
                             ->label('نشط')
                             ->default(true)
                             ->helperText('المنتج غير النشط لا يظهر للمستخدمين'),
+                        Toggle::make('eaten_with_bread')
+                            ->label('تؤكل عادةً مع الخبز')
+                            ->default(false)
+                            ->helperText('تقول صفحتها إن القيم للصحن وحده، بلا خبز.'),
                         Textarea::make('description')
                             ->label('الوصف (نص تسويقي للقائمة)')
                             ->columnSpanFull(),

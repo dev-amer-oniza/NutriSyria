@@ -48,6 +48,22 @@ class SiteNotification extends Notification
             $request->end_reason ?: 'عادت معاييرك إلى قيمك أنت، ويمكنك تعديل بياناتك من جديد.', route('site.my-nutritionist', absolute: false));
     }
 
+    /**
+     * Four weeks on with a passing condition: does it still hold? (App\Services\Nutrition\RecoveryReminder)
+     *
+     * @param  list<string>  $conditions  their labels
+     */
+    public static function recoveryCheck(array $conditions, bool $managed): self
+    {
+        $names = implode(' و', array_map(fn (string $c) => '«'.$c.'»', $conditions));
+
+        return new self('info', 'هل ما زال عندك '.$names.'؟',
+            $managed
+                ? 'إن تحسّنت، أخبر أخصائيّك ليحدّث ملفك، فنقيّم الوجبات على وضعك الجديد.'
+                : 'إن تحسّنت، أزلها من بياناتك الصحية، فنقيّم الوجبات على وضعك الجديد.',
+            route('site.criteria', absolute: false));
+    }
+
     private static function nutritionistName(ConsultationRequest $request): string
     {
         return $request->nutritionist->nutritionistProfile?->display_name ?? $request->nutritionist->name;

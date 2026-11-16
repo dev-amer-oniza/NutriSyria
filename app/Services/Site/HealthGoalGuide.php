@@ -121,7 +121,8 @@ class HealthGoalGuide
                 return [
                     'label' => $condition->label(),
                     'template' => $template['label'] ?? null,
-                    'text' => $condition->hint() ?? $template['description'] ?? $this->ownRules($rules['criteria'] ?? []),
+                    'text' => $template['description'] ?? $this->ownRules($rules['criteria'] ?? []),
+                    'hint' => $condition->hint(),
                     'specialist' => isset($rules['see_nutritionist']) || isset($template['see_nutritionist']),
                 ];
             }, $group['conditions']),

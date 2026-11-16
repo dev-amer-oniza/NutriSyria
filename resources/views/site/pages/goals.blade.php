@@ -65,7 +65,7 @@
                             @foreach ($group['conditions'] as $condition)
                                 <div class="ns-condition">
                                     <dt>{{ $condition['label'] }}@if ($condition['specialist']) <span class="ns-condition__tag">ننصح بأخصائي</span>@endif</dt>
-                                    <dd>@if ($condition['template'])<span class="ns-condition__template">{{ $condition['template'] }}:</span> @endif{{ $condition['text'] }}</dd>
+                                    <dd>@if ($condition['template'])<span class="ns-condition__template">{{ $condition['template'] }}:</span> @endif{{ $condition['text'] }}@if ($condition['hint'])<span class="ns-condition__hint">{{ $condition['hint'] }}</span>@endif</dd>
                                 </div>
                             @endforeach
                         </dl>

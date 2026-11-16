@@ -19,6 +19,7 @@
     .ns-condition dt { font-size: 15px; font-weight: 600; }
     .ns-condition dd { margin: var(--space-1) 0 0; font-size: 14px; line-height: 22px; color: var(--ink-muted); }
     .ns-condition__template { color: var(--pine); font-weight: 500; }
+    .ns-condition__hint { display: block; margin-top: var(--space-1); font-size: 13px; line-height: 20px; color: var(--ink-muted); }
     .ns-condition__tag { display: inline-block; margin-inline-start: var(--space-2); padding: 0 var(--space-2); border-radius: var(--radius-full); background: var(--sand); font-size: 12px; font-weight: 500; color: var(--ink-muted); }
 
     @media (max-width: 860px) {

@@ -84,7 +84,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->isSuperAdmin() || $this->checkPermissionTo($permission);
     }
 
-    /** The nutrition profile filled in on the site (null until the first step). */
+    /**
+     * The nutrition profile filled in on the site (null until the first step).
+     *
+     * @return HasOne<UserProfile, $this>
+     */
     public function profile(): HasOne
     {
         return $this->hasOne(UserProfile::class);

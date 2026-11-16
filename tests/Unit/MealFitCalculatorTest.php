@@ -188,9 +188,39 @@ class MealFitCalculatorTest extends TestCase
 
         $fit = $this->judge($this->meal(['carbohydrate_g' => 60, 'sodium_mg' => 720]), $sheet);
         $this->assertSame(4, $fit->level);
-        $this->assertSame('الصوديوم فيها 720 ملغ، وغداؤك في خطتك 700 ملغ، أي أكثر بـ3%.', $fit->reasons[0]);
+        $this->assertSame('الصوديوم فيها 720 ملغ، أي بحدود غدائك في خطتك (700 ملغ).', $fit->reasons[0]);
 
         $within = $this->judge($this->meal(['carbohydrate_g' => 60]), $sheet);
         $this->assertStringContainsString('ضمن غدائك في خطتك', $within->reasons[0]);
+    }
+
+    public function test_just_over_a_limit_reads_within_not_a_tiny_percent(): void
+    {
+        // 15.1 g of fat against the fat-intolerance meal limit of 15 g.
+        $sheet = $this->sheet(['conditions' => ['fat_intolerance']]);
+        $fit = $this->judge($this->meal(['fat_g' => 15.1, 'energy_kcal' => 450]), $sheet);
+
+        $this->assertSame(4, $fit->level);
+        $this->assertContains('دهون الوجبة فيها 15 غ، أي بحدود حدّك للوجبة (15 غ).', $fit->reasons);
+    }
+
+    public function test_legume_fibre_gets_a_note_for_a_sensitive_digestion_only(): void
+    {
+        $hummus = new MealFacts(
+            id: 2, name: 'حمص بطحينة', brand: 'المطبخ السوري', description: null, servingGrams: 115,
+            nutrients: ['energy_kcal' => 268, 'carbohydrate_g' => 26, 'protein_g' => 10, 'fat_g' => 15, 'fiber_g' => 7.6, 'sodium_mg' => 306],
+            verification: 'calculated', image: null, allergensChecked: true, ingredients: ['حمص', 'طحينة', 'ثوم'],
+        );
+
+        $sensitive = $this->judge($hummus, $this->sheet(['conditions' => ['gallbladder_removed']]));
+        $this->assertStringContainsString('7.6 غ ألياف من البقوليات', implode(' ', $sensitive->notes));
+
+        // Without such a condition, or without legumes, no note.
+        $this->assertStringNotContainsString('البقوليات', implode(' ', $this->judge($hummus)->notes));
+        $noLegumes = new MealFacts(
+            id: 3, name: 'بطاطا', brand: 'x', description: null, servingGrams: 115,
+            nutrients: ['fiber_g' => 7.6], verification: 'calculated', image: null, ingredients: ['بطاطا'],
+        );
+        $this->assertStringNotContainsString('البقوليات', implode(' ', $this->judge($noLegumes, $this->sheet(['conditions' => ['gallbladder_removed']]))->notes));
     }
 }

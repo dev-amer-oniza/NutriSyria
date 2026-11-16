@@ -48,6 +48,22 @@ return [
     */
     'fit_target_limits' => ['energy_kcal', 'carbohydrate_g', 'fat_g'],
 
+    /*
+    | Over a limit by less than this (%), the reason says "بحدود" instead of a percent, so
+    | 15.1 g against 15 g never reads "15 g, and 15 g: 1% more" (the owner's decision 3a).
+    */
+    'fit_near_pct' => 5,
+
+    /*
+    | Legume fibre (the owner's decision 2a): for a person with a sensitive digestion
+    | (HealthCondition::feelsLegumeFibre), a meal with a legume ingredient and at least this
+    | much fibre in a serving gets a gentle note, never a lower level. Foods by their Arabic name.
+    */
+    'legume_fibre' => [
+        'min_fiber_g' => 5,
+        'foods' => ['حمص', 'فول', 'عدس', 'عدس أحمر', 'فاصولياء بيضاء', 'لوبيا', 'ترمس', 'بازلاء'],
+    ],
+
     /* Physical activity level => multiplier of the resting energy (App\Enums\ActivityLevel). */
     'activity_factors' => [
         'sedentary' => 1.2,

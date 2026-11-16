@@ -10,8 +10,15 @@ use App\Enums\Sex;
 use App\Services\Nutrition\Criteria\BmiCalculator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
-/** A site user's nutrition profile (App\Services\Nutrition\UserProfileService). */
+/**
+ * A site user's nutrition profile (App\Services\Nutrition\UserProfileService).
+ *
+ * @property Sex|null $sex
+ * @property list<string>|null $health_conditions
+ * @property Carbon|null $recovery_reminded_at
+ */
 class UserProfile extends Model
 {
     protected $fillable = [
@@ -33,6 +40,8 @@ class UserProfile extends Model
             'allergies' => 'encrypted:array',
             'health_consent_at' => 'datetime',
             'completed_at' => 'datetime',
+            // Set by App\Services\Nutrition\RecoveryReminder only (not fillable).
+            'recovery_reminded_at' => 'datetime',
         ];
     }
 
