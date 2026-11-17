@@ -19,6 +19,7 @@ use App\Http\Controllers\Site\MethodController;
 use App\Http\Controllers\Site\NutritionistController;
 use App\Http\Controllers\Site\PartnersController;
 use App\Http\Controllers\Site\RestaurantController;
+use App\Http\Controllers\Site\SourcesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,7 +30,6 @@ Route::get('/', HomeController::class)->name('home');
 
 Route::name('site.')->group(function () {
     $soon = [
-        'sources' => ['/sources', 'المصادر'],
         'contact' => ['/contact', 'تواصل معنا'],
         'privacy' => ['/privacy', 'سياسة الخصوصية'],
     ];
@@ -43,6 +43,9 @@ Route::name('site.')->group(function () {
 
     // "Health goals": what each goal changes in our calculations (HealthGoalGuide).
     Route::get('/goals', GoalsController::class)->name('goals');
+
+    // "Sources": where the food numbers come from, and every medical limit with its references (MedicalReferences).
+    Route::get('/sources', SourcesController::class)->name('sources');
 
     // "How we verify": sources, calculation, review, levels and limits (DataCoverage).
     Route::get('/method', MethodController::class)->name('method');

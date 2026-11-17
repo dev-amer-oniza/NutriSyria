@@ -116,6 +116,7 @@ final class CriteriaCalculator
             ) !== [],
             pendingConditions: $this->pendingConditions($conditionKeys, $nutritionistChose ? $templateKey : null),
             avoided: $this->avoided($sources),
+            conditions: $conditionKeys,
         );
     }
 

@@ -8,6 +8,7 @@ use App\Data\Nutrition\MealFacts;
 use App\Data\Nutrition\MealFit;
 use App\Enums\Allergen;
 use App\Enums\CriterionSource;
+use App\Services\Nutrition\References\MedicalReferences;
 
 /**
  * Judges one meal against one person's criteria (pure: no database). The rules agreed with
@@ -31,7 +32,7 @@ class MealFitCalculator
     private const MAX_REASONS = 3;
 
     /** Below this share of the serving, a smaller portion is not offered. */
-    private const MIN_PORTION_SHARE = 0.4;
+    public const MIN_PORTION_SHARE = 0.4;
 
     /** @param  array{fit_tolerance: array{suits: int, moderate: int, unfit: int}, fit_target_limits: list<string>, fit_near_pct?: int, legume_fibre?: array{min_fiber_g: float, foods: list<string>}, criteria?: array<string, array<string, mixed>>}  $rules  config('nutrition_criteria') */
     public function __construct(private readonly array $rules) {}
@@ -129,6 +130,7 @@ class MealFitCalculator
             info: $this->infoLines(array_values($info)),
             grounds: $this->grounds($sheet),
             general: $sheet->pendingConditions !== [],
+            sources: (new MedicalReferences($this->rules, []))->anchorFor($sheet->conditions, $sheet->template['key']),
         );
     }
 
