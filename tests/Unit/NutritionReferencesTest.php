@@ -183,6 +183,28 @@ class NutritionReferencesTest extends TestCase
         $this->assertArrayNotHasKey('sodium_mg', $this->rules['templates']['hepatic']['rules'], "ascites' 2 g equals the general limit");
     }
 
+    public function test_the_digestion_conditions_bring_no_fat_figure_as_their_references_say(): void
+    {
+        // Step 7, batch 1: no figure in any of them; two advise against restricting fat.
+        foreach (['reflux', 'gallbladder_removed', 'fat_intolerance', 'pancreatitis'] as $key) {
+            $condition = $this->rules['conditions'][$key];
+            $this->assertArrayNotHasKey('criteria', $condition, $key);
+            $this->assertArrayNotHasKey('template', $condition, $key);
+            $this->assertNotEmpty($condition['refs'], $key);
+        }
+        foreach (['gerd', 'post_cholecystectomy', 'pancreatitis'] as $template) {
+            $this->assertArrayNotHasKey('rules', $this->rules['templates'][$template], "$template has no fat limit");
+        }
+        $this->assertStringContainsString('should not need to avoid food and drink that triggered their symptoms after they have their gallbladder or gallstones removed', $this->quote('nice_gallstones_cg188'));
+        $this->assertStringContainsString('avoid food and drink that triggers their symptoms until they have their gallbladder or gallstones removed', $this->quote('nice_gallstones_cg188'));
+        $this->assertStringContainsString('usually do not require dietary fat restriction', $this->quote('ueg_pei_2025'));
+        $this->assertStringContainsString('an excessively restricted diet may be counterproductive', $this->quote('ueg_pei_2025'));
+        $this->assertStringContainsString('high risk of malabsorption, malnutrition', $this->quote('nice_pancreatitis_ng104'));
+        $this->assertStringContainsString('fatty foods', $this->quote('nice_gord_cg184'));
+        $this->assertStringContainsString('at least 3 hours before you lie down', $this->quote('niddk_gerd'));
+        $this->assertStringContainsString('small, frequent meals', $this->quote('niddk_pancreatitis'));
+    }
+
     public function test_hepatitis_jaundice_and_fatty_liver_bring_no_figures(): void
     {
         foreach (['hepatitis_acute', 'hepatitis_chronic', 'jaundice', 'fatty_liver', 'liver_cirrhosis'] as $key) {

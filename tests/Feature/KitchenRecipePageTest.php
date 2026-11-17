@@ -63,6 +63,8 @@ class KitchenRecipePageTest extends TestCase
 
     public function test_their_own_result_offers_a_change_to_try_on_the_spot(): void
     {
+        // A rule not verified yet (fat intolerance's 15 g a meal, before step 7 found no figure).
+        config(['nutrition_criteria.conditions.fat_intolerance.criteria' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]]]);
         // 40 g oil on top for 2: 20 g fat a serving, past fat intolerance's 15 g (not verified yet).
         $user = User::forceCreate(['name' => 'سامر', 'email' => uniqid().'@example.com', 'password' => 'x-secret-1', 'is_active' => true, 'email_verified_at' => now()]);
         $user->profile()->create([

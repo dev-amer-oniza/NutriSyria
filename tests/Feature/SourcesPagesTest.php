@@ -15,6 +15,8 @@ class SourcesPagesTest extends TestCase
 
     public function test_the_sources_page_shows_every_limit_with_its_reference_or_says_it_is_pending(): void
     {
+        // A rule not verified yet (fat intolerance's 15 g a meal, before step 7 found no figure).
+        config(['nutrition_criteria.conditions.fat_intolerance.criteria' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]]]);
         $this->get(route('site.sources'))->assertOk()
             ->assertSee('من أين نأتي بأرقامنا وحدودنا')
             ->assertSee('id="general"', false)
@@ -32,6 +34,7 @@ class SourcesPagesTest extends TestCase
             // Our own choices, from the config (decision 5a).
             ->assertSee('اختيارات منّا، لا من مرجع طبي')
             ->assertSee('وجبة المطعم تُقارن بـ30% من احتياجك اليومي')
+            ->assertSee('وأليافها 5 غ فأكثر')
             ->assertDontSee('id="liver_cirrhosis"', false);
     }
 

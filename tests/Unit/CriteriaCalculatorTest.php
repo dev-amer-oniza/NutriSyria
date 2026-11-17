@@ -201,19 +201,19 @@ class CriteriaCalculatorTest extends TestCase
         $this->assertSame([], $sheet->pendingConditions);
     }
 
-    public function test_digestion_templates_lower_the_fat(): void
+    public function test_digestion_conditions_bring_their_references_advice_and_no_fat_figure(): void
     {
-        $gallbladder = $this->calculate(['conditions' => ['gallbladder_removed']]);
-        $this->assertSame(['meal_fat_g' => 20.0], $this->pending($gallbladder, ['meal_fat_g']));
-        $this->assertSame(86.0, $gallbladder->get('fat_g')->value, 'the balanced 30% judges until the template is verified');
-
-        $both = $this->calculate(['conditions' => ['gallbladder_removed', 'fat_intolerance']]);
-        $this->assertSame(['meal_fat_g' => 15.0], $this->pending($both, ['meal_fat_g']), 'the stricter meal limit wins');
-        $this->assertSame('عدم تحمّل الدسم', $both->get('meal_fat_g')->origin);
-        $this->assertCount(1, $both->advice);
-
-        $pancreas = $this->calculate(['conditions' => ['pancreatitis']]);
-        $this->assertSame(['meal_fat_g' => 15.0], $this->pending($pancreas, ['meal_fat_g']));
+        // Step 7, batch 1: no reference gives a fat figure (and two advise against restricting
+        // it): the general needs judge, verified, and the doctor's number when there is one.
+        foreach (['reflux', 'gallbladder_removed', 'fat_intolerance', 'pancreatitis'] as $condition) {
+            $sheet = $this->calculate(['conditions' => [$condition]]);
+            $this->assertNull($sheet->get('meal_fat_g'), $condition);
+            $this->assertSame('balanced', $sheet->template['key'], $condition);
+            $this->assertSame([], $sheet->pendingConditions, $condition);
+            $this->assertSame(86.0, $sheet->get('fat_g')->value, $condition);
+        }
+        $this->assertStringContainsString('اكتبه في معاييري', $this->calculate(['conditions' => ['fat_intolerance']])->advice[0]);
+        $this->assertStringContainsString('أخصائي تغذية', $this->calculate(['conditions' => ['pancreatitis']])->advice[0]);
 
         $this->assertSame(['gluten'], $this->calculate(['conditions' => ['celiac']])->allergens, 'celiac avoids gluten');
     }

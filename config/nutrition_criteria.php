@@ -377,24 +377,27 @@ return [
             ],
             'see_nutritionist' => 'الغسيل يحتاج أرقاماً شخصية (البوتاسيوم والفوسفور والسوائل) يحددها لك أخصائي.',
         ],
+        /*
+        | Digestion (step 7, batch 1, decisions 1a 3a): the references give no grams of fat for
+        | these, and for the gallbladder and the pancreas they advise against restricting it
+        | (nice_gallstones_cg188, ueg_pei_2025). Their meal fat limits went; the templates stay
+        | in the nutritionist's library, judged with the balanced shares unless they choose one.
+        */
         'gerd' => [
-            'label' => 'الارتجاع المريئي', 'group' => 'digestion', 'source' => 'ACG',
-            'description' => 'حمية لطيفة، ووجبات أقل دسماً.',
+            'label' => 'الارتجاع المريئي', 'group' => 'digestion', 'source' => 'NICE · NIDDK',
+            'description' => 'تجنّب ما يزيد الحرقة عندك، ووجبة رئيسية قبل النوم بثلاث ساعات على الأقل.',
             'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
-            'rules' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 20]],
         ],
         'post_cholecystectomy' => [
-            'label' => 'ما بعد استئصال المرارة', 'group' => 'digestion', 'source' => 'ESPEN',
-            'description' => 'دهون أقل موزّعة على وجبات صغيرة.',
+            'label' => 'ما بعد استئصال المرارة', 'group' => 'digestion', 'source' => 'NICE',
+            'description' => 'بعد العملية لا يلزم تجنّب أطعمة بعينها؛ ما يتعبك منها يحدده طبيبك.',
             'macros' => ['carbs' => 55, 'protein' => 20, 'fat' => 25],
-            'rules' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 20]],
         ],
         'pancreatitis' => [
-            'label' => 'التهاب البنكرياس', 'group' => 'digestion', 'source' => 'ESPEN',
-            'description' => 'دهون قليلة (15% من السعرات، ضمن 30 إلى 50 غ في اليوم) لتسهيل الهضم.',
+            'label' => 'التهاب البنكرياس', 'group' => 'digestion', 'source' => 'UEG/ESPEN · NICE',
+            'description' => 'وجبات صغيرة متكررة، والدسم يحدده أخصائي التغذية: تقليله كثيراً قد يضر.',
             'macros' => ['carbs' => 65, 'protein' => 20, 'fat' => 15],
-            'rules' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]],
-            'see_nutritionist' => 'التهاب البنكرياس يحتاج متابعة أخصائي.',
+            'see_nutritionist' => 'التهاب البنكرياس يحتاج أخصائي تغذية: خطر سوء التغذية فيه عالٍ.',
         ],
         'celiac' => [
             'label' => 'السيلياك (حساسية الغلوتين)', 'group' => 'digestion', 'source' => 'ACG',
@@ -491,14 +494,27 @@ return [
         'jaundice' => [
             'see_nutritionist' => 'اليرقان له أكثر من سبب، ولكل سبب غذاؤه. راجع طبيبك ليعرف السبب، ثم اختر الحالة الأدق.',
         ],
-        'reflux' => ['template' => 'gerd'],
-        'gallbladder_removed' => ['template' => 'post_cholecystectomy'],
+        /*
+        | Digestion (step 7, batch 1): what the references say has no figure, so these bring the
+        | general needs, verified, and their advice in words (HealthCondition::hint). A doctor's
+        | fat limit, typed in معاييري, judges as a strict one.
+        |  - reflux: avoid what brings the symptoms, the main meal well before bed, weight loss if
+        |    overweight (nice_gord_cg184, niddk_gerd).
+        |  - gallbladder removed: nothing needs avoiding after the operation (nice_gallstones_cg188).
+        |  - fat intolerance: avoid what brings the symptoms (nice_gallstones_cg188); no figure.
+        |  - pancreatitis: no fat restriction with enzymes, a dietitian for everyone, small frequent
+        |    meals (ueg_pei_2025, nice_pancreatitis_ng104, niddk_pancreatitis).
+        */
+        'reflux' => ['refs' => ['nice_gord_cg184', 'niddk_gerd']],
+        'gallbladder_removed' => ['refs' => ['nice_gallstones_cg188']],
         'fat_intolerance' => [
-            'template' => 'post_cholecystectomy',
-            'criteria' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]],
-            'see_nutritionist' => 'عدم تحمّل الدسم قد يكون له سبب يحتاج تشخيصاً (المرارة أو البنكرياس). راجع أخصائياً.',
+            'refs' => ['nice_gallstones_cg188'],
+            'see_nutritionist' => 'عدم تحمّل الدسم قد يكون له سبب يحتاج تشخيصاً (المرارة أو البنكرياس). راجع أخصائياً، وإن أعطاك طبيبك حداً للدهون، اكتبه في معاييري فنقيّم عليه.',
         ],
-        'pancreatitis' => ['template' => 'pancreatitis'],
+        'pancreatitis' => [
+            'refs' => ['ueg_pei_2025', 'nice_pancreatitis_ng104', 'niddk_pancreatitis'],
+            'see_nutritionist' => 'التهاب البنكرياس يحتاج أخصائي تغذية: خطر سوء التغذية فيه عالٍ، ولا تقلّل الدسم كثيراً من نفسك. إن أعطاك طبيبك حداً للدهون، اكتبه في معاييري.',
+        ],
         'celiac' => ['template' => 'celiac'],
         'gout' => ['template' => 'gout'],
         'anemia' => [

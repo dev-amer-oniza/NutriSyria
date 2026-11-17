@@ -86,6 +86,8 @@ class MealSourcesTest extends TestCase
 
     public function test_what_would_help_is_tried_and_offered_with_a_way_to_cook_it(): void
     {
+        // A rule not verified yet (fat intolerance's 15 g a meal, before step 7 found no figure).
+        config(['nutrition_criteria.conditions.fat_intolerance.criteria' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]]]);
         // Fat intolerance's 15 g a meal is not verified yet: 24 g changes no verdict, but leaving
         // the oil off and cutting the tahini brings the plate within it (step 6, decision 2a).
         $meal = $this->meal(kitchen: true);
@@ -103,6 +105,8 @@ class MealSourcesTest extends TestCase
 
     public function test_a_restaurant_dish_is_offered_only_what_can_be_asked_for_without_amounts(): void
     {
+        // A rule not verified yet (fat intolerance's 15 g a meal, before step 7 found no figure).
+        config(['nutrition_criteria.conditions.fat_intolerance.criteria' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]]]);
         // 17 g fat a serving, 7 g of it from the oil on top: without it, 10 g, within 15 g.
         $meal = $this->meal(kitchen: false, per100g: ['fat_g' => 6.8], contributions: ['fat_g' => [
             ['label' => 'طحينة', 'amount' => 16.0, 'after' => false],

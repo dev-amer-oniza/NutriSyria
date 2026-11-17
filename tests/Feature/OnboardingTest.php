@@ -211,7 +211,8 @@ class OnboardingTest extends TestCase
             ->assertRedirect('/onboarding/done');
 
         $sheet = app(PersonalCriteria::class)->for($this->user->fresh());
-        $this->assertSame(20.0, $sheet->get('meal_fat_g')->value);
+        // Step 7: no reference gives a fat figure after the gallbladder goes (NICE CG188).
+        $this->assertNull($sheet->get('meal_fat_g'));
         $this->assertSame(8.0, $sheet->get('iron_mg')->value);
         $this->get('/account/criteria')->assertSee('دهون الوجبة')->assertSee('الحديد');
     }

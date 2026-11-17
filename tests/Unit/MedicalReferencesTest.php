@@ -68,7 +68,11 @@ class MedicalReferencesTest extends TestCase
         $this->assertSame(['key' => 'celiac', 'label' => 'السيلياك (حساسية الغلوتين)', 'anchor' => 'template-celiac'], $celiac->template);
         $this->assertSame(ReferenceCard::PARTIAL, $celiac->status);
 
-        $this->assertSame(ReferenceCard::PENDING, $this->references->condition(HealthCondition::FatIntolerance)->status);
+        // A condition whose own rule is not verified yet reads as pending.
+        $rules = require __DIR__.'/../../config/nutrition_criteria.php';
+        $rules['conditions']['fat_intolerance'] = ['criteria' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]]];
+        $pending = new MedicalReferences($rules, require __DIR__.'/../../config/nutrition_references.php');
+        $this->assertSame(ReferenceCard::PENDING, $pending->condition(HealthCondition::FatIntolerance)->status);
     }
 
     public function test_the_liver_conditions_read_as_their_references_say(): void
