@@ -15,13 +15,18 @@
             <p class="ns-template__why">
                 <span @class(['ns-source', 'ns-source--'.$template['source']->value])>
                     {{ match ($template['source']) {
-                        \App\Enums\CriterionSource::Default => 'اخترناه حسب حالتك',
+                        \App\Enums\CriterionSource::Default => ($template['brought_by'] ?? []) !== []
+                            ? 'اخترناه حسب حالتك: '.implode('، ', $template['brought_by'])
+                            : 'القالب العام',
                         \App\Enums\CriterionSource::User => 'اخترته أنت',
                         \App\Enums\CriterionSource::Nutritionist => 'اختاره أخصائيّك',
                     } }}
                 </span>
                 {{ $template['description'] }}
             </p>
+            @if ($template['source'] === \App\Enums\CriterionSource::Default && ($template['brought_by'] ?? []) === [] && $sheet->conditions !== [])
+                <p class="ns-field__hint">حالاتك الصحية لا تغيّر توزيع السعرات في مراجعها، فنستعمل القالب العام الموثّق، ونطبّق ما تقوله مراجعها في «معاييري» وتقييم الوجبات.</p>
+            @endif
             @if (! empty($template['note']))
                 <p class="ns-field__hint">ملاحظة أخصائيّك: {{ $template['note'] }}</p>
             @endif

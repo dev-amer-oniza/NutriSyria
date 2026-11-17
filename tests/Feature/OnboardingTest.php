@@ -219,6 +219,25 @@ class OnboardingTest extends TestCase
         $this->get('/account/criteria')->assertSee('دهون الوجبة')->assertSee('الحديد');
     }
 
+    public function test_the_template_card_says_which_condition_chose_it_or_that_it_is_the_general_one(): void
+    {
+        $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1990, 'height_cm' => 178, 'weight_kg' => 80]);
+        $this->post('/onboarding/activity', ['activity_level' => 'moderate', 'goal' => 'maintain']);
+
+        // The gallbladder brings no template (step 7): the general one, said so, not "for your condition".
+        $this->post('/onboarding/health', ['conditions' => ['gallbladder_removed', 'fat_intolerance'], 'consent' => '1']);
+        $this->get('/account/criteria')->assertOk()
+            ->assertSee('القالب العام')
+            ->assertSee('حالاتك الصحية لا تغيّر توزيع السعرات في مراجعها')
+            ->assertDontSee('اخترناه حسب حالتك');
+
+        // Celiac brings its own: named with the condition.
+        $this->post('/onboarding/health', ['conditions' => ['celiac'], 'consent' => '1']);
+        $this->get('/account/criteria')->assertOk()
+            ->assertSee('اخترناه حسب حالتك: السيلياك (حساسية الغلوتين)')
+            ->assertDontSee('حالاتك الصحية لا تغيّر توزيع السعرات');
+    }
+
     public function test_jaundice_explains_its_causes_and_brings_no_limits(): void
     {
         $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1990, 'height_cm' => 178, 'weight_kg' => 80]);
@@ -247,7 +266,7 @@ class OnboardingTest extends TestCase
     public function test_a_person_picks_a_general_template_and_puts_it_back(): void
     {
         $this->completeSetUp();
-        $this->get('/onboarding/done')->assertSee('المتوازن')->assertSee('اخترناه حسب حالتك');
+        $this->get('/onboarding/done')->assertSee('المتوازن')->assertSee('القالب العام')->assertDontSee('اخترناه حسب حالتك');
 
         $this->put('/account/template', ['template' => 'ckd'])->assertSessionHasErrors('template');
         $this->put('/account/template', ['template' => 'mediterranean'])->assertSessionHas('status');
