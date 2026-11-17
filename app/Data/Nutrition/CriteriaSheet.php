@@ -10,7 +10,7 @@ final readonly class CriteriaSheet
     /**
      * @param  array<string, CriterionValue>  $criteria  keyed by criterion key
      * @param  array{bmr: int, tdee: int, adjustment: int, floored: bool}  $energy
-     * @param  array{key: string, label: string, description: string, macros: array{carbs: int, protein: int, fat: int}, source: CriterionSource, verified?: bool, judging?: string, note?: string}  $template
+     * @param  array{key: string, label: string, description: string, macros: array{carbs: int, protein: int, fat: int}, source: CriterionSource, verified?: bool, judging?: string, brought_by?: list<string>, note?: string}  $template
      * @param  list<string>  $advice  reasons to see a nutritionist
      * @param  list<string>  $allergens  App\Enums\Allergen values to avoid
      * @param  array{name: string, time: ?string, share: float, kcal: int, targets: array<string, float>}|null  $meal

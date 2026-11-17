@@ -107,6 +107,11 @@ final class CriteriaCalculator
                 'source' => $templateSource,
                 'verified' => $templateVerified,
                 'judging' => $judging['label'],
+                // Which conditions brought it: none means the general template, conditions or not.
+                'brought_by' => $templateSource === CriterionSource::Default
+                    ? array_values(array_map(fn (string $k) => $this->conditionLabel($k),
+                        array_filter($conditionKeys, fn (string $k) => ($this->rules['conditions'][$k]['template'] ?? null) === $templateKey)))
+                    : [],
             ],
             advice: array_values(array_unique(array_filter(array_column($sources, 'see_nutritionist')))),
             allergens: array_values(array_unique([...($profile['allergens'] ?? []), ...array_merge(...array_map(fn ($s) => $s['allergens'] ?? [], $sources))])),
