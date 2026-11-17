@@ -13,7 +13,7 @@ class CriterionRequest extends ProfileFormRequest
     {
         [$min, $max] = PersonalCriteria::range($this->route('criterion'));
 
-        return ['value' => ['required', 'numeric', "between:$min,$max"]];
+        return ['value' => ['required', 'numeric', "between:$min,$max"], 'from_doctor' => ['sometimes', 'boolean']];
     }
 
     public function messages(): array

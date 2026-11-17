@@ -59,6 +59,10 @@
     .ns-source { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; }
     .ns-source--default { background: var(--sand); color: var(--ink); }
     .ns-source--user { background: var(--terracotta-soft); color: var(--terracotta-ink); }
+    .ns-source--doctor { background: var(--pine-soft); color: var(--pine); }
+    .ns-criterion__pending { margin: var(--space-1) 0 0; font-size: 12px; line-height: 18px; color: var(--ink-muted); }
+    .ns-criterion__pending::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-inline-end: var(--space-2); border-radius: 50%; background: var(--sand-strong, #d9cfbf); vertical-align: middle; }
+    .ns-criterion__doctor { flex-basis: 100%; order: 1; font-size: 13px; }
     .ns-source--nutritionist { background: var(--pine-soft); color: var(--pine); }
     .ns-health { margin-top: var(--space-8); padding: var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-lg); }
     .ns-health h2 { margin: 0 0 var(--space-3); }

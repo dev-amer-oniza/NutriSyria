@@ -26,8 +26,8 @@ use InvalidArgumentException;
  */
 class PersonalCriteria
 {
-    /** Later sources win (CriterionSource order). */
-    private const PRECEDENCE = [CriterionSource::Nutritionist, CriterionSource::User];
+    /** The first source found wins: the nutritionist, then a number from the doctor, then the person's own. */
+    private const PRECEDENCE = [CriterionSource::Nutritionist, CriterionSource::Doctor, CriterionSource::User];
 
     /** The sheet for a person; null while the profile is incomplete or under the minimum age. */
     public function for(User $user): ?CriteriaSheet
@@ -133,13 +133,19 @@ class PersonalCriteria
         return UserDietTemplate::where('user_id', $user->getKey())->where('source', CriterionSource::Nutritionist)->exists();
     }
 
-    public function setByUser(User $user, string $criterion, float $value): void
+    /**
+     * The person's own value, or the one their doctor gave them ($fromDoctor, step 2 decision
+     * 4a: it judges like a strict limit). One of the two at a time.
+     */
+    public function setByUser(User $user, string $criterion, float $value, bool $fromDoctor = false): void
     {
         if ($this->lockedFor($user, $criterion)) {
             throw new CriterionLocked;
         }
 
-        $this->store($user, $criterion, CriterionSource::User, $value, null, $user);
+        [$source, $other] = $fromDoctor ? [CriterionSource::Doctor, CriterionSource::User] : [CriterionSource::User, CriterionSource::Doctor];
+        $this->store($user, $criterion, $source, $value, null, $user);
+        $this->forget($user, $criterion, $other, $user);
     }
 
     public function resetByUser(User $user, string $criterion): void
@@ -149,6 +155,7 @@ class PersonalCriteria
         }
 
         $this->forget($user, $criterion, CriterionSource::User, $user);
+        $this->forget($user, $criterion, CriterionSource::Doctor, $user);
     }
 
     /** The nutritionist's value (ClientWorkspace checks the link and the range first). */
@@ -271,6 +278,7 @@ class PersonalCriteria
         return $definition ? new CriterionValue(
             $key, $definition['label'], $definition['unit'], $definition['bound'], $definition['scope'],
             $definition['nutrient'], $row->value, $row->source, $row->source->label(), $row->note ?? $definition['note'] ?? null,
+            kind: $row->source->kind($definition['bound'], $definition['kind'] ?? 'guidance'),
         ) : null;
     }
 

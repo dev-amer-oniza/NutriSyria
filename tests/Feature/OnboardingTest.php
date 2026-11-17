@@ -242,8 +242,10 @@ class OnboardingTest extends TestCase
         $sheet = app(PersonalCriteria::class)->for($this->user->fresh());
         $this->assertSame('mediterranean', $sheet->template['key']);
         $this->assertSame(CriterionSource::User, $sheet->template['source']);
-        $this->assertSame(84.0, $sheet->get('protein_g')->value);
-        $this->get('/account/criteria')->assertSee('حمية البحر المتوسط')->assertSee('اخترته أنت');
+        // Not verified yet: the balanced 20% judges (step 2, decision 1a), and the card says so.
+        $this->assertSame(112.0, $sheet->get('protein_g')->value);
+        $this->get('/account/criteria')->assertSee('حمية البحر المتوسط')->assertSee('اخترته أنت')
+            ->assertSee('هذا القالب قيد التوثيق: نقيّم وجباتك الآن بتوزيع «المتوازن» الموثّق');
 
         $this->delete('/account/template')->assertSessionHas('status');
         $this->assertSame('balanced', app(PersonalCriteria::class)->for($this->user->fresh())->template['key']);

@@ -65,6 +65,7 @@
                         @include('site.components.fit-result', [
                             'level' => $fit->level, 'reasons' => $fit->reasons, 'notes' => $fit->notes,
                             'share' => $fit->share, 'portion' => $fit->portion, 'who' => $fit->who(),
+                    'info' => $fit->info, 'grounds' => $fit->grounds, 'general' => $fit->general,
                         ])
                     </div>
                     <a class="ns-link" href="{{ route('site.criteria') }}">معاييري</a>

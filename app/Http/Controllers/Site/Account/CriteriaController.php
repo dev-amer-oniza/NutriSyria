@@ -48,7 +48,7 @@ class CriteriaController extends Controller
     public function update(CriterionRequest $request, string $criterion, PersonalCriteria $criteria): RedirectResponse
     {
         try {
-            $criteria->setByUser($request->user(), $criterion, (float) $request->validated('value'));
+            $criteria->setByUser($request->user(), $criterion, (float) $request->validated('value'), $request->boolean('from_doctor'));
         } catch (CriterionLocked $e) {
             return back()->with('error', $e->userMessage());
         }

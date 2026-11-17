@@ -55,6 +55,12 @@
                                         {{ $c->source === \App\Enums\CriterionSource::Default ? $c->basis : ($c->defaultValue ? 'المحسوب تلقائياً: '.number_format($c->defaultValue).' '.$c->unit : '') }}
                                     </p>
                                     @if ($c->note)<p class="ns-field__hint">{{ $c->note }}</p>@endif
+                                    @unless ($c->verified)
+                                        <p class="ns-criterion__pending">قيد التوثيق: لا يدخل في تقييم الوجبات بعد</p>
+                                    @endunless
+                                    @if ($c->pending)
+                                        <p class="ns-criterion__pending">حد «{{ $c->pending->origin }}»: <span class="ns-num">{{ number_format($c->pending->value) }}</span> {{ $c->unit }}{{ $c->pending->scope === 'meal' ? ' للوجبة' : '' }}، قيد التوثيق: لا يدخل في تقييم الوجبات بعد</p>
+                                    @endif
                                 @else
                                     <p class="ns-criterion__basis">غير مفعّل لك. يُفعَّل تلقائياً مع بعض الحالات الصحية، أو حدده بنفسك.</p>
                                 @endif
@@ -65,7 +71,7 @@
                                     <span class="ns-criterion__locked">يغيّره أخصائيّك فقط</span>
                                 @else
                                     <button class="ns-btn ns-btn--ghost ns-btn--sm" type="button" x-show="! editing" @click="editing = true">{{ $c ? 'تعديل' : 'تحديد' }}</button>
-                                    @if ($c?->source === \App\Enums\CriterionSource::User)
+                                    @if (in_array($c?->source, [\App\Enums\CriterionSource::User, \App\Enums\CriterionSource::Doctor], true))
                                         <form method="post" action="{{ route('site.criteria.reset', $key) }}" x-show="! editing">
                                             @csrf @method('delete')
                                             <button class="ns-btn ns-btn--ghost ns-btn--sm" type="submit">إرجاع للمحسوب</button>
@@ -82,6 +88,10 @@
                                        value="{{ old('_criterion') === $key ? old('value') : ($c?->value) }}"
                                        placeholder="{{ $definition['range'][0] }}–{{ $definition['range'][1] }}">
                                 <span class="ns-criterion__unit">{{ $definition['unit'] }}</span>
+                                <label class="ns-check ns-criterion__doctor">
+                                    <input type="checkbox" name="from_doctor" value="1" @checked(old('_criterion') === $key ? old('from_doctor') : $c?->source === \App\Enums\CriterionSource::Doctor)>
+                                    <span>هذا الرقم حدّده لي طبيبي</span>
+                                </label>
                                 <button class="ns-btn ns-btn--primary ns-btn--sm" type="submit">حفظ</button>
                                 <button class="ns-btn ns-btn--ghost ns-btn--sm" type="button" @click="editing = false">إلغاء</button>
                                 @if (old('_criterion') === $key)

@@ -25,6 +25,9 @@
             @if (! empty($template['note']))
                 <p class="ns-field__hint">ملاحظة أخصائيّك: {{ $template['note'] }}</p>
             @endif
+            @if (($template['verified'] ?? true) === false)
+                <p class="ns-criterion__pending">هذا القالب قيد التوثيق: نقيّم وجباتك الآن بتوزيع «{{ $template['judging'] }}» الموثّق، ونعرض قالبك للمعلومة.</p>
+            @endif
         </div>
         @isset($selectable)
             @if ($locked)
