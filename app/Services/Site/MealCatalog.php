@@ -170,6 +170,7 @@ class MealCatalog
             platform: (bool) $product->brand->is_platform,
             withBread: (bool) $product->eaten_with_bread,
             contributions: $this->contributions($product, $serving),
+            lines: $this->lines($product, $serving),
         );
     }
 
@@ -191,6 +192,18 @@ class MealCatalog
             ($serving ?? 100) / $weight,
             ranksOnly: ! $product->isPlatform(),
         ) : [];
+    }
+
+    /** What each ingredient brings to the portion, to try a suggestion (step 6); a restaurant's on-top lines only. */
+    private function lines(Product $product, ?float $serving): array
+    {
+        $recipe = $product->recipe;
+        if (! $recipe instanceof ProductRecipe || ! $recipe->contributions || $this->verification($product) === 'verified') {
+            return [];
+        }
+        $weight = (float) $recipe->weight_after_cooking_g;
+
+        return $weight > 0 ? Contributions::lines($recipe->contributions, ($serving ?? 100) / $weight, afterOnly: ! $product->isPlatform()) : [];
     }
 
     /** One serving after cooking; null when the recipe lacks a cooked weight or servings. */

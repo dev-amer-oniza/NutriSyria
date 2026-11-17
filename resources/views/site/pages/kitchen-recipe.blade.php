@@ -7,6 +7,8 @@
         <div class="ns-wrap ns-mine-page"
              x-data="customRecipe(@js([
                  'recipe' => $recipe,
+                 'original' => $original,
+                 'applied' => $applied,
                  'ingredientsUrl' => route('site.kitchen.ingredients'),
                  'analyzeUrl' => route('site.kitchen.recipe.analyze', $meal->id),
                  'storageKey' => 'ns.myRecipe.'.$meal->id,
@@ -23,6 +25,11 @@
                     <li><span class="ns-num">3</span> اضغط «احسب قيم طبختي»</li>
                 </ol>
             </header>
+
+            <div class="ns-applied" role="status" x-show="applied" x-cloak>
+                <span>✓ طبّقنا الاقتراح: <strong x-text="applied"></strong>. عدّل ما تريد ثم احسب.</span>
+                <button type="button" class="ns-link" @click="reset()">ارجع لوصفتنا</button>
+            </div>
 
             <form class="ns-mine-form" @submit.prevent="analyze" novalidate>
                 @csrf

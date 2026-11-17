@@ -33,6 +33,7 @@ final class RecipeCalculator
         $gramsBeforeCooking = 0.0;   // ingredients present before cooking starts
         $gramsTotal = 0.0;           // every ingredient, including those added after cooking
         $unconverted = [];           // lines with unknown grams: reported, never counted as zero
+        $lineGrams = [];             // each ingredient's grams, as by_line groups them (step 6)
 
         foreach ($ingredients as $line) {
             if ($line['grams'] === null) {
@@ -41,6 +42,9 @@ final class RecipeCalculator
                 continue;
             }
             $gramsTotal += $line['grams'];
+            $key = $line['label'].($line['is_added_after_cooking'] ? '|after' : '');
+            $lineGrams[$key] ??= ['label' => $line['label'], 'amount' => 0.0, 'after' => $line['is_added_after_cooking']];
+            $lineGrams[$key]['amount'] += (float) $line['grams'];
             if (! $line['is_added_after_cooking']) {
                 $gramsBeforeCooking += $line['grams'];
             }
@@ -115,6 +119,7 @@ final class RecipeCalculator
             servings: max(1, $servings),
             weightWarning: $weightWarning,
             unconvertedIngredients: $unconverted,
+            lineGrams: array_values($lineGrams),
         );
     }
 }

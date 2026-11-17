@@ -10,6 +10,9 @@ namespace App\Services\Nutrition;
  */
 final readonly class RecipeAnalysisResult
 {
+    /** The key of contributions() that holds each ingredient's grams rather than a nutrient. */
+    public const GRAMS = 'grams';
+
     /**
      * @param  array<int, array{nutrient: array, amount: ?float, missing_from: string[], borrowed?: array<string, string>, computed?: string[], by_line?: list<array{label: string, amount: float, after: bool}>}>  $totals
      *                                                                                                                                                                                                                       absolute amount for the WHOLE recipe, keyed by nutrient_id
@@ -24,13 +27,15 @@ final readonly class RecipeAnalysisResult
         public ?string $weightWarning,
         /** @var list<array{label: string, problem: ?string}> lines with unknown grams, left out of every total */
         public array $unconvertedIngredients = [],
+        /** @var list<array{label: string, amount: float, after: bool}> each ingredient's grams, grouped as by_line */
+        public array $lineGrams = [],
     ) {}
 
     /** The same totals with a cooked weight given afterwards (a visitor's estimate): no new calculation. */
     public function withWeightAfterCooking(float $grams): self
     {
         return new self($this->totals, $this->gramsBeforeCooking, $this->gramsTotal, $this->weightBeforeCookingG,
-            $grams, $this->servings, $this->weightWarning, $this->unconvertedIngredients);
+            $grams, $this->servings, $this->weightWarning, $this->unconvertedIngredients, $this->lineGrams);
     }
 
     /** Grams added after cooking (garnish, oil on top): weighed as they are, never cooked. */
@@ -89,14 +94,17 @@ final readonly class RecipeAnalysisResult
     public function contributions(float $factor = 1.0): array
     {
         $out = [];
-        foreach ($this->totals as $row) {
+        $rows = array_map(fn (array $row) => [$row['nutrient']['code'], $row['by_line'] ?? []], $this->totals);
+        // The ingredients' own grams too, under GRAMS: what a plate loses without one (step 6).
+        $rows[] = [self::GRAMS, $this->lineGrams];
+        foreach ($rows as [$code, $byLine]) {
             $lines = array_values(array_filter(array_map(
                 fn (array $line) => [...$line, 'amount' => round($line['amount'] * $factor, 4)],
-                $row['by_line'] ?? [],
+                $byLine,
             ), fn (array $line) => $line['amount'] > 0));
             if ($lines) {
                 usort($lines, fn (array $a, array $b) => $b['amount'] <=> $a['amount']);
-                $out[$row['nutrient']['code']] = $lines;
+                $out[$code] = $lines;
             }
         }
 

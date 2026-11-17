@@ -161,9 +161,11 @@ Alpine.data('customRecipe', (config) => ({
     error: '',
     resultHtml: '',
     nextKey: 1,
+    applied: config.applied ?? null,
 
     async init() {
-        this.load(this.saved() ?? config.recipe);
+        // A suggestion opened from the meal page ("اطبخها هكذا") starts from it, not the kept draft.
+        this.load(this.applied ? config.recipe : (this.saved() ?? config.recipe));
         this.$watch('lines', () => this.save(), { deep: true });
         this.$watch('servings', () => this.save());
         this.$watch('weightAfter', () => this.save());
@@ -219,9 +221,34 @@ Alpine.data('customRecipe', (config) => ({
 
     reset() {
         try { sessionStorage.removeItem(config.storageKey); } catch { /* nothing kept */ }
-        this.load(config.recipe);
+        this.load(config.original ?? config.recipe);
+        this.applied = null;
         this.resultHtml = '';
         this.error = '';
+    },
+
+    // "جرّبها" in the result (step 6): the same cut applied to the recipe being edited, then
+    // analysed again. An amount cut the way the server cuts it (KitchenRecipeController::scaled).
+    apply(change) {
+        const fractions = { '0.75': 'بثلاثة أرباع الكمية', '0.6667': 'بثلثي الكمية', '0.5': 'بنصف الكمية' };
+        const said = [];
+        change.c.forEach((cut) => {
+            const matches = (line) => this.byId[line.record_id]?.name === cut.i && Boolean(line.after) === Boolean(cut.a);
+            if (cut.k <= 0) {
+                this.lines = this.lines.filter((line) => !matches(line));
+            } else {
+                this.lines.forEach((line) => {
+                    if (!matches(line) || !(line.amount > 0)) return;
+                    const amount = line.amount * cut.k;
+                    line.amount = amount >= 10 ? Math.round(amount) : Math.max(0.5, Math.round(amount * 2) / 2);
+                });
+            }
+            const name = cut.i + (cut.a ? ' على الوجه' : '');
+            said.push(cut.k <= 0 ? 'بلا ' + name : name + ' ' + (fractions[String(cut.k)] ?? 'بكمية أقل'));
+        });
+        this.applied = said.join('، و');
+        this.weightAfter = null; // less of an ingredient weighs less: estimated again from ours
+        this.analyze();
     },
 
     label(id) {

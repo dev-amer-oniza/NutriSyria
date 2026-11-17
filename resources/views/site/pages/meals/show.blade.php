@@ -66,7 +66,7 @@
                             'level' => $fit->level, 'reasons' => $fit->reasons, 'notes' => $fit->notes,
                             'share' => $fit->share, 'portion' => $fit->portion, 'who' => $fit->who(),
                     'info' => $fit->info, 'grounds' => $fit->grounds, 'general' => $fit->general, 'sources' => $fit->sources,
-                            'meal' => $meal, 'causes' => $fit->causes, 'infoCauses' => $fit->infoCauses,
+                            'meal' => $meal, 'causes' => $fit->causes, 'infoCauses' => $fit->infoCauses, 'fitSuggestions' => $suggestions,
                         ])
                     </div>
                     <a class="ns-link" href="{{ route('site.criteria') }}">معاييري</a>

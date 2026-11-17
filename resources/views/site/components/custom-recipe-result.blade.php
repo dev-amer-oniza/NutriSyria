@@ -57,12 +57,16 @@
     <section class="ns-mine__fit" aria-labelledby="mine-fit">
         <h3 class="ns-advice__title" id="mine-fit">مدى مناسبة طبختك لك</h3>
         @if ($result->fit)
+            @if ($result->originalLevel !== null && $result->originalLevel !== $result->fit->level)
+                <p class="ns-mine__was">بوصفتنا كانت: {{ config('site.fit_levels.'.$result->originalLevel) }}</p>
+            @endif
             <div class="ns-fit">
                 @include('site.components.fit-result', [
                     'level' => $result->fit->level, 'reasons' => $result->fit->reasons, 'notes' => $result->fit->notes,
                     'share' => $result->fit->share, 'portion' => $result->fit->portion, 'who' => $result->fit->who(),
                     'info' => $result->fit->info, 'grounds' => $result->fit->grounds, 'general' => $result->fit->general, 'sources' => $result->fit->sources,
                     'meal' => $result->meal, 'causes' => $result->fit->causes, 'infoCauses' => $result->fit->infoCauses,
+                    'fitSuggestions' => $result->suggestions, 'editor' => true,
                 ])
             </div>
         @elseif ($signedIn)

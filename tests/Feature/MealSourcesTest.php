@@ -34,13 +34,13 @@ class MealSourcesTest extends TestCase
         $this->setUpMeals();
     }
 
-    private function meal(bool $kitchen, array $per100g = []): Product
+    private function meal(bool $kitchen, array $per100g = [], array $contributions = self::FAT): Product
     {
         $product = $this->approvedMeal('مسبّحة', per100g: $per100g + ['energy_kcal' => 166, 'protein_g' => 6, 'carbohydrate_g' => 15, 'fat_g' => 9.7, 'fiber_g' => 4]);
         if ($kitchen) {
             DB::table('products')->where('id', $product->id)->update(['brand_id' => Brand::platform()->id]);
         }
-        DB::table('product_recipes')->where('product_id', $product->id)->update(['contributions' => json_encode(self::FAT)]);
+        DB::table('product_recipes')->where('product_id', $product->id)->update(['contributions' => json_encode($contributions)]);
 
         return $product;
     }
@@ -82,6 +82,44 @@ class MealSourcesTest extends TestCase
 
         $this->get(route('site.meals.show', $meal))->assertOk()
             ->assertSeeInOrder(['مدى مناسبتها لك', 'الدهون فيها', 'من أين الدهون؟', 'طحينة']);
+    }
+
+    public function test_what_would_help_is_tried_and_offered_with_a_way_to_cook_it(): void
+    {
+        // Fat intolerance's 15 g a meal is not verified yet: 24 g changes no verdict, but leaving
+        // the oil off and cutting the tahini brings the plate within it (step 6, decision 2a).
+        $meal = $this->meal(kitchen: true);
+        $user = $this->person();
+        $user->profile->update(['health_conditions' => ['fat_intolerance']]);
+        $this->actingAs($user);
+
+        $this->get(route('site.meals.show', $meal))->assertOk()
+            ->assertSee('ماذا تستطيع أن تفعل')
+            ->assertSee('بلا زيت زيتون على الوجه، وطحينة')
+            ->assertSee('ضمن حد «عدم تحمّل الدسم» (قيد التوثيق، للمعلومة)')
+            ->assertSee('اطبخها هكذا')
+            ->assertSee(e(route('site.kitchen.recipe', $meal->id).'?'), false);
+    }
+
+    public function test_a_restaurant_dish_is_offered_only_what_can_be_asked_for_without_amounts(): void
+    {
+        // 17 g fat a serving, 7 g of it from the oil on top: without it, 10 g, within 15 g.
+        $meal = $this->meal(kitchen: false, per100g: ['fat_g' => 6.8], contributions: ['fat_g' => [
+            ['label' => 'طحينة', 'amount' => 16.0, 'after' => false],
+            ['label' => 'زيت زيتون', 'amount' => 14.0, 'after' => true],
+            ['label' => 'حمص', 'amount' => 4.0, 'after' => false],
+        ]]);
+        $user = $this->person();
+        $user->profile->update(['health_conditions' => ['fat_intolerance']]);
+        $this->actingAs($user);
+
+        $this->get(route('site.meals.show', $meal))->assertOk()
+            ->assertSee('ماذا تستطيع أن تفعل')
+            ->assertSee('اطلبها بلا زيت زيتون على الوجه')
+            ->assertSee('ما يمكنك طلبه من المطعم')
+            ->assertDontSee('اطبخها هكذا')
+            ->assertDontSee('الكمية')
+            ->assertDontSee('والدهون فيها');
     }
 
     public function test_approving_keeps_what_each_ingredient_gives(): void

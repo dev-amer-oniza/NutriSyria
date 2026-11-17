@@ -5,6 +5,7 @@ namespace App\Services\Nutrition\Fit;
 use App\Data\Nutrition\CriteriaSheet;
 use App\Data\Nutrition\MealFacts;
 use App\Data\Nutrition\MealFit;
+use App\Data\Nutrition\MealSuggestion;
 use App\Models\User;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
 
@@ -48,6 +49,19 @@ class MealFitService
         return $sheet
             ? collect($meals)->mapWithKeys(fn (MealFacts $meal) => [$meal->id => $calculator->judge($sheet, $meal)])->all()
             : [];
+    }
+
+    /**
+     * "ماذا تستطيع أن تفعل" for one meal page (step 6): changes judged again in full. A few more
+     * judgements of the same meal, on its own page only, never for a list.
+     *
+     * @return list<MealSuggestion>
+     */
+    public function suggest(?User $user, MealFacts $meal, ?MealFit $fit): array
+    {
+        $sheet = $this->sheetFor($user);
+
+        return $sheet && $fit ? (new MealSuggestions($this->calculator()))->for($sheet, $meal, $fit) : [];
     }
 
     private function calculator(): MealFitCalculator
