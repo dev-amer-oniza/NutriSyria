@@ -27,14 +27,28 @@ class OnboardingTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    /** The design's example person: man, 30, 178 cm, 80 kg, moderately active, losing weight. */
+    /** The design's example person: man, 30, 178 cm, 80 kg, lightly active (×1.55), losing weight. */
     private function completeSetUp(array $health = []): void
     {
         $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => '178', 'weight_kg' => '80'])
             ->assertRedirect('/onboarding/activity');
-        $this->post('/onboarding/activity', ['activity_level' => 'moderate', 'goal' => 'lose'])
+        $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'lose'])
             ->assertRedirect('/onboarding/health');
         $this->post('/onboarding/health', $health)->assertRedirect('/onboarding/done');
+    }
+
+    public function test_no_deficit_under_25_and_the_surplus_is_only_shown(): void
+    {
+        // 62 kg at 178 cm: BMI 19.6. The deficit's reference is for overweight and obesity.
+        $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => '178', 'weight_kg' => '62']);
+        $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'lose']);
+        $this->post('/onboarding/health', []);
+        $this->get('/onboarding/done')->assertOk()->assertSee('بلا عجز: مؤشر كتلة جسمك أقل من');
+
+        $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'gain']);
+        $this->get('/onboarding/done')->assertOk()
+            ->assertSee('لا يوجد إرشاد رسمي لهذا الرقم')
+            ->assertSee('للمعلومة');                                // the total sugars
     }
 
     public function test_guests_are_sent_to_sign_in(): void
@@ -84,7 +98,7 @@ class OnboardingTest extends TestCase
     public function test_health_data_needs_consent_is_encrypted_and_can_be_deleted(): void
     {
         $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1990, 'height_cm' => 178, 'weight_kg' => 80]);
-        $this->post('/onboarding/activity', ['activity_level' => 'moderate', 'goal' => 'lose']);
+        $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'lose']);
 
         $this->post('/onboarding/health', ['conditions' => ['diabetes'], 'allergies' => ['sesame']])
             ->assertSessionHasErrors('consent');
@@ -220,7 +234,7 @@ class OnboardingTest extends TestCase
     public function test_a_person_picks_a_general_template_and_puts_it_back(): void
     {
         $this->completeSetUp();
-        $this->get('/onboarding/done')->assertSee('المتوازن (ADA)')->assertSee('اخترناه حسب حالتك');
+        $this->get('/onboarding/done')->assertSee('المتوازن')->assertSee('اخترناه حسب حالتك');
 
         $this->put('/account/template', ['template' => 'ckd'])->assertSessionHasErrors('template');
         $this->put('/account/template', ['template' => 'mediterranean'])->assertSessionHas('status');

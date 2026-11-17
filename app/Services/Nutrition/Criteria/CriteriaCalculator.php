@@ -64,6 +64,17 @@ final class CriteriaCalculator
             }
         }
 
+        // 4. A floor under a lower ceiling on the same nutrient goes: a kidney template's protein
+        //    ceiling (0.6 g/kg) is never answered with "eat more protein" from the RDA.
+        foreach ($criteria as $key => $floor) {
+            foreach ($criteria as $ceiling) {
+                if ($floor->bound === 'min' && $ceiling->bound === 'max'
+                    && $ceiling->nutrient === $floor->nutrient && $ceiling->value < $floor->value) {
+                    unset($criteria[$key]);
+                }
+            }
+        }
+
         $sources = [$template, ...array_values($conditionTemplates), ...$conditions];
 
         return new CriteriaSheet(
@@ -108,10 +119,12 @@ final class CriteriaCalculator
     }
 
     /**
-     * Mifflin-St Jeor resting energy, times the activity level, plus the goal's change
-     * (none when a template forbids a deficit), never below the safe minimum.
+     * Mifflin-St Jeor resting energy, times the activity level, plus the goal's change, never
+     * below the safe minimum. The change follows its reference (config 'goal_adjustment'):
+     * no deficit under 'deficit_min_bmi' or when a template forbids one ('held'), and a
+     * surplus without a guideline is only shown ('surplus'), never added to the target.
      *
-     * @return array{bmr: int, tdee: int, adjustment: int, floored: bool, target: int}
+     * @return array{bmr: int, tdee: int, adjustment: int, floored: bool, target: int, held: ?string, surplus: int}
      */
     private function energy(array $profile, array $templates): array
     {
@@ -119,9 +132,16 @@ final class CriteriaCalculator
         $tdee = $bmr * (float) $this->rules['activity_factors'][$profile['activity']];
 
         $adjustment = (int) $this->rules['goal_adjustment'][$profile['goal']];
+        $held = null;
+        $surplus = 0;
         $noDeficit = collect($templates)->contains(fn (array $t) => $t['no_deficit'] ?? false);
-        if ($noDeficit && $adjustment < 0) {
-            $adjustment = 0;
+        if ($adjustment < 0 && $noDeficit) {
+            [$adjustment, $held] = [0, 'template'];
+        } elseif ($adjustment < 0 && $this->bmi($profile) < (float) ($this->rules['deficit_min_bmi'] ?? 0)) {
+            [$adjustment, $held] = [0, 'bmi'];
+        }
+        if ($adjustment > 0 && ! ($this->rules['surplus_judged'] ?? true)) {
+            [$surplus, $adjustment] = [$adjustment, 0];
         }
 
         $minimum = (int) $this->rules['min_kcal'][$profile['sex']];
@@ -133,7 +153,17 @@ final class CriteriaCalculator
             'adjustment' => $adjustment,
             'floored' => $target < $minimum,
             'target' => (int) (round(max($target, $minimum) / 10) * 10),
+            'held' => $held,
+            'surplus' => $surplus,
         ];
+    }
+
+    /** Weight over height squared, to one decimal like BmiCalculator. */
+    private function bmi(array $profile): float
+    {
+        $metres = (float) $profile['height_cm'] / 100;
+
+        return $metres > 0 ? round((float) $profile['weight_kg'] / ($metres * $metres), 1) : 0.0;
     }
 
     private function value(string $key, string $bound, array $rule, array $context, string $why = ''): CriterionValue

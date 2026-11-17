@@ -16,6 +16,12 @@
 |
 | A person can override any value, and their nutritionist's value overrides both.
 |
+| References (the owner's plan for the medical part, step 1): a rule that is checked against
+| its sources names them with 'refs' (keys of config/nutrition_references.php), and 'kind'
+| says what kind of rule it is: strict (going over makes a meal unfit), tolerance, guidance
+| (a target or general advice) or shortfall (a minimum: a note only). 'info_only' rules are
+| shown but never judge a meal. A rule without 'refs' is not verified yet.
+|
 | Rule types (CriteriaCalculator):
 |   energy      the daily calorie target
 |   macro       the template's share of calories for carbs, protein or fat, in grams
@@ -64,21 +70,37 @@ return [
         'foods' => ['حمص', 'فول', 'عدس', 'عدس أحمر', 'فاصولياء بيضاء', 'لوبيا', 'ترمس', 'بازلاء'],
     ],
 
-    /* Physical activity level => multiplier of the resting energy (App\Enums\ActivityLevel). */
+    /*
+    | Physical activity level => multiplier of the resting energy (App\Enums\ActivityLevel).
+    | Each one inside the FAO/WHO/UNU ranges (fao_energy_2004, Table 5.3): sedentary or light
+    | 1.40–1.69, active 1.70–1.99, vigorous 2.00–2.40 (the owner's decision 1a). The old
+    | 1.2–1.9 had no source, and 1.2 and 1.375 were under the lowest level adults live at.
+    */
     'activity_factors' => [
-        'sedentary' => 1.2,
-        'light' => 1.375,
-        'moderate' => 1.55,
-        'very' => 1.725,
-        'extreme' => 1.9,
+        'sedentary' => 1.40,
+        'light' => 1.55,
+        'moderate' => 1.75,
+        'very' => 2.00,
+        'extreme' => 2.20,
     ],
+    'activity_refs' => ['fao_energy_2004'],
 
-    /* Calories added to the daily need for each goal (App\Enums\Goal). */
+    /*
+    | Calories added to the daily need for each goal (App\Enums\Goal).
+    |  - lose: a 500 kcal deficit, for a body mass index from 'deficit_min_bmi' only: the
+    |    reference is for overweight and obesity (aha_obesity_2013; decision 2a). Below it the
+    |    day stays at maintenance, and the person is told why.
+    |  - gain: +300 has no guideline, so meals are judged on maintenance and the extra is
+    |    only shown (decision 3a): 'surplus_judged' => false.
+    */
     'goal_adjustment' => [
         'lose' => -500,
         'maintain' => 0,
         'gain' => 300,
     ],
+    'deficit_min_bmi' => 25,
+    'surplus_judged' => false,
+    'goal_refs' => ['aha_obesity_2013'],
 
     /*
     | The nutritionist's nutrition plan (App\Services\Nutrition\Plan, the owner's decisions
@@ -132,7 +154,11 @@ return [
         'max_meals' => 8,
     ],
 
-    /* Never suggest fewer calories than this (App\Enums\Sex). */
+    /*
+    | Never suggest fewer calories than this (App\Enums\Sex): the lowest end of the
+    | reference's weight-loss diets, 1200–1500 for women and 1500–1800 for men (aha_obesity_2013).
+    */
+    'min_kcal_refs' => ['aha_obesity_2013'],
     'min_kcal' => [
         'female' => 1200,
         'male' => 1500,
@@ -156,6 +182,8 @@ return [
         ],
         /* The healthy range, turned into kilograms for the person's height. */
         'healthy' => [18.5, 24.9],
+        /* 18.5, 25 and 30 read from WHO; the obesity classes 35 and 40 are not read yet. */
+        'refs' => ['who_bmi'],
         'not_for' => ['pregnant_or_breastfeeding', 'gestational_diabetes'],
     ],
 
@@ -171,50 +199,62 @@ return [
     'criteria' => [
         'energy_kcal' => [
             'label' => 'السعرات', 'unit' => 'سعرة', 'bound' => 'target', 'scope' => 'day',
-            'nutrient' => 'energy_kcal',
+            'nutrient' => 'energy_kcal', 'kind' => 'guidance', 'refs' => ['mifflin_1990', 'fao_energy_2004', 'aha_obesity_2013'],
             'default' => ['type' => 'energy'],
             'range' => [800, 6000],
         ],
         'carbohydrate_g' => [
             'label' => 'الكربوهيدرات', 'unit' => 'غ', 'bound' => 'target', 'scope' => 'day',
-            'nutrient' => 'carbohydrate_g',
+            'nutrient' => 'carbohydrate_g', 'kind' => 'guidance', 'refs' => ['nasem_amdr'],
             'default' => ['type' => 'macro', 'macro' => 'carbs'],
             'range' => [20, 900],
         ],
         'protein_g' => [
             'label' => 'البروتين', 'unit' => 'غ', 'bound' => 'target', 'scope' => 'day',
-            'nutrient' => 'protein_g',
+            'nutrient' => 'protein_g', 'kind' => 'guidance', 'refs' => ['nasem_amdr'],
             'default' => ['type' => 'macro', 'macro' => 'protein'],
             'range' => [20, 400],
         ],
+        /*
+        | The least protein a day (the RDA), what a meal's protein note is measured against
+        | (the owner's decision 4a): the share of a template's calories is a target, not a need.
+        */
+        'protein_min_g' => [
+            'label' => 'البروتين (الحد الأدنى)', 'unit' => 'غ', 'bound' => 'min', 'scope' => 'day',
+            'nutrient' => 'protein_g', 'kind' => 'shortfall', 'refs' => ['dga_2020_appendix'],
+            'default' => ['type' => 'by_sex', 'female' => 46, 'male' => 56],
+            'range' => [20, 300],
+        ],
         'fat_g' => [
             'label' => 'الدهون', 'unit' => 'غ', 'bound' => 'target', 'scope' => 'day',
-            'nutrient' => 'fat_g',
+            'nutrient' => 'fat_g', 'kind' => 'guidance', 'refs' => ['nasem_amdr', 'who_fats_2023'],
             'default' => ['type' => 'macro', 'macro' => 'fat'],
             'range' => [10, 300],
         ],
         'fat_sat_g' => [
             'label' => 'الدهون المشبعة', 'unit' => 'غ', 'bound' => 'max', 'scope' => 'day',
-            'nutrient' => 'fat_sat_g',
+            'nutrient' => 'fat_sat_g', 'kind' => 'guidance', 'refs' => ['who_fats_2023', 'dga_2025_saturated'],
             'default' => ['type' => 'energy_pct', 'pct' => 10, 'kcal_per_g' => 9],
             'range' => [5, 100],
         ],
         'sugars_g' => [
             'label' => 'السكريات الكلية', 'unit' => 'غ', 'bound' => 'max', 'scope' => 'day',
-            'nutrient' => 'sugars_g',
+            'nutrient' => 'sugars_g', 'kind' => 'guidance', 'refs' => ['who_free_sugars_2015'],
+            // The reference is for free sugars; ours include fruit and milk sugar (decision 11a).
+            'info_only' => true,
             'default' => ['type' => 'energy_pct', 'pct' => 10, 'kcal_per_g' => 4],
             'range' => [5, 300],
-            'note' => 'تشمل سكر الفواكه والحليب الطبيعي، لأن مصدرنا لا يفصل السكر المضاف.',
+            'note' => 'للمعلومة فقط، لا تدخل في تقييم الوجبات: توصية WHO عن السكر المضاف والعسل والعصير، وأرقامنا تشمل سكر الفواكه والحليب لأن مصدرنا لا يفصله.',
         ],
         'fiber_g' => [
             'label' => 'الألياف', 'unit' => 'غ', 'bound' => 'min', 'scope' => 'day',
-            'nutrient' => 'fiber_g',
+            'nutrient' => 'fiber_g', 'kind' => 'shortfall', 'refs' => ['dga_2020_appendix', 'who_fibre_2023'],
             'default' => ['type' => 'per_1000', 'value' => 14],
             'range' => [5, 100],
         ],
         'sodium_mg' => [
             'label' => 'الصوديوم', 'unit' => 'ملغ', 'bound' => 'max', 'scope' => 'day',
-            'nutrient' => 'sodium_mg',
+            'nutrient' => 'sodium_mg', 'kind' => 'guidance', 'refs' => ['who_sodium', 'dga_2025_sodium'],
             'default' => ['type' => 'fixed', 'value' => 2000],
             'range' => [500, 6000],
         ],
@@ -261,8 +301,9 @@ return [
     */
     'templates' => [
         'balanced' => [
-            'label' => 'المتوازن (ADA)', 'group' => 'general', 'selectable' => true, 'source' => 'ADA',
-            'description' => 'التوزيع المتوازن المعتمد للبالغين الأصحاء.',
+            'label' => 'المتوازن', 'group' => 'general', 'selectable' => true, 'source' => 'NASEM · WHO',
+            'refs' => ['nasem_amdr', 'who_fats_2023'],
+            'description' => 'توزيع للبالغين الأصحاء داخل المجالات المرجعية: كربوهيدرات 50%، بروتين 20%، دهون 30%.',
             'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
         ],
         'mediterranean' => [
@@ -359,7 +400,8 @@ return [
             'label' => 'السيلياك (حساسية الغلوتين)', 'group' => 'digestion', 'source' => 'ACG',
             'description' => 'منع الغلوتين تماماً (القمح والشعير والشوفان العادي).',
             'macros' => ['carbs' => 55, 'protein' => 15, 'fat' => 30],
-            'allergens' => ['gluten'],
+            // Gluten is the verified, strict part (niddk_celiac); the macros are not checked yet.
+            'allergens' => ['gluten'], 'allergen_refs' => ['niddk_celiac'],
         ],
         'hepatic' => [
             'label' => 'الكبد الوبائي والتليّف', 'group' => 'digestion', 'source' => 'ESPEN',

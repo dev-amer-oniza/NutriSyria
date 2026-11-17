@@ -29,7 +29,7 @@ final class NutritionPlanCalculator
         $sex = Sex::from($profile['sex']);
         $equation = EnergyEquation::tryFrom((string) ($plan['equation'] ?? '')) ?? EnergyEquation::Mifflin;
         $bodyFat = isset($plan['body_fat_pct']) && $plan['body_fat_pct'] !== '' ? (float) $plan['body_fat_pct'] : null;
-        $factor = (float) ($this->rules['activity_factors'][$plan['activity'] ?? ''] ?? 1.2);
+        $factor = (float) ($this->rules['activity_factors'][$plan['activity'] ?? ''] ?? 1.4);
         $adjustment = (int) ($plan['adjustment'] ?? 0);
         $errors = [];
         $warnings = [];
