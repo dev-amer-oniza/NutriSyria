@@ -8,14 +8,14 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * The nutritionist's plan (decisions 1a 2a 3a). The person is the design's example man:
- * 30, 178 cm, 80 kg, moderately active; Mifflin gives 1768 kcal at rest, 2740 with activity.
+ * 30, 178 cm, 80 kg, lightly active (×1.55); Mifflin gives 1768 kcal at rest, 2740 with activity.
  */
 class NutritionPlanCalculatorTest extends TestCase
 {
     private const MAN = ['sex' => 'male', 'age' => 30, 'height_cm' => 178, 'weight_kg' => 80, 'conditions' => []];
 
     private const PLAN = [
-        'equation' => 'mifflin', 'body_fat_pct' => null, 'activity' => 'moderate', 'adjustment' => -500,
+        'equation' => 'mifflin', 'body_fat_pct' => null, 'activity' => 'light', 'adjustment' => -500,
         'carbs_pct' => 50, 'protein_pct' => 20, 'fat_pct' => 30, 'fluids_ml' => null,
     ];
 

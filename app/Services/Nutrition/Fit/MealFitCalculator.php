@@ -16,8 +16,10 @@ use App\Enums\Allergen;
  *    its own calories and grams, and its share of the day for the rest (plan phase 3, 1a);
  *  - every upper limit counts, and so do the energy, carbohydrate and fat targets
  *    (fit_target_limits): the level comes from the largest overshoot (fit_tolerance);
- *  - being clearly under a minimum or the protein target (by more than the moderate
- *    tolerance) is a note, never a lower level;
+ *  - being clearly under a minimum (by more than the moderate tolerance) is a note, never a
+ *    lower level; a target is not a need, so being under it says nothing (protein is measured
+ *    against its RDA, protein_min_g), and each nutrient gets one note at most;
+ *  - an 'info_only' criterion (total sugars: its reference is for free sugars) never judges;
  *  - a meal holding one of the person's allergens is "not for you now"; when an ingredient's
  *    allergens were not checked yet, people with allergies are told so;
  *  - a value the meal lacks is left out and named, never guessed;
@@ -30,7 +32,7 @@ class MealFitCalculator
     /** Below this share of the serving, a smaller portion is not offered. */
     private const MIN_PORTION_SHARE = 0.4;
 
-    /** @param  array{fit_tolerance: array{suits: int, moderate: int, unfit: int}, fit_target_limits: list<string>, fit_near_pct?: int, legume_fibre?: array{min_fiber_g: float, foods: list<string>}}  $rules  config('nutrition_criteria') */
+    /** @param  array{fit_tolerance: array{suits: int, moderate: int, unfit: int}, fit_target_limits: list<string>, fit_near_pct?: int, legume_fibre?: array{min_fiber_g: float, foods: list<string>}, criteria?: array<string, array<string, mixed>>}  $rules  config('nutrition_criteria') */
     public function __construct(private readonly array $rules) {}
 
     public function judge(CriteriaSheet $sheet, MealFacts $meal): MealFit
@@ -64,12 +66,16 @@ class MealFitCalculator
                 if ($over > 0) {
                     $overs[] = [$criterion, $amount, $limit, $over];
                 }
-            } elseif ($amount < $limit * (1 - $this->rules['fit_tolerance']['moderate'] / 100)
-                && in_array($criterion->bound, ['min', 'target'], true)) {
+            } elseif ($criterion->bound === 'min'
+                && $amount < $limit * (1 - $this->rules['fit_tolerance']['moderate'] / 100)
+                && $limit > ($unders[$criterion->nutrient][2] ?? 0)) {
                 // Clearly short only (under 75% of a meal's share): a small gap is not worth a note.
-                $unders[] = [$criterion, $amount, $limit];
+                // One note a nutrient, against its highest minimum (a template's protein floor
+                // over the RDA).
+                $unders[$criterion->nutrient] = [$criterion, $amount, $limit];
             }
         }
+        $unders = array_values($unders);
 
         usort($overs, fn (array $a, array $b) => $b[3] <=> $a[3]);
 
@@ -103,9 +109,13 @@ class MealFitCalculator
         );
     }
 
-    /** Upper limits always; targets only when listed (energy, carbohydrate, fat). */
+    /** Upper limits always; targets only when listed (energy, carbohydrate, fat); never an information. */
     private function counts(CriterionValue $criterion): bool
     {
+        if ($this->rules['criteria'][$criterion->key]['info_only'] ?? false) {
+            return false;
+        }
+
         return $criterion->bound === 'max'
             || ($criterion->bound === 'target' && in_array($criterion->key, $this->rules['fit_target_limits'], true));
     }
@@ -141,8 +151,13 @@ class MealFitCalculator
 
     private function underNote(CriteriaSheet $sheet, CriterionValue $criterion, float $amount, float $limit): string
     {
+        // "البروتين (الحد الأدنى)" reads as the protein, measured against the least a person needs.
+        $floor = str_contains($criterion->label, '(الحد الأدنى)');
+        $share = $sheet->meal ? 'غدائك في خطتك' : 'حصة وجبة';
+
         return sprintf('%s فيها %s %s، أقل من %s (%s %s). كمّلها في وجبة أخرى من يومك.',
-            $criterion->label, self::number($amount), $criterion->unit, $sheet->meal ? 'غدائك في خطتك' : 'حصة وجبة', self::number($limit), $criterion->unit);
+            trim(str_replace('(الحد الأدنى)', '', $criterion->label)), self::number($amount), $criterion->unit,
+            $floor ? $share.' من الحد الأدنى لاحتياجك' : $share, self::number($limit), $criterion->unit);
     }
 
     private function energyReason(CriteriaSheet $sheet, MealFacts $meal): ?string

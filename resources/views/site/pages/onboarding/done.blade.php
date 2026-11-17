@@ -32,7 +32,7 @@
                         @foreach (['fiber_g', 'sodium_mg', 'sugars_g', 'fat_sat_g'] as $key)
                             @php $c = $sheet->get($key); @endphp
                             <div>
-                                <dt>{{ $c->label }} <small>{{ ['min' => 'على الأقل', 'max' => 'حتى', 'target' => ''][$c->bound] }}</small></dt>
+                                <dt>{{ $c->label }} <small>{{ config("nutrition_criteria.criteria.{$key}.info_only") ? 'للمعلومة' : ['min' => 'على الأقل', 'max' => 'حتى', 'target' => ''][$c->bound] }}</small></dt>
                                 <dd><span class="ns-num">{{ number_format($c->value) }}</span> {{ $c->unit }}</dd>
                             </div>
                         @endforeach
@@ -42,7 +42,9 @@
                         بمعادلة Mifflin-St Jeor: احتياجك وأنت في راحة <span class="ns-num">{{ number_format($sheet->energy['bmr']) }}</span> سعرة،
                         ومع نشاطك <span class="ns-num">{{ number_format($sheet->energy['tdee']) }}</span>،
                         @if ($sheet->energy['adjustment'] < 0) ناقص <span class="ns-num">{{ abs($sheet->energy['adjustment']) }}</span> لهدف إنقاص الوزن.
-                        @elseif ($sheet->energy['adjustment'] > 0) زائد <span class="ns-num">{{ $sheet->energy['adjustment'] }}</span> لهدف زيادة الوزن.
+                        @elseif (($sheet->energy['held'] ?? null) === 'bmi') بلا عجز: مؤشر كتلة جسمك أقل من <span class="ns-num">{{ config('nutrition_criteria.deficit_min_bmi') }}</span>، والمرجع يوصي بإنقاص السعرات لمن وزنه أعلى من الطبيعي. إن أردت إنقاص وزنك فاسأل أخصائي تغذية.
+                        @elseif (($sheet->energy['held'] ?? null) === 'template') بلا عجز، لأن قالبك لا يسمح بإنقاص السعرات.
+                        @elseif (($sheet->energy['surplus'] ?? 0) > 0) ولزيادة الوزن يُنصح عادةً بنحو <span class="ns-num">{{ $sheet->energy['surplus'] }}</span> سعرة إضافية، لكن لا يوجد إرشاد رسمي لهذا الرقم، فنقيّم وجباتك على سعرات الحفاظ على وزنك، ويحدد لك أخصائي الزيادة المناسبة.
                         @else بلا تعديل لأن هدفك المحافظة على وزنك.
                         @endif
                         @if ($sheet->energy['floored']) ورفعناها إلى الحد الأدنى الآمن. @endif

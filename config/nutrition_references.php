@@ -1,0 +1,189 @@
+<?php
+
+/*
+| The references behind the medical rules (the owner's plan, step 1: layers 0 and 1).
+|
+| A rule in config/nutrition_criteria.php names its references with 'refs'. Each reference
+| holds the source as it was read (organisation, title, year, url, the place in it), the
+| verbatim sentence the number comes from, what it applies to, and the four gates:
+|   source         the guideline itself was read, and the quote is copied from it
+|   applicability  it says which condition, stage and people the number is for
+|   test           a test checks the code applies the number as the reference says
+|                  (tests/Unit/NutritionReferencesTest.php)
+|   specialist     a specialist reviewed it (none yet: kept for the future)
+| A rule is "verified" only when the first three gates pass. Never write a quote or a
+| number from memory: read the reference and copy it.
+*/
+
+return [
+
+    'who_sodium' => [
+        'org' => 'WHO',
+        'title' => 'Salt reduction (fact sheet), from the WHO guideline Sodium intake for adults and children (2012)',
+        'year' => 2012,
+        'url' => 'https://www.who.int/news-room/fact-sheets/detail/salt-reduction',
+        'where' => 'Recommendations for reducing sodium',
+        'quote' => 'For adults, WHO recommends less than 2000 mg/day of sodium (equivalent to less than 5 g/day salt), or just under a teaspoon.',
+        'summary' => 'للبالغين: أقل من 2000 ملغ صوديوم في اليوم (أقل من 5 غ ملح).',
+        'applies' => 'البالغون',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'dga_2025_sodium' => [
+        'org' => 'USDA/HHS',
+        'title' => 'Dietary Guidelines for Americans, 2025–2030',
+        'year' => 2026,
+        'url' => 'https://cdn.realfood.gov/DGA.pdf',
+        'where' => 'Sodium (p. 4)',
+        'quote' => 'The general population, ages 14 and above, should consume less than 2,300 mg per day of sodium. Highly active individuals may benefit from increased sodium intake to offset sweat losses.',
+        'summary' => 'من عمر 14: أقل من 2300 ملغ في اليوم. مرجع ثانٍ يختلف عن WHO، فالصوديوم توصية لا قيد.',
+        'applies' => 'من عمر 14 فأكثر',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'who_fats_2023' => [
+        'org' => 'WHO',
+        'title' => 'WHO updates guidelines on fats and carbohydrates (Saturated fatty acid and trans-fatty acid intake; Total fat intake; Carbohydrate intake)',
+        'year' => 2023,
+        'url' => 'https://www.who.int/news/item/17-07-2023-who-updates-guidelines-on-fats-and-carbohydrates',
+        'where' => 'News release, 17 July 2023',
+        'quote' => 'WHO reaffirms that adults should limit total fat intake to 30% of total energy intake or less. Fat consumed by everyone 2 years of age and older should be primarily unsaturated fatty acids, with no more than 10% of total energy intake coming from saturated fatty acids …',
+        'summary' => 'الدهون الكلية حتى 30% من السعرات للبالغين، والمشبعة حتى 10%.',
+        'applies' => 'البالغون (والمشبعة من عمر سنتين)',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'dga_2025_saturated' => [
+        'org' => 'USDA/HHS',
+        'title' => 'Dietary Guidelines for Americans, 2025–2030',
+        'year' => 2026,
+        'url' => 'https://cdn.realfood.gov/DGA.pdf',
+        'where' => 'Incorporate Healthy Fats (p. 3)',
+        'quote' => 'In general, saturated fat consumption should not exceed 10% of total daily calories.',
+        'summary' => 'المشبعة حتى 10% من السعرات اليومية.',
+        'applies' => 'عامة الناس',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'who_fibre_2023' => [
+        'org' => 'WHO',
+        'title' => 'Carbohydrate intake for adults and children: WHO guideline (news release)',
+        'year' => 2023,
+        'url' => 'https://www.who.int/news/item/17-07-2023-who-updates-guidelines-on-fats-and-carbohydrates',
+        'where' => 'News release, 17 July 2023',
+        'quote' => 'WHO recommends that adults consume at least 400 grams of vegetables and fruits and 25 grams of naturally occurring dietary fibre per day.',
+        'summary' => 'للبالغين: 25 غ ألياف طبيعية على الأقل في اليوم.',
+        'applies' => 'البالغون',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'dga_2020_appendix' => [
+        'org' => 'USDA/HHS',
+        'title' => 'Dietary Guidelines for Americans, 2020–2025, Appendix 1: Nutritional Goals for Age-Sex Groups',
+        'year' => 2020,
+        'url' => 'https://www.dietaryguidelines.gov/sites/default/files/2021-03/Dietary_Guidelines_for_Americans-2020-2025.pdf',
+        'where' => 'Appendix 1, Tables A1-2 and A1-3',
+        'quote' => 'Fiber (g) — Source of Goal: 14g/1,000 kcal. Protein (g) — Source of Goal: RDA — 46 (females 19+), 56 (males 19+).',
+        'summary' => 'الألياف 14 غ لكل 1000 سعرة. والحد الأدنى للبروتين (RDA) للبالغين: 46 غ للمرأة و56 غ للرجل في اليوم.',
+        'applies' => 'البالغون من 19 سنة',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'who_free_sugars_2015' => [
+        'org' => 'WHO',
+        'title' => 'Guideline: Sugars intake for adults and children (news release)',
+        'year' => 2015,
+        'url' => 'https://www.who.int/news/item/04-03-2015-who-calls-on-countries-to-reduce-sugars-intake-among-adults-and-children',
+        'where' => 'News release, 4 March 2015',
+        'quote' => 'A new WHO guideline recommends adults and children reduce their daily intake of free sugars to less than 10% of their total energy intake. … Free sugars refer to monosaccharides (such as glucose, fructose) and disaccharides (such as sucrose or table sugar) added to foods and drinks by the manufacturer, cook or consumer, and sugars naturally present in honey, syrups, fruit juices and fruit juice concentrates.',
+        'summary' => 'السكر الحر (المضاف، والعسل والعصير) أقل من 10% من السعرات. لا يشمل سكر الفواكه والحليب، وبياناتنا لا تفصله، فهو معلومة لا حكم.',
+        'applies' => 'البالغون والأطفال، على السكر الحر لا الكلي',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => false, 'test' => true, 'specialist' => false],
+    ],
+
+    'nasem_amdr' => [
+        'org' => 'NASEM (IOM)',
+        'title' => 'Rethinking the Acceptable Macronutrient Distribution Range for the 21st Century: A Letter Report (2024), Table: AMDRs by Age Group (IOM 2002/2005)',
+        'year' => 2024,
+        'url' => 'https://www.nationalacademies.org/read/27957/chapter/5',
+        'where' => 'Chapter 3, AMDR table',
+        'quote' => 'Acceptable Macronutrient Distribution Ranges (AMDRs) by Age Group … (as percent of energy) … Adults: Fat 20–35 · Carbohydrate 45–65 · Protein 10–35. SOURCE: IOM, 2002/2005.',
+        'summary' => 'للبالغين من السعرات: كربوهيدرات 45–65%، بروتين 10–35%، دهون 20–35%.',
+        'applies' => 'البالغون',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'mifflin_1990' => [
+        'org' => 'Am J Clin Nutr',
+        'title' => 'Mifflin MD, St Jeor ST, et al. A new predictive equation for resting energy expenditure in healthy individuals (PMID 2305711)',
+        'year' => 1990,
+        'url' => 'https://pubmed.ncbi.nlm.nih.gov/2305711/',
+        'where' => 'Abstract (copied by the project owner from PubMed)',
+        'quote' => 'REE (males) = 10 x weight (kg) + 6.25 x height (cm) - 5 x age (y) + 5; REE (females) = 10 x weight (kg) + 6.25 x height (cm) - 5 x age (y) - 161.',
+        'summary' => 'معادلة الطاقة في الراحة للرجال والنساء، من 498 شخصاً أصحاء بأوزان طبيعية وزائدة، بين 19 و78 سنة.',
+        'applies' => 'البالغون الأصحاء (19–78 سنة)',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'fao_energy_2004' => [
+        'org' => 'FAO/WHO/UNU',
+        'title' => 'Human energy requirements: Report of a Joint FAO/WHO/UNU Expert Consultation (2001), FAO Food and Nutrition Technical Report Series 1',
+        'year' => 2004,
+        'url' => 'https://www.fao.org/4/y5686e/y5686e07.htm',
+        'where' => 'Chapter 5, Table 5.3',
+        'quote' => 'Classification of lifestyles in relation to the intensity of habitual physical activity, or PAL — Sedentary or light activity lifestyle 1.40-1.69; Active or moderately active lifestyle 1.70-1.99; Vigorous or vigorously active lifestyle 2.00-2.40. … The PAL values that can be sustained for a long period of time by free-living adult populations range from about 1.40 to 2.40.',
+        'summary' => 'مستوى النشاط (PAL) = الطاقة اليومية ÷ الطاقة في الراحة: خامل أو خفيف 1.40–1.69، نشط 1.70–1.99، شديد 2.00–2.40.',
+        'applies' => 'البالغون',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'aha_obesity_2013' => [
+        'org' => 'AHA/ACC/TOS',
+        'title' => '2013 AHA/ACC/TOS Guideline for the Management of Overweight and Obesity in Adults (Jensen et al., Circulation 2014;129:S102–S138)',
+        'year' => 2013,
+        'url' => 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5819889/',
+        'where' => 'Recommendation 3a (Grade A, Strong)',
+        'quote' => 'Prescribe a diet to achieve reduced calorie intake for obese or overweight individuals who would benefit from weight loss … Prescribe 1200–1500 kcal/d for women and 1500–1800 kcal/d for men (kilocalorie levels are usually adjusted for the individual’s body weight); Prescribe a 500-kcal/d or 750-kcal/d energy deficit …',
+        'summary' => 'لمن وزنه زائد أو عنده سمنة: عجز 500 أو 750 سعرة في اليوم، أو حمية 1200–1500 للمرأة و1500–1800 للرجل.',
+        'applies' => 'البالغون بوزن زائد أو سمنة (مؤشر الكتلة 25 فأكثر)',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'who_bmi' => [
+        'org' => 'WHO',
+        'title' => 'Obesity and overweight (fact sheet); Global Health Observatory: Body mass index',
+        'year' => 2024,
+        'url' => 'https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight',
+        'where' => 'Definition of overweight and obesity; GHO indicators',
+        'quote' => 'Adults: overweight is a BMI greater than or equal to 25; and obesity is a BMI greater than or equal to 30. (GHO: Underweight among adults, BMI < 18.5.)',
+        'summary' => 'للبالغين: نقص الوزن أقل من 18.5، زيادة الوزن من 25، السمنة من 30. درجات السمنة (35، 40) لم تُقرأ بعد.',
+        'applies' => 'البالغون، لا الحمل',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'niddk_celiac' => [
+        'org' => 'NIDDK (NIH)',
+        'title' => 'Treatment for Celiac Disease',
+        'year' => 2026,
+        'url' => 'https://www.niddk.nih.gov/health-information/digestive-diseases/celiac-disease/treatment',
+        'where' => 'How do doctors treat celiac disease?',
+        'quote' => 'Doctors treat celiac disease by helping people to follow a gluten-free diet. … In people who have celiac disease, consuming gluten triggers an abnormal immune system reaction that damages the small intestine.',
+        'summary' => 'علاج السيلياك هو تجنّب الغلوتين، وتناوله يؤذي الأمعاء الدقيقة: قيد صارم.',
+        'applies' => 'مرضى السيلياك',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+];

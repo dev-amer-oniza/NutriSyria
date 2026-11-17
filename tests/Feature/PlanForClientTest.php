@@ -27,7 +27,7 @@ class PlanForClientTest extends TestCase
     private ConsultationRequest $link;
 
     private const PLAN = [
-        'equation' => 'mifflin', 'body_fat_pct' => null, 'activity' => 'light', 'adjustment' => -500,
+        'equation' => 'mifflin', 'body_fat_pct' => null, 'activity' => 'light', 'adjustment' => -750,
         'carbs_pct' => 45, 'protein_pct' => 20, 'fat_pct' => 35, 'fluids_ml' => 2500,
     ];
 

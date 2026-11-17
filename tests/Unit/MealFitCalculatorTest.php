@@ -9,7 +9,7 @@ use App\Services\Nutrition\Fit\MealFitCalculator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The design's example man (2240 kcal, balanced template). One meal = 30% of the day:
+ * The design's example man (lightly active ×1.55: 2240 kcal, balanced template). One meal = 30% of the day:
  * 672 kcal, 84 g carbohydrate, 33.6 g protein, 22.5 g fat, 7.5 g saturated, 16.8 g sugars,
  * 9.3 g fibre, 600 mg sodium.
  */
@@ -27,7 +27,7 @@ class MealFitCalculatorTest extends TestCase
     {
         return (new CriteriaCalculator($this->rules))->calculate($overrides + [
             'sex' => 'male', 'age' => 30, 'height_cm' => 178, 'weight_kg' => 80,
-            'activity' => 'moderate', 'goal' => 'lose', 'conditions' => [], 'allergens' => [],
+            'activity' => 'light', 'goal' => 'lose', 'conditions' => [], 'allergens' => [],
         ]);
     }
 
@@ -58,7 +58,7 @@ class MealFitCalculatorTest extends TestCase
         $this->assertSame(['energy' => 27, 'protein' => 27, 'carbs' => 29, 'fat' => 27], $fit->share);
         $this->assertStringContainsString('27% من احتياجك اليومي', $fit->reasons[0]);
         $this->assertSame([], $fit->notes);
-        $this->assertSame('المتوازن (ADA)', $fit->template);
+        $this->assertSame('المتوازن', $fit->template);
     }
 
     public function test_the_level_follows_the_largest_overshoot(): void
@@ -90,11 +90,31 @@ class MealFitCalculatorTest extends TestCase
 
     public function test_reasons_are_ordered_by_overshoot_and_capped_at_three(): void
     {
-        $fit = $this->judge($this->meal(['sodium_mg' => 690, 'fat_g' => 30, 'sugars_g' => 30, 'fat_sat_g' => 9]));
+        $fit = $this->judge($this->meal(['sodium_mg' => 690, 'fat_g' => 30, 'fat_sat_g' => 9, 'energy_kcal' => 740]));
 
         $this->assertCount(3, $fit->reasons);
-        $this->assertStringStartsWith('السكريات الكلية', $fit->reasons[0]); // 79% over
-        $this->assertStringStartsWith('الدهون', $fit->reasons[1]);          // 33% over
+        $this->assertStringStartsWith('الدهون فيها', $fit->reasons[0]);      // 33% over
+        $this->assertStringStartsWith('الدهون المشبعة', $fit->reasons[1]);  // 20% over
+    }
+
+    public function test_total_sugars_are_shown_but_never_judge_a_meal(): void
+    {
+        // 30 g against a 16.8 g share would be 79% over: but the reference is for free sugars,
+        // and ours include fruit and milk sugar (decision 11a).
+        $fit = $this->judge($this->meal(['sugars_g' => 30]));
+
+        $this->assertSame(4, $fit->level);
+        $this->assertStringNotContainsString('السكريات', implode(' ', [...$fit->reasons, ...$fit->notes]));
+    }
+
+    public function test_protein_is_short_against_its_rda_not_the_target(): void
+    {
+        // The target's meal share is 33.6 g, the RDA's 16.8 g (56 g a day for a man).
+        $this->assertSame([], $this->judge($this->meal(['protein_g' => 20]))->notes, '20 g is under the target, not under the need');
+
+        $short = $this->judge($this->meal(['protein_g' => 10]));
+        $this->assertSame(4, $short->level);
+        $this->assertSame(['البروتين فيها 10 غ، أقل من حصة وجبة من الحد الأدنى لاحتياجك (17 غ). كمّلها في وجبة أخرى من يومك.'], $short->notes);
     }
 
     public function test_being_under_a_minimum_or_protein_is_only_a_note(): void
@@ -114,7 +134,7 @@ class MealFitCalculatorTest extends TestCase
         $fit = $this->judge($meal);
 
         $this->assertSame(4, $fit->level);
-        $this->assertSame(['لا تتوفر قيمة الدهون المشبعة والسكريات الكلية والصوديوم لهذه الوجبة، فلم تدخل في التقييم.'], $fit->notes);
+        $this->assertSame(['لا تتوفر قيمة الدهون المشبعة والصوديوم لهذه الوجبة، فلم تدخل في التقييم.'], $fit->notes);
     }
 
     public function test_an_allergen_makes_the_meal_unfit_with_no_portion(): void
