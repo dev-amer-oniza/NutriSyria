@@ -121,7 +121,8 @@ class HealthGoalGuide
                 return [
                     'label' => $condition->label(),
                     'template' => $template['label'] ?? null,
-                    'text' => $template['description'] ?? $this->ownRules($rules['criteria'] ?? []),
+                    'text' => $template['description'] ?? ($this->ownRules($rules['criteria'] ?? [])
+                        ?: 'احتياجك العام: المراجع لا تعطي لها أرقاماً خاصة.'),
                     'hint' => $condition->hint(),
                     'specialist' => isset($rules['see_nutritionist']) || isset($template['see_nutritionist']),
                 ];
@@ -135,9 +136,11 @@ class HealthGoalGuide
         $parts = [];
         foreach ($criteria as $key => $rule) {
             $criterion = config("nutrition_criteria.criteria.{$key}");
-            $parts[] = $rule['type'] === 'by_sex'
-                ? "{$criterion['label']}: {$rule['female']} {$criterion['unit']} للمرأة و{$rule['male']} للرجل في اليوم."
-                : "{$criterion['label']}: {$rule['value']} {$criterion['unit']} في اليوم.";
+            $parts[] = match ($rule['type']) {
+                'by_sex' => "{$criterion['label']}: {$rule['female']} {$criterion['unit']} للمرأة و{$rule['male']} للرجل في اليوم.",
+                'per_kg' => "{$criterion['label']}: {$rule['value']} {$criterion['unit']} لكل كغ من الوزن في اليوم.",
+                default => "{$criterion['label']}: {$rule['value']} {$criterion['unit']} في اليوم.",
+            };
         }
 
         return implode(' ', $parts);

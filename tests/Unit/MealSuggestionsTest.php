@@ -109,6 +109,8 @@ class MealSuggestionsTest extends TestCase
     {
         // Fat intolerance's 15 g a meal waits for its references: the verdict stays, but the
         // oil and some tahini together bring the plate within it (decision 2a).
+        // (The 15 g as it was before step 7 found no figure for it: a rule not verified yet.)
+        $this->rules['conditions']['fat_intolerance']['criteria'] = ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]];
         $meal = $this->meal([['طحينة', 30, 14.0, false], ['زيت زيتون', 7, 7.0, true], ['حمص', 120, 3.3, false]]);
         [$fit, $suggestions] = $this->suggest($this->sheet(['fat_intolerance']), $meal);
 

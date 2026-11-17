@@ -38,6 +38,8 @@ class SourcesController extends Controller
                 'تجاوز أقل من '.$rules['fit_near_pct'].'% نكتبه «بحدود» لا بنسبة.',
                 'ملاحظة النقص (ألياف، بروتين…) تظهر فقط إن كانت الوجبة أقل من '.(100 - $tolerance['moderate']).'% من حصتها.',
                 'لا نقترح حصة أصغر من '.(int) round(MealFitCalculator::MIN_PORTION_SHARE * 100).'% من الصحن.',
+                // Step 7, batch 1 (decision 2a): ours, a note only.
+                'لمن هضمه حساس (الارتجاع، المرارة، عدم تحمّل الدسم، البنكرياس، اليرقان): ملاحظة لطيفة، لا تغيّر الدرجة، إن كان في الوجبة بقوليات وأليافها '.$rules['legume_fibre']['min_fiber_g'].' غ فأكثر.',
             ],
         ]);
     }

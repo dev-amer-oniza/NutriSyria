@@ -123,6 +123,8 @@ class MealPagesTest extends TestCase
 
     public function test_a_rule_not_verified_yet_is_information_until_a_doctor_gives_the_number(): void
     {
+        // A rule not verified yet (fat intolerance's 15 g a meal, before step 7 found no figure).
+        config(['nutrition_criteria.conditions.fat_intolerance.criteria' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]]]);
         // 250 g with 17.5 g fat: within the day's verified fat share (22 g), past the
         // fat-intolerance meal limit (15 g) that is waiting for its references.
         $meal = $this->approvedMeal('مجدرة', per100g: ['energy_kcal' => 166, 'protein_g' => 6, 'carbohydrate_g' => 24.8, 'fat_g' => 7, 'fiber_g' => 3]);

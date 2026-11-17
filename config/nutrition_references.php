@@ -186,6 +186,86 @@ return [
         'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
     ],
 
+    /* Digestion (step 7, batch 1): advice in words, no figures. */
+
+    'nice_gord_cg184' => [
+        'org' => 'NICE',
+        'title' => 'Gastro-oesophageal reflux disease and dyspepsia in adults: investigation and management (CG184)',
+        'year' => 2019,
+        'url' => 'https://www.nice.org.uk/guidance/cg184/chapter/Recommendations',
+        'where' => 'Recommendations 1.2.1 and 1.2.2 (Common elements of care)',
+        'quote' => 'Offer simple lifestyle advice, including advice on healthy eating, weight reduction and smoking cessation. [2004] … Advise people to avoid known precipitants they associate with their dyspepsia where possible. These include smoking, alcohol, coffee, chocolate, fatty foods and being overweight. Raising the head of the bed and having a main meal well before going to bed may help some people. [2004]',
+        'summary' => 'نصائح نمط حياة: تجنّب ما يثير الأعراض عندك (التدخين، الكحول، القهوة، الشوكولا، الأطعمة الدسمة، الوزن الزائد)، ووجبة رئيسية قبل النوم بوقت كافٍ. بلا أرقام.',
+        'applies' => 'البالغون مع الارتجاع وعسر الهضم',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'niddk_gerd' => [
+        'org' => 'NIDDK (NIH)',
+        'title' => 'Eating, Diet, & Nutrition for GER & GERD',
+        'year' => 2020,
+        'url' => 'https://www.niddk.nih.gov/health-information/digestive-diseases/acid-reflux-ger-gerd-adults/eating-diet-nutrition',
+        'where' => 'How can changes in my eating habits improve GERD symptoms? · What should I avoid eating if I have GERD symptoms?',
+        'quote' => 'If you have GERD symptoms at night or when you’re lying down, eating meals at least 3 hours before you lie down or go to bed may improve symptoms. … Foods and drinks that have been commonly linked to GERD symptoms include acidic foods, such as citrus fruits and tomatoes alcoholic drinks chocolate coffee and other sources of caffeine high-fat foods mint spicy foods',
+        'summary' => 'الوجبة قبل النوم بثلاث ساعات على الأقل؛ أطعمة تثير الأعراض عند بعض الناس (الحامض، الدسم، الشوكولا، القهوة، النعنع، الحار) يقرّر تجنّبها الطبيب حسب الشخص.',
+        'applies' => 'البالغون مع الارتجاع',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'nice_gallstones_cg188' => [
+        'org' => 'NICE',
+        'title' => 'Gallstone disease: diagnosis and management (CG188)',
+        'year' => 2014,
+        'url' => 'https://www.nice.org.uk/guidance/cg188/chapter/Recommendations',
+        'where' => 'Recommendations 1.4.1 and 1.4.2 (Patient, family member and carer information)',
+        'quote' => 'Advise people to avoid food and drink that triggers their symptoms until they have their gallbladder or gallstones removed. … Advise people that they should not need to avoid food and drink that triggered their symptoms after they have their gallbladder or gallstones removed.',
+        'summary' => 'قبل العملية: تجنّب ما يثير أعراضك أنت. بعد استئصال المرارة: لا يلزم تجنّب ما كان يثيرها. بلا أرقام للدهون.',
+        'applies' => 'حصى المرارة، وما بعد استئصالها',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'ueg_pei_2025' => [
+        'org' => 'UEG · EPC · EDS · ESPEN · ESPGHAN · ESDO · ESPCG',
+        'title' => 'European guidelines for the diagnosis and treatment of pancreatic exocrine insufficiency (United European Gastroenterol J 2025;13(1):125–72)',
+        'year' => 2025,
+        'url' => 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11866322/',
+        'where' => 'Statement 3.10.1 and its comment (What dietary interventions are recommended for patients with PEI?)',
+        'quote' => 'PERT should be optimized to allow as normal a diet as possible. … Comment: Patients with PEI receiving adequate PERT usually do not require dietary fat restriction. No studies have evaluated the effect of dietary fat restriction on the nutritional or clinical outcomes of patients with PEI. In malnutrition cases, an excessively restricted diet may be counterproductive.',
+        'summary' => 'مع علاج الإنزيمات لا يلزم تقليل الدسم، وتقليله كثيراً قد يضر من يعاني سوء تغذية: أكل طبيعي قدر الإمكان.',
+        'applies' => 'قصور البنكرياس الخارجي (ومنه التهاب البنكرياس المزمن)',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'nice_pancreatitis_ng104' => [
+        'org' => 'NICE',
+        'title' => 'Pancreatitis (NG104)',
+        'year' => 2020,
+        'url' => 'https://www.nice.org.uk/guidance/ng104/chapter/Recommendations',
+        'where' => 'Recommendations 1.2.5 (acute) and 1.3.3, 1.3.5 (chronic): Nutrition support',
+        'quote' => 'Ensure that people with acute pancreatitis are not made \'nil‑by‑mouth\' and do not have food withheld unless there is a clear reason for this (for example, vomiting). … Be aware that all people with chronic pancreatitis are at high risk of malabsorption, malnutrition and a deterioration in their quality of life. … Consider assessment by a dietitian for anyone diagnosed with chronic pancreatitis.',
+        'summary' => 'في الحاد لا يُمنع الأكل بلا سبب؛ في المزمن خطر سوء التغذية عالٍ، وأخصائي تغذية لكل مريض.',
+        'applies' => 'التهاب البنكرياس الحاد والمزمن',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'niddk_pancreatitis' => [
+        'org' => 'NIDDK (NIH)',
+        'title' => 'Eating, Diet, & Nutrition for Pancreatitis',
+        'year' => 2017,
+        'url' => 'https://www.niddk.nih.gov/health-information/digestive-diseases/pancreatitis/eating-diet-nutrition',
+        'where' => 'Can what I eat help or prevent pancreatitis?',
+        'quote' => 'Once you may start eating again, he or she will prescribe a healthy, low-fat eating plan that includes small, frequent meals. … If you have pancreatitis, drink plenty of fluids and limit caffeine. Health care professionals strongly advise people with pancreatitis not to drink any alcohol, even if your pancreatitis is mild.',
+        'summary' => 'الطبيب يصف خطة أكل صحية بوجبات صغيرة متكررة، مع سوائل كافية وبلا كحول. لا رقم للدهون، والإرشاد الأوروبي الأحدث لا ينصح بتقليلها مع الإنزيمات.',
+        'applies' => 'التهاب البنكرياس',
+        'read_at' => '2026-11-17',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
     /* The liver (step 3). */
 
     'who_hepatitis_a' => [
