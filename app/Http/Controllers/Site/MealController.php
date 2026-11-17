@@ -37,9 +37,12 @@ class MealController extends Controller
     {
         $facts = $catalog->find($meal) ?? abort(404);
 
+        $fit = $fits->judge($request->user(), $facts);
+
         return view('site.pages.meals.show', [
             'meal' => $facts,
-            'fit' => $fits->judge($request->user(), $facts),
+            'fit' => $fit,
+            'suggestions' => $fits->suggest($request->user(), $facts, $fit),
             'personal' => $fits->sheetFor($request->user()) !== null,
         ]);
     }

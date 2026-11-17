@@ -42,7 +42,37 @@ final readonly class MealFacts
          * @var array<string, list<array{label: string, amount: ?float, pct: ?int}>>
          */
         public array $contributions = [],
+        /**
+         * Each ingredient of the portion with what it brings (Contributions::lines), to try
+         * a change and judge it again (step 6). Never shown: a restaurant's holds only what goes
+         * on top, and its suggestions name the new level, no amounts.
+         *
+         * @var list<array{label: string, after: bool, grams: ?float, nutrients: array<string, float>}>
+         */
+        public array $lines = [],
     ) {}
+
+    /**
+     * The same meal with one ingredient cut to $keep of itself (0 = without it): its values and
+     * the portion's weight lose that part. For trying a suggestion; nothing else is changed.
+     */
+    public function without(array $line, float $keep = 0.0): self
+    {
+        $cut = 1 - $keep;
+        $nutrients = $this->nutrients;
+        foreach ($line['nutrients'] as $code => $amount) {
+            if (isset($nutrients[$code])) {
+                $nutrients[$code] = max(0.0, $nutrients[$code] - $amount * $cut);
+            }
+        }
+        $serving = $this->servingGrams !== null && $line['grams'] !== null
+            ? max(1.0, $this->servingGrams - $line['grams'] * $cut)
+            : $this->servingGrams;
+
+        return new self($this->id, $this->name, $this->brand, $this->description, $serving, $nutrients,
+            $this->verification, $this->image, $this->allergens, $this->allergensChecked, $this->ingredients,
+            $this->brandId, $this->categoryId, $this->platform, $this->withBread);
+    }
 
     /** @return list<array{label: string, amount: ?float, pct: ?int}> */
     public function sourcesOf(string $nutrient): array

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Brand;
 use App\Models\FoodPortion;
 use App\Models\MeasureUnit;
+use App\Models\User;
 use App\Services\Site\Kitchen\KitchenIngredientCatalog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +44,49 @@ class KitchenRecipePageTest extends TestCase
         $this->assertSame([$this->lentils->id, $this->oil->id], array_column($recipe['lines'], 'record_id'));
         $this->assertSame([false, true], array_column($recipe['lines'], 'after'));
         $this->assertSame([2, 240.0], [$recipe['servings'], $recipe['weight_after']]);
+    }
+
+    public function test_a_suggestion_opens_the_recipe_with_the_change_applied(): void
+    {
+        // "اطبخها هكذا" (step 6): without the oil on top, the lentils at half.
+        $query = ['c' => [['i' => 'زيت زيتون', 'a' => 1, 'k' => 0], ['i' => 'عدس', 'a' => 0, 'k' => 0.5]]];
+        $response = $this->get(route('site.kitchen.recipe', $this->dish->id).'?'.http_build_query($query))->assertOk();
+
+        $this->assertSame('بلا زيت زيتون على الوجه، وعدس بنصف الكمية', $response->viewData('applied'));
+        $recipe = $response->viewData('recipe');
+        $this->assertSame([$this->lentils->id], array_column($recipe['lines'], 'record_id'));
+        $this->assertSame([140.0], array_column($recipe['lines'], 'amount'));
+        $this->assertNull($recipe['weight_after'], 'the cooked weight is estimated again');
+        // "ارجع لوصفتنا" goes back to ours.
+        $this->assertCount(2, $response->viewData('original')['lines']);
+    }
+
+    public function test_their_own_result_offers_a_change_to_try_on_the_spot(): void
+    {
+        // 40 g oil on top for 2: 20 g fat a serving, past fat intolerance's 15 g (not verified yet).
+        $user = User::forceCreate(['name' => 'سامر', 'email' => uniqid().'@example.com', 'password' => 'x-secret-1', 'is_active' => true, 'email_verified_at' => now()]);
+        $user->profile()->create([
+            'sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => 178, 'weight_kg' => 80, 'activity_level' => 'light',
+            'goal' => 'maintain', 'health_conditions' => ['fat_intolerance'], 'allergies' => [], 'completed_at' => now(),
+        ]);
+
+        $html = $this->actingAs($user)
+            ->postJson(route('site.kitchen.recipe.analyze', $this->dish->id), $this->body([[$this->lentils, 280], [$this->oil, 40, true]], servings: 2, after: 260))
+            ->assertOk()->json('html');
+
+        $this->assertStringContainsString('ماذا تستطيع أن تفعل', $html);
+        $this->assertStringContainsString('بلا زيت زيتون على الوجه', $html);
+        $this->assertStringContainsString('جرّبها', $html);
+        $this->assertStringNotContainsString('اطبخها هكذا', $html, 'on their own recipe, the change is applied in place');
+    }
+
+    public function test_a_change_that_is_not_one_we_offer_opens_our_recipe_as_it_is(): void
+    {
+        foreach ([['i' => 'عدس', 'a' => 0, 'k' => 0.3], ['i' => 'سكر', 'a' => 0, 'k' => 0], ['i' => 'عدس', 'a' => 1, 'k' => 0]] as $cut) {
+            $response = $this->get(route('site.kitchen.recipe', $this->dish->id).'?'.http_build_query(['c' => [$cut]]))->assertOk();
+            $this->assertNull($response->viewData('applied'));
+            $this->assertCount(2, $response->viewData('recipe')['lines']);
+        }
     }
 
     public function test_a_restaurant_dish_has_no_such_page(): void

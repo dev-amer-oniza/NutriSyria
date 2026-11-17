@@ -21,5 +21,9 @@ final readonly class CustomRecipeResult
         public float $weightAfterCookingG,
         public array $unconverted = [],
         public ?MealFit $fit = null,
+        /** @var list<MealSuggestion> what would help their own recipe more (step 6, 3a) */
+        public array $suggestions = [],
+        /** The level our recipe gets for them, to say what it was ("كانت: …"). */
+        public ?int $originalLevel = null,
     ) {}
 }

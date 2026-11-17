@@ -26,7 +26,7 @@ final class Contributions
         $out = [];
         foreach ($byNutrient as $code => $lines) {
             $total = array_sum(array_column($lines, 'amount'));
-            if ($total <= 0) {
+            if ($total <= 0 || $code === RecipeAnalysisResult::GRAMS) {
                 continue;
             }
             $rows = [];
@@ -50,8 +50,37 @@ final class Contributions
         return $out;
     }
 
+    /**
+     * Each ingredient of the portion with everything it brings, for trying a change (step 6):
+     * the same numbers as rows(), turned around. A restaurant's only for what goes on top, the
+     * one thing a diner can ask to leave out (decision 10a).
+     *
+     * @param  array<string, list<array{label: string, amount: float, after: bool}>>  $byNutrient  nutrients and RecipeAnalysisResult::GRAMS
+     * @return list<array{label: string, after: bool, grams: ?float, nutrients: array<string, float>}>
+     */
+    public static function lines(array $byNutrient, float $factor, bool $afterOnly): array
+    {
+        $lines = [];
+        foreach ($byNutrient as $code => $parts) {
+            foreach ($parts as $part) {
+                if ($afterOnly && ! $part['after']) {
+                    continue;
+                }
+                $key = $part['label'].($part['after'] ? '|after' : '');
+                $lines[$key] ??= ['label' => $part['label'], 'after' => $part['after'], 'grams' => null, 'nutrients' => []];
+                if ($code === RecipeAnalysisResult::GRAMS) {
+                    $lines[$key]['grams'] = $part['amount'] * $factor;
+                } else {
+                    $lines[$key]['nutrients'][$code] = $part['amount'] * $factor;
+                }
+            }
+        }
+
+        return array_values($lines);
+    }
+
     /** "زيت الزيتون على الوجه": what is added after cooking is told apart (decision 4a). */
-    private static function label(array $line): string
+    public static function label(array $line): string
     {
         return $line['label'].($line['after'] ? ' على الوجه' : '');
     }

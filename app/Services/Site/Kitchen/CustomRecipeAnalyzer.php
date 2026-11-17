@@ -59,6 +59,7 @@ class CustomRecipeAnalyzer
         }
 
         $meal = $this->facts($original, $result, $records);
+        $fit = $this->fit->judge($user, $meal);
 
         return new CustomRecipeResult(
             meal: $meal,
@@ -66,7 +67,9 @@ class CustomRecipeAnalyzer
             weightEstimated: $estimated,
             weightAfterCookingG: (float) $result->weightAfterCookingG,
             unconverted: $result->unconvertedIngredients,
-            fit: $this->fit->judge($user, $meal),
+            fit: $fit,
+            suggestions: $this->fit->suggest($user, $meal, $fit),
+            originalLevel: $fit ? $this->fit->judge($user, $original)?->level : null,
         );
     }
 
@@ -132,6 +135,7 @@ class CustomRecipeAnalyzer
             withBread: $original->withBread,
             // The visitor's own recipe: grams and shares, never stored (step 4, 3a).
             contributions: Contributions::rows($result->contributions(), 1 / $result->servings, ranksOnly: false),
+            lines: Contributions::lines($result->contributions(), 1 / $result->servings, afterOnly: false),
         );
     }
 }

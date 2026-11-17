@@ -5,7 +5,8 @@
     $info (rules not verified yet, shown only), $grounds ("قيّمناها على: …"), $general (bool),
     $sources (the /sources card of the person's limits, for "من أين هذا الحد؟"),
     $meal (MealFacts), $causes (reason index => nutrient) and $infoCauses (the same for $info),
-    for "من أين الدهون؟" under a reason or an information line.
+    for "من أين الدهون؟" under a reason or an information line; $fitSuggestions (MealSuggestion list)
+    and $editor (inside "اطبخها على طريقتك"), for "ماذا تستطيع أن تفعل".
 --}}
 @include('site.components.fit-verdict', ['level' => $level])
 @if (! empty($general))<p class="ns-fit__general">على احتياجك العام</p>@endif
@@ -16,7 +17,7 @@
         <li>
             {{ $reason }}
             {{-- "ليش؟" (step 4): the ingredients behind a nutrient that went over. --}}
-            @if (isset($meal, $causes[$i]))
+            @if (($meal ?? null) instanceof \App\Data\Nutrition\MealFacts && isset($causes[$i]))
                 @include('site.components.meal-sources', ['meal' => $meal, 'code' => $causes[$i]])
             @endif
         </li>
@@ -28,7 +29,7 @@
         @foreach ($info as $i => $line)
             <li>
                 {{ $line }}
-                @if (isset($meal, $infoCauses[$i]))
+                @if (($meal ?? null) instanceof \App\Data\Nutrition\MealFacts && isset($infoCauses[$i]))
                     @include('site.components.meal-sources', ['meal' => $meal, 'code' => $infoCauses[$i]])
                 @endif
             </li>
@@ -59,5 +60,9 @@
         <span><span class="ns-num">{{ $portion['grams'] }}</span> غ@if ($portion['kcal'] !== null) · <span class="ns-num">{{ $portion['kcal'] }}</span> سعرة@endif</span>
     @endif
 </p>
+
+@if (($meal ?? null) instanceof \App\Data\Nutrition\MealFacts && ! empty($fitSuggestions))
+    @include('site.components.meal-suggestions', ['suggestions' => $fitSuggestions, 'meal' => $meal, 'editor' => $editor ?? false])
+@endif
 
 @if (! empty($grounds))<p class="ns-fit__grounds">{{ $grounds }}@if (! empty($sources)) <a class="ns-link" href="{{ route('site.sources') }}#{{ $sources }}">من أين هذا الحد؟</a>@endif</p>@endif
