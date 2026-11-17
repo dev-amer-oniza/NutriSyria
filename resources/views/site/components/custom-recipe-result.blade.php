@@ -61,7 +61,7 @@
                 @include('site.components.fit-result', [
                     'level' => $result->fit->level, 'reasons' => $result->fit->reasons, 'notes' => $result->fit->notes,
                     'share' => $result->fit->share, 'portion' => $result->fit->portion, 'who' => $result->fit->who(),
-                    'info' => $result->fit->info, 'grounds' => $result->fit->grounds, 'general' => $result->fit->general,
+                    'info' => $result->fit->info, 'grounds' => $result->fit->grounds, 'general' => $result->fit->general, 'sources' => $result->fit->sources,
                 ])
             </div>
         @elseif ($signedIn)

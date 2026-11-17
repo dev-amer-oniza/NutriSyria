@@ -7,7 +7,7 @@
 @layer components {
     :is(.ns-dish, .ns-feature, .ns-rest, .ns-nutri, .ns-panel, .ns-cta, .ns-empty, .ns-banner, .ns-xtile, .ns-how__steps,
         .ns-needs, .ns-advice, .ns-criteria, .ns-health, .ns-template, .ns-bmi, .ns-plan,
-        .ns-goal, .ns-conditions__group, .ns-method__step, .ns-method__sum, .ns-method__source, .ns-method__levels li,
+        .ns-goal, .ns-conditions__group, .ns-ref-card, .ns-method__step, .ns-method__sum, .ns-method__source, .ns-method__levels li,
         .ns-about__offer, .ns-person-card, .ns-photo__frame,
         .ns-meal__cover, .ns-meal__values, .ns-meal__fit,
         .ns-partners__benefit, .ns-partners__privacy,
@@ -18,7 +18,7 @@
     /* The origin arc drawn in terracotta on cards (not on images and covers). */
     :is(.ns-dish, .ns-feature, .ns-rest, .ns-nutri, .ns-panel, .ns-empty,
         .ns-needs, .ns-advice, .ns-criteria, .ns-health, .ns-template, .ns-bmi, .ns-plan,
-        .ns-goal, .ns-conditions__group, .ns-method__step, .ns-method__sum, .ns-method__source, .ns-method__levels li,
+        .ns-goal, .ns-conditions__group, .ns-ref-card, .ns-method__step, .ns-method__sum, .ns-method__source, .ns-method__levels li,
         .ns-about__offer, .ns-person-card,
         .ns-meal__values,
         .ns-partners__benefit, .ns-partners__privacy,
@@ -27,7 +27,7 @@
     }
     :is(.ns-dish, .ns-feature, .ns-rest, .ns-nutri, .ns-panel, .ns-empty,
         .ns-needs, .ns-advice, .ns-criteria, .ns-health, .ns-template, .ns-bmi, .ns-plan,
-        .ns-goal, .ns-conditions__group, .ns-method__step, .ns-method__sum, .ns-method__source, .ns-method__levels li,
+        .ns-goal, .ns-conditions__group, .ns-ref-card, .ns-method__step, .ns-method__sum, .ns-method__source, .ns-method__levels li,
         .ns-about__offer, .ns-person-card,
         .ns-meal__values, .ns-meal__fit,
         .ns-partners__benefit, .ns-partners__privacy,

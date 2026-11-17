@@ -44,6 +44,7 @@ class FitPanel
                 'info' => $fit->info,
                 'grounds' => $fit->grounds,
                 'general' => $fit->general,
+                'sources' => $fit->sources,
             ]],
             'source' => 'أحدث وجبة اعتمدها أخصائي التغذية، مقيّمة على معاييرك.',
             'link' => route('site.meals.show', $meal->id),

@@ -27,6 +27,8 @@ final readonly class MealFit
         public ?string $grounds = null,
         /** The person has conditions not verified yet: the verdict is "على احتياجك العام". */
         public bool $general = false,
+        /** The card of the sources page (/sources#…) that holds this person's limits. */
+        public ?string $sources = null,
     ) {}
 
     /** What the verdict is based on, for the person reading it. */

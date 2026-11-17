@@ -132,7 +132,10 @@ class MealPagesTest extends TestCase
             ->assertSee('مناسبة جداً')
             ->assertSee('على احتياجك العام')
             ->assertSee('للمعلومة، لا يدخل في التقييم بعد: دهون الوجبة فيها 18 غ، وحد «عدم تحمّل الدسم» 15 غ للوجبة قيد التوثيق.')
-            ->assertSee('قيّمناها على: احتياجك العام (موثّق). قيد التوثيق: حدود عدم تحمّل الدسم. ننصحك بأخصائي.');
+            ->assertSee('قيّمناها على: احتياجك العام (موثّق). قيد التوثيق: حدود عدم تحمّل الدسم. ننصحك بأخصائي.')
+            // "من أين هذا الحد؟" opens the person's condition on the sources page (step 3b, 4a).
+            ->assertSee(route('site.sources').'#fat_intolerance', false)
+            ->assertSee('من أين هذا الحد؟');
 
         // The person's doctor gave them 15 g a meal: it judges now, as a strict limit.
         $this->put(route('site.criteria.update', 'meal_fat_g'), ['value' => 15, 'from_doctor' => '1'])->assertSessionHas('status');

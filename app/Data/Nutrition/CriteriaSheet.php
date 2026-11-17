@@ -30,11 +30,13 @@ final readonly class CriteriaSheet
         public array $pendingConditions = [],
         /** @var array<string, string> allergens a template avoids => why ("ومرض السيلياك يُعالَج بتجنّبه تماماً") */
         public array $avoided = [],
+        /** @var list<string> the person's condition keys, for the card "من أين هذا الحد؟" opens */
+        public array $conditions = [],
     ) {}
 
     private function copy(array $criteria, float $mealShare, array $template, ?array $meal): self
     {
-        return new self($criteria, $this->energy, $mealShare, $template, $this->advice, $this->allergens, $meal, $this->sensitiveDigestion, $this->pendingConditions, $this->avoided);
+        return new self($criteria, $this->energy, $mealShare, $template, $this->advice, $this->allergens, $meal, $this->sensitiveDigestion, $this->pendingConditions, $this->avoided, $this->conditions);
     }
 
     public function get(string $key): ?CriterionValue

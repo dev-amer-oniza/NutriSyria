@@ -2,7 +2,8 @@
     One person's verdict on one meal (MealFit, or an example person on the home page).
     Params: $level 1..4, $reasons (list), $notes (list, optional), $share (energy, protein,
     carbs, fat: percent or null), $portion ({grams, kcal, whole?} or null), $who (optional),
-    $info (rules not verified yet, shown only), $grounds ("قيّمناها على: …"), $general (bool).
+    $info (rules not verified yet, shown only), $grounds ("قيّمناها على: …"), $general (bool),
+    $sources (the /sources card of the person's limits, for "من أين هذا الحد؟").
 --}}
 @include('site.components.fit-verdict', ['level' => $level])
 @if (! empty($general))<p class="ns-fit__general">على احتياجك العام</p>@endif
@@ -46,4 +47,4 @@
     @endif
 </p>
 
-@if (! empty($grounds))<p class="ns-fit__grounds">{{ $grounds }}</p>@endif
+@if (! empty($grounds))<p class="ns-fit__grounds">{{ $grounds }}@if (! empty($sources)) <a class="ns-link" href="{{ route('site.sources') }}#{{ $sources }}">من أين هذا الحد؟</a>@endif</p>@endif
