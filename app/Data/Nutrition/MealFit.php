@@ -29,6 +29,10 @@ final readonly class MealFit
         public bool $general = false,
         /** The card of the sources page (/sources#…) that holds this person's limits. */
         public ?string $sources = null,
+        /** @var array<int, string> reason index => the nutrient it is about, for "من أين الدهون؟" */
+        public array $causes = [],
+        /** @var list<string> the nutrient of each information line, in order */
+        public array $infoCauses = [],
     ) {}
 
     /** What the verdict is based on, for the person reading it. */

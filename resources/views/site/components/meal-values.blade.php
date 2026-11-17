@@ -12,7 +12,7 @@
         ->map(fn (array $group) => $group + ['shown' => array_filter($group['values'], fn (array $v, string $code) => $v[2] || $meal->amount($code) !== null, ARRAY_FILTER_USE_BOTH)])
         ->filter(fn (array $group) => $group['shown'] !== []);
 @endphp
-<section class="ns-meal__values" aria-labelledby="{{ $titleId }}">
+<section class="ns-meal__values" aria-labelledby="{{ $titleId }}" x-data="{ src: null }">
     <h2 class="t-heading" id="{{ $titleId }}">
         @if ($meal->servingGrams)
             القيم لحصة <span class="ns-num">{{ round($meal->servingGrams) }}</span> غ
@@ -48,6 +48,20 @@
         @include('site.components.nutrient-stat', ['label' => 'دهون', 'value' => $value('fat_g'), 'key' => 'fat'])
         @include('site.components.nutrient-stat', ['label' => 'ألياف', 'value' => $value('fiber_g'), 'key' => 'fiber'])
     </div>
+    @php
+        $main = array_filter(['protein_g' => 'البروتين', 'carbohydrate_g' => 'الكربوهيدرات', 'fat_g' => 'الدهون', 'fiber_g' => 'الألياف'], fn (string $label, string $code) => $meal->sourcesOf($code) !== [], ARRAY_FILTER_USE_BOTH);
+    @endphp
+    @if ($main)
+        {{-- "من أين؟" (step 4): the ingredients behind each value, one open at a time. --}}
+        <div class="ns-src-chips">
+            @foreach ($main as $code => $label)
+                <button type="button" class="ns-chip ns-chip--sm" @click="src = src === '{{ $code }}' ? null : '{{ $code }}'" :aria-expanded="src === '{{ $code }}'">من أين {{ $label }}؟</button>
+            @endforeach
+        </div>
+        @foreach ($main as $code => $label)
+            <div x-show="src === '{{ $code }}'" x-cloak>@include('site.components.meal-sources', ['code' => $code])</div>
+        @endforeach
+    @endif
     @foreach ($groups as $group)
         @if ($group['folded'])
             <details class="ns-meal__group">
@@ -58,9 +72,14 @@
         @endif
                 <dl class="ns-meal__more">
                     @foreach ($group['shown'] as $code => [$label, $unit])
-                        <div><dt>{{ $label }}</dt><dd><span class="ns-num">{{ $value($code) }}</span> {{ $meal->amount($code) !== null ? $unit : '' }}</dd></div>
+                        <div><dt>{{ $label }}</dt><dd><span class="ns-num">{{ $value($code) }}</span> {{ $meal->amount($code) !== null ? $unit : '' }}@if ($meal->sourcesOf($code))<button type="button" class="ns-src__open" @click="src = src === '{{ $code }}' ? null : '{{ $code }}'" :aria-expanded="src === '{{ $code }}'">من أين؟</button>@endif</dd></div>
                     @endforeach
                 </dl>
+                @foreach ($group['shown'] as $code => $v)
+                    @if ($meal->sourcesOf($code))
+                        <div x-show="src === '{{ $code }}'" x-cloak>@include('site.components.meal-sources', ['code' => $code])</div>
+                    @endif
+                @endforeach
         @if ($group['folded'])
             </details>
         @else

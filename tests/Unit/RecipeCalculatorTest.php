@@ -41,6 +41,28 @@ class RecipeCalculatorTest extends TestCase
         $this->assertSame(250.0, $r->gramsTotal);
     }
 
+    public function test_each_ingredient_brings_its_share_and_the_shares_add_up(): void
+    {
+        // Two lines of the same food add together; oil on top is told apart from oil in the pot.
+        $ingredients = [
+            ['label' => 'زيت', 'grams' => 10, 'is_added_after_cooking' => false, 'nutrients' => [2 => ['amount' => 100, 'unit' => 'g']]],
+            ['label' => 'حمص', 'grams' => 300, 'is_added_after_cooking' => false, 'nutrients' => [2 => ['amount' => 6, 'unit' => 'g']]],
+            ['label' => 'زيت', 'grams' => 5, 'is_added_after_cooking' => false, 'nutrients' => [2 => ['amount' => 100, 'unit' => 'g']]],
+            ['label' => 'زيت', 'grams' => 7, 'is_added_after_cooking' => true, 'nutrients' => [2 => ['amount' => 100, 'unit' => 'g']]],
+        ];
+
+        $r = $this->calc()->calculate($ingredients, $this->nutrientDefs, null, 400, 2);
+        $perServing = $r->contributions(1 / 2);
+
+        $this->assertSame([
+            ['label' => 'حمص', 'amount' => 9.0, 'after' => false],
+            ['label' => 'زيت', 'amount' => 7.5, 'after' => false],
+            ['label' => 'زيت', 'amount' => 3.5, 'after' => true],
+        ], $perServing['protein_g']);
+        $this->assertEqualsWithDelta($r->perServing()[2]['amount'], array_sum(array_column($perServing['protein_g'], 'amount')), 0.001);
+        $this->assertArrayNotHasKey('vitamin_k_ug', $perServing, 'no ingredient has it');
+    }
+
     public function test_missing_nutrient_is_null_not_zero_and_names_the_food(): void
     {
         $ingredients = [

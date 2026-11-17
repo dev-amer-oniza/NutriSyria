@@ -97,6 +97,8 @@ class MealFitCalculatorTest extends TestCase
         $this->assertCount(3, $fit->reasons);
         $this->assertStringStartsWith('الدهون فيها', $fit->reasons[0]);      // 33% over
         $this->assertStringStartsWith('الدهون المشبعة', $fit->reasons[1]);  // 20% over
+        // Each over-limit reason names its nutrient, for "من أين الدهون؟" under it (step 4).
+        $this->assertSame(['fat_g', 'fat_sat_g'], [$fit->causes[0], $fit->causes[1]]);
     }
 
     public function test_total_sugars_are_shown_but_never_judge_a_meal(): void
@@ -187,6 +189,8 @@ class MealFitCalculatorTest extends TestCase
         $this->assertTrue($fit->general);
         $this->assertSame(['للمعلومة، لا يدخل في التقييم بعد: كربوهيدرات الوجبة فيها 70 غ، وحد «قالب السكري (تحكّم بالكربوهيدرات)» 60 غ للوجبة قيد التوثيق. إن حدّد لك طبيبك هذا الحد، اكتبه في معاييري فنقيّم عليه.'], $fit->info);
         $this->assertSame('قيّمناها على: احتياجك العام (موثّق). قيد التوثيق: حدود السكري. ننصحك بأخصائي.', $fit->grounds);
+        $this->assertSame(['carbohydrate_g'], $fit->infoCauses);
+        $this->assertSame([], $fit->causes, 'the energy reason is about no single nutrient');
         $this->assertStringContainsString('وكل الحدود الموثّقة محترمة', $fit->reasons[0]);
     }
 

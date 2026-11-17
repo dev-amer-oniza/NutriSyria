@@ -100,15 +100,17 @@ class MealFitCalculator
         $found = array_values(array_intersect($sheet->allergens, $meal->allergens));
         $level = $found ? 1 : ($overs[0][4] ?? 4);
 
+        // [reason, the nutrient it is about]: "من أين الدهون؟" sits under an over-limit reason (step 4).
         $reasons = [
-            ...array_map(fn (string $a) => $this->allergenReason($sheet, $a), $found),
+            ...array_map(fn (string $a) => [$this->allergenReason($sheet, $a), null], $found),
             ...($sheet->allergens && ! $meal->allergensChecked && ! $found
-                ? ['لم نتحقق بعد من مسبّبات الحساسية في كل مكوّناتها، فتأكد منها مع المطعم.'] : []),
-            ...array_map(fn (array $o) => $this->overReason($sheet, ...array_slice($o, 0, 4)), $overs),
+                ? [['لم نتحقق بعد من مسبّبات الحساسية في كل مكوّناتها، فتأكد منها مع المطعم.', null]] : []),
+            ...array_map(fn (array $o) => [$this->overReason($sheet, ...array_slice($o, 0, 4)), $o[0]->nutrient], $overs),
         ];
         if (! $overs && ! $found) {
-            $reasons[] = $this->energyReason($sheet, $meal);
+            $reasons[] = [$this->energyReason($sheet, $meal), null];
         }
+        $reasons = array_slice(array_values(array_filter($reasons, fn (array $r) => (bool) $r[0])), 0, self::MAX_REASONS);
 
         $notes = [
             ...$this->legumeNote($sheet, $meal),
@@ -118,7 +120,8 @@ class MealFitCalculator
 
         return new MealFit(
             level: $level,
-            reasons: array_slice(array_values(array_filter($reasons)), 0, self::MAX_REASONS),
+            reasons: array_column($reasons, 0),
+            causes: array_filter(array_column($reasons, 1)),
             share: $this->share($sheet, $meal),
             portion: $found ? null : $this->portion($meal, $factor),
             notes: $notes,
@@ -128,6 +131,7 @@ class MealFitCalculator
                 : $sheet->template['judging'].' (قالب '.$sheet->template['label'].' قيد التوثيق)',
             basis: $sheet->meal ? sprintf('غدائك في خطة أخصائيّك (%s%s سعرة)', $sheet->meal['time'] ? $sheet->meal['time'].'، ' : '', number_format($sheet->meal['kcal'])) : null,
             info: $this->infoLines(array_values($info)),
+            infoCauses: array_keys($info),
             grounds: $this->grounds($sheet),
             general: $sheet->pendingConditions !== [],
             sources: (new MedicalReferences($this->rules, []))->anchorFor($sheet->conditions, $sheet->template['key']),

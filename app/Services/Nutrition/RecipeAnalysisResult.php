@@ -11,8 +11,8 @@ namespace App\Services\Nutrition;
 final readonly class RecipeAnalysisResult
 {
     /**
-     * @param  array<int, array{nutrient: array, amount: ?float, missing_from: string[], borrowed: array<string, string>, computed: string[]}>  $totals
-     *                                                                                                                                                   absolute amount for the WHOLE recipe, keyed by nutrient_id
+     * @param  array<int, array{nutrient: array, amount: ?float, missing_from: string[], borrowed?: array<string, string>, computed?: string[], by_line?: list<array{label: string, amount: float, after: bool}>}>  $totals
+     *                                                                                                                                                                                                                       absolute amount for the WHOLE recipe, keyed by nutrient_id
      */
     public function __construct(
         public array $totals,
@@ -77,6 +77,30 @@ final readonly class RecipeAnalysisResult
     public function canSaveOfficialValue(): bool
     {
         return $this->hasWeightAfterCooking() && $this->unconvertedIngredients === [];
+    }
+
+    /**
+     * What each ingredient brings to the whole recipe, by nutrient code, largest first ("من
+     * أين؟", step 4). Multiplied by the same factor as the values (1 / servings for a serving),
+     * they add up to the value shown: cooking changes the weight, not the fat or the salt.
+     *
+     * @return array<string, list<array{label: string, amount: float, after: bool}>>
+     */
+    public function contributions(float $factor = 1.0): array
+    {
+        $out = [];
+        foreach ($this->totals as $row) {
+            $lines = array_values(array_filter(array_map(
+                fn (array $line) => [...$line, 'amount' => round($line['amount'] * $factor, 4)],
+                $row['by_line'] ?? [],
+            ), fn (array $line) => $line['amount'] > 0));
+            if ($lines) {
+                usort($lines, fn (array $a, array $b) => $b['amount'] <=> $a['amount']);
+                $out[$row['nutrient']['code']] = $lines;
+            }
+        }
+
+        return $out;
     }
 
     /** @return array<int, array{nutrient: array, amount: ?float, missing_from: string[]}> */

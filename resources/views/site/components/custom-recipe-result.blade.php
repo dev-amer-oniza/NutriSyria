@@ -62,6 +62,7 @@
                     'level' => $result->fit->level, 'reasons' => $result->fit->reasons, 'notes' => $result->fit->notes,
                     'share' => $result->fit->share, 'portion' => $result->fit->portion, 'who' => $result->fit->who(),
                     'info' => $result->fit->info, 'grounds' => $result->fit->grounds, 'general' => $result->fit->general, 'sources' => $result->fit->sources,
+                    'meal' => $result->meal, 'causes' => $result->fit->causes, 'infoCauses' => $result->fit->infoCauses,
                 ])
             </div>
         @elseif ($signedIn)

@@ -35,7 +35,20 @@ final readonly class MealFacts
         public bool $platform = false,
         /** Usually eaten with bread: its values are for the plate alone (4b). */
         public bool $withBread = false,
+        /**
+         * "من أين؟": by nutrient code, the ingredients that give it in this portion, largest
+         * first (Contributions::rows). A restaurant's carry no amounts: ranks only.
+         *
+         * @var array<string, list<array{label: string, amount: ?float, pct: ?int}>>
+         */
+        public array $contributions = [],
     ) {}
+
+    /** @return list<array{label: string, amount: ?float, pct: ?int}> */
+    public function sourcesOf(string $nutrient): array
+    {
+        return $this->contributions[$nutrient] ?? [];
+    }
 
     /** The grams the values describe. */
     public function portionGrams(): float
