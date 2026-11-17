@@ -216,19 +216,29 @@ class OnboardingTest extends TestCase
         $this->get('/account/criteria')->assertSee('دهون الوجبة')->assertSee('الحديد');
     }
 
-    public function test_jaundice_explains_its_causes_and_takes_the_liver_template(): void
+    public function test_jaundice_explains_its_causes_and_brings_no_limits(): void
     {
         $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1990, 'height_cm' => 178, 'weight_kg' => 80]);
         $this->post('/onboarding/activity', ['activity_level' => 'moderate', 'goal' => 'maintain']);
 
         $this->get('/onboarding/health')->assertOk()
+            ->assertSee('الكبد')
             ->assertSee('يرقان (السبب غير معروف بعد)')
-            ->assertSee('إن عرفت السبب، اختره بدلاً منه');
+            ->assertSee('اليرقان علامة لا مرض')
+            ->assertSee('التهاب كبد فيروسي حاد (A أو E)')
+            ->assertSee('تليّف الكبد')
+            ->assertDontSee('الكبد الوبائي أو التليّف');                    // no longer offered
 
         $this->post('/onboarding/health', ['conditions' => ['jaundice'], 'consent' => '1'])->assertRedirect('/onboarding/done');
 
-        $this->assertSame('hepatic', app(PersonalCriteria::class)->for($this->user->fresh())->template['key']);
+        // A sign, not a disease (step 3, decision 4a): the general needs, nothing pending.
+        $sheet = app(PersonalCriteria::class)->for($this->user->fresh());
+        $this->assertSame('balanced', $sheet->template['key']);
+        $this->assertSame([], $sheet->pendingConditions);
         $this->get('/onboarding/done')->assertSee('اليرقان له أكثر من سبب');
+
+        // The old mixed choice cannot be picked again.
+        $this->post('/onboarding/health', ['conditions' => ['liver_cirrhosis'], 'consent' => '1'])->assertSessionHasErrors('conditions.0');
     }
 
     public function test_a_person_picks_a_general_template_and_puts_it_back(): void

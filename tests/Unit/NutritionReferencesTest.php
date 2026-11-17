@@ -40,6 +40,17 @@ class NutritionReferencesTest extends TestCase
         foreach ($this->rules['criteria'] as $criterion) {
             $named = [...$named, ...($criterion['refs'] ?? [])];
         }
+        foreach ($this->rules['conditions'] as $condition) {
+            $named = [...$named, ...($condition['refs'] ?? []), ...($condition['energy_refs'] ?? [])];
+            foreach ($condition['criteria'] ?? [] as $rule) {
+                $named = [...$named, ...($rule['refs'] ?? [])];
+            }
+        }
+        foreach ($this->rules['templates'] as $template) {
+            foreach ($template['rules'] ?? [] as $rule) {
+                $named = [...$named, ...($rule['refs'] ?? [])];
+            }
+        }
 
         foreach (array_unique($named) as $key) {
             $this->assertArrayHasKey($key, $this->refs, $key);
@@ -155,5 +166,32 @@ class NutritionReferencesTest extends TestCase
     {
         $this->assertContains('gluten', $this->rules['templates']['celiac']['allergens']);
         $this->assertStringContainsString('follow a gluten-free diet', $this->quote('niddk_celiac'));
+    }
+
+    public function test_cirrhosis_follows_easl(): void
+    {
+        $cirrhosis = $this->rules['conditions']['cirrhosis'];
+        $quote = $this->quote('easl_nutrition_2019');
+
+        $this->assertSame(['type' => 'per_kg', 'value' => 1.2, 'refs' => ['easl_nutrition_2019']], $cirrhosis['criteria']['protein_min_g']);
+        $this->assertStringContainsString('Optimal daily protein intake should not be lower than the recommended 1.2–1.5 g/kg.BW/d', $quote);
+        $this->assertSame(35, $cirrhosis['energy_min_per_kg']);
+        $this->assertStringContainsString('should not be lower than the recommended 35 kcal/kg.BW/d (in non-obese individuals)', $quote);
+        $this->assertSame(30, $cirrhosis['energy_min_below_bmi'], 'non-obese: under the WHO obesity line');
+        $this->assertStringContainsString('obesity is a BMI greater than or equal to 30', $this->quote('who_bmi'));
+        $this->assertStringContainsString('an increased energy intake is not recommended in overweight or obese patients', $this->quote('espen_liver_2019'));
+        $this->assertArrayNotHasKey('sodium_mg', $this->rules['templates']['hepatic']['rules'], "ascites' 2 g equals the general limit");
+    }
+
+    public function test_hepatitis_jaundice_and_fatty_liver_bring_no_figures(): void
+    {
+        foreach (['hepatitis_acute', 'hepatitis_chronic', 'jaundice', 'fatty_liver', 'liver_cirrhosis'] as $key) {
+            $condition = $this->rules['conditions'][$key];
+            $this->assertArrayNotHasKey('criteria', $condition, $key);
+            $this->assertArrayNotHasKey('template', $condition, $key);
+        }
+        $this->assertStringContainsString('There is no specific antiviral treatment for hepatitis A', $this->quote('who_hepatitis_a'));
+        $this->assertStringContainsString('choose healthy foods and drinks', $this->quote('niddk_hepatitis_c'));
+        $this->assertStringContainsString('similar to the Mediterranean dietary pattern', $this->quote('easl_masld_2024'));
     }
 }

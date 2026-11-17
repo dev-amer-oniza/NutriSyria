@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\ConsultationRequest;
+use App\Services\Nutrition\LiverUpdate;
 use Illuminate\Notifications\Notification;
 
 /**
@@ -62,6 +63,16 @@ class SiteNotification extends Notification
                 ? 'إن تحسّنت، أخبر أخصائيّك ليحدّث ملفك، فنقيّم الوجبات على وضعك الجديد.'
                 : 'إن تحسّنت، أزلها من بياناتك الصحية، فنقيّم الوجبات على وضعك الجديد.',
             route('site.criteria', absolute: false));
+    }
+
+    /** The old "الكبد الوبائي أو التليّف" is three conditions now (LiverUpdate, step 3). */
+    public static function liverUpdate(bool $managed): self
+    {
+        return new self('info', LiverUpdate::TITLE,
+            $managed
+                ? 'اخترت سابقاً «الكبد الوبائي أو التليّف»، وصارت الآن ثلاث حالات. سيحدّثها أخصائيّك.'
+                : 'اخترت سابقاً «الكبد الوبائي أو التليّف»، وصارت الآن ثلاث حالات. اختر ما يناسبك حتى نقيّم وجباتك على الحالة الصحيحة.',
+            route($managed ? 'site.criteria' : 'site.liver', absolute: false));
     }
 
     private static function nutritionistName(ConsultationRequest $request): string

@@ -25,9 +25,18 @@ enum HealthCondition: string
     case FatIntolerance = 'fat_intolerance';
     case Pancreatitis = 'pancreatitis';
     case Celiac = 'celiac';
+    // The liver (step 3: what each reference says)
     case FattyLiver = 'fatty_liver';
-    case LiverCirrhosis = 'liver_cirrhosis';
+    case HepatitisAcute = 'hepatitis_acute';
+    case HepatitisChronic = 'hepatitis_chronic';
+    case Cirrhosis = 'cirrhosis';
     case Jaundice = 'jaundice';
+    /**
+     * The old "الكبد الوبائي أو التليّف", which mixed a passing hepatitis A with cirrhosis. No
+     * longer offered: the people who chose it are asked to pick the right one (decision 8a),
+     * and judged on their general needs until they do.
+     */
+    case LiverCirrhosis = 'liver_cirrhosis';
     // Other
     case Gout = 'gout';
     case Anemia = 'anemia';
@@ -40,6 +49,7 @@ enum HealthCondition: string
         'metabolic' => 'السكري والتمثيل الغذائي',
         'heart_kidney' => 'القلب والكلى',
         'digestion' => 'الهضم والدسم',
+        'liver' => 'الكبد',
         'other' => 'حالات أخرى',
     ];
 
@@ -61,6 +71,9 @@ enum HealthCondition: string
             self::Pancreatitis => 'التهاب البنكرياس',
             self::Celiac => 'السيلياك (حساسية الغلوتين)',
             self::FattyLiver => 'الكبد الدهني',
+            self::HepatitisAcute => 'التهاب كبد فيروسي حاد (A أو E)',
+            self::HepatitisChronic => 'التهاب كبد فيروسي مزمن (B أو C)',
+            self::Cirrhosis => 'تليّف الكبد',
             self::LiverCirrhosis => 'الكبد الوبائي أو التليّف',
             self::Jaundice => 'يرقان (السبب غير معروف بعد)',
             self::Gout => 'النقرس',
@@ -76,8 +89,9 @@ enum HealthCondition: string
         return match ($this) {
             self::Diabetes, self::GestationalDiabetes, self::InsulinResistance, self::HighCholesterol => 'metabolic',
             self::Hypertension, self::HeartDisease, self::HeartFailure, self::Kidney, self::Dialysis => 'heart_kidney',
-            self::Reflux, self::GallbladderRemoved, self::FatIntolerance, self::Pancreatitis, self::Celiac,
-            self::FattyLiver, self::LiverCirrhosis, self::Jaundice => 'digestion',
+            self::Reflux, self::GallbladderRemoved, self::FatIntolerance, self::Pancreatitis, self::Celiac => 'digestion',
+            self::FattyLiver, self::HepatitisAcute, self::HepatitisChronic, self::Cirrhosis, self::Jaundice,
+            self::LiverCirrhosis => 'liver',
             default => 'other',
         };
     }
@@ -91,7 +105,11 @@ enum HealthCondition: string
     public function hint(): ?string
     {
         return match ($this) {
-            self::Jaundice => 'إن عرفت السبب، اختره بدلاً منه: الكبد الوبائي أو التليّف، أو عدم تحمّل الدسم (انسداد المرارة). وإن كان الدسم لا يزال يتعبك، اختر معه «عدم تحمّل الدسم».',
+            self::Jaundice => 'اليرقان علامة لا مرض، ولكل سبب غذاؤه. لا نطبّق حدوداً خاصة حتى يُعرف السبب: راجع طبيبك ثم اختر الحالة الأدق.',
+            self::HepatitisAcute => 'مرض مؤقت. لا تطلب المراجع نظاماً غذائياً خاصاً: أكل صحي، وسوائل كافية، وتجنّب الكحول والأدوية غير الضرورية. أزلها حين تتعافى، ونذكّرك كل أربعة أسابيع.',
+            self::HepatitisChronic => 'أكل صحي ووزن صحي وتجنّب الكحول. إن وصل إلى تليّف، اختر «تليّف الكبد».',
+            self::Cirrhosis => 'بروتين لا يقل عن 1.2 غ لكل كغ من وزنك، وثلاث إلى خمس وجبات في اليوم مع وجبة خفيفة قبل النوم. يحتاج متابعة أخصائي.',
+            self::FattyLiver => 'نمط البحر المتوسط، وتجنّب المشروبات المحلّاة، وإنقاص الوزن إن كان أعلى من الطبيعي.',
             self::GallbladderRemoved => 'في الأسابيع الأولى بعد العملية، أو إن كان الدسم لا يزال يتعبك، اختر معها «عدم تحمّل الدسم»، وأزلها حين ترتاح.',
             self::Reflux => 'إن كان الطعام الدسم يزيد الحرقة عندك، اختر معها «عدم تحمّل الدسم».',
             self::FatIntolerance => 'حالة تمرّ غالباً: أزلها حين تتحمّل الدسم براحة. نذكّرك بها كل أربعة أسابيع.',
@@ -102,7 +120,19 @@ enum HealthCondition: string
     /** Passing states: the person is asked every few weeks whether they still hold. */
     public function isTemporary(): bool
     {
-        return in_array($this, [self::FatIntolerance, self::Jaundice], true);
+        return in_array($this, [self::FatIntolerance, self::Jaundice, self::HepatitisAcute], true);
+    }
+
+    /** No longer offered (LiverCirrhosis): kept so those who chose it can be asked to pick again. */
+    public function isLegacy(): bool
+    {
+        return $this === self::LiverCirrhosis;
+    }
+
+    /** @return list<self> what a person or nutritionist may choose */
+    public static function offered(): array
+    {
+        return array_values(array_filter(self::cases(), fn (self $c) => ! $c->isLegacy()));
     }
 
     /**
@@ -129,7 +159,7 @@ enum HealthCondition: string
         foreach (self::GROUPS as $key => $label) {
             $groups[$key] = [
                 'label' => $label,
-                'conditions' => array_values(array_filter(self::cases(), fn (self $c) => $c->group() === $key && $c->appliesTo($sex))),
+                'conditions' => array_values(array_filter(self::offered(), fn (self $c) => $c->group() === $key && $c->appliesTo($sex))),
             ];
         }
 

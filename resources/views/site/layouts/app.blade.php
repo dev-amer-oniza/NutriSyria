@@ -31,6 +31,14 @@
     @if ($profileNextStep ?? null)
         @include('site.partials.profile-reminder', ['nextStep' => $profileNextStep])
     @endif
+    @if ($liverUpdate ?? null)
+        <div class="ns-reminder" role="note">
+            <div class="ns-wrap ns-reminder__in">
+                <span>{{ \App\Services\Nutrition\LiverUpdate::TITLE }}: اخترت سابقاً «الكبد الوبائي أو التليّف»، وصارت الآن ثلاث حالات.{{ $liverUpdate['managed'] ? ' سيحدّثها أخصائيّك.' : '' }}</span>
+                @unless ($liverUpdate['managed'])<a class="ns-link" href="{{ route('site.liver') }}">اختر حالتك</a>@endunless
+            </div>
+        </div>
+    @endif
 
     <main id="main">
         {{-- Account pages show their messages inside the form instead. --}}

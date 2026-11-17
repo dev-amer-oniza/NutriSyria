@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Site\Account\ConsultationController;
 use App\Http\Controllers\Site\Account\CriteriaController;
+use App\Http\Controllers\Site\Account\LiverController;
 use App\Http\Controllers\Site\Account\NotificationController;
 use App\Http\Controllers\Site\Account\OnboardingController;
 use App\Http\Controllers\Site\Auth\EmailVerificationController;
@@ -125,6 +126,9 @@ Route::name('site.')->group(function () {
             Route::put('/account/template', [CriteriaController::class, 'chooseTemplate'])->name('template.update');
             Route::delete('/account/template', [CriteriaController::class, 'resetTemplate'])->name('template.reset');
             Route::delete('/account/health', [CriteriaController::class, 'destroyHealth'])->name('health.destroy');
+            // The old "الكبد الوبائي أو التليّف", picked again (LiverUpdate, step 3).
+            Route::get('/account/liver', [LiverController::class, 'show'])->name('liver');
+            Route::put('/account/liver', [LiverController::class, 'update'])->name('liver.update');
         });
 
         // The bell (SiteNotifications): polled by the header, a notice opens its page.

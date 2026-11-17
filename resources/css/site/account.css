@@ -138,3 +138,14 @@
     .ns-plan__meals tr:last-child th, .ns-plan__meals tr:last-child td { border-bottom: 0; }
     .ns-plan__meals tr.is-lunch { background: var(--sand); }
 }
+
+/* Picking the liver condition again (pages/account/liver, step 3). */
+@layer components {
+    .ns-liver { display: grid; gap: var(--space-5); max-width: 720px; }
+    .ns-liver__choices { display: grid; gap: var(--space-3); margin: 0; padding: 0; border: 0; }
+    .ns-liver__choice { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface-raised); cursor: pointer; }
+    .ns-liver__choice:has(input:checked) { border-color: var(--pine); background: var(--pine-soft); }
+    .ns-liver__choice input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--pine); flex: none; }
+    .ns-liver__choice span { display: grid; gap: var(--space-1); }
+    .ns-liver__choice small { font-size: 13px; line-height: 21px; color: var(--ink-muted); }
+}

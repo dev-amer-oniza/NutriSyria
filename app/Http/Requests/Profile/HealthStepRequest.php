@@ -19,7 +19,10 @@ class HealthStepRequest extends ProfileFormRequest
             'conditions' => ['nullable', 'array'],
             'conditions.*' => ['distinct', Rule::enum(HealthCondition::class),
                 function (string $attribute, mixed $value, Closure $fail) use ($sex) {
-                    if (! HealthCondition::from($value)->appliesTo($sex)) {
+                    $condition = HealthCondition::from($value);
+                    if ($condition->isLegacy()) {
+                        $fail('هذا الخيار لم يعد موجوداً: اختر الحالة الأدق من «الكبد».');
+                    } elseif (! $condition->appliesTo($sex)) {
                         $fail('هذا الخيار للنساء فقط.');
                     }
                 }],
