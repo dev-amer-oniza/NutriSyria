@@ -6,8 +6,10 @@ use App\Data\Nutrition\MealFacts;
 use App\Enums\NutrientValueMethod;
 use App\Enums\NutritionApprovalStatus;
 use App\Models\Product;
+use App\Models\ProductRecipe;
 use App\Models\ProductRecipeIngredient;
 use App\Services\Import\ArabicNormalizer;
+use App\Services\Nutrition\Contributions;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -33,6 +35,28 @@ class MealCatalog
         'vitamin_a_rae_ug', 'vitamin_c_mg', 'vitamin_d_ug', 'vitamin_e_mg', 'vitamin_k_ug',
         'thiamin_mg', 'riboflavin_mg', 'niacin_mg', 'vitamin_b6_mg', 'vitamin_b12_ug', 'folate_ug',
     ];
+
+    /** Names of the four main values; the others come from config('site.meal_values'). */
+    private const NAMES = [
+        'energy_kcal' => ['السعرات', 'سعرة'], 'protein_g' => ['البروتين', 'غ'], 'carbohydrate_g' => ['الكربوهيدرات', 'غ'],
+        'fat_g' => ['الدهون', 'غ'], 'fiber_g' => ['الألياف', 'غ'], 'fat_sat_g' => ['الدهون المشبعة', 'غ'],
+        'fat_mono_g' => ['الدهون الأحادية', 'غ'], 'fat_poly_g' => ['الدهون المتعددة', 'غ'], 'sugars_g' => ['السكريات', 'غ'],
+    ];
+
+    /** @return array{0: string, 1: string} a nutrient's name and unit, for "من أين الدهون؟" */
+    public static function nutrientName(string $code): array
+    {
+        if (isset(self::NAMES[$code])) {
+            return self::NAMES[$code];
+        }
+        foreach (config('site.meal_values') as $group) {
+            if (isset($group['values'][$code])) {
+                return [$group['values'][$code][0], $group['values'][$code][1]];
+            }
+        }
+
+        return [$code, ''];
+    }
 
     /** Notes of a food record that stands in for a food USDA does not have start with this. */
     public const PROXY_NOTE_PREFIX = 'مقاربة';
@@ -145,7 +169,28 @@ class MealCatalog
             categoryId: $product->category_id,
             platform: (bool) $product->brand->is_platform,
             withBread: (bool) $product->eaten_with_bread,
+            contributions: $this->contributions($product, $serving),
         );
+    }
+
+    /**
+     * What each ingredient brings to the portion shown (step 4): the whole recipe's amounts,
+     * kept at approval, times portion / cooked weight. None for laboratory values, which the
+     * recipe does not explain, and ranks only for a restaurant.
+     */
+    private function contributions(Product $product, ?float $serving): array
+    {
+        $recipe = $product->recipe;
+        if (! $recipe instanceof ProductRecipe || ! $recipe->contributions || $this->verification($product) === 'verified') {
+            return [];
+        }
+        $weight = (float) $recipe->weight_after_cooking_g;
+
+        return $weight > 0 ? Contributions::rows(
+            array_intersect_key($recipe->contributions, array_flip(self::NUTRIENTS)),
+            ($serving ?? 100) / $weight,
+            ranksOnly: ! $product->isPlatform(),
+        ) : [];
     }
 
     /** One serving after cooking; null when the recipe lacks a cooked weight or servings. */

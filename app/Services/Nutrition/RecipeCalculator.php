@@ -53,6 +53,7 @@ final class RecipeCalculator
             $missingFrom = [];
             $borrowed = [];   // ingredient label => data source the value was borrowed from
             $computed = [];   // ingredient labels whose energy was computed from its macronutrients
+            $byLine = [];     // what each ingredient brings to the whole recipe ("من أين؟", step 4)
 
             foreach ($ingredients as $line) {
                 if ($line['grams'] === null || $line['grams'] <= 0) {
@@ -65,7 +66,13 @@ final class RecipeCalculator
                     continue;
                 }
                 $hasAnyValue = true;
-                $sum += ($line['grams'] / 100) * $value['amount'];
+                $part = ($line['grams'] / 100) * $value['amount'];
+                $sum += $part;
+                // One entry per ingredient, two lines of the same food added together; what is
+                // added after cooking is told apart ("زيت الزيتون على الوجه").
+                $key = $line['label'].($line['is_added_after_cooking'] ? '|after' : '');
+                $byLine[$key] ??= ['label' => $line['label'], 'amount' => 0.0, 'after' => $line['is_added_after_cooking']];
+                $byLine[$key]['amount'] += $part;
 
                 match ($value['origin']['type'] ?? null) {
                     'borrowed' => $borrowed[$line['label']] = $value['origin']['source'] ?? '',
@@ -81,6 +88,7 @@ final class RecipeCalculator
                 'missing_from' => $missingFrom,
                 'borrowed' => $borrowed,
                 'computed' => array_values(array_unique($computed)),
+                'by_line' => array_values($byLine),
             ];
         }
 

@@ -3,22 +3,35 @@
     Params: $level 1..4, $reasons (list), $notes (list, optional), $share (energy, protein,
     carbs, fat: percent or null), $portion ({grams, kcal, whole?} or null), $who (optional),
     $info (rules not verified yet, shown only), $grounds ("قيّمناها على: …"), $general (bool),
-    $sources (the /sources card of the person's limits, for "من أين هذا الحد؟").
+    $sources (the /sources card of the person's limits, for "من أين هذا الحد؟"),
+    $meal (MealFacts), $causes (reason index => nutrient) and $infoCauses (the same for $info),
+    for "من أين الدهون؟" under a reason or an information line.
 --}}
 @include('site.components.fit-verdict', ['level' => $level])
 @if (! empty($general))<p class="ns-fit__general">على احتياجك العام</p>@endif
 @isset($who)<p class="ns-fit__who">{{ $who }}</p>@endisset
 
 <ul class="ns-reasons">
-    @foreach ($reasons as $reason)
-        <li>{{ $reason }}</li>
+    @foreach ($reasons as $i => $reason)
+        <li>
+            {{ $reason }}
+            {{-- "ليش؟" (step 4): the ingredients behind a nutrient that went over. --}}
+            @if (isset($meal, $causes[$i]))
+                @include('site.components.meal-sources', ['meal' => $meal, 'code' => $causes[$i]])
+            @endif
+        </li>
     @endforeach
 </ul>
 
 @if (! empty($info))
     <ul class="ns-fit__info">
-        @foreach ($info as $line)
-            <li>{{ $line }}</li>
+        @foreach ($info as $i => $line)
+            <li>
+                {{ $line }}
+                @if (isset($meal, $infoCauses[$i]))
+                    @include('site.components.meal-sources', ['meal' => $meal, 'code' => $infoCauses[$i]])
+                @endif
+            </li>
         @endforeach
     </ul>
 @endif

@@ -20,7 +20,7 @@ class PublicCatalogCache
      * Raise it whenever a cached object changes shape (a new MealFacts field): entries cached
      * by the old code are then never read back, where a missing readonly property would fail.
      */
-    private const SHAPE = 2;
+    private const SHAPE = 3;
 
     /** Old versions are left to expire after this long. */
     private const TTL_SECONDS = 86400;

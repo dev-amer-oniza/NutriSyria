@@ -49,6 +49,8 @@ php artisan optimize:clear && php artisan optimize && php artisan filament:optim
 php artisan up
 ```
 
+**مرة واحدة بعد تحديث «من أين؟»** (migration `2026_11_18_000000`): `php artisan meals:contributions` يعبّي مساهمة المكوّنات للوجبات المعتمدة من قبل. الوجبات الجديدة تأخذها لحظة اعتمادها.
+
 **مهم:** بعد أي تعديل على `.env` شغّل `php artisan optimize` من جديد، لأن الإعدادات محفوظة مجمّعة.
 
 ## Nginx

@@ -11,6 +11,7 @@ use App\Exceptions\RecipeRejected;
 use App\Models\FoodSourceRecord;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\Nutrition\Contributions;
 use App\Services\Nutrition\Fit\MealFitService;
 use App\Services\Nutrition\RecipeAnalysisResult;
 use App\Services\Nutrition\RecipeAnalysisService;
@@ -129,6 +130,8 @@ class CustomRecipeAnalyzer
             categoryId: $original->categoryId,
             platform: true,
             withBread: $original->withBread,
+            // The visitor's own recipe: grams and shares, never stored (step 4, 3a).
+            contributions: Contributions::rows($result->contributions(), 1 / $result->servings, ranksOnly: false),
         );
     }
 }

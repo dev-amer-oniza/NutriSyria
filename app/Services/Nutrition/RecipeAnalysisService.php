@@ -247,7 +247,7 @@ final class RecipeAnalysisService
             throw new RuntimeException('لا توجد قيم قابلة للاعتماد (كل النتائج فارغة).');
         }
 
-        DB::transaction(function () use ($product, $rows, $approvedBy) {
+        DB::transaction(function () use ($product, $rows, $approvedBy, $result) {
             FoodNutrientValue::where('product_id', $product->id)->delete();
             FoodNutrientValue::insert($rows);
             // Who made these the official values, and when.
@@ -255,6 +255,8 @@ final class RecipeAnalysisService
             $product->recipe?->forceFill([
                 'nutrition_approved_by' => $approvedBy?->getKey(),
                 'nutrition_approved_at' => now(),
+                // What each ingredient brings, kept with the values it explains (step 4, 1a).
+                'contributions' => $result->contributions(),
             ])->save();
         });
     }

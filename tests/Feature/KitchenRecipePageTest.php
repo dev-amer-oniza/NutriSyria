@@ -79,6 +79,9 @@ class KitchenRecipePageTest extends TestCase
         $this->assertStringContainsString('حسب وصفتك: هذا التحليل غير معتمد ولا يُحفظ.', $html);
         $this->assertStringContainsString('مقارنة بوصفتنا', $html);
         $this->assertStringContainsString('أنشئ حسابك', $html); // a guest is invited to sign up
+        // "من أين؟" in grams for the visitor's own recipe (step 4, 3a): 10 g oil on top = 3.3 g fat a serving.
+        $this->assertStringContainsString('من أين الدهون؟', $html);
+        $this->assertStringContainsString('زيت زيتون على الوجه', $html);
         $this->assertSame($before, DB::table('food_nutrient_values')->count());
     }
 
