@@ -30,7 +30,7 @@ class GoalsPageTest extends TestCase
             ->assertSee('ننقص 500 سعرة')
             ->assertSee('1,200 سعرة للمرأة و1,500 للرجل')
             ->assertSee('لا نملك قالباً خاصاً لبناء العضلات')
-            ->assertSee('حتى 60 غ، وحتى 45 غ في سكري الحمل')
+            ->assertSee('لا رقم عاماً لكربوهيدرات الوجبة')
             ->assertSee('1,500 ملغ')
             ->assertSee('28 غ في اليوم')
             ->assertSee('هذا ليس بديلاً عن طبيبك')

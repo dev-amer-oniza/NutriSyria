@@ -115,7 +115,9 @@ class OnboardingTest extends TestCase
         $this->assertStringNotContainsString('diabetes', $raw, 'stored encrypted');
 
         $sheet = app(PersonalCriteria::class)->for($this->user->fresh());
-        $this->assertSame(60.0, $sheet->get('meal_carbohydrate_g')->value);
+        // Step 7, batch 2: no carbohydrate figure a meal for diabetes; the doctor's, when given.
+        $this->assertNull($sheet->get('meal_carbohydrate_g'));
+        $this->assertStringContainsString('اكتبه في معاييري', implode(' ', $sheet->advice));
         $this->assertSame(['sesame'], $sheet->allergens);
 
         $this->delete('/account/health')->assertSessionHas('status');

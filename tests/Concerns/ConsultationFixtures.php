@@ -29,6 +29,9 @@ trait ConsultationFixtures
         $user = User::forceCreate(['name' => 'سارة', 'email' => $email, 'password' => 'x-secret-1', 'is_active' => true, 'email_verified_at' => now()]);
 
         if ($withProfile) {
+            // A condition that brings its template (45/20/35), as diabetes did before step 7 found
+            // no figure for it: the nutritionist's tests are about plans and templates, not diabetes.
+            config(['nutrition_criteria.conditions.diabetes' => ['template' => 'diabetes']]);
             $user->profile()->create([
                 'sex' => 'female', 'birth_year' => now()->year - 34, 'height_cm' => 165, 'weight_kg' => 78,
                 'activity_level' => 'light', 'goal' => 'lose', 'health_conditions' => ['diabetes'], 'allergies' => ['peanuts'],

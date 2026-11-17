@@ -54,7 +54,7 @@ class ClientWorkspaceTest extends TestCase
         Livewire::test(ListClients::class)
             ->assertCanSeeTableRecords([$mine])
             ->assertCanNotSeeTableRecords([$waiting, $ended, $someoneElses])
-            ->assertSee('السكري (تحكّم بالكربوهيدرات)');
+            ->assertSee('السكري');
     }
 
     public function test_the_client_file_shows_the_health_record_and_criteria(): void

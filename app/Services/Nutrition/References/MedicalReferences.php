@@ -123,7 +123,8 @@ final class MedicalReferences
             $rules[] = new ReferenceRule('يتجنّب', $names.' تماماً', 'strict', $template['allergen_refs'] ?? [], ! empty($template['allergen_refs']));
         }
         if ($template['no_deficit'] ?? false) {
-            $rules[] = new ReferenceRule('إنقاص الوزن', 'بلا عجز في السعرات', 'guidance', [], false);
+            $refs = $template['no_deficit_refs'] ?? [];
+            $rules[] = new ReferenceRule('إنقاص الوزن', 'بلا عجز في السعرات', 'guidance', $refs, $refs !== []);
         }
 
         return $this->templateCards[$key] = $this->card('template-'.$key, 'template', $template['label'], $template['group'],
@@ -151,6 +152,11 @@ final class MedicalReferences
         $rules = [];
         foreach ($definition['criteria'] ?? [] as $criterion => $rule) {
             $rules[] = $this->rule($criterion, $rule, $rule['refs'] ?? [], $rule['bound'] ?? null);
+        }
+        if ($definition['no_deficit'] ?? false) {
+            $refs = $definition['no_deficit_refs'] ?? [];
+            $rules[] = new ReferenceRule('إنقاص الوزن', 'بلا عجز في السعرات', 'guidance', $refs, $refs !== [],
+                note: $definition['no_deficit_reason'] ?? null);
         }
         if (isset($definition['energy_min_per_kg'])) {
             $refs = $definition['energy_refs'] ?? [];

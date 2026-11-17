@@ -324,38 +324,35 @@ return [
             'rules' => ['sodium_mg' => ['type' => 'fixed', 'value' => 1500]],
             'see_nutritionist' => 'قصور القلب يحتاج ضبطاً للسوائل والصوديوم يحدده لك أخصائي.',
         ],
+        /*
+        | Diabetes and metabolism (step 7, batch 2, decisions 1a 2a 3a 4a): no reference gives a
+        | carbohydrate figure a meal (NICE NG28 1.3.6 "individualise"; NG247 1.2.19 no diet is
+        | better for gestational diabetes): the 60 g, 45 g and 5% sugars went. Cholesterol's
+        | saturated fat is NICE NG238's 7% (the 6% was AHA's, not read). Library templates.
+        */
         'dyslipidemia' => [
-            'label' => 'ارتفاع الدهون والكولسترول', 'group' => 'metabolic', 'source' => 'AHA',
-            'description' => 'ألياف ذائبة أكثر، ودهون مشبعة أقل.',
+            'label' => 'ارتفاع الدهون والكولسترول', 'group' => 'metabolic', 'source' => 'NICE',
+            'description' => 'دهون مشبعة أقل (حتى 7% من السعرات)، وزيت الزيتون بدل الدسم الحيواني.',
             'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
-            'rules' => ['fat_sat_g' => ['type' => 'energy_pct', 'pct' => 6, 'kcal_per_g' => 9]],
+            'rules' => ['fat_sat_g' => ['type' => 'energy_pct', 'pct' => 7, 'kcal_per_g' => 9, 'refs' => ['nice_cvd_ng238']]],
         ],
         'diabetes' => [
-            'label' => 'السكري (تحكّم بالكربوهيدرات)', 'group' => 'metabolic', 'source' => 'ADA',
-            'description' => 'توزيع الكربوهيدرات على الوجبات، حتى 60 غ في الوجبة.',
+            'label' => 'السكري', 'group' => 'metabolic', 'source' => 'NICE · NIDDK',
+            'description' => 'كربوهيدرات غنية بالألياف، وحدّها في الوجبة يحدده الطبيب أو الأخصائي حسب علاجك.',
             'macros' => ['carbs' => 45, 'protein' => 20, 'fat' => 35],
-            'rules' => [
-                'meal_carbohydrate_g' => ['type' => 'fixed', 'value' => 60],
-                'sugars_g' => ['type' => 'energy_pct', 'pct' => 5, 'kcal_per_g' => 4],
-            ],
         ],
         'gdm' => [
-            'label' => 'سكري الحمل', 'group' => 'metabolic', 'source' => 'ADA / ACOG',
-            'description' => 'مراقبة الكربوهيدرات للحامل، حتى 45 غ في الوجبة.',
+            'label' => 'سكري الحمل', 'group' => 'metabolic', 'source' => 'NICE',
+            'description' => 'أكل صحي تختاره مع أخصائية التغذية، وبلا إنقاص للوزن أثناء الحمل.',
             'macros' => ['carbs' => 40, 'protein' => 25, 'fat' => 35],
-            'rules' => [
-                'meal_carbohydrate_g' => ['type' => 'fixed', 'value' => 45],
-                'sugars_g' => ['type' => 'energy_pct', 'pct' => 5, 'kcal_per_g' => 4],
-                'iron_mg' => ['type' => 'fixed', 'value' => 27],
-            ],
             'no_deficit' => true,
-            'see_nutritionist' => 'سكري الحمل يحتاج متابعة أخصائية وطبيبك.',
+            'no_deficit_refs' => ['nice_maternal_ng247'],
+            'see_nutritionist' => 'سكري الحمل يحتاج أخصائية تغذية وطبيبك.',
         ],
         'metabolic_syndrome' => [
-            'label' => 'متلازمة التمثيل الغذائي', 'group' => 'metabolic', 'source' => 'AHA',
-            'description' => 'كربوهيدرات منخفضة المؤشر الجلايسيمي، ودهون أحادية صحية.',
+            'label' => 'متلازمة التمثيل الغذائي', 'group' => 'metabolic', 'source' => 'NIDDK',
+            'description' => 'أكل صحي، وإنقاص 5–7% من الوزن إن كان أعلى من الطبيعي.',
             'macros' => ['carbs' => 40, 'protein' => 25, 'fat' => 35],
-            'rules' => ['sugars_g' => ['type' => 'energy_pct', 'pct' => 5, 'kcal_per_g' => 4]],
         ],
         'ckd' => [
             'label' => 'الكلى قبل الغسيل (CKD 3-5)', 'group' => 'kidney', 'source' => 'KDOQI 2020',
@@ -440,6 +437,7 @@ return [
             'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
             'rules' => ['iron_mg' => ['type' => 'fixed', 'value' => 27]],
             'no_deficit' => true,
+            'no_deficit_refs' => ['nice_maternal_ng247'],
             'see_nutritionist' => 'الحمل والرضاعة يغيّران احتياجك، فلا نقترح إنقاص الوزن. راجعي أخصائية تغذية.',
         ],
         'menopause' => [
@@ -461,10 +459,26 @@ return [
             'criteria' => ['fat_sat_g' => ['type' => 'energy_pct', 'pct' => 6, 'kcal_per_g' => 9]],
         ],
         'heart_failure' => ['template' => 'chf'],
-        'diabetes' => ['template' => 'diabetes'],
-        'gestational_diabetes' => ['template' => 'gdm'],
-        'insulin_resistance' => ['template' => 'metabolic_syndrome'],
-        'high_cholesterol' => ['template' => 'dyslipidemia'],
+        /*
+        | Diabetes and metabolism (step 7, batch 2): the general needs, verified, and the
+        | references' advice; the carbohydrate a meal is the doctor's or nutritionist's number.
+        | Pregnancy: no weight loss (nice_maternal_ng247 1.2.15), told as 'no_deficit_reason'.
+        */
+        'diabetes' => [
+            'refs' => ['nice_t2d_ng28', 'niddk_diabetes_diet'],
+            'see_nutritionist' => 'حد الكربوهيدرات في الوجبة يحدده لك طبيبك أو أخصائيّك حسب علاجك؛ إن أعطاك رقماً، اكتبه في معاييري فنقيّم عليه.',
+        ],
+        'gestational_diabetes' => [
+            'refs' => ['nice_maternal_ng247', 'nice_pregnancy_ng3'],
+            'no_deficit' => true,
+            'no_deficit_reason' => 'إنقاص الوزن عمداً أثناء الحمل غير منصوح به، لأثره على الجنين.',
+            'no_deficit_refs' => ['nice_maternal_ng247'],
+            'see_nutritionist' => 'سكري الحمل يحتاج أخصائية تغذية وطبيبك. إن حدّدا لكِ كربوهيدرات الوجبة، اكتبيها في معاييري فنقيّم عليها.',
+        ],
+        'insulin_resistance' => ['refs' => ['niddk_insulin']],
+        'high_cholesterol' => [
+            'criteria' => ['fat_sat_g' => ['type' => 'energy_pct', 'pct' => 7, 'kcal_per_g' => 9, 'refs' => ['nice_cvd_ng238']]],
+        ],
         'kidney' => ['template' => 'ckd'],
         'dialysis' => ['template' => 'dialysis'],
         /*
@@ -522,7 +536,12 @@ return [
             'see_nutritionist' => 'فقر الدم له أسباب مختلفة، وعلاجه لا يكون بالغذاء وحده. راجع أخصائياً أو طبيباً.',
         ],
         'osteoporosis' => ['template' => 'osteoporosis'],
-        'pregnant_or_breastfeeding' => ['template' => 'pregnancy'],
+        'pregnant_or_breastfeeding' => [
+            'template' => 'pregnancy',
+            'no_deficit' => true,
+            'no_deficit_reason' => 'إنقاص الوزن عمداً أثناء الحمل غير منصوح به، لأثره على الجنين.',
+            'no_deficit_refs' => ['nice_maternal_ng247'],
+        ],
         'menopause' => ['template' => 'menopause'],
     ],
 

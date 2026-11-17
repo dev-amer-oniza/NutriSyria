@@ -182,7 +182,11 @@ class MealFitCalculatorTest extends TestCase
 
     public function test_a_rule_not_verified_yet_is_shown_but_never_judges(): void
     {
-        // The diabetes template's 60 g a meal is waiting for its references: 70 g changes nothing.
+        // The diabetes template's 60 g a meal as it was, waiting for its references (a fixture since
+        // step 7 found no figure for it): 70 g changes nothing.
+        $this->rules['conditions']['diabetes'] = ['template' => 'diabetes'];
+        $this->rules['templates']['diabetes']['label'] = 'السكري (تحكّم بالكربوهيدرات)';
+        $this->rules['templates']['diabetes']['rules'] = ['meal_carbohydrate_g' => ['type' => 'fixed', 'value' => 60]];
         $fit = $this->judge($this->meal(['carbohydrate_g' => 70]), $this->sheet(['conditions' => ['diabetes']]));
 
         $this->assertSame(4, $fit->level);

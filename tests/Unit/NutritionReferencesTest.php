@@ -41,12 +41,13 @@ class NutritionReferencesTest extends TestCase
             $named = [...$named, ...($criterion['refs'] ?? [])];
         }
         foreach ($this->rules['conditions'] as $condition) {
-            $named = [...$named, ...($condition['refs'] ?? []), ...($condition['energy_refs'] ?? [])];
+            $named = [...$named, ...($condition['refs'] ?? []), ...($condition['energy_refs'] ?? []), ...($condition['no_deficit_refs'] ?? [])];
             foreach ($condition['criteria'] ?? [] as $rule) {
                 $named = [...$named, ...($rule['refs'] ?? [])];
             }
         }
         foreach ($this->rules['templates'] as $template) {
+            $named = [...$named, ...($template['no_deficit_refs'] ?? [])];
             foreach ($template['rules'] ?? [] as $rule) {
                 $named = [...$named, ...($rule['refs'] ?? [])];
             }
@@ -203,6 +204,33 @@ class NutritionReferencesTest extends TestCase
         $this->assertStringContainsString('fatty foods', $this->quote('nice_gord_cg184'));
         $this->assertStringContainsString('at least 3 hours before you lie down', $this->quote('niddk_gerd'));
         $this->assertStringContainsString('small, frequent meals', $this->quote('niddk_pancreatitis'));
+    }
+
+    public function test_diabetes_and_metabolism_follow_their_references(): void
+    {
+        // Step 7, batch 2: no carbohydrate figure a meal; cholesterol's saturated fat is NICE's 7%.
+        foreach (['diabetes', 'gestational_diabetes', 'insulin_resistance'] as $key) {
+            $this->assertArrayNotHasKey('template', $this->rules['conditions'][$key], $key);
+            $this->assertArrayNotHasKey('criteria', $this->rules['conditions'][$key], $key);
+        }
+        foreach (['diabetes', 'gdm', 'metabolic_syndrome'] as $template) {
+            $this->assertArrayNotHasKey('meal_carbohydrate_g', $this->rules['templates'][$template]['rules'] ?? [], $template);
+            $this->assertArrayNotHasKey('sugars_g', $this->rules['templates'][$template]['rules'] ?? [], $template);
+        }
+        $this->assertStringContainsString('Individualise recommendations for carbohydrate and alcohol intake, and meal patterns', $this->quote('nice_t2d_ng28'));
+        $this->assertStringContainsString('no convincing evidence that a particular diet', $this->quote('nice_maternal_ng247'));
+
+        $cholesterol = $this->rules['conditions']['high_cholesterol']['criteria']['fat_sat_g'];
+        $this->assertSame([7, ['nice_cvd_ng238']], [$cholesterol['pct'], $cholesterol['refs']]);
+        $this->assertSame(7, $this->rules['templates']['dyslipidemia']['rules']['fat_sat_g']['pct']);
+        $this->assertStringContainsString('saturated fats are 7% or less of total energy intake', $this->quote('nice_cvd_ng238'));
+
+        // Pregnancy: no weight loss, by its reference.
+        foreach (['gestational_diabetes', 'pregnant_or_breastfeeding'] as $key) {
+            $this->assertTrue($this->rules['conditions'][$key]['no_deficit'], $key);
+            $this->assertSame(['nice_maternal_ng247'], $this->rules['conditions'][$key]['no_deficit_refs'], $key);
+        }
+        $this->assertStringContainsString('intentional weight loss during pregnancy is not recommended', $this->quote('nice_maternal_ng247'));
     }
 
     public function test_hepatitis_jaundice_and_fatty_liver_bring_no_figures(): void

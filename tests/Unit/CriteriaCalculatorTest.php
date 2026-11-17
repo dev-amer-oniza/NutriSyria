@@ -10,9 +10,27 @@ use PHPUnit\Framework\TestCase;
 /** The example person: man, 30, 178 cm, 80 kg (BMI 25.2), moderately active, losing weight = 2590 kcal. */
 class CriteriaCalculatorTest extends TestCase
 {
+    /** Rules laid over the config: a fixture for the engine, not the medical rules themselves. */
+    private array $patch = [];
+
+    /**
+     * Diabetes as it was before step 7 found no figure for it: a condition bringing a template
+     * whose rules are not verified yet. The engine's handling of such rules is tested on it.
+     */
+    private function pendingDiabetes(): void
+    {
+        $this->patch = [
+            'conditions' => ['diabetes' => ['template' => 'diabetes']],
+            'templates' => ['diabetes' => ['label' => 'السكري (تحكّم بالكربوهيدرات)', 'rules' => [
+                'meal_carbohydrate_g' => ['type' => 'fixed', 'value' => 60],
+                'sugars_g' => ['type' => 'energy_pct', 'pct' => 5, 'kcal_per_g' => 4],
+            ]]],
+        ];
+    }
+
     private function calculate(array $overrides = []): CriteriaSheet
     {
-        $rules = require __DIR__.'/../../config/nutrition_criteria.php';
+        $rules = array_replace_recursive(require __DIR__.'/../../config/nutrition_criteria.php', $this->patch);
 
         return (new CriteriaCalculator($rules))->calculate($overrides + [
             'sex' => 'male', 'age' => 30, 'height_cm' => 178, 'weight_kg' => 80,
@@ -30,7 +48,7 @@ class CriteriaCalculatorTest extends TestCase
         $sheet = $this->calculate();
 
         // 10×80 + 6.25×178 − 5×30 + 5 = 1767.5; ×1.75 (FAO active) = 3093.1; −500 = 2593.1
-        $this->assertSame(['bmr' => 1768, 'tdee' => 3093, 'adjustment' => -500, 'floored' => false, 'held' => null, 'surplus' => 0, 'raised' => null, 'raised_by' => null], $sheet->energy);
+        $this->assertSame(['bmr' => 1768, 'tdee' => 3093, 'adjustment' => -500, 'floored' => false, 'held' => null, 'held_why' => null, 'surplus' => 0, 'raised' => null, 'raised_by' => null], $sheet->energy);
         $this->assertSame('balanced', $sheet->template['key']);
         $this->assertSame(['carbs' => 50, 'protein' => 20, 'fat' => 30], $sheet->template['macros']);
         $this->assertSame(CriterionSource::Default, $sheet->template['source']);
@@ -100,6 +118,7 @@ class CriteriaCalculatorTest extends TestCase
 
     public function test_a_condition_brings_its_template_and_its_rules(): void
     {
+        $this->pendingDiabetes();
         $sheet = $this->calculate(['conditions' => ['diabetes']]);
 
         $this->assertSame('diabetes', $sheet->template['key']);
@@ -161,6 +180,7 @@ class CriteriaCalculatorTest extends TestCase
 
     public function test_the_higher_priority_template_wins_and_the_others_keep_their_limits(): void
     {
+        $this->pendingDiabetes();
         $sheet = $this->calculate(['conditions' => ['diabetes', 'kidney']]);
 
         $this->assertSame('ckd', $sheet->template['key']);
@@ -168,7 +188,7 @@ class CriteriaCalculatorTest extends TestCase
         $this->assertSame(['protein_g' => 48.0, 'meal_carbohydrate_g' => 60.0, 'sugars_g' => 32.0],     // 0.6 g/kg; from the diabetes template
             $this->pending($sheet, ['protein_g', 'meal_carbohydrate_g', 'sugars_g']));
         $this->assertNull($sheet->get('protein_min_g'), 'no RDA floor above the kidneys\' protein ceiling, even one not verified yet');
-        $this->assertCount(1, $sheet->advice);
+        $this->assertCount(2, $sheet->advice, 'the kidneys\' and diabetes\' (its carbohydrate is the doctor\'s number)');
         $this->assertCount(2, $sheet->pendingConditions);
 
         $dialysis = $this->calculate(['conditions' => ['kidney', 'dialysis']]);
@@ -225,9 +245,14 @@ class CriteriaCalculatorTest extends TestCase
         $this->assertSame(27.0, $pregnant->get('iron_mg')->value);
         $this->assertCount(1, $pregnant->advice);
 
-        $gdm = $this->calculate(['sex' => 'female', 'conditions' => ['gestational_diabetes', 'pregnant_or_breastfeeding']]);
-        $this->assertSame('gdm', $gdm->template['key']);
-        $this->assertSame(45.0, $gdm->get('meal_carbohydrate_g')->value);
+        // Step 7, batch 2: no carbohydrate figure for gestational diabetes; no weight loss in
+        // pregnancy, by its reference (NICE NG247 1.2.15), said with its reason.
+        $gdm = $this->calculate(['sex' => 'female', 'conditions' => ['gestational_diabetes']]);
+        $this->assertSame('balanced', $gdm->template['key']);
+        $this->assertNull($gdm->get('meal_carbohydrate_g'));
+        $this->assertSame(['adjustment' => 0, 'held' => 'reference'], array_intersect_key($gdm->energy, ['adjustment' => 0, 'held' => 0]));
+        $this->assertStringContainsString('أثناء الحمل غير منصوح به', $gdm->energy['held_why']);
+        $this->assertSame('reference', $pregnant->energy['held']);
 
         $this->assertSame(18.0, $this->calculate(['sex' => 'female', 'conditions' => ['anemia']])->get('iron_mg')->value, 'not rounded to 20');
         $this->assertSame(8.0, $this->calculate(['conditions' => ['anemia']])->get('iron_mg')->value);
@@ -237,6 +262,7 @@ class CriteriaCalculatorTest extends TestCase
 
     public function test_a_chosen_template_replaces_the_automatic_one_but_not_the_conditions_limits(): void
     {
+        $this->pendingDiabetes();
         $sheet = $this->calculate(['conditions' => ['diabetes'], 'template' => 'mediterranean', 'template_source' => CriterionSource::Nutritionist]);
 
         $this->assertSame('mediterranean', $sheet->template['key']);
