@@ -1,9 +1,11 @@
 {{--
     One person's verdict on one meal (MealFit, or an example person on the home page).
     Params: $level 1..4, $reasons (list), $notes (list, optional), $share (energy, protein,
-    carbs, fat: percent or null), $portion ({grams, kcal, whole?} or null), $who (optional).
+    carbs, fat: percent or null), $portion ({grams, kcal, whole?} or null), $who (optional),
+    $info (rules not verified yet, shown only), $grounds ("قيّمناها على: …"), $general (bool).
 --}}
 @include('site.components.fit-verdict', ['level' => $level])
+@if (! empty($general))<p class="ns-fit__general">على احتياجك العام</p>@endif
 @isset($who)<p class="ns-fit__who">{{ $who }}</p>@endisset
 
 <ul class="ns-reasons">
@@ -11,6 +13,14 @@
         <li>{{ $reason }}</li>
     @endforeach
 </ul>
+
+@if (! empty($info))
+    <ul class="ns-fit__info">
+        @foreach ($info as $line)
+            <li>{{ $line }}</li>
+        @endforeach
+    </ul>
+@endif
 
 @if (! empty($notes))
     <ul class="ns-fit__notes">
@@ -35,3 +45,5 @@
         <span><span class="ns-num">{{ $portion['grams'] }}</span> غ@if ($portion['kcal'] !== null) · <span class="ns-num">{{ $portion['kcal'] }}</span> سعرة@endif</span>
     @endif
 </p>
+
+@if (! empty($grounds))<p class="ns-fit__grounds">{{ $grounds }}</p>@endif

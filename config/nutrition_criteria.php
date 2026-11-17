@@ -402,6 +402,7 @@ return [
             'macros' => ['carbs' => 55, 'protein' => 15, 'fat' => 30],
             // Gluten is the verified, strict part (niddk_celiac); the macros are not checked yet.
             'allergens' => ['gluten'], 'allergen_refs' => ['niddk_celiac'],
+            'avoid_reason' => 'ومرض السيلياك يُعالَج بتجنّبه تماماً',
         ],
         'hepatic' => [
             'label' => 'الكبد الوبائي والتليّف', 'group' => 'digestion', 'source' => 'ESPEN',

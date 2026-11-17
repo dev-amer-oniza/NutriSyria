@@ -85,16 +85,37 @@ class CriteriaCalculatorTest extends TestCase
         );
     }
 
+    /**
+     * The template's or condition's own rule as written, not verified yet (step 2): the
+     * judging value's pending rule, or the criterion itself when nothing verified covers it.
+     */
+    private function pending(CriteriaSheet $sheet, array $keys): array
+    {
+        return array_map(function (string $k) use ($sheet) {
+            $c = $sheet->get($k);
+
+            return $c?->pending?->value ?? ($c && ! $c->verified ? $c->value : null);
+        }, array_combine($keys, $keys));
+    }
+
     public function test_a_condition_brings_its_template_and_its_rules(): void
     {
         $sheet = $this->calculate(['conditions' => ['diabetes']]);
 
         $this->assertSame('diabetes', $sheet->template['key']);
+        $this->assertSame(['carbs' => 45, 'protein' => 20, 'fat' => 35], $sheet->template['macros']);
+        // Not verified yet: the balanced shares judge (decision 1a), the template is shown.
+        $this->assertFalse($sheet->template['verified']);
+        $this->assertSame('المتوازن', $sheet->template['judging']);
         $this->assertSame(
-            ['carbohydrate_g' => 291.0, 'protein_g' => 130.0, 'fat_g' => 101.0, 'meal_carbohydrate_g' => 60.0, 'sugars_g' => 32.0],
-            $this->values($sheet, ['carbohydrate_g', 'protein_g', 'fat_g', 'meal_carbohydrate_g', 'sugars_g']),
+            ['carbohydrate_g' => 324.0, 'protein_g' => 130.0, 'fat_g' => 86.0],
+            $this->values($sheet, ['carbohydrate_g', 'protein_g', 'fat_g']),
         );
+        $this->assertSame(['meal_carbohydrate_g' => 60.0, 'sugars_g' => 32.0], $this->pending($sheet, ['meal_carbohydrate_g', 'sugars_g']));
+        $this->assertFalse($sheet->get('meal_carbohydrate_g')->verified, 'shown, never judged');
+        $this->assertSame('قالب السكري (تحكّم بالكربوهيدرات)', $sheet->get('meal_carbohydrate_g')->origin);
         $this->assertSame(60.0, $sheet->get('meal_carbohydrate_g')->perMeal($sheet->mealShare), 'a meal limit is not scaled');
+        $this->assertCount(1, $sheet->pendingConditions);
     }
 
     public function test_jaundice_of_unknown_cause_takes_the_liver_template_and_sends_to_a_nutritionist(): void
@@ -103,10 +124,11 @@ class CriteriaCalculatorTest extends TestCase
         $liver = $this->calculate(['conditions' => ['liver_cirrhosis']]);
 
         $this->assertSame('hepatic', $jaundice->template['key']);
-        $this->assertSame(96.0, $jaundice->get('protein_g')->value, 'protein is a floor of 1.2 g/kg, never cut');
+        $this->assertSame(['protein_g' => 96.0], $this->pending($jaundice, ['protein_g']), 'protein is a floor of 1.2 g/kg, not verified yet');
+        $this->assertSame(130.0, $jaundice->get('protein_g')->value, 'the verified target judges');
         $this->assertSame(
-            $this->values($liver, ['energy_kcal', 'carbohydrate_g', 'protein_g', 'fat_g', 'sodium_mg']),
-            $this->values($jaundice, ['energy_kcal', 'carbohydrate_g', 'protein_g', 'fat_g', 'sodium_mg']),
+            [$this->values($liver, ['energy_kcal', 'carbohydrate_g', 'protein_g', 'fat_g', 'sodium_mg']), $this->pending($liver, ['protein_g', 'sodium_mg'])],
+            [$this->values($jaundice, ['energy_kcal', 'carbohydrate_g', 'protein_g', 'fat_g', 'sodium_mg']), $this->pending($jaundice, ['protein_g', 'sodium_mg'])],
         );
         $this->assertCount(2, $jaundice->advice, 'the liver advice and the "find the cause" advice');
     }
@@ -116,22 +138,22 @@ class CriteriaCalculatorTest extends TestCase
         $sheet = $this->calculate(['conditions' => ['diabetes', 'kidney']]);
 
         $this->assertSame('ckd', $sheet->template['key']);
-        $this->assertSame('max', $sheet->get('protein_g')->bound, 'kidneys: protein becomes a ceiling');
-        $this->assertSame(48.0, $sheet->get('protein_g')->value);            // 0.6 g/kg
-        $this->assertSame(356.0, $sheet->get('carbohydrate_g')->value);      // 55%
-        $this->assertSame(60.0, $sheet->get('meal_carbohydrate_g')->value, 'from the diabetes template');
-        $this->assertSame(32.0, $sheet->get('sugars_g')->value);
-        $this->assertNull($sheet->get('protein_min_g'), 'no RDA floor above the kidneys\' protein ceiling');
+        $this->assertSame('max', $sheet->get('protein_g')->pending->bound, 'kidneys: protein becomes a ceiling');
+        $this->assertSame(['protein_g' => 48.0, 'meal_carbohydrate_g' => 60.0, 'sugars_g' => 32.0],     // 0.6 g/kg; from the diabetes template
+            $this->pending($sheet, ['protein_g', 'meal_carbohydrate_g', 'sugars_g']));
+        $this->assertNull($sheet->get('protein_min_g'), 'no RDA floor above the kidneys\' protein ceiling, even one not verified yet');
         $this->assertCount(1, $sheet->advice);
+        $this->assertCount(2, $sheet->pendingConditions);
 
         $dialysis = $this->calculate(['conditions' => ['kidney', 'dialysis']]);
         $this->assertSame('dialysis', $dialysis->template['key']);
-        $this->assertSame('min', $dialysis->get('protein_g')->bound, "a lower template's ceiling never flips the winner's floor");
-        $this->assertSame(96.0, $dialysis->get('protein_g')->value);         // 1.2 g/kg
+        $this->assertSame('min', $dialysis->get('protein_g')->pending->bound, "a lower template's ceiling never flips the winner's floor");
+        $this->assertSame(['protein_g' => 96.0], $this->pending($dialysis, ['protein_g']));        // 1.2 g/kg
 
         $bp = $this->calculate(['conditions' => ['diabetes', 'hypertension']]);
         $this->assertSame('diabetes', $bp->template['key']);
-        $this->assertSame(1500.0, $bp->get('sodium_mg')->value, "DASH's sodium limit still applies");
+        $this->assertSame(['sodium_mg' => 1500.0], $this->pending($bp, ['sodium_mg']), "DASH's sodium limit still comes along");
+        $this->assertSame(2000.0, $bp->get('sodium_mg')->value, 'the verified general limit judges');
     }
 
     public function test_conditions_add_their_own_limits_and_the_stricter_wins(): void
@@ -139,23 +161,33 @@ class CriteriaCalculatorTest extends TestCase
         $sheet = $this->calculate(['conditions' => ['hypertension', 'fatty_liver', 'heart_disease']]);
 
         $this->assertSame('dash', $sheet->template['key']);
-        $this->assertSame(
-            ['carbohydrate_g' => 356.0, 'protein_g' => 117.0, 'fat_g' => 78.0, 'sodium_mg' => 1500.0, 'sugars_g' => 32.0, 'fat_sat_g' => 17.0],
-            $this->values($sheet, ['carbohydrate_g', 'protein_g', 'fat_g', 'sodium_mg', 'sugars_g', 'fat_sat_g']),
-        );
+        $this->assertSame(['sodium_mg' => 1500.0, 'sugars_g' => 32.0, 'fat_sat_g' => 17.0], $this->pending($sheet, ['sodium_mg', 'sugars_g', 'fat_sat_g']));
+        $this->assertSame(['sodium_mg' => 2000.0, 'fat_sat_g' => 29.0], $this->values($sheet, ['sodium_mg', 'fat_sat_g']));
+    }
+
+    public function test_a_nutritionists_template_judges_with_its_own_rules(): void
+    {
+        $sheet = $this->calculate(['conditions' => ['hypertension'], 'template' => 'dash', 'template_source' => CriterionSource::Nutritionist]);
+
+        $this->assertTrue($sheet->template['verified']);
+        $this->assertSame(['sodium_mg' => 1500.0, 'carbohydrate_g' => 356.0], $this->values($sheet, ['sodium_mg', 'carbohydrate_g'])); // 55%
+        $this->assertTrue($sheet->get('sodium_mg')->verified);
+        $this->assertSame([], $sheet->pendingConditions);
     }
 
     public function test_digestion_templates_lower_the_fat(): void
     {
         $gallbladder = $this->calculate(['conditions' => ['gallbladder_removed']]);
-        $this->assertSame(['fat_g' => 72.0, 'meal_fat_g' => 20.0], $this->values($gallbladder, ['fat_g', 'meal_fat_g'])); // 25%
+        $this->assertSame(['meal_fat_g' => 20.0], $this->pending($gallbladder, ['meal_fat_g']));
+        $this->assertSame(86.0, $gallbladder->get('fat_g')->value, 'the balanced 30% judges until the template is verified');
 
         $both = $this->calculate(['conditions' => ['gallbladder_removed', 'fat_intolerance']]);
-        $this->assertSame(15.0, $both->get('meal_fat_g')->value, 'the stricter meal limit wins');
+        $this->assertSame(['meal_fat_g' => 15.0], $this->pending($both, ['meal_fat_g']), 'the stricter meal limit wins');
+        $this->assertSame('عدم تحمّل الدسم', $both->get('meal_fat_g')->origin);
         $this->assertCount(1, $both->advice);
 
         $pancreas = $this->calculate(['conditions' => ['pancreatitis']]);
-        $this->assertSame(['carbohydrate_g' => 421.0, 'fat_g' => 43.0, 'meal_fat_g' => 15.0], $this->values($pancreas, ['carbohydrate_g', 'fat_g', 'meal_fat_g']));
+        $this->assertSame(['meal_fat_g' => 15.0], $this->pending($pancreas, ['meal_fat_g']));
 
         $this->assertSame(['gluten'], $this->calculate(['conditions' => ['celiac']])->allergens, 'celiac avoids gluten');
     }

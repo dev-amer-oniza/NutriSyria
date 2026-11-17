@@ -81,6 +81,7 @@ class ViewClient extends Page
         return match ($source) {
             CriterionSource::Default => 'محسوب',
             CriterionSource::User => 'حدده المراجع',
+            CriterionSource::Doctor => 'من طبيب المراجع',
             CriterionSource::Nutritionist => 'حددته أنت',
         };
     }

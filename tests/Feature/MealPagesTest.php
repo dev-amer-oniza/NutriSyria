@@ -115,10 +115,37 @@ class MealPagesTest extends TestCase
 
         $this->get(route('site.meals'))->assertOk()
             ->assertSee('ns-verdict--sm', false)
-            ->assertSee('غير مناسبة لك الآن')               // 1250 kcal: 86% over 672
+            ->assertSee('تحتاج انتباهاً')                   // 1250 kcal: 86% over 672, a target (step 2)
             ->assertSee('المناسبة لي');
 
         $this->get(route('site.meals', ['suits' => 1]))->assertSee('مجدرة')->assertDontSee('منسف كبير');
+    }
+
+    public function test_a_rule_not_verified_yet_is_information_until_a_doctor_gives_the_number(): void
+    {
+        // 250 g with 17.5 g fat: within the day's verified fat share (22 g), past the
+        // fat-intolerance meal limit (15 g) that is waiting for its references.
+        $meal = $this->approvedMeal('مجدرة', per100g: ['energy_kcal' => 166, 'protein_g' => 6, 'carbohydrate_g' => 24.8, 'fat_g' => 7, 'fiber_g' => 3]);
+        $this->actingAs($this->person(['health_conditions' => ['fat_intolerance']]));
+
+        $this->get(route('site.meals.show', $meal))->assertOk()
+            ->assertSee('مناسبة جداً')
+            ->assertSee('على احتياجك العام')
+            ->assertSee('للمعلومة، لا يدخل في التقييم بعد: دهون الوجبة فيها 18 غ، وحد «عدم تحمّل الدسم» 15 غ للوجبة قيد التوثيق.')
+            ->assertSee('قيّمناها على: احتياجك العام (موثّق). قيد التوثيق: حدود عدم تحمّل الدسم. ننصحك بأخصائي.');
+
+        // The person's doctor gave them 15 g a meal: it judges now, as a strict limit.
+        $this->put(route('site.criteria.update', 'meal_fat_g'), ['value' => 15, 'from_doctor' => '1'])->assertSessionHas('status');
+        $this->get(route('site.criteria'))->assertSee('من طبيبك');
+        $this->get(route('site.meals.show', $meal))->assertOk()
+            ->assertSee('مناسبة باعتدال')
+            ->assertSee('دهون الوجبة فيها 18 غ، والحد الذي حدّده لك طبيبك 15 غ للوجبة، أي أكثر بـ17%.')
+            ->assertSee('وأرقام طبيبك')
+            ->assertDontSee('للمعلومة، لا يدخل في التقييم بعد');
+
+        // Back to the calculated value: information again.
+        $this->delete(route('site.criteria.reset', 'meal_fat_g'))->assertSessionHas('status');
+        $this->get(route('site.meals.show', $meal))->assertSee('مناسبة جداً')->assertSee('للمعلومة، لا يدخل في التقييم بعد');
     }
 
     public function test_an_allergen_in_an_ingredient_makes_the_meal_unfit(): void

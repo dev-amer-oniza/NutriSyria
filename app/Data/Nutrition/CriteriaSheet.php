@@ -10,7 +10,7 @@ final readonly class CriteriaSheet
     /**
      * @param  array<string, CriterionValue>  $criteria  keyed by criterion key
      * @param  array{bmr: int, tdee: int, adjustment: int, floored: bool}  $energy
-     * @param  array{key: string, label: string, description: string, macros: array{carbs: int, protein: int, fat: int}, source: CriterionSource, note?: string}  $template
+     * @param  array{key: string, label: string, description: string, macros: array{carbs: int, protein: int, fat: int}, source: CriterionSource, verified?: bool, judging?: string, note?: string}  $template
      * @param  list<string>  $advice  reasons to see a nutritionist
      * @param  list<string>  $allergens  App\Enums\Allergen values to avoid
      * @param  array{name: string, time: ?string, share: float, kcal: int, targets: array<string, float>}|null  $meal
@@ -26,7 +26,16 @@ final readonly class CriteriaSheet
         public ?array $meal = null,
         /** A condition whose digestion may suffer from much legume fibre at once (HealthCondition::feelsLegumeFibre). */
         public bool $sensitiveDigestion = false,
+        /** @var list<string> the person's conditions with rules not verified yet, by name */
+        public array $pendingConditions = [],
+        /** @var array<string, string> allergens a template avoids => why ("ومرض السيلياك يُعالَج بتجنّبه تماماً") */
+        public array $avoided = [],
     ) {}
+
+    private function copy(array $criteria, float $mealShare, array $template, ?array $meal): self
+    {
+        return new self($criteria, $this->energy, $mealShare, $template, $this->advice, $this->allergens, $meal, $this->sensitiveDigestion, $this->pendingConditions, $this->avoided);
+    }
 
     public function get(string $key): ?CriterionValue
     {
@@ -36,18 +45,18 @@ final readonly class CriteriaSheet
     /** The note left with the chosen template (the nutritionist's "why"). */
     public function withTemplateNote(string $note): self
     {
-        return new self($this->criteria, $this->energy, $this->mealShare, [...$this->template, 'note' => $note], $this->advice, $this->allergens, $this->meal, $this->sensitiveDigestion);
+        return $this->copy($this->criteria, $this->mealShare, [...$this->template, 'note' => $note], $this->meal);
     }
 
     public function with(CriterionValue $value): self
     {
-        return new self([...$this->criteria, $value->key => $value], $this->energy, $this->mealShare, $this->template, $this->advice, $this->allergens, $this->meal, $this->sensitiveDigestion);
+        return $this->copy([...$this->criteria, $value->key => $value], $this->mealShare, $this->template, $this->meal);
     }
 
     /** One restaurant dish is compared with this meal from the nutritionist's plan (phase 3, 1a). */
     public function withMeal(array $meal): self
     {
-        return new self($this->criteria, $this->energy, $meal['share'], $this->template, $this->advice, $this->allergens, $meal, $this->sensitiveDigestion);
+        return $this->copy($this->criteria, $meal['share'], $this->template, $meal);
     }
 
     /**

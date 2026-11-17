@@ -24,52 +24,70 @@ final class CriteriaCalculator
 
     public function calculate(array $profile): CriteriaSheet
     {
-        $conditions = array_values(array_intersect_key($this->rules['conditions'], array_flip($profile['conditions'] ?? [])));
+        $conditionKeys = array_values(array_intersect(array_keys($this->rules['conditions']), $profile['conditions'] ?? []));
+        $conditions = array_values(array_intersect_key($this->rules['conditions'], array_flip($conditionKeys)));
         $conditionTemplates = $this->conditionTemplates($conditions);
         [$templateKey, $templateSource] = $this->chooseTemplate($profile, $conditionTemplates);
         $template = $this->rules['templates'][$templateKey];
 
-        $energy = $this->energy($profile, [$template, ...array_values($conditionTemplates)]);
-        $context = ['profile' => $profile, 'kcal' => $energy['target'], 'template' => $template];
+        // A template judges with its shares only once verified, or when a nutritionist chose it;
+        // until then the verified default shares judge, and the template is shown (decision 1a).
+        $nutritionistChose = $templateSource === CriterionSource::Nutritionist;
+        $templateVerified = $nutritionistChose || ! empty($template['refs']);
+        $judging = $templateVerified ? $template : $this->rules['templates'][$this->rules['default_template']];
 
-        // 1. Every criterion with a default rule (the macros from the chosen template).
+        $energy = $this->energy($profile, [$template, ...array_values($conditionTemplates)]);
+        $context = ['profile' => $profile, 'kcal' => $energy['target'], 'template' => $judging, 'shown' => $templateVerified ? null : $template];
+
+        // 1. Every criterion with a default rule (the macros from the judging template).
         $criteria = [];
         foreach ($this->rules['criteria'] as $key => $definition) {
             if ($definition['default'] !== null) {
-                $criteria[$key] = $this->value($key, $definition['bound'], $definition['default'], $context);
+                $criteria[$key] = $this->value($key, $definition['bound'], $definition['default'], $context, verified: ! empty($definition['refs']));
             }
         }
 
         // 2. The chosen template's own rules replace the defaults (kidneys: protein per kg).
         foreach ($template['rules'] ?? [] as $key => $rule) {
-            $criteria[$key] = $this->value($key, $rule['bound'] ?? $this->rules['criteria'][$key]['bound'], $rule, $context, ' (قالب '.$template['label'].')');
+            $candidate = $this->value($key, $rule['bound'] ?? $this->rules['criteria'][$key]['bound'], $rule, $context,
+                ' (قالب '.$template['label'].')', $nutritionistChose || ! empty($rule['refs']), 'قالب '.$template['label']);
+            $criteria[$key] = $this->place($criteria[$key] ?? null, $candidate, replace: true);
         }
 
         // 3. From the other templates and the conditions, only ceilings and floors, the stricter winning.
         $limits = [];
         foreach ($conditionTemplates as $key => $other) {
             if ($key !== $templateKey) {
-                $limits[] = [$other['rules'] ?? [], ' (قالب '.$other['label'].')'];
+                $limits[] = [$other['rules'] ?? [], ' (قالب '.$other['label'].')', 'قالب '.$other['label']];
             }
         }
-        foreach ($conditions as $condition) {
-            $limits[] = [$condition['criteria'] ?? [], ' (بسبب حالتك الصحية)'];
+        foreach ($conditionKeys as $key) {
+            $limits[] = [$this->rules['conditions'][$key]['criteria'] ?? [], ' (بسبب حالتك الصحية)', $this->conditionLabel($key)];
         }
-        foreach ($limits as [$ruleSet, $why]) {
+        foreach ($limits as [$ruleSet, $why, $origin]) {
             foreach ($ruleSet as $key => $rule) {
                 $bound = $rule['bound'] ?? $this->rules['criteria'][$key]['bound'];
                 if ($bound !== 'target') {
-                    $criteria[$key] = $this->stricter($criteria[$key] ?? null, $this->value($key, $bound, $rule, $context, $why));
+                    $candidate = $this->value($key, $bound, $rule, $context, $why, ! empty($rule['refs']), $origin);
+                    $criteria[$key] = $this->place($criteria[$key] ?? null, $candidate, replace: false);
                 }
             }
         }
 
-        // 4. A floor under a lower ceiling on the same nutrient goes: a kidney template's protein
-        //    ceiling (0.6 g/kg) is never answered with "eat more protein" from the RDA.
+        // 4. A floor under a lower ceiling on the same nutrient goes, even a ceiling not verified
+        //    yet: a kidney template's protein ceiling (0.6 g/kg) is never answered with "eat more
+        //    protein" from the RDA.
+        $ceilings = [];
+        foreach ($criteria as $value) {
+            foreach ([$value, $value->pending] as $one) {
+                if ($one?->bound === 'max') {
+                    $ceilings[] = $one;
+                }
+            }
+        }
         foreach ($criteria as $key => $floor) {
-            foreach ($criteria as $ceiling) {
-                if ($floor->bound === 'min' && $ceiling->bound === 'max'
-                    && $ceiling->nutrient === $floor->nutrient && $ceiling->value < $floor->value) {
+            foreach ($ceilings as $ceiling) {
+                if ($floor->bound === 'min' && $ceiling->nutrient === $floor->nutrient && $ceiling->value < $floor->value) {
                     unset($criteria[$key]);
                 }
             }
@@ -87,6 +105,8 @@ final class CriteriaCalculator
                 'description' => $template['description'],
                 'macros' => $template['macros'],
                 'source' => $templateSource,
+                'verified' => $templateVerified,
+                'judging' => $judging['label'],
             ],
             advice: array_values(array_unique(array_filter(array_column($sources, 'see_nutritionist')))),
             allergens: array_values(array_unique([...($profile['allergens'] ?? []), ...array_merge(...array_map(fn ($s) => $s['allergens'] ?? [], $sources))])),
@@ -94,7 +114,98 @@ final class CriteriaCalculator
                 $profile['conditions'] ?? [],
                 fn ($c) => HealthCondition::tryFrom((string) $c)?->feelsLegumeFibre() ?? false,
             ) !== [],
+            pendingConditions: $this->pendingConditions($conditionKeys, $nutritionistChose ? $templateKey : null),
+            avoided: $this->avoided($sources),
         );
+    }
+
+    /**
+     * Where a rule goes on the sheet. A verified rule judges; an unverified one never does: it
+     * rides along as the judging value's pending rule when it is stricter or of another kind,
+     * and stands alone (shown, not judged) when nothing verified covers the criterion.
+     * $replace: the chosen template's own rule replaces the default instead of competing.
+     */
+    private function place(?CriterionValue $current, CriterionValue $candidate, bool $replace): CriterionValue
+    {
+        if ($current === null) {
+            return $candidate;
+        }
+        if ($candidate->verified) {
+            if (! $current->verified) {
+                return $candidate->withPending($this->tighter($candidate, $current) ? $current : null);
+            }
+            $winner = $replace ? $candidate : $this->stricter($current, $candidate);
+
+            return $winner->withPending($current->pending ?? $candidate->pending);
+        }
+        if (! $current->verified) {
+            return $replace ? $candidate : $this->stricter($current, $candidate);
+        }
+        if (! $this->tighter($current, $candidate)) {
+            return $current;
+        }
+
+        return $current->withPending($current->pending && ! $replace ? $this->stricter($current->pending, $candidate) : $candidate);
+    }
+
+    /** Whether $other asks more than $judging does: a lower ceiling, a higher floor, or another kind of limit. */
+    private function tighter(CriterionValue $judging, CriterionValue $other): bool
+    {
+        return match (true) {
+            $other->bound !== $judging->bound => true,
+            $other->bound === 'max' => $other->value < $judging->value,
+            $other->bound === 'min' => $other->value > $judging->value,
+            default => false,
+        };
+    }
+
+    /**
+     * The conditions with rules not verified yet, by name, for "قيد التوثيق: حدود …". A template
+     * a nutritionist chose counts as theirs, so its own rules are not pending.
+     *
+     * @param  list<string>  $conditionKeys
+     * @return list<string>
+     */
+    private function pendingConditions(array $conditionKeys, ?string $chosenByNutritionist): array
+    {
+        $pending = [];
+        foreach ($conditionKeys as $key) {
+            $condition = $this->rules['conditions'][$key];
+            $templateKey = $condition['template'] ?? null;
+            $rules = [
+                ...array_values($templateKey && $templateKey !== $chosenByNutritionist ? ($this->rules['templates'][$templateKey]['rules'] ?? []) : []),
+                ...array_values($condition['criteria'] ?? []),
+            ];
+            if (array_filter($rules, fn (array $rule) => empty($rule['refs'])) !== []) {
+                $pending[] = $this->conditionLabel($key);
+            }
+        }
+
+        return array_values(array_unique($pending));
+    }
+
+    /**
+     * The allergens the templates avoid, with why, for the reason a meal is unfit ("ومرض السيلياك
+     * يُعالَج بتجنّبه تماماً"). The person's own allergies are said differently.
+     *
+     * @param  list<array>  $sources
+     * @return array<string, string>
+     */
+    private function avoided(array $sources): array
+    {
+        $avoided = [];
+        foreach ($sources as $source) {
+            foreach ($source['allergens'] ?? [] as $allergen) {
+                $avoided[$allergen] ??= $source['avoid_reason'] ?? 'ولا يناسب حالتك';
+            }
+        }
+
+        return $avoided;
+    }
+
+    private function conditionLabel(string $key): string
+    {
+        return HealthCondition::tryFrom($key)?->label() ?? $key;
     }
 
     /** @return array<string, array> the templates the person's conditions bring, highest priority first */
@@ -166,7 +277,7 @@ final class CriteriaCalculator
         return $metres > 0 ? round((float) $profile['weight_kg'] / ($metres * $metres), 1) : 0.0;
     }
 
-    private function value(string $key, string $bound, array $rule, array $context, string $why = ''): CriterionValue
+    private function value(string $key, string $bound, array $rule, array $context, string $why = '', bool $verified = false, ?string $origin = null): CriterionValue
     {
         $definition = $this->rules['criteria'][$key];
         [$value, $basis] = $this->evaluate($rule, $context);
@@ -183,6 +294,9 @@ final class CriteriaCalculator
             source: CriterionSource::Default,
             basis: $basis.$why,
             note: $definition['note'] ?? null,
+            kind: $bound === 'min' ? 'shortfall' : ($definition['kind'] ?? 'guidance'),
+            verified: $verified,
+            origin: $origin,
         );
     }
 
@@ -194,7 +308,7 @@ final class CriteriaCalculator
 
         return match ($rule['type']) {
             'energy' => [$kcal, 'معادلة Mifflin-St Jeor مضروبة بمستوى نشاطك، ومعدّلة حسب هدفك'],
-            'macro' => $this->macro($rule['macro'], $context['template'], $kcal),
+            'macro' => $this->macro($rule['macro'], $context['template'], $kcal, $context['shown'] ?? null),
             'per_kg' => $this->perKg($rule, $profile['weight_kg'], $profile['goal']),
             'energy_pct' => [$kcal * $rule['pct'] / 100 / $rule['kcal_per_g'], $rule['pct'].'% من سعراتك اليومية'],
             'per_1000' => [$kcal / 1000 * $rule['value'], $rule['value'].' غ لكل 1000 سعرة'],
@@ -205,11 +319,15 @@ final class CriteriaCalculator
     }
 
     /** @return array{0: float, 1: string} */
-    private function macro(string $macro, array $template, int $kcal): array
+    private function macro(string $macro, array $template, int $kcal, ?array $shown = null): array
     {
         $pct = $template['macros'][$macro];
+        $basis = $pct.'% من سعراتك حسب قالب '.$template['label'];
+        if ($shown) {
+            $basis .= '، لأن قالب '.$shown['label'].' ('.$shown['macros'][$macro].'%) قيد التوثيق';
+        }
 
-        return [$kcal * $pct / 100 / $this->rules['kcal_per_g'][$macro], $pct.'% من سعراتك حسب قالب '.$template['label']];
+        return [$kcal * $pct / 100 / $this->rules['kcal_per_g'][$macro], $basis];
     }
 
     /** @return array{0: float, 1: string} */
