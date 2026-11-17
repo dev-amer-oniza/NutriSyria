@@ -30,7 +30,7 @@ class CriteriaCalculatorTest extends TestCase
         $sheet = $this->calculate();
 
         // 10×80 + 6.25×178 − 5×30 + 5 = 1767.5; ×1.75 (FAO active) = 3093.1; −500 = 2593.1
-        $this->assertSame(['bmr' => 1768, 'tdee' => 3093, 'adjustment' => -500, 'floored' => false, 'held' => null, 'surplus' => 0], $sheet->energy);
+        $this->assertSame(['bmr' => 1768, 'tdee' => 3093, 'adjustment' => -500, 'floored' => false, 'held' => null, 'surplus' => 0, 'raised' => null, 'raised_by' => null], $sheet->energy);
         $this->assertSame('balanced', $sheet->template['key']);
         $this->assertSame(['carbs' => 50, 'protein' => 20, 'fat' => 30], $sheet->template['macros']);
         $this->assertSame(CriterionSource::Default, $sheet->template['source']);
@@ -118,19 +118,45 @@ class CriteriaCalculatorTest extends TestCase
         $this->assertCount(1, $sheet->pendingConditions);
     }
 
-    public function test_jaundice_of_unknown_cause_takes_the_liver_template_and_sends_to_a_nutritionist(): void
+    public function test_the_liver_conditions_follow_their_references(): void
     {
-        $jaundice = $this->calculate(['conditions' => ['jaundice']]);
-        $liver = $this->calculate(['conditions' => ['liver_cirrhosis']]);
+        $base = $this->calculate();
 
-        $this->assertSame('hepatic', $jaundice->template['key']);
-        $this->assertSame(['protein_g' => 96.0], $this->pending($jaundice, ['protein_g']), 'protein is a floor of 1.2 g/kg, not verified yet');
-        $this->assertSame(130.0, $jaundice->get('protein_g')->value, 'the verified target judges');
-        $this->assertSame(
-            [$this->values($liver, ['energy_kcal', 'carbohydrate_g', 'protein_g', 'fat_g', 'sodium_mg']), $this->pending($liver, ['protein_g', 'sodium_mg'])],
-            [$this->values($jaundice, ['energy_kcal', 'carbohydrate_g', 'protein_g', 'fat_g', 'sodium_mg']), $this->pending($jaundice, ['protein_g', 'sodium_mg'])],
-        );
-        $this->assertCount(2, $jaundice->advice, 'the liver advice and the "find the cause" advice');
+        // Acute (A, E) and chronic (B, C) hepatitis, jaundice and the old mixed choice: no limits
+        // of their own, the general needs, nothing pending (step 3).
+        foreach (['hepatitis_acute', 'hepatitis_chronic', 'jaundice', 'liver_cirrhosis'] as $condition) {
+            $sheet = $this->calculate(['conditions' => [$condition]]);
+            $this->assertSame('balanced', $sheet->template['key'], $condition);
+            $this->assertSame($this->values($base, ['energy_kcal', 'protein_g', 'protein_min_g', 'sodium_mg']),
+                $this->values($sheet, ['energy_kcal', 'protein_g', 'protein_min_g', 'sodium_mg']), $condition);
+            $this->assertSame([], $sheet->pendingConditions, $condition);
+        }
+        $this->assertCount(1, $this->calculate(['conditions' => ['jaundice']])->advice, '"find the cause"');
+
+        // Cirrhosis: protein at least 1.2 g/kg, verified; at least 35 kcal/kg and no deficit under a BMI of 30.
+        $cirrhosis = $this->calculate(['conditions' => ['cirrhosis']]);
+        $this->assertSame(96.0, $cirrhosis->get('protein_min_g')->value);            // 80 × 1.2
+        $this->assertTrue($cirrhosis->get('protein_min_g')->verified);
+        $this->assertSame('تليّف الكبد', $cirrhosis->get('protein_min_g')->origin);
+        $this->assertSame(['adjustment' => 0, 'held' => 'condition'], array_intersect_key($cirrhosis->energy, ['adjustment' => 0, 'held' => 0]));
+        $this->assertSame(3090.0, $cirrhosis->get('energy_kcal')->value);           // 3093 > 35 × 80 = 2800
+        $this->assertSame([], $cirrhosis->pendingConditions);
+
+        // A light, sedentary person (BMI 18.9): 35 × 60 = 2100 raises 1417.5 × 1.4 = 1985.
+        $raised = $this->calculate(['conditions' => ['cirrhosis'], 'weight_kg' => 60, 'activity' => 'sedentary', 'age' => 60]);
+        $this->assertSame([35, 'تليّف الكبد'], [$raised->energy['raised'], $raised->energy['raised_by']]);
+        $this->assertSame(2100.0, $raised->get('energy_kcal')->value);
+
+        // Obese (BMI 31.6): the general rules, deficit included (ESPEN 51).
+        $obese = $this->calculate(['conditions' => ['cirrhosis'], 'weight_kg' => 100]);
+        $this->assertSame(-500, $obese->energy['adjustment']);
+        $this->assertNull($obese->energy['raised']);
+
+        // Fatty liver: no figure for saturated fat or sugars in its reference.
+        $fatty = $this->calculate(['conditions' => ['fatty_liver']]);
+        $this->assertSame([null, null], [$fatty->get('fat_sat_g')->pending, $fatty->get('sugars_g')->pending]);
+        $this->assertSame(-500, $fatty->energy['adjustment']);
+        $this->assertSame([], $fatty->pendingConditions);
     }
 
     public function test_the_higher_priority_template_wins_and_the_others_keep_their_limits(): void
@@ -161,7 +187,7 @@ class CriteriaCalculatorTest extends TestCase
         $sheet = $this->calculate(['conditions' => ['hypertension', 'fatty_liver', 'heart_disease']]);
 
         $this->assertSame('dash', $sheet->template['key']);
-        $this->assertSame(['sodium_mg' => 1500.0, 'sugars_g' => 32.0, 'fat_sat_g' => 17.0], $this->pending($sheet, ['sodium_mg', 'sugars_g', 'fat_sat_g']));
+        $this->assertSame(['sodium_mg' => 1500.0, 'sugars_g' => null, 'fat_sat_g' => 17.0], $this->pending($sheet, ['sodium_mg', 'sugars_g', 'fat_sat_g']));
         $this->assertSame(['sodium_mg' => 2000.0, 'fat_sat_g' => 29.0], $this->values($sheet, ['sodium_mg', 'fat_sat_g']));
     }
 

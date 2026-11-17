@@ -117,9 +117,16 @@ class ViewClient extends Page
             ->authorize('view', $this->record)
             ->modalHeading(fn () => 'بيانات '.$this->record->user->name)
             ->modalDescription('لا يستطيع المراجع تعديلها ما دام الارتباط قائماً. يصله إشعار بالتحديث.')
-            ->fillForm(fn () => Arr::only($this->record->user->profile?->attributesToArray() ?? [], [
-                'sex', 'birth_year', 'height_cm', 'weight_kg', 'activity_level', 'goal', 'health_conditions', 'allergies',
-            ]))
+            ->fillForm(function () {
+                $data = Arr::only($this->record->user->profile?->attributesToArray() ?? [], [
+                    'sex', 'birth_year', 'height_cm', 'weight_kg', 'activity_level', 'goal', 'health_conditions', 'allergies',
+                ]);
+                // The old "الكبد الوبائي أو التليّف" is no longer offered: the nutritionist picks the right one.
+                $data['health_conditions'] = array_values(array_filter($data['health_conditions'] ?? [],
+                    fn ($c) => ! (HealthCondition::tryFrom((string) $c)?->isLegacy() ?? false)));
+
+                return $data;
+            })
             ->schema([
                 Grid::make(2)->schema([
                     Select::make('sex')->label('الجنس')->options($options(Sex::cases()))->required()->live(),
@@ -130,7 +137,7 @@ class ViewClient extends Page
                     Select::make('goal')->label('الهدف')->options($options(Goal::cases()))->required(),
                 ]),
                 CheckboxList::make('health_conditions')->label('الحالات الصحية')
-                    ->options(fn (Get $get) => $options(array_filter(HealthCondition::cases(), fn (HealthCondition $c) => $c->appliesTo(Sex::tryFrom((string) $get('sex'))))))
+                    ->options(fn (Get $get) => $options(array_filter(HealthCondition::offered(), fn (HealthCondition $c) => $c->appliesTo(Sex::tryFrom((string) $get('sex'))))))
                     ->descriptions(array_filter(array_column(array_map(fn (HealthCondition $c) => [$c->value, $c->hint()], HealthCondition::cases()), 1, 0)))
                     ->columns(3),
                 CheckboxList::make('allergies')->label('الحساسيات')->options($options(Allergen::cases()))->columns(4),

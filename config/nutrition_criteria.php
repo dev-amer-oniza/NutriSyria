@@ -404,13 +404,17 @@ return [
             'allergens' => ['gluten'], 'allergen_refs' => ['niddk_celiac'],
             'avoid_reason' => 'ومرض السيلياك يُعالَج بتجنّبه تماماً',
         ],
+        /*
+        | No condition brings it any more (step 3): cirrhosis brings its verified rules itself.
+        | Kept in the nutritionist's library. The sodium rule went: EASL's 2 g is for ascites only
+        | and equals the general limit.
+        */
         'hepatic' => [
-            'label' => 'الكبد الوبائي والتليّف', 'group' => 'digestion', 'source' => 'ESPEN',
-            'description' => 'بروتين جيد كافٍ وطاقة كافية لدعم الكبد.',
+            'label' => 'تليّف الكبد', 'group' => 'digestion', 'source' => 'EASL · ESPEN',
+            'description' => 'بروتين كافٍ وطاقة كافية، ووجبات صغيرة متكررة مع وجبة خفيفة قبل النوم.',
             'macros' => ['carbs' => 55, 'protein' => 15, 'fat' => 30],
             'rules' => [
-                'protein_g' => ['type' => 'per_kg', 'value' => 1.2, 'bound' => 'min'],
-                'sodium_mg' => ['type' => 'fixed', 'value' => 2000],
+                'protein_g' => ['type' => 'per_kg', 'value' => 1.2, 'bound' => 'min', 'refs' => ['easl_nutrition_2019']],
             ],
             'see_nutritionist' => 'أمراض الكبد تحتاج متابعة أخصائي.',
         ],
@@ -460,18 +464,32 @@ return [
         'high_cholesterol' => ['template' => 'dyslipidemia'],
         'kidney' => ['template' => 'ckd'],
         'dialysis' => ['template' => 'dialysis'],
-        'fatty_liver' => [
-            'template' => 'mediterranean',
-            'criteria' => [
-                'sugars_g' => ['type' => 'energy_pct', 'pct' => 5, 'kcal_per_g' => 4],
-                'fat_sat_g' => ['type' => 'energy_pct', 'pct' => 7, 'kcal_per_g' => 9],
-            ],
+        /*
+        | The liver (step 3, decisions 1a 2a 3a 4a). What each reference says:
+        |  - fatty liver: a Mediterranean pattern and weight loss, with no figure for saturated
+        |    fat or sugars (easl_masld_2024): the general limits and the deficit apply; the old
+        |    7% and 5% had no source and went.
+        |  - acute (A, E) and chronic (B, C) hepatitis: healthy food, fluids, no alcohol, no
+        |    figures: general needs, verified.
+        |  - cirrhosis: protein at least 1.2 g/kg (a floor on protein_min_g), and at least 35 kcal
+        |    per kg with no deficit under a body mass index of 30 (easl_nutrition_2019; ESPEN 51:
+        |    no more energy for the overweight or obese).
+        |  - jaundice: a sign, not a disease: no limits until the cause is known.
+        |  - liver_cirrhosis: the old mixed choice; general needs until the person picks again.
+        */
+        'fatty_liver' => ['refs' => ['easl_masld_2024']],
+        'hepatitis_acute' => ['refs' => ['who_hepatitis_a', 'who_hepatitis_e', 'niddk_hepatitis_a']],
+        'hepatitis_chronic' => ['refs' => ['niddk_hepatitis_b', 'niddk_hepatitis_c']],
+        'cirrhosis' => [
+            'criteria' => ['protein_min_g' => ['type' => 'per_kg', 'value' => 1.2, 'refs' => ['easl_nutrition_2019']]],
+            'energy_min_per_kg' => 35,
+            'energy_min_below_bmi' => 30,
+            'energy_refs' => ['easl_nutrition_2019', 'espen_liver_2019'],
+            'see_nutritionist' => 'تليّف الكبد يحتاج متابعة أخصائي.',
         ],
-        'liver_cirrhosis' => ['template' => 'hepatic'],
-        // A sign, not a diagnosis: the liver template until the cause is known (the owner's decision a).
+        'liver_cirrhosis' => [],
         'jaundice' => [
-            'template' => 'hepatic',
-            'see_nutritionist' => 'اليرقان له أكثر من سبب، ولكل سبب غذاؤه. راجع طبيبك وأخصائياً ليحددا القالب المناسب.',
+            'see_nutritionist' => 'اليرقان له أكثر من سبب، ولكل سبب غذاؤه. راجع طبيبك ليعرف السبب، ثم اختر الحالة الأدق.',
         ],
         'reflux' => ['template' => 'gerd'],
         'gallbladder_removed' => ['template' => 'post_cholecystectomy'],

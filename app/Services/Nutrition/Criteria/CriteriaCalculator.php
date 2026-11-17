@@ -36,7 +36,7 @@ final class CriteriaCalculator
         $templateVerified = $nutritionistChose || ! empty($template['refs']);
         $judging = $templateVerified ? $template : $this->rules['templates'][$this->rules['default_template']];
 
-        $energy = $this->energy($profile, [$template, ...array_values($conditionTemplates)]);
+        $energy = $this->energy($profile, [$template, ...array_values($conditionTemplates)], $conditionKeys);
         $context = ['profile' => $profile, 'kcal' => $energy['target'], 'template' => $judging, 'shown' => $templateVerified ? null : $template];
 
         // 1. Every criterion with a default rule (the macros from the judging template).
@@ -235,9 +235,14 @@ final class CriteriaCalculator
      * no deficit under 'deficit_min_bmi' or when a template forbids one ('held'), and a
      * surplus without a guideline is only shown ('surplus'), never added to the target.
      *
-     * @return array{bmr: int, tdee: int, adjustment: int, floored: bool, target: int, held: ?string, surplus: int}
+     * A condition may also hold a floor per kg under a body mass index (cirrhosis: 35 kcal/kg
+     * under 30, easl_nutrition_2019): no deficit then ('held' = 'condition'), and the target is
+     * raised to the floor ('raised' = the kcal per kg, 'raised_by' = the condition's name).
+     *
+     * @param  list<string>  $conditionKeys
+     * @return array{bmr: int, tdee: int, adjustment: int, floored: bool, target: int, held: ?string, surplus: int, raised: ?int, raised_by: ?string}
      */
-    private function energy(array $profile, array $templates): array
+    private function energy(array $profile, array $templates, array $conditionKeys = []): array
     {
         $bmr = EnergyEquation::Mifflin->bmr(Sex::from($profile['sex']), (int) $profile['age'], (float) $profile['height_cm'], (float) $profile['weight_kg']);
         $tdee = $bmr * (float) $this->rules['activity_factors'][$profile['activity']];
@@ -255,17 +260,33 @@ final class CriteriaCalculator
             [$surplus, $adjustment] = [$adjustment, 0];
         }
 
+        [$perKg, $raisedBy] = [0, null];
+        foreach ($conditionKeys as $key) {
+            $condition = $this->rules['conditions'][$key];
+            $floor = (int) ($condition['energy_min_per_kg'] ?? 0);
+            if ($floor > $perKg && $this->bmi($profile) < (float) ($condition['energy_min_below_bmi'] ?? INF)) {
+                [$perKg, $raisedBy] = [$floor, $this->conditionLabel($key)];
+            }
+        }
+        if ($perKg > 0 && $adjustment < 0) {
+            [$adjustment, $held] = [0, 'condition'];
+        }
+
         $minimum = (int) $this->rules['min_kcal'][$profile['sex']];
         $target = $tdee + $adjustment;
+        $byWeight = $perKg * (float) $profile['weight_kg'];
+        $raised = $byWeight > max($target, $minimum);
 
         return [
             'bmr' => (int) round($bmr),
             'tdee' => (int) round($tdee),
             'adjustment' => $adjustment,
-            'floored' => $target < $minimum,
-            'target' => (int) (round(max($target, $minimum) / 10) * 10),
+            'floored' => ! $raised && $target < $minimum,
+            'target' => (int) (round(max($target, $minimum, $byWeight) / 10) * 10),
             'held' => $held,
             'surplus' => $surplus,
+            'raised' => $raised ? $perKg : null,
+            'raised_by' => $raised ? $raisedBy : null,
         ];
     }
 
