@@ -266,6 +266,86 @@ return [
         'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
     ],
 
+    /* Diabetes and metabolism (step 7, batch 2). */
+
+    'nice_t2d_ng28' => [
+        'org' => 'NICE',
+        'title' => 'Type 2 diabetes in adults: management (NG28)',
+        'year' => 2026,
+        'url' => 'https://www.nice.org.uk/guidance/ng28/chapter/Dietary-advice-and-interventions',
+        'where' => 'Recommendations 1.3.3 and 1.3.6 (Dietary advice and interventions)',
+        'quote' => 'Encourage adults with type 2 diabetes to follow the same healthy eating advice as the general population, which includes: eating high-fibre, low-glycaemic-index sources of carbohydrate, such as fruit, vegetables, wholegrains and pulses choosing low-fat dairy products eating oily fish controlling their intake of saturated and trans fatty acids. [2009] … Individualise recommendations for carbohydrate and alcohol intake, and meal patterns. Make reducing the risk of hypoglycaemia a particular aim for people using insulin or an insulin secretagogue. [2009]',
+        'summary' => 'نفس نصائح الأكل الصحي لعامة الناس (كربوهيدرات غنية بالألياف، ألبان قليلة الدسم، سمك دهني، مشبعة أقل)، وكمية الكربوهيدرات ومواعيد الوجبات **حسب الشخص**: لا رقم عام للوجبة.',
+        'applies' => 'البالغون مع السكري من النوع الثاني',
+        'read_at' => '2026-11-18',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'niddk_diabetes_diet' => [
+        'org' => 'NIDDK (NIH)',
+        'title' => 'Healthy Living with Diabetes',
+        'year' => 2023,
+        'url' => 'https://www.niddk.nih.gov/health-information/diabetes/overview/diet-eating-physical-activity',
+        'where' => 'How can I plan what to eat or drink when I have diabetes?',
+        'quote' => 'There is no right or wrong way to choose healthy foods and drinks that may help manage your diabetes. … For people who have diabetes, carb counting and the plate method are two common ways to plan how much to eat or drink. Talk with your health care professional or health care team to find a method that works for you.',
+        'summary' => 'لا طريقة واحدة صحيحة؛ عدّ الكربوهيدرات أو طريقة الصحن، يختارها الشخص مع فريقه الصحي.',
+        'applies' => 'السكري',
+        'read_at' => '2026-11-18',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'nice_maternal_ng247' => [
+        'org' => 'NICE',
+        'title' => 'Maternal and child nutrition: nutrition and weight management in pregnancy, and nutrition in children up to 5 years (NG247)',
+        'year' => 2025,
+        'url' => 'https://www.nice.org.uk/guidance/ng247/chapter/Recommendations',
+        'where' => 'Recommendations 1.2.15 (weight management in pregnancy) and 1.2.19 (gestational diabetes)',
+        'quote' => 'Advise people that intentional weight loss during pregnancy is not recommended because of potential adverse effects on the baby. [2025] … Advise people with gestational diabetes that there is currently no convincing evidence that a particular diet (for example, a low-glycaemic-index diet, low-carbohydrate diet, low-fat diet, or high-fibre diet) is better than the other. Discuss a healthy diet for gestational diabetes that is the most preferable and appropriate for the person.',
+        'summary' => 'لا إنقاص للوزن عمداً أثناء الحمل؛ ولسكري الحمل لا حمية بعينها أفضل من غيرها (لا قليلة الكربوهيدرات ولا غيرها): أكل صحي يناسب الشخص.',
+        'applies' => 'الحمل، وسكري الحمل',
+        'read_at' => '2026-11-18',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'nice_pregnancy_ng3' => [
+        'org' => 'NICE',
+        'title' => 'Diabetes in pregnancy: management from preconception to the postnatal period (NG3)',
+        'year' => 2020,
+        'url' => 'https://www.nice.org.uk/guidance/ng3/chapter/Recommendations',
+        'where' => 'Recommendations 1.2.14 and 1.2.16',
+        'quote' => 'When women are diagnosed with gestational diabetes, offer advice about changes in diet and exercise (see the section on gestational diabetes in NICE\'s guideline on maternal and child nutrition ). [2015] … Refer all women with gestational diabetes to a dietitian. [2015]',
+        'summary' => 'لكل حامل مصابة بسكري الحمل: نصيحة في الأكل والحركة، وإحالة إلى أخصائية تغذية.',
+        'applies' => 'سكري الحمل',
+        'read_at' => '2026-11-18',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'niddk_insulin' => [
+        'org' => 'NIDDK (NIH)',
+        'title' => 'Insulin Resistance & Prediabetes',
+        'year' => 2025,
+        'url' => 'https://www.niddk.nih.gov/health-information/diabetes/overview/what-is-diabetes/prediabetes-insulin-resistance',
+        'where' => 'How can I prevent or reverse insulin resistance and prediabetes?',
+        'quote' => 'To prevent or reverse insulin resistance and prediabetes , aim to live a healthy lifestyle and manage your weight. … If you have overweight or obesity, work with your health care team to create a plan to reach and maintain a healthy weight. Use the calculator below to find out how much 5% to 7% of your weight is and whether weight loss may help lower your diabetes risk.',
+        'summary' => 'نمط حياة صحي وإدارة الوزن؛ ولمن وزنه زائد، إنقاص 5–7% من الوزن. بلا أرقام خاصة للأكل.',
+        'applies' => 'مقاومة الإنسولين ومرحلة ما قبل السكري',
+        'read_at' => '2026-11-18',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'nice_cvd_ng238' => [
+        'org' => 'NICE',
+        'title' => 'Cardiovascular disease: risk assessment and reduction, including lipid modification (NG238)',
+        'year' => 2023,
+        'url' => 'https://www.nice.org.uk/guidance/ng238/chapter/Recommendations',
+        'where' => 'Recommendations 1.3.2 and 1.3.3 (Cardioprotective diet)',
+        'quote' => 'Advise people at high risk of or with CVD to eat a diet in which total fat intake is 30% or less of total energy intake, saturated fats are 7% or less of total energy intake, and where possible saturated fats are replaced by mono‑unsaturated and polyunsaturated fats. [May 2023] … Advise people at high risk of or with CVD to: reduce their saturated fat intake increase their mono-unsaturated fat intake with olive oil, rapeseed oil or spreads based on these oils and to use them in food preparation. [2014]',
+        'summary' => 'لمن خطره القلبي عالٍ أو عنده مرض قلبي: الدهون الكلية حتى 30% من السعرات، والمشبعة حتى 7%، واستبدالها بزيت الزيتون والدهون غير المشبعة.',
+        'applies' => 'خطر قلبي وعائي عالٍ (منه ارتفاع الكولسترول العائلي) أو مرض قلبي',
+        'read_at' => '2026-11-18',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
     /* The liver (step 3). */
 
     'who_hepatitis_a' => [

@@ -252,7 +252,14 @@ final class CriteriaCalculator
         $held = null;
         $surplus = 0;
         $noDeficit = collect($templates)->contains(fn (array $t) => $t['no_deficit'] ?? false);
-        if ($adjustment < 0 && $noDeficit) {
+        // A condition whose reference says no weight loss (pregnancy, step 7 batch 2), told by its reason.
+        $heldWhy = null;
+        foreach ($conditionKeys as $key) {
+            $heldWhy ??= ($this->rules['conditions'][$key]['no_deficit'] ?? false) ? ($this->rules['conditions'][$key]['no_deficit_reason'] ?? '') : null;
+        }
+        if ($adjustment < 0 && $heldWhy !== null) {
+            [$adjustment, $held] = [0, 'reference'];
+        } elseif ($adjustment < 0 && $noDeficit) {
             [$adjustment, $held] = [0, 'template'];
         } elseif ($adjustment < 0 && $this->bmi($profile) < (float) ($this->rules['deficit_min_bmi'] ?? 0)) {
             [$adjustment, $held] = [0, 'bmi'];
@@ -285,6 +292,7 @@ final class CriteriaCalculator
             'floored' => ! $raised && $target < $minimum,
             'target' => (int) (round(max($target, $minimum, $byWeight) / 10) * 10),
             'held' => $held,
+            'held_why' => $held === 'reference' ? $heldWhy : null,
             'surplus' => $surplus,
             'raised' => $raised ? $perKg : null,
             'raised_by' => $raised ? $raisedBy : null,
