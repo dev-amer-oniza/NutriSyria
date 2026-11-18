@@ -67,10 +67,11 @@ class HealthGoalGuide
             'heart' => [
                 'lead' => 'للقلب والضغط، الأهم هو الملح والدهون المشبعة.',
                 'rules' => [
-                    'ارتفاع الضغط: قالب DASH، والصوديوم حتى '.number_format($t['dash']['rules']['sodium_mg']['value']).' ملغ في اليوم بدل '.number_format($c['criteria']['sodium_mg']['default']['value']).'.',
-                    'أمراض القلب: DASH أيضاً، والدهون المشبعة حتى '.$pct($c['conditions']['heart_disease']['criteria']['fat_sat_g']).' من السعرات بدل '.$pct($c['criteria']['fat_sat_g']['default']).'.',
+                    // Step 7, batch 3: DASH from NHLBI's booklet, the rest from NICE.
+                    'ارتفاع الضغط: قالب DASH كما في دراساته، والصوديوم حتى '.number_format($t['dash']['rules']['sodium_mg']['value']).' ملغ في اليوم بدل '.number_format($c['criteria']['sodium_mg']['default']['value']).'، والدهون المشبعة حتى '.$pct($t['dash']['rules']['fat_sat_g']).' من السعرات.',
+                    'أمراض القلب: الدهون المشبعة حتى '.$pct($c['conditions']['heart_disease']['criteria']['fat_sat_g']).' من السعرات بدل '.$pct($c['criteria']['fat_sat_g']['default']).'، وزيت الزيتون بدل الدسم الحيواني.',
                     'ارتفاع الكولسترول: الدهون المشبعة حتى '.$pct($t['dyslipidemia']['rules']['fat_sat_g']).' من السعرات.',
-                    'قصور القلب: صوديوم '.number_format($t['chf']['rules']['sodium_mg']['value']).' ملغ، مع نصيحة بمتابعة أخصائي للسوائل.',
+                    'قصور القلب: المرجع لا ينصح بتقليل الملح والسوائل للجميع؛ يحددهما طبيبك إن لزم، فاكتب رقمه في معاييري. وتجنّب بدائل الملح التي فيها بوتاسيوم.',
                 ],
                 'how' => 'أضف حالتك إلى سجلك الصحي. وإن لم تكن عندك حالة، يمكنك اختيار قالب DASH بنفسك.',
                 'note' => null,
