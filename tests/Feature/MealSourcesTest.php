@@ -8,6 +8,7 @@ use App\Models\DataSource;
 use App\Models\FoodNutrientValue;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\Nutrition\Criteria\PersonalCriteria;
 use App\Services\Nutrition\RecipeAnalysisService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +51,7 @@ class MealSourcesTest extends TestCase
         $user = User::forceCreate(['name' => 'سامر', 'email' => uniqid().'@example.com', 'password' => 'x-secret-1', 'is_active' => true, 'email_verified_at' => now()]);
         $user->profile()->create([
             'sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => 178, 'weight_kg' => 80,
-            'activity_level' => 'light', 'goal' => 'lose', 'health_conditions' => [], 'allergies' => [], 'completed_at' => now(),
+            'activity_level' => 'light', 'goal' => 'lose', 'allergies' => [], 'completed_at' => now(),
         ]);
 
         return $user;
@@ -86,35 +87,29 @@ class MealSourcesTest extends TestCase
 
     public function test_what_would_help_is_tried_and_offered_with_a_way_to_cook_it(): void
     {
-        // A rule not verified yet (fat intolerance's 15 g a meal, before step 7 found no figure).
-        config(['nutrition_criteria.conditions.fat_intolerance.criteria' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]]]);
-        // Fat intolerance's 15 g a meal is not verified yet: 24 g changes no verdict, but leaving
-        // the oil off and cutting the tahini brings the plate within it (step 6, decision 2a).
+        // The nutritionist's 15 g of fat a meal: leaving the oil off helps.
         $meal = $this->meal(kitchen: true);
         $user = $this->person();
-        $user->profile->update(['health_conditions' => ['fat_intolerance']]);
+        app(PersonalCriteria::class)->setByNutritionist($user, 'meal_fat_g', 15, User::forceCreate(['name' => 'د. ريم', 'email' => uniqid().'@example.com', 'password' => 'x-secret-1', 'is_active' => true]));
         $this->actingAs($user);
 
         $this->get(route('site.meals.show', $meal))->assertOk()
             ->assertSee('ماذا تستطيع أن تفعل')
-            ->assertSee('بلا زيت زيتون على الوجه، وطحينة')
-            ->assertSee('ضمن حد «عدم تحمّل الدسم» (قيد التوثيق، للمعلومة)')
+            ->assertSee('بلا زيت زيتون على الوجه')
             ->assertSee('اطبخها هكذا')
             ->assertSee(e(route('site.kitchen.recipe', $meal->id).'?'), false);
     }
 
     public function test_a_restaurant_dish_is_offered_only_what_can_be_asked_for_without_amounts(): void
     {
-        // A rule not verified yet (fat intolerance's 15 g a meal, before step 7 found no figure).
-        config(['nutrition_criteria.conditions.fat_intolerance.criteria' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]]]);
-        // 17 g fat a serving, 7 g of it from the oil on top: without it, 10 g, within 15 g.
+        // The nutritionist's 15 g of fat a meal; 17 g fat a serving, 7 g of it from the oil on top: without it, 10 g, within 15 g.
         $meal = $this->meal(kitchen: false, per100g: ['fat_g' => 6.8], contributions: ['fat_g' => [
             ['label' => 'طحينة', 'amount' => 16.0, 'after' => false],
             ['label' => 'زيت زيتون', 'amount' => 14.0, 'after' => true],
             ['label' => 'حمص', 'amount' => 4.0, 'after' => false],
         ]]);
         $user = $this->person();
-        $user->profile->update(['health_conditions' => ['fat_intolerance']]);
+        app(PersonalCriteria::class)->setByNutritionist($user, 'meal_fat_g', 15, User::forceCreate(['name' => 'د. ريم', 'email' => uniqid().'@example.com', 'password' => 'x-secret-1', 'is_active' => true]));
         $this->actingAs($user);
 
         $this->get(route('site.meals.show', $meal))->assertOk()

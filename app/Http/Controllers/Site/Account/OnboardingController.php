@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Site\Account;
 use App\Enums\ActivityLevel;
 use App\Enums\Allergen;
 use App\Enums\Goal;
-use App\Enums\HealthCondition;
 use App\Enums\OnboardingStep;
 use App\Enums\Sex;
 use App\Http\Controllers\Controller;
@@ -37,10 +36,7 @@ class OnboardingController extends Controller
             'options' => match ($step) {
                 OnboardingStep::Body => ['sexes' => Sex::cases()],
                 OnboardingStep::Activity => ['levels' => ActivityLevel::cases(), 'goals' => Goal::cases()],
-                OnboardingStep::Health => [
-                    'groups' => HealthCondition::grouped($profile->sex),
-                    'allergens' => Allergen::cases(),
-                ],
+                OnboardingStep::Health => ['allergens' => Allergen::cases()],
             },
         ]);
     }
@@ -61,7 +57,7 @@ class OnboardingController extends Controller
 
     public function storeHealth(HealthStepRequest $request, UserProfileService $profiles): RedirectResponse
     {
-        $profiles->saveHealth($request->user(), $request->conditions(), $request->allergens());
+        $profiles->saveHealth($request->user(), $request->allergens());
 
         return redirect()->route('site.onboarding.done');
     }

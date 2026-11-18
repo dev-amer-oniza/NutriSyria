@@ -191,8 +191,4 @@
     .ns-verdict--sm .ns-verdict__meter i { height: 8px; }
     .ns-fit__notes { margin: 0; padding-inline-start: var(--space-5); font-size: 13px; line-height: 22px; color: var(--ink-muted); }
     /* Step 2: what the verdict stands on, and rules not verified yet (shown, never judged). */
-    .ns-fit__general { margin: calc(-1 * var(--space-2)) 0 0; font-size: 12px; line-height: 18px; font-weight: 600; color: var(--ink-muted); }
-    .ns-fit__info { margin: 0; padding: var(--space-2) var(--space-3); list-style: none; font-size: 13px; line-height: 21px; color: var(--ink-muted); background: var(--sand); border-radius: var(--radius-md); }
-    .ns-fit__info li + li { margin-top: var(--space-1); }
-    .ns-fit__grounds { margin: 0; padding: var(--space-2) var(--space-3); font-size: 12px; line-height: 19px; color: var(--pine); background: var(--pine-soft); border-radius: var(--radius-md); }
 }

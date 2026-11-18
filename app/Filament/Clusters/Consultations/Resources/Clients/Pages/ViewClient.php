@@ -8,7 +8,6 @@ use App\Enums\ActivityLevel;
 use App\Enums\Allergen;
 use App\Enums\CriterionSource;
 use App\Enums\Goal;
-use App\Enums\HealthCondition;
 use App\Enums\Sex;
 use App\Filament\Clusters\Consultations\Resources\Clients\ClientResource;
 use App\Models\ConsultationRequest;
@@ -24,7 +23,6 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Arr;
@@ -117,29 +115,18 @@ class ViewClient extends Page
             ->authorize('view', $this->record)
             ->modalHeading(fn () => 'بيانات '.$this->record->user->name)
             ->modalDescription('لا يستطيع المراجع تعديلها ما دام الارتباط قائماً. يصله إشعار بالتحديث.')
-            ->fillForm(function () {
-                $data = Arr::only($this->record->user->profile?->attributesToArray() ?? [], [
-                    'sex', 'birth_year', 'height_cm', 'weight_kg', 'activity_level', 'goal', 'health_conditions', 'allergies',
-                ]);
-                // The old "الكبد الوبائي أو التليّف" is no longer offered: the nutritionist picks the right one.
-                $data['health_conditions'] = array_values(array_filter($data['health_conditions'] ?? [],
-                    fn ($c) => ! (HealthCondition::tryFrom((string) $c)?->isLegacy() ?? false)));
-
-                return $data;
-            })
+            ->fillForm(fn () => Arr::only($this->record->user->profile?->attributesToArray() ?? [], [
+                'sex', 'birth_year', 'height_cm', 'weight_kg', 'activity_level', 'goal', 'allergies',
+            ]))
             ->schema([
                 Grid::make(2)->schema([
-                    Select::make('sex')->label('الجنس')->options($options(Sex::cases()))->required()->live(),
+                    Select::make('sex')->label('الجنس')->options($options(Sex::cases()))->required(),
                     TextInput::make('birth_year')->label('سنة الميلاد')->integer()->required()->minValue($year - 100)->maxValue($year - 10),
                     TextInput::make('height_cm')->label('الطول')->suffix('سم')->numeric()->required()->minValue(120)->maxValue(230),
                     TextInput::make('weight_kg')->label('الوزن')->suffix('كغ')->numeric()->required()->minValue(30)->maxValue(300),
                     Select::make('activity_level')->label('النشاط')->options($options(ActivityLevel::cases()))->required(),
                     Select::make('goal')->label('الهدف')->options($options(Goal::cases()))->required(),
                 ]),
-                CheckboxList::make('health_conditions')->label('الحالات الصحية')
-                    ->options(fn (Get $get) => $options(array_filter(HealthCondition::offered(), fn (HealthCondition $c) => $c->appliesTo(Sex::tryFrom((string) $get('sex'))))))
-                    ->descriptions(array_filter(array_column(array_map(fn (HealthCondition $c) => [$c->value, $c->hint()], HealthCondition::cases()), 1, 0)))
-                    ->columns(3),
                 CheckboxList::make('allergies')->label('الحساسيات')->options($options(Allergen::cases()))->columns(4),
             ])
             ->action(function (array $data) {

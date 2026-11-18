@@ -12,7 +12,7 @@ use App\Enums\Sex;
  * plus the chosen change; the calories shared between carbohydrate, protein and fat by %;
  * and the fluids. Rules and limits are in config/nutrition_criteria.php (plan).
  *
- * Profile keys: sex, age, height_cm, weight_kg, conditions (list).
+ * Profile keys: sex, age, height_cm, weight_kg.
  * Plan keys: equation, body_fat_pct (nullable), activity (level key), adjustment (kcal),
  * carbs_pct, protein_pct, fat_pct, fluids_ml (nullable), and optionally meals: a list of
  * {type, label, time, share_pct, carbs_g, protein_g, fat_g} (phase 2).
@@ -46,9 +46,6 @@ final class NutritionPlanCalculator
         if ($target !== null && $target < $minimum) {
             $warnings[] = 'السعرات أقل من الحد الأدنى الآمن الذي نستعمله تلقائياً ('.number_format($minimum).' سعرة). تأكد أنها مقصودة وتحت متابعتك.';
         }
-        if ($adjustment < 0 && $this->forbidsDeficit($profile['conditions'] ?? [])) {
-            $warnings[] = 'حالة المراجع (الحمل أو سكري الحمل) لا ننقص فيها السعرات تلقائياً.';
-        }
 
         $macros = [];
         foreach (self::MACROS as $macro => $field) {
@@ -64,9 +61,6 @@ final class NutritionPlanCalculator
         [$meals, $remaining] = $this->meals($plan['meals'] ?? [], $target, $macros, $errors, $warnings);
 
         $fluids = $this->fluids($profile, $plan['fluids_ml'] ?? null);
-        if ($fluids['manual'] && $fluids['ml'] === null) {
-            $errors[] = 'حالة المراجع تحتاج تحديد السوائل يدوياً حسب توصية الطبيب.';
-        }
 
         return new NutritionPlanResult(
             bmr: $bmr === null ? null : (int) round($bmr),
@@ -182,28 +176,13 @@ final class NutritionPlanCalculator
         return $value == floor($value) ? (int) $value : $value;
     }
 
-    /** @return array{ml: ?int, suggested: ?int, manual: bool} */
+    /** @return array{ml: ?int, suggested: int} */
     private function fluids(array $profile, mixed $typed): array
     {
         $rules = $this->rules['plan'];
-        $manual = (bool) array_intersect($profile['conditions'] ?? [], $rules['fluids_manual_for']);
-        $suggested = $manual ? null
-            : (int) (round($profile['weight_kg'] * $rules['fluids_ml_per_kg'] / $rules['fluids_step']) * $rules['fluids_step']);
+        $suggested = (int) (round($profile['weight_kg'] * $rules['fluids_ml_per_kg'] / $rules['fluids_step']) * $rules['fluids_step']);
         $typed = $typed === null || $typed === '' ? null : (int) $typed;
 
-        return ['ml' => $typed ?? $suggested, 'suggested' => $suggested, 'manual' => $manual];
-    }
-
-    /** Pregnancy and gestational diabetes bring templates that never take a deficit. */
-    private function forbidsDeficit(array $conditions): bool
-    {
-        foreach ($conditions as $condition) {
-            $template = $this->rules['conditions'][$condition]['template'] ?? null;
-            if ($template && ($this->rules['templates'][$template]['no_deficit'] ?? false)) {
-                return true;
-            }
-        }
-
-        return false;
+        return ['ml' => $typed ?? $suggested, 'suggested' => $suggested];
     }
 }

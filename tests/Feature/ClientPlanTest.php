@@ -21,8 +21,8 @@ use Tests\TestCase;
 
 /**
  * The nutritionist's nutrition plan, phase 1 (decisions 1a 2a 3a). The client (fixtures) is a
- * woman of 34, 165 cm, 78 kg, lightly active, with diabetes, aiming to lose weight: Mifflin
- * 1480 at rest, 2294 a day (light ×1.55), 1790 after the standard deficit, 1540 after −750; diabetes shares 45/20/35.
+ * woman of 34, 165 cm, 78 kg, lightly active, aiming to lose weight: Mifflin 1480 at rest,
+ * 2294 a day (light ×1.55), 1790 after the standard deficit, 1540 after −750; balanced shares 50/20/30.
  */
 class ClientPlanTest extends TestCase
 {
@@ -59,7 +59,7 @@ class ClientPlanTest extends TestCase
             ->assertSet('data.equation', 'mifflin')
             ->assertSet('data.activity', 'light')
             ->assertSet('data.adjustment', -500)
-            ->assertSet('data.carbs_pct', 45)
+            ->assertSet('data.carbs_pct', 50)
             ->assertSee('1,480')       // BMR
             ->assertSee('2,294')       // daily need
             ->assertSee('1,790')       // final calories
@@ -94,7 +94,7 @@ class ClientPlanTest extends TestCase
     {
         $this->plan()
             ->set('data.carbs_pct', 60)
-            ->assertSee('مجموع النسب 115%، ويجب أن يكون 100%.')
+            ->assertSee('مجموع النسب 110%، ويجب أن يكون 100%.')
             ->call('save')
             ->assertNotified('لم تُحفظ الخطة');
 
@@ -110,14 +110,6 @@ class ClientPlanTest extends TestCase
         $this->assertSame(35.0, NutritionPlan::firstOrFail()->body_fat_pct);
     }
 
-    public function test_for_dialysis_the_fluids_must_be_typed(): void
-    {
-        $this->link->user->profile->update(['health_conditions' => ['dialysis']]);
-
-        $this->plan()->assertSee('توصية الطبيب')->call('save')->assertHasFormErrors(['fluids_ml' => 'required']);
-        $this->plan()->set('data.fluids_ml', 1000)->call('save')->assertHasNoFormErrors();
-    }
-
     public function test_a_new_weight_keeps_the_plan_in_step_and_removing_it_restores_the_template(): void
     {
         $workspace = app(ClientWorkspace::class);
@@ -128,7 +120,7 @@ class ClientPlanTest extends TestCase
         $profile = $this->link->user->profile;
         $workspace->updateProfile($nutritionist, $this->link, [
             'sex' => 'female', 'birth_year' => $profile->birth_year, 'height_cm' => 165, 'weight_kg' => 70,
-            'activity_level' => 'light', 'goal' => 'lose', 'health_conditions' => ['diabetes'], 'allergies' => [],
+            'activity_level' => 'light', 'goal' => 'lose', 'allergies' => [],
         ]);
         $this->assertSame(1420.0, $this->value('energy_kcal'));   // 80 kcal less at rest × 1.55 = 124 less
 
@@ -151,10 +143,10 @@ class ClientPlanTest extends TestCase
         $meals = array_values($page->get('data.meals'));
         $this->assertSame(['breakfast', 'snack', 'lunch', 'snack', 'dinner'], array_column($meals, 'type'));
         $this->assertSame([25, 10, 35, 10, 20], array_column($meals, 'share_pct'));
-        // 1790 kcal, diabetes 45/20/35: 201 g carbs, 90 g protein, 70 g fat, shared by the meals' calories.
-        $this->assertSame(201, array_sum(array_column($meals, 'carbs_g')));
+        // 1790 kcal, balanced 50/20/30: 224 g carbs, 90 g protein, 60 g fat, shared by the meals' calories.
+        $this->assertSame(224, array_sum(array_column($meals, 'carbs_g')));
         $this->assertSame(90, array_sum(array_column($meals, 'protein_g')));
-        $this->assertSame(70, array_sum(array_column($meals, 'fat_g')));
+        $this->assertSame(60, array_sum(array_column($meals, 'fat_g')));
         $page->assertSee('باقي للتوزيع')->assertSee('غداء');
     }
 

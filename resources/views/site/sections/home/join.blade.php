@@ -2,7 +2,7 @@
 @php($points = [
     ['icon' => 'document', 'title' => 'معلومات موثوقة', 'text' => 'كل رقم بمصدره، ويراجعه أخصائي تغذية', 'route' => 'site.method'],
     ['icon' => 'chart', 'title' => 'تحليل دقيق', 'text' => 'القيم الغذائية لكل حصة من كل وجبة', 'route' => 'site.meals'],
-    ['icon' => 'leaf', 'title' => 'مناسب لك', 'text' => 'حكم حسب جسمك وهدفك وحالتك الصحية', 'route' => 'site.goals'],
+    ['icon' => 'leaf', 'title' => 'مناسب لك', 'text' => 'حكم حسب جسمك ونشاطك وهدفك', 'route' => 'site.goals'],
 ])
 <section class="ns-join" aria-labelledby="join-title">
     <div class="ns-wrap ns-join__in">

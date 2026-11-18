@@ -22,11 +22,11 @@ class MealSuggestionsTest extends TestCase
         $this->rules = require __DIR__.'/../../config/nutrition_criteria.php';
     }
 
-    private function sheet(array $conditions = [], array $allergens = []): CriteriaSheet
+    private function sheet(array $allergens = []): CriteriaSheet
     {
         return (new CriteriaCalculator($this->rules))->calculate([
             'sex' => 'male', 'age' => 30, 'height_cm' => 170, 'weight_kg' => 70,
-            'activity' => 'light', 'goal' => 'maintain', 'conditions' => $conditions, 'allergens' => $allergens,
+            'activity' => 'light', 'goal' => 'maintain', 'allergens' => $allergens,
         ]);
     }
 
@@ -65,7 +65,6 @@ class MealSuggestionsTest extends TestCase
         $this->assertLessThanOrEqual(MealSuggestions::MAX, count($suggestions));
         $calculator = new MealFitCalculator($this->rules);
         foreach ($suggestions as $s) {
-            $this->assertTrue($s->improved);
             $this->assertGreaterThan($fit->level, $s->level);
             $this->assertSame('fat_g', $s->nutrient);
             // The level said is the level the changed meal really gets.
@@ -105,22 +104,16 @@ class MealSuggestionsTest extends TestCase
         $this->assertNull($suggestions[0]->nutrient);
     }
 
-    public function test_a_limit_not_verified_yet_gets_a_change_to_come_within_it_without_a_verdict(): void
+    public function test_two_changes_together_when_no_one_change_is_enough(): void
     {
-        // Fat intolerance's 15 g a meal waits for its references: the verdict stays, but the
-        // oil and some tahini together bring the plate within it (decision 2a).
-        // (The 15 g as it was before step 7 found no figure for it: a rule not verified yet.)
-        $this->rules['conditions']['fat_intolerance']['criteria'] = ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]];
-        $meal = $this->meal([['طحينة', 30, 14.0, false], ['زيت زيتون', 7, 7.0, true], ['حمص', 120, 3.3, false]]);
-        [$fit, $suggestions] = $this->suggest($this->sheet(['fat_intolerance']), $meal);
+        // 45 g of fat from three equal parts, 83% over the meal's 24.6 g: halving one leaves it
+        // past half again, two together bring it within a quarter (decision 2a).
+        $meal = $this->meal([['طحينة', 30, 15.0, false], ['حمص', 120, 15.0, false], ['لحمة', 60, 15.0, false]]);
+        [$fit, $suggestions] = $this->suggest($this->sheet(), $meal);
 
-        $this->assertSame(['fat_g'], $fit->infoCauses);
         $this->assertNotEmpty($suggestions);
-        $this->assertFalse($suggestions[0]->improved);
-        $this->assertSame($fit->level, $suggestions[0]->level);
-        $this->assertSame('عدم تحمّل الدسم', $suggestions[0]->within);
         $this->assertCount(2, $suggestions[0]->changes, 'no one change is enough here');
-        $this->assertLessThanOrEqual(15, $suggestions[0]->amount);
+        $this->assertGreaterThan($fit->level, $suggestions[0]->level);
     }
 
     public function test_nothing_is_offered_for_an_allergen_or_a_meal_already_within(): void

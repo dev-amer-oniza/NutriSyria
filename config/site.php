@@ -71,8 +71,6 @@ return [
     'goals' => [
         'weight-loss' => ['icon' => 'scale', 'label' => 'خفض الوزن'],
         'muscle' => ['icon' => 'chart', 'label' => 'بناء العضلات'],
-        'diabetes' => ['icon' => 'drop', 'label' => 'السكري'],
-        'heart' => ['icon' => 'heart', 'label' => 'صحة القلب'],
         'fiber' => ['icon' => 'leaf', 'label' => 'ألياف أكثر'],
         'balanced' => ['icon' => 'bowl', 'label' => 'وجبات متوازنة'],
     ],

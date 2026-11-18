@@ -6,7 +6,6 @@ use App\Data\Nutrition\CriteriaSheet;
 use App\Data\Nutrition\CriterionValue;
 use App\Enums\ConsultationStatus;
 use App\Enums\CriterionSource;
-use App\Exceptions\CriterionLocked;
 use App\Models\NutritionPlan;
 use App\Models\User;
 use App\Models\UserCriterion;
@@ -18,17 +17,12 @@ use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
 /**
- * A person's final criteria. The diet template is resolved first (the nutritionist's
- * choice, else the person's, else the one their conditions bring), then each criterion on
- * its own: the nutritionist's value, else the person's own, else the default computed from
- * the profile and template. What the nutritionist set is locked for the person (the
- * owner's decision). Every change is logged.
+ * A person's final criteria: computed from their profile (CriteriaCalculator), with the
+ * template and the values their nutritionist set on top. A person does not change their
+ * criteria by hand; they change their profile (the owner's decision 3a). Every change is logged.
  */
 class PersonalCriteria
 {
-    /** The first source found wins: the nutritionist, then a number from the doctor, then the person's own. */
-    private const PRECEDENCE = [CriterionSource::Nutritionist, CriterionSource::Doctor, CriterionSource::User];
-
     /** The sheet for a person; null while the profile is incomplete or under the minimum age. */
     public function for(User $user): ?CriteriaSheet
     {
@@ -82,33 +76,6 @@ class PersonalCriteria
         return $meals && $energy ? NutritionPlans::referenceMeal(is_array($meals) ? $meals : json_decode($meals, true), $energy) : null;
     }
 
-    /** @return array<string, array> the templates a person may pick for themselves */
-    public static function selectableTemplates(): array
-    {
-        return array_filter(config('nutrition_criteria.templates'), fn (array $t) => $t['selectable'] ?? false);
-    }
-
-    public function chooseTemplateByUser(User $user, string $template): void
-    {
-        if (! array_key_exists($template, self::selectableTemplates())) {
-            throw new InvalidArgumentException("Template [$template] is not for a person to pick.");
-        }
-        if ($this->templateLockedFor($user)) {
-            throw new CriterionLocked;
-        }
-
-        $this->storeTemplate($user, CriterionSource::User, $template, null, $user);
-    }
-
-    public function resetTemplateByUser(User $user): void
-    {
-        if ($this->templateLockedFor($user)) {
-            throw new CriterionLocked;
-        }
-
-        $this->forgetTemplate($user, CriterionSource::User, $user);
-    }
-
     /**
      * The nutritionist's choice: any template from the library. Callers check the link first
      * (App\Services\Consultations\ClientWorkspace); these rules never do.
@@ -126,36 +93,6 @@ class PersonalCriteria
     public function resetTemplateByNutritionist(User $user, User $nutritionist): void
     {
         $this->forgetTemplate($user, CriterionSource::Nutritionist, $nutritionist);
-    }
-
-    public function templateLockedFor(User $user): bool
-    {
-        return UserDietTemplate::where('user_id', $user->getKey())->where('source', CriterionSource::Nutritionist)->exists();
-    }
-
-    /**
-     * The person's own value, or the one their doctor gave them ($fromDoctor, step 2 decision
-     * 4a: it judges like a strict limit). One of the two at a time.
-     */
-    public function setByUser(User $user, string $criterion, float $value, bool $fromDoctor = false): void
-    {
-        if ($this->lockedFor($user, $criterion)) {
-            throw new CriterionLocked;
-        }
-
-        [$source, $other] = $fromDoctor ? [CriterionSource::Doctor, CriterionSource::User] : [CriterionSource::User, CriterionSource::Doctor];
-        $this->store($user, $criterion, $source, $value, null, $user);
-        $this->forget($user, $criterion, $other, $user);
-    }
-
-    public function resetByUser(User $user, string $criterion): void
-    {
-        if ($this->lockedFor($user, $criterion)) {
-            throw new CriterionLocked;
-        }
-
-        $this->forget($user, $criterion, CriterionSource::User, $user);
-        $this->forget($user, $criterion, CriterionSource::Doctor, $user);
     }
 
     /** The nutritionist's value (ClientWorkspace checks the link and the range first). */
@@ -177,14 +114,6 @@ class PersonalCriteria
         UserCriterion::where('user_id', $user->getKey())->where('source', CriterionSource::Nutritionist)
             ->pluck('criterion')
             ->each(fn (string $criterion) => $this->forget($user, $criterion, CriterionSource::Nutritionist, $by));
-    }
-
-    public function lockedFor(User $user, string $criterion): bool
-    {
-        return UserCriterion::where('user_id', $user->getKey())
-            ->where('criterion', $criterion)
-            ->where('source', CriterionSource::Nutritionist)
-            ->exists();
     }
 
     /** @return array{0: float, 1: float} the range a value may take */
@@ -228,15 +157,7 @@ class PersonalCriteria
 
     private function chosenTemplate(User $user): ?UserDietTemplate
     {
-        $rows = UserDietTemplate::where('user_id', $user->getKey())->get();
-
-        foreach (self::PRECEDENCE as $source) {
-            if ($row = $rows->first(fn (UserDietTemplate $r) => $r->source === $source)) {
-                return $row;
-            }
-        }
-
-        return null;
+        return UserDietTemplate::where('user_id', $user->getKey())->where('source', CriterionSource::Nutritionist)->first();
     }
 
     private function storeTemplate(User $user, CriterionSource $source, string $template, ?string $note, ?User $by): void
@@ -261,16 +182,10 @@ class PersonalCriteria
     /** @param  Collection<int, UserCriterion>  $rows */
     private function winning(Collection $rows): ?UserCriterion
     {
-        foreach (self::PRECEDENCE as $source) {
-            if ($row = $rows->first(fn (UserCriterion $r) => $r->source === $source)) {
-                return $row;
-            }
-        }
-
-        return null;
+        return $rows->first(fn (UserCriterion $r) => $r->source === CriterionSource::Nutritionist);
     }
 
-    /** A criterion with no default for this person (a meal carbohydrate limit without diabetes), switched on by a person or nutritionist. */
+    /** A criterion with no default (a meal carbohydrate limit), switched on by the nutritionist. */
     private function activated(string $key, UserCriterion $row): ?CriterionValue
     {
         $definition = config("nutrition_criteria.criteria.$key");
@@ -291,7 +206,6 @@ class PersonalCriteria
             'weight_kg' => $profile->weight_kg,
             'activity' => $profile->activity_level->value,
             'goal' => $profile->goal->value,
-            'conditions' => $profile->health_conditions ?? [],
             'allergens' => $profile->allergies ?? [],
         ];
     }

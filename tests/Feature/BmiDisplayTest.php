@@ -26,7 +26,7 @@ class BmiDisplayTest extends TestCase
         $user = User::forceCreate(['name' => 'سامر', 'email' => uniqid().'@example.com', 'password' => 'x-secret-1', 'is_active' => true, 'email_verified_at' => now()]);
         $user->profile()->create($profile + [
             'sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => 178, 'weight_kg' => 80,
-            'activity_level' => 'moderate', 'goal' => 'maintain', 'health_conditions' => [], 'allergies' => [], 'completed_at' => now(),
+            'activity_level' => 'moderate', 'goal' => 'maintain', 'allergies' => [], 'completed_at' => now(),
         ]);
 
         return $user->fresh();
@@ -62,16 +62,5 @@ class BmiDisplayTest extends TestCase
         $this->actingAs($client->fresh())->get(route('site.criteria'))->assertOk()
             ->assertSee('لا ننصحك بإنقاص الوزن')
             ->assertDontSee('غيّر هدفك');
-    }
-
-    public function test_in_pregnancy_the_number_shows_without_a_class(): void
-    {
-        $this->actingAs($this->person(['sex' => 'female', 'weight_kg' => 95, 'goal' => 'gain', 'health_conditions' => ['pregnant_or_breastfeeding']]));
-
-        $this->get(route('site.criteria'))->assertOk()
-            ->assertSee('30.0')
-            ->assertSee('في الحمل والرضاعة لا يعبّر المؤشر عن حالتك')
-            ->assertDontSee('أعلى بكثير من الطبيعي')
-            ->assertDontSee('قد لا تناسبك زيادة الوزن');
     }
 }

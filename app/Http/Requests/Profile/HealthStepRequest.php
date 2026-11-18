@@ -3,29 +3,16 @@
 namespace App\Http\Requests\Profile;
 
 use App\Enums\Allergen;
-use App\Enums\HealthCondition;
-use Closure;
 use Illuminate\Validation\Rule;
 
-/** The optional step. Anything chosen needs the person's consent to keep it. */
+/** The allergies step. Anything chosen needs the person's consent to keep it. */
 class HealthStepRequest extends ProfileFormRequest
 {
     public function rules(): array
     {
-        $chosen = filled($this->input('conditions')) || filled($this->input('allergies'));
-        $sex = $this->user()->profile?->sex;
+        $chosen = filled($this->input('allergies'));
 
         return [
-            'conditions' => ['nullable', 'array'],
-            'conditions.*' => ['distinct', Rule::enum(HealthCondition::class),
-                function (string $attribute, mixed $value, Closure $fail) use ($sex) {
-                    $condition = HealthCondition::from($value);
-                    if ($condition->isLegacy()) {
-                        $fail('هذا الخيار لم يعد موجوداً: اختر الحالة الأدق من «الكبد».');
-                    } elseif (! $condition->appliesTo($sex)) {
-                        $fail('هذا الخيار للنساء فقط.');
-                    }
-                }],
             'allergies' => ['nullable', 'array'],
             'allergies.*' => ['distinct', Rule::enum(Allergen::class)],
             'consent' => $chosen ? ['accepted'] : ['nullable'],
@@ -35,12 +22,6 @@ class HealthStepRequest extends ProfileFormRequest
     public function messages(): array
     {
         return ['consent.accepted' => 'وافق على حفظ معلوماتك الصحية، أو أزل اختياراتك.'];
-    }
-
-    /** @return list<HealthCondition> */
-    public function conditions(): array
-    {
-        return array_map(HealthCondition::from(...), $this->validated('conditions') ?? []);
     }
 
     /** @return list<Allergen> */

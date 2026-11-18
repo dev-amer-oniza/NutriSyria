@@ -234,7 +234,7 @@ class ConsultationTest extends TestCase
 
         $criteria = app(PersonalCriteria::class);
         $criteria->setByNutritionist($client, 'sodium_mg', 1500, $profile->user, 'ضغط مرتفع');
-        $this->assertTrue($criteria->lockedFor($client, 'sodium_mg'));
+        $this->assertSame(CriterionSource::Nutritionist, $criteria->for($client)->get('sodium_mg')->source);
 
         $this->actingAs($client)->get(route('site.my-nutritionist'))
             ->assertSee('أخصائيّك الآن')->assertSee('تواصل على واتساب')->assertSee('إنهاء الارتباط');
@@ -245,7 +245,7 @@ class ConsultationTest extends TestCase
         $request->refresh();
         $this->assertSame(ConsultationStatus::Ended, $request->status);
         $this->assertSame($client->id, (int) $request->ended_by);
-        $this->assertFalse($criteria->lockedFor($client, 'sodium_mg'));
+        $this->assertSame(CriterionSource::Default, $criteria->for($client)->get('sodium_mg')->source);
         $this->assertSame(0, UserCriterion::where('user_id', $client->id)->where('source', CriterionSource::Nutritionist)->count());
         Notification::assertSentTo($profile->user, DatabaseNotification::class,
             fn (DatabaseNotification $n) => str_contains(json_encode($n->data, JSON_UNESCAPED_UNICODE), 'أنهى'));

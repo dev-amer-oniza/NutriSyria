@@ -41,37 +41,10 @@
     <section class="ns-section" aria-labelledby="next-title">
         <div class="ns-wrap ns-partners__cta">
             <div>
-                <h2 class="t-title" id="next-title">لا نقول "وجبة مناسبة لمرضى السكري"</h2>
-                <p class="t-body ns-muted">نفس الطبق قد يناسب شخصاً ولا يناسب آخر عنده نفس الهدف، حسب جسمه ونشاطه وحالته. لذلك نقيّم كل وجبة لك أنت. {{ $next['text'] }}</p>
+                <h2 class="t-title" id="next-title">لا نقول "وجبة مناسبة لإنقاص الوزن"</h2>
+                <p class="t-body ns-muted">نفس الطبق قد يناسب شخصاً ولا يناسب آخر عنده نفس الهدف، حسب جسمه ونشاطه. لذلك نقيّم كل وجبة لك أنت. {{ $next['text'] }}</p>
             </div>
             <a class="ns-btn ns-btn--primary" href="{{ $next['url'] }}">{{ $next['label'] }}</a>
-        </div>
-    </section>
-
-    <section class="ns-section ns-section--sand" aria-labelledby="conditions-title">
-        <div class="ns-wrap">
-            <div class="ns-section__head">
-                <div>
-                    <p class="ns-eyebrow">الحالات الصحية</p>
-                    <h2 class="t-title" id="conditions-title">كل الحالات التي نحسب لها</h2>
-                    <p class="t-lead ns-muted">حين تضيف حالة إلى سجلك الصحي، نختار القالب المناسب لها ونطبّق حدودها. وإن كانت عندك أكثر من حالة، يغلب الحد الأشد.</p>
-                </div>
-            </div>
-            <div class="ns-conditions">
-                @foreach ($conditions as $group)
-                    <section class="ns-conditions__group" aria-label="{{ $group['label'] }}">
-                        <h3 class="ns-feature__title">{{ $group['label'] }}</h3>
-                        <dl>
-                            @foreach ($group['conditions'] as $condition)
-                                <div class="ns-condition">
-                                    <dt>{{ $condition['label'] }}@if ($condition['specialist']) <span class="ns-condition__tag">ننصح بأخصائي</span>@endif</dt>
-                                    <dd>@if ($condition['template'])<span class="ns-condition__template">{{ $condition['template'] }}:</span> @endif{{ $condition['text'] }}@if ($condition['hint'])<span class="ns-condition__hint">{{ $condition['hint'] }}</span>@endif</dd>
-                                </div>
-                            @endforeach
-                        </dl>
-                    </section>
-                @endforeach
-            </div>
         </div>
     </section>
 
@@ -80,7 +53,7 @@
             <div>
                 <p class="ns-eyebrow">قبل أن تبدأ</p>
                 <h2 class="t-title" id="doctor-title">هذا ليس بديلاً عن طبيبك</h2>
-                <p class="t-body">أرقامنا محسوبة بمعادلات عامة معتمدة عالمياً، وتساعدك على الاختيار. لكنها لا تشخّص ولا تعالج. إن كانت عندك حالة صحية، فالقرار لطبيبك وأخصائي التغذية.</p>
+                <p class="t-body">أرقامنا محسوبة بمعادلات عامة معتمدة عالمياً، وتساعدك على الاختيار. لكنها لا تشخّص ولا تعالج. NutriSyria حالياً للبالغين الأصحاء ومن يمارسون الرياضة: إن كانت عندك حالة صحية، أو كنتِ حاملاً أو مرضعة، فالقرار لطبيبك وأخصائي التغذية.</p>
             </div>
             @include('site.components.nutritionist-cta')
         </div>

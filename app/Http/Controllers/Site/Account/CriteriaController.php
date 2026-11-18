@@ -3,10 +3,7 @@
 namespace App\Http\Controllers\Site\Account;
 
 use App\Enums\OnboardingStep;
-use App\Exceptions\CriterionLocked;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Profile\CriterionRequest;
-use App\Http\Requests\Profile\TemplateRequest;
 use App\Services\Consultations\ConsultationService;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
 use App\Services\Nutrition\Plan\NutritionPlans;
@@ -15,7 +12,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
-/** "My criteria": see each one and where it comes from, change it, or put it back. */
+/** "My criteria": see each one and where it comes from (read only; the profile changes them). */
 class CriteriaController extends Controller
 {
     public function index(Request $request, PersonalCriteria $criteria, ConsultationService $consultations, NutritionPlans $plans): View|RedirectResponse
@@ -33,8 +30,6 @@ class CriteriaController extends Controller
             'profile' => $profile,
             'sheet' => $criteria->for($request->user()),
             'bmi' => $profile->bmi(),
-            'selectableTemplates' => PersonalCriteria::selectableTemplates(),
-            'templateLocked' => $criteria->templateLockedFor($request->user()),
             // With a nutritionist (or a request out), the "choose a nutritionist" advice is not shown.
             'consultation' => $consultation,
             // The nutritionist's plan, results only (3a), while the link lasts (4a).
@@ -43,50 +38,6 @@ class CriteriaController extends Controller
             // Linked to a nutritionist: everything here is read only (EnsureProfileUnlocked).
             'managed' => $consultations->isManaged($request->user()),
         ]);
-    }
-
-    public function update(CriterionRequest $request, string $criterion, PersonalCriteria $criteria): RedirectResponse
-    {
-        try {
-            $criteria->setByUser($request->user(), $criterion, (float) $request->validated('value'), $request->boolean('from_doctor'));
-        } catch (CriterionLocked $e) {
-            return back()->with('error', $e->userMessage());
-        }
-
-        return back()->with('status', 'حُفظ المعيار. ستُقيَّم الوجبات به من الآن.');
-    }
-
-    public function reset(Request $request, string $criterion, PersonalCriteria $criteria): RedirectResponse
-    {
-        try {
-            $criteria->resetByUser($request->user(), $criterion);
-        } catch (CriterionLocked $e) {
-            return back()->with('error', $e->userMessage());
-        }
-
-        return back()->with('status', 'عاد المعيار إلى القيمة المحسوبة تلقائياً.');
-    }
-
-    public function chooseTemplate(TemplateRequest $request, PersonalCriteria $criteria): RedirectResponse
-    {
-        try {
-            $criteria->chooseTemplateByUser($request->user(), $request->validated('template'));
-        } catch (CriterionLocked) {
-            return back()->with('error', 'اختار أخصائيّك قالبك. تواصل معه إن أردت تغييره.');
-        }
-
-        return back()->with('status', 'تغيّر قالبك، وأُعيد حساب الكربوهيدرات والبروتين والدهون.');
-    }
-
-    public function resetTemplate(Request $request, PersonalCriteria $criteria): RedirectResponse
-    {
-        try {
-            $criteria->resetTemplateByUser($request->user());
-        } catch (CriterionLocked) {
-            return back()->with('error', 'اختار أخصائيّك قالبك. تواصل معه إن أردت تغييره.');
-        }
-
-        return back()->with('status', 'عاد قالبك إلى ما يناسب حالتك تلقائياً.');
     }
 
     public function destroyHealth(Request $request, UserProfileService $profiles): RedirectResponse

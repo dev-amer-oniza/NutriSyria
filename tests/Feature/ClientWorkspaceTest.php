@@ -119,14 +119,13 @@ class ClientWorkspaceTest extends TestCase
         $sheet = app(PersonalCriteria::class)->for($link->user);
         $this->assertSame('mediterranean', $sheet->template['key']);
         $this->assertSame(CriterionSource::Nutritionist, $sheet->template['source']);
-        $this->assertTrue(app(PersonalCriteria::class)->templateLockedFor($link->user));
 
         Notification::assertSentTo($link->user, SiteNotification::class, fn ($n) => str_contains($n->title, 'حدّث'));
 
         Livewire::test(ViewClient::class, ['record' => $link->id])
             ->callAction('resetTemplate')
             ->assertNotified('عاد القالب.');
-        $this->assertSame('diabetes', app(PersonalCriteria::class)->for($link->user)->template['key']);
+        $this->assertSame('balanced', app(PersonalCriteria::class)->for($link->user)->template['key']);
     }
 
     public function test_the_nutritionist_sets_and_resets_a_criterion(): void
@@ -147,11 +146,11 @@ class ClientWorkspaceTest extends TestCase
         $sodium = $criteria->for($link->user)->get('sodium_mg');
         $this->assertSame(1500.0, $sodium->value);
         $this->assertSame('ضغطك مرتفع.', $sodium->note);
-        $this->assertTrue($criteria->lockedFor($link->user, 'sodium_mg'));
+        $this->assertSame(CriterionSource::Nutritionist, $criteria->for($link->user)->get('sodium_mg')->source);
 
         Livewire::test(ViewClient::class, ['record' => $link->id])
             ->callAction(TestAction::make('resetCriterion')->arguments(['criterion' => 'sodium_mg']));
-        $this->assertFalse($criteria->lockedFor($link->user, 'sodium_mg'));
+        $this->assertSame(CriterionSource::Default, $criteria->for($link->user)->get('sodium_mg')->source);
     }
 
     public function test_one_email_per_editing_session(): void
@@ -184,9 +183,8 @@ class ClientWorkspaceTest extends TestCase
             ->assertOk()
             ->assertSee('ملاحظة أخصائيّك: لضبط الضغط.')
             ->assertSee('ضغطك مرتفع.')
-            ->assertSee('يغيّره أخصائيّك فقط');
-
-        $this->put(route('site.criteria.update', 'sodium_mg'), ['value' => 2500])->assertSessionHas('error');
+            ->assertSee('حدده أخصائيّك')
+            ->assertDontSee('تعديل</button>', false);
     }
 
     public function test_the_nutritionist_ends_the_link_with_a_reason(): void
@@ -204,7 +202,7 @@ class ClientWorkspaceTest extends TestCase
         $this->assertSame(ConsultationStatus::Ended, $link->status);
         $this->assertSame('أنهينا الخطة بنجاح.', $link->end_reason);
         $this->assertSame($reem->user_id, (int) $link->ended_by);
-        $this->assertFalse(app(PersonalCriteria::class)->lockedFor($link->user, 'sodium_mg'));
+        $this->assertSame(CriterionSource::Default, app(PersonalCriteria::class)->for($link->user)->get('sodium_mg')->source);
         Notification::assertSentTo($link->user, SiteNotification::class,
             fn ($n) => str_contains($n->title, 'أنهى') && $n->body === 'أنهينا الخطة بنجاح.');
     }

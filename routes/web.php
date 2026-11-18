@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Site\Account\ConsultationController;
 use App\Http\Controllers\Site\Account\CriteriaController;
-use App\Http\Controllers\Site\Account\LiverController;
 use App\Http\Controllers\Site\Account\NotificationController;
 use App\Http\Controllers\Site\Account\OnboardingController;
 use App\Http\Controllers\Site\Auth\EmailVerificationController;
@@ -44,7 +43,7 @@ Route::name('site.')->group(function () {
     // "Health goals": what each goal changes in our calculations (HealthGoalGuide).
     Route::get('/goals', GoalsController::class)->name('goals');
 
-    // "Sources": where the food numbers come from, and every medical limit with its references (MedicalReferences).
+    // "Sources": where the food numbers come from, and the rules that are ours.
     Route::get('/sources', SourcesController::class)->name('sources');
 
     // "How we verify": sources, calculation, review, levels and limits (DataCoverage).
@@ -121,17 +120,7 @@ Route::name('site.')->group(function () {
             Route::post('/onboarding/activity', [OnboardingController::class, 'storeActivity'])->name('onboarding.activity');
             Route::post('/onboarding/health', [OnboardingController::class, 'storeHealth'])->name('onboarding.health');
 
-            $criteria = array_keys(config('nutrition_criteria.criteria'));
-            Route::put('/account/criteria/{criterion}', [CriteriaController::class, 'update'])
-                ->whereIn('criterion', $criteria)->name('criteria.update');
-            Route::delete('/account/criteria/{criterion}', [CriteriaController::class, 'reset'])
-                ->whereIn('criterion', $criteria)->name('criteria.reset');
-            Route::put('/account/template', [CriteriaController::class, 'chooseTemplate'])->name('template.update');
-            Route::delete('/account/template', [CriteriaController::class, 'resetTemplate'])->name('template.reset');
             Route::delete('/account/health', [CriteriaController::class, 'destroyHealth'])->name('health.destroy');
-            // The old "الكبد الوبائي أو التليّف", picked again (LiverUpdate, step 3).
-            Route::get('/account/liver', [LiverController::class, 'show'])->name('liver');
-            Route::put('/account/liver', [LiverController::class, 'update'])->name('liver.update');
         });
 
         // The bell (SiteNotifications): polled by the header, a notice opens its page.

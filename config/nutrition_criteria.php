@@ -2,30 +2,21 @@
 
 /*
 | The criteria every meal is judged against, and how each one is worked out by default
-| from a person's profile (App\Services\Nutrition\Criteria). Approved by the project owner,
-| following international guidance (ADA, AHA, KDOQI, ESPEN, WHO).
+| from a person's profile (App\Services\Nutrition\Criteria).
 |
-| 1. Daily calories: Mifflin-St Jeor x activity level, plus the goal's change.
-| 2. A diet template shares those calories between carbohydrate, protein and fat (the
-|    nutritionist's way of working). The template comes from the person's conditions (the
-|    highest in 'template_priority' wins), else the default; a person may pick one of the
-|    'selectable' templates, and their nutritionist any template.
-| 3. Other criteria (sugars, fibre, sodium, saturated fat, iron...) come from their own rules.
-|    The winning template's rules apply as they are; from the other templates and the
-|    conditions only ceilings and floors apply, and the stricter one wins.
+| The platform serves healthy adults and people who train, with their allergies; health
+| conditions were removed (the owner's decision, Nov 2026; the old work is in main's history
+| at b76d834). Daily calories: Mifflin-St Jeor x activity, plus the goal's change; the
+| template shares them between carbohydrate, protein and fat. A nutritionist's value
+| overrides the computed one for their client.
 |
-| A person can override any value, and their nutritionist's value overrides both.
-|
-| References (the owner's plan for the medical part, step 1): a rule that is checked against
-| its sources names them with 'refs' (keys of config/nutrition_references.php), and 'kind'
-| says what kind of rule it is: strict (going over makes a meal unfit), tolerance, guidance
-| (a target or general advice) or shortfall (a minimum: a note only). 'info_only' rules are
-| shown but never judge a meal. A rule without 'refs' is not verified yet.
+| 'refs' name the sources of a rule (config/nutrition_references.php); 'info_only' rules are
+| shown but never judge a meal.
 |
 | Rule types (CriteriaCalculator):
 |   energy      the daily calorie target
 |   macro       the template's share of calories for carbs, protein or fat, in grams
-|   per_kg      grams per kg of body weight; 'by_goal' or a single 'value'
+|   per_kg      grams per kg of body weight
 |   energy_pct  a share of the daily calories, turned into grams with 'kcal_per_g'
 |   per_1000    grams per 1000 kcal of the daily target
 |   fixed       a fixed amount
@@ -61,16 +52,6 @@ return [
     'fit_near_pct' => 5,
 
     /*
-    | Legume fibre (the owner's decision 2a): for a person with a sensitive digestion
-    | (HealthCondition::feelsLegumeFibre), a meal with a legume ingredient and at least this
-    | much fibre in a serving gets a gentle note, never a lower level. Foods by their Arabic name.
-    */
-    'legume_fibre' => [
-        'min_fiber_g' => 5,
-        'foods' => ['حمص', 'فول', 'عدس', 'عدس أحمر', 'فاصولياء بيضاء', 'لوبيا', 'ترمس', 'بازلاء'],
-    ],
-
-    /*
     | Physical activity level => multiplier of the resting energy (App\Enums\ActivityLevel).
     | Each one inside the FAO/WHO/UNU ranges (fao_energy_2004, Table 5.3): sedentary or light
     | 1.40–1.69, active 1.70–1.99, vigorous 2.00–2.40 (the owner's decision 1a). The old
@@ -86,20 +67,16 @@ return [
     'activity_refs' => ['fao_energy_2004'],
 
     /*
-    | Calories added to the daily need for each goal (App\Enums\Goal).
-    |  - lose: a 500 kcal deficit, for a body mass index from 'deficit_min_bmi' only: the
-    |    reference is for overweight and obesity (aha_obesity_2013; decision 2a). Below it the
-    |    day stays at maintenance, and the person is told why.
-    |  - gain: +300 has no guideline, so meals are judged on maintenance and the extra is
-    |    only shown (decision 3a): 'surplus_judged' => false.
+    | Calories added to the daily need for each goal (App\Enums\Goal): a 500 kcal deficit
+    | (a normal weight may lose too, told so gently: the owner's decision 2a), and +300 to
+    | gain, counted like the rest; it has no reference yet, so the sources page calls it our
+    | choice (decision 4a).
     */
     'goal_adjustment' => [
         'lose' => -500,
         'maintain' => 0,
         'gain' => 300,
     ],
-    'deficit_min_bmi' => 25,
-    'surplus_judged' => false,
     'goal_refs' => ['aha_obesity_2013'],
 
     /*
@@ -109,8 +86,7 @@ return [
     |  - adjustments: the ready-made calorie changes; any value in adjustment_range can be set
     |    with the slider. -750 and +500 are for nutritionists only (3a): people keep goal_adjustment;
     |  - macro_range: what each share of calories may be set to, in %; the three make 100;
-    |  - fluids: ml per kg suggested, rounded to fluids_step; none for the conditions where
-    |    fluids are the doctor's call (2a), so the nutritionist types them.
+    |  - fluids: ml per kg suggested, rounded to fluids_step.
     */
     'plan' => [
         'adjustments' => [
@@ -126,7 +102,6 @@ return [
         'fluids_ml_per_kg' => 35,
         'fluids_step' => 50,
         'fluids_range' => [500, 6000],
-        'fluids_manual_for' => ['heart_failure', 'kidney', 'dialysis'],
         'body_fat_range' => [3, 70],
 
         /*
@@ -169,12 +144,12 @@ return [
     | below its 'below' value (the last one has none). People see the gentle 'label', the
     | nutritionist the clinical one (decision 3a). The value is rounded to one decimal first.
     | 'warn' names the goals the class should not be chased with (decision 2a: a warning, never
-    | a block); 'not_for' lists the conditions the index says nothing about (pregnancy).
+    | a block).
     */
     'bmi' => [
         'classes' => [
             ['key' => 'underweight', 'below' => 18.5, 'label' => 'أقل من الطبيعي', 'clinical' => 'نقص الوزن', 'warn' => ['lose']],
-            ['key' => 'normal', 'below' => 25, 'label' => 'ضمن الطبيعي', 'clinical' => 'وزن طبيعي'],
+            ['key' => 'normal', 'below' => 25, 'label' => 'ضمن الطبيعي', 'clinical' => 'وزن طبيعي', 'warn' => ['lose']],
             ['key' => 'overweight', 'below' => 30, 'label' => 'أعلى من الطبيعي', 'clinical' => 'زيادة وزن'],
             ['key' => 'obese_1', 'below' => 35, 'label' => 'أعلى بكثير من الطبيعي (الدرجة الأولى)', 'clinical' => 'سمنة درجة أولى (خفيفة)', 'warn' => ['gain']],
             ['key' => 'obese_2', 'below' => 40, 'label' => 'أعلى بكثير من الطبيعي (الدرجة الثانية)', 'clinical' => 'سمنة درجة ثانية (متوسطة)', 'warn' => ['gain']],
@@ -184,7 +159,6 @@ return [
         'healthy' => [18.5, 24.9],
         /* 18.5, 25 and 30 read from WHO; the obesity classes 35 and 40 are not read yet. */
         'refs' => ['who_bmi'],
-        'not_for' => ['pregnant_or_breastfeeding', 'gestational_diabetes'],
     ],
 
     /* Calories per gram, to turn a share of the day into grams. */
@@ -193,8 +167,7 @@ return [
     /*
     | Each criterion: label, unit, bound (min | max | target), scope (day | meal: a meal
     | criterion is not scaled by meal_share), the nutrient it is compared with, the default
-    | rule (null: only a template, condition, person or nutritionist turns it on), and the
-    | range a person may set it to.
+    | rule (null: only a nutritionist turns it on), and the range it may be set to.
     */
     'criteria' => [
         'energy_kcal' => [
@@ -284,283 +257,20 @@ return [
         ],
     ],
 
-    /* The template everyone without a condition starts from. */
+    /* The template everyone starts from. */
     'default_template' => 'balanced',
 
-    /* When conditions bring several templates, the first in this list is used. */
-    'template_priority' => [
-        'dialysis', 'ckd', 'pancreatitis', 'hepatic', 'gdm', 'pregnancy', 'diabetes', 'chf',
-        'celiac', 'metabolic_syndrome', 'post_cholecystectomy', 'gerd', 'dash', 'dyslipidemia',
-        'gout', 'osteoporosis', 'menopause', 'mediterranean', 'balanced',
-    ],
-
     /*
-    | Diet templates: macros in % of calories (carbs / protein / fat), extra rules, allergens
-    | to avoid, the group shown in the library, and whether a person may pick it themselves.
-    | Children's templates are left out: personal calculations start at 18.
+    | Diet templates: macros in % of calories (carbs / protein / fat). The four new ones
+    | (balanced, weight loss, gain and muscle, sport) come with the new calculation.
     */
     'templates' => [
         'balanced' => [
-            'label' => 'المتوازن', 'group' => 'general', 'selectable' => true, 'source' => 'NASEM · WHO',
+            'label' => 'المتوازن', 'group' => 'general', 'source' => 'NASEM · WHO',
             'refs' => ['nasem_amdr', 'who_fats_2023'],
             'description' => 'توزيع للبالغين الأصحاء داخل المجالات المرجعية: كربوهيدرات 50%، بروتين 20%، دهون 30%.',
             'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
         ],
-        'mediterranean' => [
-            'label' => 'حمية البحر المتوسط', 'group' => 'general', 'selectable' => true, 'source' => 'AHA',
-            'description' => 'غني بالخضار والحبوب الكاملة وزيت الزيتون والسمك، لصحة القلب والكبد.',
-            'macros' => ['carbs' => 50, 'protein' => 15, 'fat' => 35],
-        ],
-        /*
-        | The heart (step 7, batch 3, decisions 1a 2a 3a 4a 5a 6a). DASH is NHLBI's booklet word for
-        | word: 55/18/27, saturated fat 6%, and sodium 1,500 mg (its footnote: "particularly
-        | effective for… those who already had high blood pressure"); its fibre, 30 g for 2,100
-        | kcal, is our 14 g a 1,000. Heart failure: NICE NG106 1.9.10 says not to restrict sodium
-        | routinely, so the 1,500 went (the template stays in the nutritionist's library).
-        */
-        'dash' => [
-            'label' => 'DASH لضغط الدم', 'group' => 'heart', 'selectable' => true, 'source' => 'NHLBI',
-            'refs' => ['nhlbi_dash_2006'],
-            'description' => 'غني بالحبوب الكاملة والفواكه والخضار والألبان قليلة الدسم، وقليل الملح والدهون المشبعة.',
-            'macros' => ['carbs' => 55, 'protein' => 18, 'fat' => 27],
-            'rules' => [
-                'sodium_mg' => ['type' => 'fixed', 'value' => 1500, 'refs' => ['nhlbi_dash_2006']],
-                'fat_sat_g' => ['type' => 'energy_pct', 'pct' => 6, 'kcal_per_g' => 9, 'refs' => ['nhlbi_dash_2006']],
-            ],
-        ],
-        'chf' => [
-            'label' => 'قصور القلب', 'group' => 'heart', 'source' => 'NICE',
-            'description' => 'بلا تقييد روتيني للملح والسوائل؛ يحددهما الطبيب أو الأخصائي إن لزم.',
-            'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
-            'see_nutritionist' => 'قصور القلب يحتاج متابعة: الملح والسوائل يحددهما طبيبك أو أخصائيّك إن لزم، فإن أعطاك رقماً اكتبه في معاييري.',
-        ],
-        /*
-        | Diabetes and metabolism (step 7, batch 2, decisions 1a 2a 3a 4a): no reference gives a
-        | carbohydrate figure a meal (NICE NG28 1.3.6 "individualise"; NG247 1.2.19 no diet is
-        | better for gestational diabetes): the 60 g, 45 g and 5% sugars went. Cholesterol's
-        | saturated fat is NICE NG238's 7% (the 6% was AHA's, not read). Library templates.
-        */
-        'dyslipidemia' => [
-            'label' => 'ارتفاع الدهون والكولسترول', 'group' => 'metabolic', 'source' => 'NICE',
-            'description' => 'دهون مشبعة أقل (حتى 7% من السعرات)، وزيت الزيتون بدل الدسم الحيواني.',
-            'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
-            'rules' => ['fat_sat_g' => ['type' => 'energy_pct', 'pct' => 7, 'kcal_per_g' => 9, 'refs' => ['nice_cvd_ng238']]],
-        ],
-        'diabetes' => [
-            'label' => 'السكري', 'group' => 'metabolic', 'source' => 'NICE · NIDDK',
-            'description' => 'كربوهيدرات غنية بالألياف، وحدّها في الوجبة يحدده الطبيب أو الأخصائي حسب علاجك.',
-            'macros' => ['carbs' => 45, 'protein' => 20, 'fat' => 35],
-        ],
-        'gdm' => [
-            'label' => 'سكري الحمل', 'group' => 'metabolic', 'source' => 'NICE',
-            'description' => 'أكل صحي تختاره مع أخصائية التغذية، وبلا إنقاص للوزن أثناء الحمل.',
-            'macros' => ['carbs' => 40, 'protein' => 25, 'fat' => 35],
-            'no_deficit' => true,
-            'no_deficit_refs' => ['nice_maternal_ng247'],
-            'see_nutritionist' => 'سكري الحمل يحتاج أخصائية تغذية وطبيبك.',
-        ],
-        'metabolic_syndrome' => [
-            'label' => 'متلازمة التمثيل الغذائي', 'group' => 'metabolic', 'source' => 'NIDDK',
-            'description' => 'أكل صحي، وإنقاص 5–7% من الوزن إن كان أعلى من الطبيعي.',
-            'macros' => ['carbs' => 40, 'protein' => 25, 'fat' => 35],
-        ],
-        'ckd' => [
-            'label' => 'الكلى قبل الغسيل (CKD 3-5)', 'group' => 'kidney', 'source' => 'KDOQI 2020',
-            'description' => 'بروتين منخفض (حتى 0.6 غ لكل كغ) لحماية الكلى.',
-            'macros' => ['carbs' => 55, 'protein' => 10, 'fat' => 35],
-            'rules' => [
-                'protein_g' => ['type' => 'per_kg', 'value' => 0.6, 'bound' => 'max'],
-                'sodium_mg' => ['type' => 'fixed', 'value' => 2000],
-            ],
-            'see_nutritionist' => 'أمراض الكلى تحتاج أرقاماً شخصية (البوتاسيوم والفوسفور) يحددها لك أخصائي.',
-        ],
-        'dialysis' => [
-            'label' => 'غسيل الكلى', 'group' => 'kidney', 'source' => 'KDOQI 2020',
-            'description' => 'بروتين أعلى (1.2 غ لكل كغ على الأقل) لتعويض ما يفقده الغسيل.',
-            'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
-            'rules' => [
-                'protein_g' => ['type' => 'per_kg', 'value' => 1.2, 'bound' => 'min'],
-                'sodium_mg' => ['type' => 'fixed', 'value' => 2000],
-            ],
-            'see_nutritionist' => 'الغسيل يحتاج أرقاماً شخصية (البوتاسيوم والفوسفور والسوائل) يحددها لك أخصائي.',
-        ],
-        /*
-        | Digestion (step 7, batch 1, decisions 1a 3a): the references give no grams of fat for
-        | these, and for the gallbladder and the pancreas they advise against restricting it
-        | (nice_gallstones_cg188, ueg_pei_2025). Their meal fat limits went; the templates stay
-        | in the nutritionist's library, judged with the balanced shares unless they choose one.
-        */
-        'gerd' => [
-            'label' => 'الارتجاع المريئي', 'group' => 'digestion', 'source' => 'NICE · NIDDK',
-            'description' => 'تجنّب ما يزيد الحرقة عندك، ووجبة رئيسية قبل النوم بثلاث ساعات على الأقل.',
-            'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
-        ],
-        'post_cholecystectomy' => [
-            'label' => 'ما بعد استئصال المرارة', 'group' => 'digestion', 'source' => 'NICE',
-            'description' => 'بعد العملية لا يلزم تجنّب أطعمة بعينها؛ ما يتعبك منها يحدده طبيبك.',
-            'macros' => ['carbs' => 55, 'protein' => 20, 'fat' => 25],
-        ],
-        'pancreatitis' => [
-            'label' => 'التهاب البنكرياس', 'group' => 'digestion', 'source' => 'UEG/ESPEN · NICE',
-            'description' => 'وجبات صغيرة متكررة، والدسم يحدده أخصائي التغذية: تقليله كثيراً قد يضر.',
-            'macros' => ['carbs' => 65, 'protein' => 20, 'fat' => 15],
-            'see_nutritionist' => 'التهاب البنكرياس يحتاج أخصائي تغذية: خطر سوء التغذية فيه عالٍ.',
-        ],
-        'celiac' => [
-            'label' => 'السيلياك (حساسية الغلوتين)', 'group' => 'digestion', 'source' => 'ACG',
-            'description' => 'منع الغلوتين تماماً (القمح والشعير والشوفان العادي).',
-            'macros' => ['carbs' => 55, 'protein' => 15, 'fat' => 30],
-            // Gluten is the verified, strict part (niddk_celiac); the macros are not checked yet.
-            'allergens' => ['gluten'], 'allergen_refs' => ['niddk_celiac'],
-            'avoid_reason' => 'ومرض السيلياك يُعالَج بتجنّبه تماماً',
-        ],
-        /*
-        | No condition brings it any more (step 3): cirrhosis brings its verified rules itself.
-        | Kept in the nutritionist's library. The sodium rule went: EASL's 2 g is for ascites only
-        | and equals the general limit.
-        */
-        'hepatic' => [
-            'label' => 'تليّف الكبد', 'group' => 'digestion', 'source' => 'EASL · ESPEN',
-            'description' => 'بروتين كافٍ وطاقة كافية، ووجبات صغيرة متكررة مع وجبة خفيفة قبل النوم.',
-            'macros' => ['carbs' => 55, 'protein' => 15, 'fat' => 30],
-            'rules' => [
-                'protein_g' => ['type' => 'per_kg', 'value' => 1.2, 'bound' => 'min', 'refs' => ['easl_nutrition_2019']],
-            ],
-            'see_nutritionist' => 'أمراض الكبد تحتاج متابعة أخصائي.',
-        ],
-        'gout' => [
-            'label' => 'النقرس', 'group' => 'other', 'source' => 'ACR',
-            'description' => 'قليل البيورين، يعتمد على البروتين النباتي والألبان قليلة الدسم.',
-            'macros' => ['carbs' => 55, 'protein' => 15, 'fat' => 30],
-            'rules' => ['sugars_g' => ['type' => 'energy_pct', 'pct' => 5, 'kcal_per_g' => 4]],
-            'see_nutritionist' => 'النقرس يتأثر بالبيورينات (اللحوم الحمراء والأحشاء وبعض الأسماك)، وهي غير محسوبة عندنا بعد.',
-        ],
-        'osteoporosis' => [
-            'label' => 'هشاشة العظام', 'group' => 'other', 'source' => 'NOF',
-            'description' => 'كالسيوم كافٍ (1200 ملغ) وفيتامين D.',
-            'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
-            'rules' => ['calcium_mg' => ['type' => 'fixed', 'value' => 1200]],
-        ],
-        'pregnancy' => [
-            'label' => 'الحمل والرضاعة', 'group' => 'other', 'source' => 'ACOG',
-            'description' => 'احتياجات أعلى من البروتين والحديد والكالسيوم وحمض الفوليك.',
-            'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
-            'rules' => ['iron_mg' => ['type' => 'fixed', 'value' => 27]],
-            'no_deficit' => true,
-            'no_deficit_refs' => ['nice_maternal_ng247'],
-            'see_nutritionist' => 'الحمل والرضاعة يغيّران احتياجك، فلا نقترح إنقاص الوزن. راجعي أخصائية تغذية.',
-        ],
-        'menopause' => [
-            'label' => 'سن الأمل', 'group' => 'other', 'source' => 'NAMS',
-            'description' => 'دعم العظام والتوازن الهرموني، بروتين أعلى قليلاً.',
-            'macros' => ['carbs' => 45, 'protein' => 25, 'fat' => 30],
-            'rules' => ['calcium_mg' => ['type' => 'fixed', 'value' => 1200]],
-        ],
-    ],
-
-    /*
-    | Health conditions a person declares (App\Enums\HealthCondition): the template each one
-    | brings, and limits of its own. When several set the same limit, the stricter wins.
-    */
-    'conditions' => [
-        /*
-        | The heart (step 7, batch 3): high blood pressure brings DASH (nhlbi_dash_2006), with
-        | NICE NG136's advice on salt; heart disease NICE NG238's saturated fat 7% and no
-        | template; heart failure the general needs (NICE NG106: no routine sodium limit).
-        */
-        'hypertension' => ['template' => 'dash', 'refs' => ['nice_htn_ng136', 'nhlbi_dash_2006']],
-        'heart_disease' => [
-            'refs' => ['nice_cvd_ng238'],
-            'criteria' => ['fat_sat_g' => ['type' => 'energy_pct', 'pct' => 7, 'kcal_per_g' => 9, 'refs' => ['nice_cvd_ng238']]],
-        ],
-        'heart_failure' => [
-            'refs' => ['nice_hf_ng106'],
-            'see_nutritionist' => 'قصور القلب يحتاج متابعة طبيبك: إن حدّد لك حداً للصوديوم أو للسوائل، اكتبه في معاييري فنقيّم عليه.',
-        ],
-        /*
-        | Diabetes and metabolism (step 7, batch 2): the general needs, verified, and the
-        | references' advice; the carbohydrate a meal is the doctor's or nutritionist's number.
-        | Pregnancy: no weight loss (nice_maternal_ng247 1.2.15), told as 'no_deficit_reason'.
-        */
-        'diabetes' => [
-            'refs' => ['nice_t2d_ng28', 'niddk_diabetes_diet'],
-            'see_nutritionist' => 'حد الكربوهيدرات في الوجبة يحدده لك طبيبك أو أخصائيّك حسب علاجك؛ إن أعطاك رقماً، اكتبه في معاييري فنقيّم عليه.',
-        ],
-        'gestational_diabetes' => [
-            'refs' => ['nice_maternal_ng247', 'nice_pregnancy_ng3'],
-            'no_deficit' => true,
-            'no_deficit_reason' => 'إنقاص الوزن عمداً أثناء الحمل غير منصوح به، لأثره على الجنين.',
-            'no_deficit_refs' => ['nice_maternal_ng247'],
-            'see_nutritionist' => 'سكري الحمل يحتاج أخصائية تغذية وطبيبك. إن حدّدا لكِ كربوهيدرات الوجبة، اكتبيها في معاييري فنقيّم عليها.',
-        ],
-        'insulin_resistance' => ['refs' => ['niddk_insulin']],
-        'high_cholesterol' => [
-            'criteria' => ['fat_sat_g' => ['type' => 'energy_pct', 'pct' => 7, 'kcal_per_g' => 9, 'refs' => ['nice_cvd_ng238']]],
-        ],
-        'kidney' => ['template' => 'ckd'],
-        'dialysis' => ['template' => 'dialysis'],
-        /*
-        | The liver (step 3, decisions 1a 2a 3a 4a). What each reference says:
-        |  - fatty liver: a Mediterranean pattern and weight loss, with no figure for saturated
-        |    fat or sugars (easl_masld_2024): the general limits and the deficit apply; the old
-        |    7% and 5% had no source and went.
-        |  - acute (A, E) and chronic (B, C) hepatitis: healthy food, fluids, no alcohol, no
-        |    figures: general needs, verified.
-        |  - cirrhosis: protein at least 1.2 g/kg (a floor on protein_min_g), and at least 35 kcal
-        |    per kg with no deficit under a body mass index of 30 (easl_nutrition_2019; ESPEN 51:
-        |    no more energy for the overweight or obese).
-        |  - jaundice: a sign, not a disease: no limits until the cause is known.
-        |  - liver_cirrhosis: the old mixed choice; general needs until the person picks again.
-        */
-        'fatty_liver' => ['refs' => ['easl_masld_2024']],
-        'hepatitis_acute' => ['refs' => ['who_hepatitis_a', 'who_hepatitis_e', 'niddk_hepatitis_a']],
-        'hepatitis_chronic' => ['refs' => ['niddk_hepatitis_b', 'niddk_hepatitis_c']],
-        'cirrhosis' => [
-            'criteria' => ['protein_min_g' => ['type' => 'per_kg', 'value' => 1.2, 'refs' => ['easl_nutrition_2019']]],
-            'energy_min_per_kg' => 35,
-            'energy_min_below_bmi' => 30,
-            'energy_refs' => ['easl_nutrition_2019', 'espen_liver_2019'],
-            'see_nutritionist' => 'تليّف الكبد يحتاج متابعة أخصائي.',
-        ],
-        'liver_cirrhosis' => [],
-        'jaundice' => [
-            'see_nutritionist' => 'اليرقان له أكثر من سبب، ولكل سبب غذاؤه. راجع طبيبك ليعرف السبب، ثم اختر الحالة الأدق.',
-        ],
-        /*
-        | Digestion (step 7, batch 1): what the references say has no figure, so these bring the
-        | general needs, verified, and their advice in words (HealthCondition::hint). A doctor's
-        | fat limit, typed in معاييري, judges as a strict one.
-        |  - reflux: avoid what brings the symptoms, the main meal well before bed, weight loss if
-        |    overweight (nice_gord_cg184, niddk_gerd).
-        |  - gallbladder removed: nothing needs avoiding after the operation (nice_gallstones_cg188).
-        |  - fat intolerance: avoid what brings the symptoms (nice_gallstones_cg188); no figure.
-        |  - pancreatitis: no fat restriction with enzymes, a dietitian for everyone, small frequent
-        |    meals (ueg_pei_2025, nice_pancreatitis_ng104, niddk_pancreatitis).
-        */
-        'reflux' => ['refs' => ['nice_gord_cg184', 'niddk_gerd']],
-        'gallbladder_removed' => ['refs' => ['nice_gallstones_cg188']],
-        'fat_intolerance' => [
-            'refs' => ['nice_gallstones_cg188'],
-            'see_nutritionist' => 'عدم تحمّل الدسم قد يكون له سبب يحتاج تشخيصاً (المرارة أو البنكرياس). راجع أخصائياً، وإن أعطاك طبيبك حداً للدهون، اكتبه في معاييري فنقيّم عليه.',
-        ],
-        'pancreatitis' => [
-            'refs' => ['ueg_pei_2025', 'nice_pancreatitis_ng104', 'niddk_pancreatitis'],
-            'see_nutritionist' => 'التهاب البنكرياس يحتاج أخصائي تغذية: خطر سوء التغذية فيه عالٍ، ولا تقلّل الدسم كثيراً من نفسك. إن أعطاك طبيبك حداً للدهون، اكتبه في معاييري.',
-        ],
-        'celiac' => ['template' => 'celiac'],
-        'gout' => ['template' => 'gout'],
-        'anemia' => [
-            'criteria' => ['iron_mg' => ['type' => 'by_sex', 'female' => 18, 'male' => 8]],
-            'see_nutritionist' => 'فقر الدم له أسباب مختلفة، وعلاجه لا يكون بالغذاء وحده. راجع أخصائياً أو طبيباً.',
-        ],
-        'osteoporosis' => ['template' => 'osteoporosis'],
-        'pregnant_or_breastfeeding' => [
-            'template' => 'pregnancy',
-            'no_deficit' => true,
-            'no_deficit_reason' => 'إنقاص الوزن عمداً أثناء الحمل غير منصوح به، لأثره على الجنين.',
-            'no_deficit_refs' => ['nice_maternal_ng247'],
-        ],
-        'menopause' => ['template' => 'menopause'],
     ],
 
 ];

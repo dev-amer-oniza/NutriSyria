@@ -7,8 +7,6 @@ use App\Enums\ActivityLevel;
 use App\Enums\Allergen;
 use App\Enums\ConsultationStatus;
 use App\Enums\EnergyEquation;
-use App\Enums\HealthCondition;
-use App\Enums\Sex;
 use App\Models\ConsultationRequest;
 use App\Models\User;
 use App\Notifications\SiteNotification;
@@ -92,28 +90,20 @@ class ClientWorkspace
     }
 
     /**
-     * The person's body, activity, goal and health record, as the nutritionist updates them
-     * (validated by the panel form). Women-only conditions are dropped for men.
+     * The person's body, activity, goal and allergies, as the nutritionist updates them
+     * (validated by the panel form).
      *
-     * @param  array{sex: string, birth_year: int, height_cm: float, weight_kg: float, activity_level: string, goal: string, health_conditions?: list<string>, allergies?: list<string>}  $data
+     * @param  array{sex: string, birth_year: int, height_cm: float, weight_kg: float, activity_level: string, goal: string, allergies?: list<string>}  $data
      */
     public function updateProfile(User $nutritionist, ConsultationRequest $link, array $data): void
     {
         $this->ensureLinked($nutritionist, $link);
 
         $client = $link->user;
-        $sex = Sex::from($data['sex']);
 
         $this->profiles->saveBody($client, Arr::only($data, ['sex', 'birth_year', 'height_cm', 'weight_kg']));
         $this->profiles->saveActivity($client, Arr::only($data, ['activity_level', 'goal']));
-        $this->profiles->saveHealth(
-            $client,
-            array_values(array_filter(
-                array_map(fn (string $c) => HealthCondition::from($c), $data['health_conditions'] ?? []),
-                fn (HealthCondition $c) => $c->appliesTo($sex),
-            )),
-            array_map(fn (string $a) => Allergen::from($a), $data['allergies'] ?? []),
-        );
+        $this->profiles->saveHealth($client, array_map(fn (string $a) => Allergen::from($a), $data['allergies'] ?? []));
 
         // A new weight or activity changes the plan's numbers: keep the client's values in step.
         $plan = $link->plan()->first();

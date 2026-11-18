@@ -35,19 +35,12 @@ class NutritionReferencesTest extends TestCase
         $named = [
             ...$this->rules['activity_refs'], ...$this->rules['goal_refs'], ...$this->rules['min_kcal_refs'],
             ...$this->rules['bmi']['refs'], ...$this->rules['templates']['balanced']['refs'],
-            ...$this->rules['templates']['celiac']['allergen_refs'],
         ];
         foreach ($this->rules['criteria'] as $criterion) {
             $named = [...$named, ...($criterion['refs'] ?? [])];
         }
-        foreach ($this->rules['conditions'] as $condition) {
-            $named = [...$named, ...($condition['refs'] ?? []), ...($condition['energy_refs'] ?? []), ...($condition['no_deficit_refs'] ?? [])];
-            foreach ($condition['criteria'] ?? [] as $rule) {
-                $named = [...$named, ...($rule['refs'] ?? [])];
-            }
-        }
         foreach ($this->rules['templates'] as $template) {
-            $named = [...$named, ...($template['refs'] ?? []), ...($template['no_deficit_refs'] ?? [])];
+            $named = [...$named, ...($template['refs'] ?? [])];
             foreach ($template['rules'] ?? [] as $rule) {
                 $named = [...$named, ...($rule['refs'] ?? [])];
             }
@@ -144,14 +137,12 @@ class NutritionReferencesTest extends TestCase
 
         $this->assertSame(-500, $this->rules['goal_adjustment']['lose']);
         $this->assertStringContainsString('Prescribe a 500-kcal/d or 750-kcal/d energy deficit', $quote);
-        $this->assertStringContainsString('for obese or overweight individuals', $quote);
-        $this->assertSame(25, $this->rules['deficit_min_bmi']);
-        $this->assertStringContainsString('overweight is a BMI greater than or equal to 25', $this->quote('who_bmi'));
+        $this->assertArrayNotHasKey('deficit_min_bmi', $this->rules, 'a normal weight may lose too (decision 2a)');
 
         $this->assertSame(['female' => 1200, 'male' => 1500], $this->rules['min_kcal']);
         $this->assertStringContainsString('1200–1500 kcal/d for women and 1500–1800 kcal/d for men', $quote);
 
-        $this->assertFalse($this->rules['surplus_judged'], 'no guideline for +300');
+        $this->assertSame(300, $this->rules['goal_adjustment']['gain'], 'ours, said so on the sources page (decision 4a)');
     }
 
     public function test_the_body_mass_index_classes_read_from_who(): void
@@ -161,123 +152,5 @@ class NutritionReferencesTest extends TestCase
         $this->assertSame([18.5, 25, 30], [$below['underweight'], $below['normal'], $below['overweight']]);
         $this->assertStringContainsString('BMI < 18.5', $this->quote('who_bmi'));
         $this->assertStringContainsString('obesity is a BMI greater than or equal to 30', $this->quote('who_bmi'));
-    }
-
-    public function test_celiac_disease_avoids_gluten(): void
-    {
-        $this->assertContains('gluten', $this->rules['templates']['celiac']['allergens']);
-        $this->assertStringContainsString('follow a gluten-free diet', $this->quote('niddk_celiac'));
-    }
-
-    public function test_cirrhosis_follows_easl(): void
-    {
-        $cirrhosis = $this->rules['conditions']['cirrhosis'];
-        $quote = $this->quote('easl_nutrition_2019');
-
-        $this->assertSame(['type' => 'per_kg', 'value' => 1.2, 'refs' => ['easl_nutrition_2019']], $cirrhosis['criteria']['protein_min_g']);
-        $this->assertStringContainsString('Optimal daily protein intake should not be lower than the recommended 1.2–1.5 g/kg.BW/d', $quote);
-        $this->assertSame(35, $cirrhosis['energy_min_per_kg']);
-        $this->assertStringContainsString('should not be lower than the recommended 35 kcal/kg.BW/d (in non-obese individuals)', $quote);
-        $this->assertSame(30, $cirrhosis['energy_min_below_bmi'], 'non-obese: under the WHO obesity line');
-        $this->assertStringContainsString('obesity is a BMI greater than or equal to 30', $this->quote('who_bmi'));
-        $this->assertStringContainsString('an increased energy intake is not recommended in overweight or obese patients', $this->quote('espen_liver_2019'));
-        $this->assertArrayNotHasKey('sodium_mg', $this->rules['templates']['hepatic']['rules'], "ascites' 2 g equals the general limit");
-    }
-
-    public function test_the_digestion_conditions_bring_no_fat_figure_as_their_references_say(): void
-    {
-        // Step 7, batch 1: no figure in any of them; two advise against restricting fat.
-        foreach (['reflux', 'gallbladder_removed', 'fat_intolerance', 'pancreatitis'] as $key) {
-            $condition = $this->rules['conditions'][$key];
-            $this->assertArrayNotHasKey('criteria', $condition, $key);
-            $this->assertArrayNotHasKey('template', $condition, $key);
-            $this->assertNotEmpty($condition['refs'], $key);
-        }
-        foreach (['gerd', 'post_cholecystectomy', 'pancreatitis'] as $template) {
-            $this->assertArrayNotHasKey('rules', $this->rules['templates'][$template], "$template has no fat limit");
-        }
-        $this->assertStringContainsString('should not need to avoid food and drink that triggered their symptoms after they have their gallbladder or gallstones removed', $this->quote('nice_gallstones_cg188'));
-        $this->assertStringContainsString('avoid food and drink that triggers their symptoms until they have their gallbladder or gallstones removed', $this->quote('nice_gallstones_cg188'));
-        $this->assertStringContainsString('usually do not require dietary fat restriction', $this->quote('ueg_pei_2025'));
-        $this->assertStringContainsString('an excessively restricted diet may be counterproductive', $this->quote('ueg_pei_2025'));
-        $this->assertStringContainsString('high risk of malabsorption, malnutrition', $this->quote('nice_pancreatitis_ng104'));
-        $this->assertStringContainsString('fatty foods', $this->quote('nice_gord_cg184'));
-        $this->assertStringContainsString('at least 3 hours before you lie down', $this->quote('niddk_gerd'));
-        $this->assertStringContainsString('small, frequent meals', $this->quote('niddk_pancreatitis'));
-    }
-
-    public function test_diabetes_and_metabolism_follow_their_references(): void
-    {
-        // Step 7, batch 2: no carbohydrate figure a meal; cholesterol's saturated fat is NICE's 7%.
-        foreach (['diabetes', 'gestational_diabetes', 'insulin_resistance'] as $key) {
-            $this->assertArrayNotHasKey('template', $this->rules['conditions'][$key], $key);
-            $this->assertArrayNotHasKey('criteria', $this->rules['conditions'][$key], $key);
-        }
-        foreach (['diabetes', 'gdm', 'metabolic_syndrome'] as $template) {
-            $this->assertArrayNotHasKey('meal_carbohydrate_g', $this->rules['templates'][$template]['rules'] ?? [], $template);
-            $this->assertArrayNotHasKey('sugars_g', $this->rules['templates'][$template]['rules'] ?? [], $template);
-        }
-        $this->assertStringContainsString('Individualise recommendations for carbohydrate and alcohol intake, and meal patterns', $this->quote('nice_t2d_ng28'));
-        $this->assertStringContainsString('no convincing evidence that a particular diet', $this->quote('nice_maternal_ng247'));
-
-        $cholesterol = $this->rules['conditions']['high_cholesterol']['criteria']['fat_sat_g'];
-        $this->assertSame([7, ['nice_cvd_ng238']], [$cholesterol['pct'], $cholesterol['refs']]);
-        $this->assertSame(7, $this->rules['templates']['dyslipidemia']['rules']['fat_sat_g']['pct']);
-        $this->assertStringContainsString('saturated fats are 7% or less of total energy intake', $this->quote('nice_cvd_ng238'));
-
-        // Pregnancy: no weight loss, by its reference.
-        foreach (['gestational_diabetes', 'pregnant_or_breastfeeding'] as $key) {
-            $this->assertTrue($this->rules['conditions'][$key]['no_deficit'], $key);
-            $this->assertSame(['nice_maternal_ng247'], $this->rules['conditions'][$key]['no_deficit_refs'], $key);
-        }
-        $this->assertStringContainsString('intentional weight loss during pregnancy is not recommended', $this->quote('nice_maternal_ng247'));
-    }
-
-    public function test_the_heart_follows_its_references(): void
-    {
-        // Step 7, batch 3: DASH word for word from NHLBI's booklet.
-        $dash = $this->rules['templates']['dash'];
-        $this->assertSame(['carbs' => 55, 'protein' => 18, 'fat' => 27], $dash['macros']);
-        $this->assertSame(['nhlbi_dash_2006'], $dash['refs']);
-        foreach (['Total fat 27% of calories', 'Saturated fat 6% of calories', 'Protein 18% of calories', 'Carbohydrate 55% of calories'] as $goal) {
-            $this->assertStringContainsString($goal, $this->quote('nhlbi_dash_2006'));
-        }
-        $this->assertSame([6, ['nhlbi_dash_2006']], [$dash['rules']['fat_sat_g']['pct'], $dash['rules']['fat_sat_g']['refs']]);
-        $this->assertSame([1500, ['nhlbi_dash_2006']], [$dash['rules']['sodium_mg']['value'], $dash['rules']['sodium_mg']['refs']]);
-        $this->assertStringContainsString('1,500 mg sodium was a lower goal tested', $this->quote('nhlbi_dash_2006'));
-        $this->assertStringContainsString('those who already had high blood pressure', $this->quote('nhlbi_dash_2006'));
-        // Its fibre, 30 g for 2,100 kcal, is our general 14 g a 1,000.
-        $this->assertStringContainsString('Fiber 30 g', $this->quote('nhlbi_dash_2006'));
-        $this->assertSame(14, (int) round(30 / 2.1));
-        $this->assertSame(14, $this->rules['criteria']['fiber_g']['default']['value']);
-
-        $this->assertSame('dash', $this->rules['conditions']['hypertension']['template']);
-        $this->assertStringContainsString('keep their dietary sodium intake low', $this->quote('nice_htn_ng136'));
-
-        // Heart disease: NICE's 7%, no template.
-        $heart = $this->rules['conditions']['heart_disease'];
-        $this->assertArrayNotHasKey('template', $heart);
-        $this->assertSame([7, ['nice_cvd_ng238']], [$heart['criteria']['fat_sat_g']['pct'], $heart['criteria']['fat_sat_g']['refs']]);
-
-        // Heart failure: no routine sodium limit, so none of ours.
-        $this->assertArrayNotHasKey('template', $this->rules['conditions']['heart_failure']);
-        $this->assertArrayNotHasKey('criteria', $this->rules['conditions']['heart_failure']);
-        $this->assertArrayNotHasKey('rules', $this->rules['templates']['chf']);
-        $this->assertStringContainsString('Do not routinely advise people with heart failure to restrict their sodium or fluid consumption', $this->quote('nice_hf_ng106'));
-
-        // The Mediterranean split has no reference yet: judged with the balanced shares.
-        $this->assertArrayNotHasKey('refs', $this->rules['templates']['mediterranean']);
-    }
-
-    public function test_hepatitis_jaundice_and_fatty_liver_bring_no_figures(): void
-    {
-        foreach (['hepatitis_acute', 'hepatitis_chronic', 'jaundice', 'fatty_liver', 'liver_cirrhosis'] as $key) {
-            $condition = $this->rules['conditions'][$key];
-            $this->assertArrayNotHasKey('criteria', $condition, $key);
-            $this->assertArrayNotHasKey('template', $condition, $key);
-        }
-        $this->assertStringContainsString('There is no specific antiviral treatment for hepatitis A', $this->quote('who_hepatitis_a'));
-        $this->assertStringContainsString('choose healthy foods and drinks', $this->quote('niddk_hepatitis_c'));
-        $this->assertStringContainsString('similar to the Mediterranean dietary pattern', $this->quote('easl_masld_2024'));
     }
 }

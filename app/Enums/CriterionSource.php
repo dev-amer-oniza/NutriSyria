@@ -2,12 +2,14 @@
 
 namespace App\Enums;
 
-/** Where a criterion's value comes from; a later one wins over an earlier one. */
+/**
+ * Where a criterion's value comes from: computed, or set by the person's nutritionist. User and
+ * Doctor stay only to read the change log from before people stopped setting values by hand.
+ */
 enum CriterionSource: string
 {
     case Default = 'default';
     case User = 'user';
-    /** A number the person's doctor gave them, typed by the person (step 2, decision 4a). */
     case Doctor = 'doctor';
     case Nutritionist = 'nutritionist';
 

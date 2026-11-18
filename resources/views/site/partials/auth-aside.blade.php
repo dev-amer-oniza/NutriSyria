@@ -3,7 +3,7 @@
         <p class="ns-eyebrow ns-eyebrow--on-pine">لماذا حساب؟</p>
         <h2 class="t-title">الطبق نفسه،<br>لا يناسب الجميع بالقدر نفسه</h2>
         <ul class="ns-auth__people">
-            @foreach ([['لرياضي يريد زيادة وزنه', 4], ['لسيدة تريد خفض وزنها', 3], ['لمريض سكري', 2]] as [$who, $level])
+            @foreach ([['لرياضي يريد زيادة وزنه', 4], ['لسيدة تريد خفض وزنها', 3], ['لمن يقضي يومه جالساً ويريد خفض وزنه', 2]] as [$who, $level])
                 <li><span>{{ $who }}</span><b>{{ config("site.fit_levels.$level") }}</b></li>
             @endforeach
         </ul>

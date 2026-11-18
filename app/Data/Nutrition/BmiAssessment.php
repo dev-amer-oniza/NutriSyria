@@ -6,22 +6,16 @@ namespace App\Data\Nutrition;
 final readonly class BmiAssessment
 {
     /**
-     * @param  ?string  $class  the class key (config nutrition_criteria.bmi); null when the
-     *                          index is not classed for this person (pregnancy)
-     * @param  ?string  $warning  why the chosen goal may not suit this class
+     * @param  string  $class  the class key (config nutrition_criteria.bmi)
+     * @param  ?string  $warning  a gentle word about the chosen goal for this class
      */
     public function __construct(
         public float $value,
-        public ?string $class,
-        public ?string $label,
-        public ?string $clinical,
+        public string $class,
+        public string $label,
+        public string $clinical,
         public int $healthyMinKg,
         public int $healthyMaxKg,
         public ?string $warning = null,
     ) {}
-
-    public function classified(): bool
-    {
-        return $this->class !== null;
-    }
 }
