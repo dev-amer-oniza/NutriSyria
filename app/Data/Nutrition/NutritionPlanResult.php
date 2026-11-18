@@ -2,7 +2,10 @@
 
 namespace App\Data\Nutrition;
 
-/** What a nutrition plan works out to for one client (NutritionPlanCalculator). */
+/**
+ * What a nutrition plan works out to for one client (NutritionPlanCalculator): $activityFactor
+ * is the day without exercise, $exercise the day's average kcal from exercise.
+ */
 final readonly class NutritionPlanResult
 {
     /**
@@ -17,6 +20,7 @@ final readonly class NutritionPlanResult
         public ?int $bmr,
         public ?int $tdee,
         public float $activityFactor,
+        public int $exercise,
         public int $adjustment,
         public ?int $target,
         public array $macros,

@@ -28,7 +28,11 @@ class ConsultationRequest extends Model
         ];
     }
 
-    /** The person asking. */
+    /**
+     * The person asking.
+     *
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Data\Nutrition\BmiAssessment;
-use App\Enums\ActivityLevel;
+use App\Enums\DailyLife;
 use App\Enums\Goal;
 use App\Enums\OnboardingStep;
 use App\Enums\Sex;
@@ -15,11 +15,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * A site user's nutrition profile (App\Services\Nutrition\UserProfileService).
  *
  * @property Sex|null $sex
+ * @property DailyLife|null $daily_life
+ * @property int|null $work_days
+ * @property list<array{type: string, times: int, minutes: int}>|null $exercises
+ * @property Goal|null $goal
  */
 class UserProfile extends Model
 {
     protected $fillable = [
-        'sex', 'birth_year', 'height_cm', 'weight_kg', 'activity_level', 'goal',
+        'sex', 'birth_year', 'height_cm', 'weight_kg', 'daily_life', 'work_days', 'exercises', 'goal',
         'allergies', 'health_consent_at', 'completed_at',
     ];
 
@@ -30,7 +34,9 @@ class UserProfile extends Model
             'birth_year' => 'integer',
             'height_cm' => 'float',
             'weight_kg' => 'float',
-            'activity_level' => ActivityLevel::class,
+            'daily_life' => DailyLife::class,
+            'work_days' => 'integer',
+            'exercises' => 'array',
             'goal' => Goal::class,
             // Health data: encrypted at rest.
             'allergies' => 'encrypted:array',
@@ -56,7 +62,36 @@ class UserProfile extends Model
 
     public function hasActivity(): bool
     {
-        return $this->activity_level && $this->goal;
+        return $this->daily_life && $this->goal;
+    }
+
+    /** "شغل أو دراسة وأنت قاعد، 3 أيام بالأسبوع · حديد عادي 3 × 60 دقيقة", or "بلا رياضة". */
+    public function activitySummary(): string
+    {
+        if (! $this->daily_life) {
+            return '—';
+        }
+        $day = $this->daily_life->label().($this->daily_life->hasWorkDays() && $this->work_days ? '، '.$this->work_days.' أيام بالأسبوع' : '');
+        $sports = array_map(
+            fn (array $e) => (config("nutrition_criteria.exercises.{$e['type']}.label") ?? $e['type']).' '.$e['times'].' × '.$e['minutes'].' دقيقة',
+            $this->exercises ?? [],
+        );
+
+        return $day.' · '.($sports ? implode('، ', $sports) : 'بلا رياضة');
+    }
+
+    /**
+     * What the energy calculators read: the day, its work days and the exercise.
+     *
+     * @return array{daily_life: string, work_days: ?int, exercises: list<array{type: string, times: int, minutes: int}>}
+     */
+    public function activity(): array
+    {
+        return [
+            'daily_life' => $this->daily_life->value,
+            'work_days' => $this->daily_life->hasWorkDays() ? $this->work_days : null,
+            'exercises' => $this->exercises ?? [],
+        ];
     }
 
     /** The first step still to fill in; null once body and activity are known. */

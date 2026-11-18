@@ -204,7 +204,7 @@ class PersonalCriteria
             'age' => $profile->age(),
             'height_cm' => $profile->height_cm,
             'weight_kg' => $profile->weight_kg,
-            'activity' => $profile->activity_level->value,
+            ...$profile->activity(),
             'goal' => $profile->goal->value,
             'allergens' => $profile->allergies ?? [],
         ];

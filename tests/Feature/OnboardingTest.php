@@ -27,12 +27,18 @@ class OnboardingTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    /** The design's example person: man, 30, 178 cm, 80 kg, lightly active (×1.55), losing weight. */
+    /** The student: university 3 days a week, weights 3 × 60 min and cardio 3 × 15 min. */
+    private const STUDENT = [
+        'daily_life' => 'seated', 'work_days' => '3',
+        'exercises' => [['type' => 'weights', 'times' => '3', 'minutes' => '60'], ['type' => 'cardio', 'times' => '3', 'minutes' => '15']],
+    ];
+
+    /** The student (CriteriaCalculatorTest): man, 24, 170 cm, 68 kg, losing weight. */
     private function completeSetUp(array $health = []): void
     {
-        $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => '178', 'weight_kg' => '80'])
+        $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => now()->year - 24, 'height_cm' => '170', 'weight_kg' => '68'])
             ->assertRedirect('/onboarding/activity');
-        $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'lose'])
+        $this->post('/onboarding/activity', self::STUDENT + ['goal' => 'lose'])
             ->assertRedirect('/onboarding/health');
         $this->post('/onboarding/health', $health)->assertRedirect('/onboarding/done');
     }
@@ -41,13 +47,13 @@ class OnboardingTest extends TestCase
     {
         // 62 kg at 178 cm: BMI 19.6. The deficit applies, told gently (decision 2a).
         $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => '178', 'weight_kg' => '62']);
-        $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'lose']);
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'lose']);
         $this->post('/onboarding/health', []);
         $this->get('/onboarding/done')->assertOk()
             ->assertSee('لهدف إنقاص الوزن')
             ->assertSee('وزنك ضمن الطبيعي لطولك');
 
-        $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'gain']);
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'gain']);
         $this->get('/onboarding/done')->assertOk()
             ->assertSee('لهدف زيادة الوزن (رقم اختيار منّا')
             ->assertSee('للمعلومة');                                // the total sugars
@@ -70,10 +76,53 @@ class OnboardingTest extends TestCase
         $this->assertNotNull($profile->completed_at);
         $this->assertNull($profile->health_consent_at);
 
+        // BMR 1628; the day × 1.456 = 2369; + 88 of exercise = 2457; − 500 = 1957 (a meal: 587).
         $this->get('/onboarding/done')->assertOk()
-            ->assertSee('2,240')
-            ->assertSee('672')
+            ->assertSeeInOrder(['كيف حسبناها', '1,628', '1.456', '2,369', 'رياضتك', '88', '2,457', 'لهدف إنقاص الوزن', '500'])
+            ->assertSee('1,957')
+            ->assertSee('587')
+            ->assertSee('النشاط الرياضي')                              // training 3 days a week
             ->assertSee('الاستشارة الأولى مجانية');
+
+        $profile = $this->user->fresh()->profile;
+        $this->assertSame([3, 'weights', 3, 60], [$profile->work_days, $profile->exercises[0]['type'], $profile->exercises[0]['times'], $profile->exercises[0]['minutes']]);
+    }
+
+    public function test_the_day_and_the_exercise_are_two_questions(): void
+    {
+        $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => now()->year - 24, 'height_cm' => '170', 'weight_kg' => '70']);
+        $this->get('/onboarding/activity')->assertOk()
+            ->assertSeeInOrder(['نهارك بلا رياضة', 'بالبيت أغلب الوقت', 'شغل جسدي', 'كم يوم بالأسبوع', 'الرياضة والتمرين', 'هدفك'])
+            ->assertSee('مشي عادي')->assertSee('حديد عادي');
+
+        // A job needs its days a week; at home it does not, and a blank exercise row is no exercise.
+        $this->post('/onboarding/activity', ['daily_life' => 'seated', 'goal' => 'maintain'])->assertSessionHasErrors('work_days');
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'work_days' => '5', 'goal' => 'maintain', 'exercises' => [['type' => '', 'times' => '', 'minutes' => '']]])
+            ->assertRedirect('/onboarding/health');
+        $profile = $this->user->fresh()->profile;
+        $this->assertSame([null, null], [$profile->work_days, $profile->exercises]);
+
+        // At most three sports, each with its times and minutes, in Arabic digits too.
+        $sport = ['type' => 'walk', 'times' => '٢', 'minutes' => '٦٠'];
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain', 'exercises' => [$sport, $sport, $sport, $sport]])->assertSessionHasErrors('exercises');
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain', 'exercises' => [['type' => 'flying', 'times' => '0', 'minutes' => '1']]])
+            ->assertSessionHasErrors(['exercises.0.type', 'exercises.0.times', 'exercises.0.minutes']);
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain', 'exercises' => [$sport]])->assertRedirect('/onboarding/health');
+        $this->assertSame([['type' => 'walk', 'times' => 2, 'minutes' => 60]], $this->user->fresh()->profile->exercises);
+
+        // Amer: 2339 kcal (CriteriaCalculatorTest).
+        $this->post('/onboarding/health', []);
+        $this->get('/onboarding/done')->assertOk()->assertSee('2,339')->assertDontSee('رياضتك، بمعدّل اليوم</span> <b>+ <span class="ns-num">0', false);
+    }
+
+    public function test_people_from_before_answer_the_activity_step_again(): void
+    {
+        // The old single level is gone: a profile without the day goes back to the activity step.
+        $this->user->profile()->create(['sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => 178, 'weight_kg' => 80, 'goal' => 'lose', 'completed_at' => now()]);
+
+        $this->get('/onboarding/done')->assertRedirect('/onboarding/activity');
+        $this->get('/account/criteria')->assertRedirect();
+        $this->get('/')->assertSee('أكمل ملفك');
     }
 
     public function test_arabic_digits_and_a_comma_are_read_as_numbers(): void
@@ -93,14 +142,14 @@ class OnboardingTest extends TestCase
 
         $this->post('/onboarding/body', ['sex' => 'other', 'birth_year' => 1800, 'height_cm' => 20, 'weight_kg' => 900])
             ->assertSessionHasErrors(['sex', 'birth_year', 'height_cm', 'weight_kg']);
-        $this->post('/onboarding/activity', ['activity_level' => 'lazy', 'goal' => 'fly'])
-            ->assertSessionHasErrors(['activity_level', 'goal']);
+        $this->post('/onboarding/activity', ['daily_life' => 'lazy', 'goal' => 'fly'])
+            ->assertSessionHasErrors(['daily_life', 'goal']);
     }
 
     public function test_allergies_need_consent_are_encrypted_and_can_be_deleted(): void
     {
         $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1990, 'height_cm' => 178, 'weight_kg' => 80]);
-        $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'lose']);
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'lose']);
 
         $this->post('/onboarding/health', ['allergies' => ['sesame']])->assertSessionHasErrors('consent');
         $this->post('/onboarding/health', ['allergies' => ['sesame'], 'consent' => '1'])->assertRedirect('/onboarding/done');
@@ -121,7 +170,7 @@ class OnboardingTest extends TestCase
     public function test_under_18_gets_no_personal_calculation(): void
     {
         $this->post('/onboarding/body', ['sex' => 'female', 'birth_year' => now()->year - 16, 'height_cm' => 160, 'weight_kg' => 50]);
-        $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'maintain']);
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain']);
         $this->post('/onboarding/health', []);
 
         $this->get('/onboarding/done')->assertOk()->assertSee('للبالغين');
@@ -172,7 +221,7 @@ class OnboardingTest extends TestCase
     public function test_the_health_step_offers_allergies_only_and_says_who_the_platform_is_for(): void
     {
         $this->post('/onboarding/body', ['sex' => 'female', 'birth_year' => 1990, 'height_cm' => 165, 'weight_kg' => 60]);
-        $this->post('/onboarding/activity', ['activity_level' => 'moderate', 'goal' => 'maintain']);
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain']);
 
         $this->get('/onboarding/health')->assertOk()
             ->assertSee('حساسيات')
@@ -188,13 +237,14 @@ class OnboardingTest extends TestCase
         $nutritionist = User::forceCreate(['name' => 'د. ريم', 'email' => 'reem2@example.com', 'password' => 'x-secret-1', 'is_active' => true]);
         $criteria = app(PersonalCriteria::class);
 
-        config(['nutrition_criteria.templates.sport' => ['label' => 'قالب الأخصائي', 'group' => 'general', 'description' => 'تجربة', 'macros' => ['carbs' => 55, 'protein' => 25, 'fat' => 20]]]);
-        $criteria->setTemplateByNutritionist($this->user, 'sport', $nutritionist, 'حسب تحاليلك');
-        $this->assertSame('sport', $criteria->for($this->user->fresh())->template['key']);
+        config(['nutrition_criteria.templates.gain.label' => 'قالب الأخصائي']);
+        $criteria->setTemplateByNutritionist($this->user, 'gain', $nutritionist, 'حسب تحاليلك');
+        $this->assertSame('gain', $criteria->for($this->user->fresh())->template['key']);
 
         $this->get('/account/criteria')->assertSee('قالب الأخصائي')->assertSee('اختاره أخصائيّك')->assertSee('ملاحظة أخصائيّك: حسب تحاليلك');
 
+        // Back to what the answers give: training 3 days a week.
         $criteria->clearNutritionist($this->user, $nutritionist);
-        $this->assertSame('balanced', $criteria->for($this->user->fresh())->template['key']);
+        $this->assertSame('sport', $criteria->for($this->user->fresh())->template['key']);
     }
 }

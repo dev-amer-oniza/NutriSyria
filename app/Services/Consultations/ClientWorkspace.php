@@ -3,7 +3,6 @@
 namespace App\Services\Consultations;
 
 use App\Data\Nutrition\NutritionPlanResult;
-use App\Enums\ActivityLevel;
 use App\Enums\Allergen;
 use App\Enums\ConsultationStatus;
 use App\Enums\EnergyEquation;
@@ -93,7 +92,7 @@ class ClientWorkspace
      * The person's body, activity, goal and allergies, as the nutritionist updates them
      * (validated by the panel form).
      *
-     * @param  array{sex: string, birth_year: int, height_cm: float, weight_kg: float, activity_level: string, goal: string, allergies?: list<string>}  $data
+     * @param  array{sex: string, birth_year: int, height_cm: float, weight_kg: float, daily_life: string, work_days: ?int, exercises?: list<array{type: string, times: int, minutes: int}>, goal: string, allergies?: list<string>}  $data
      */
     public function updateProfile(User $nutritionist, ConsultationRequest $link, array $data): void
     {
@@ -102,14 +101,14 @@ class ClientWorkspace
         $client = $link->user;
 
         $this->profiles->saveBody($client, Arr::only($data, ['sex', 'birth_year', 'height_cm', 'weight_kg']));
-        $this->profiles->saveActivity($client, Arr::only($data, ['activity_level', 'goal']));
+        $this->profiles->saveActivity($client, ['exercises' => $data['exercises'] ?? []] + Arr::only($data, ['daily_life', 'work_days', 'goal']));
         $this->profiles->saveHealth($client, array_map(fn (string $a) => Allergen::from($a), $data['allergies'] ?? []));
 
         // A new weight or activity changes the plan's numbers: keep the client's values in step.
         $plan = $link->plan()->first();
         if ($plan) {
             $profile = $client->profile->refresh();
-            $result = $this->plans->calculate($profile, $plan->inputs($profile->activity_level->value));
+            $result = $this->plans->calculate($profile, $plan->inputs());
             if ($result->isValid()) {
                 $this->applyPlan($nutritionist, $link, $result);
             }
@@ -121,9 +120,9 @@ class ClientWorkspace
     /**
      * Saves the nutrition plan (phase 1 of the nutritionist's plan) and sets the client's
      * calories and macros from it as the nutritionist's values, so meals are judged on it.
-     * The activity level is the profile's own and is updated with it.
+     * The day and the exercise are the profile's own (edited with "تعديل بيانات المراجع").
      *
-     * @param  array{equation: string, body_fat_pct: ?float, activity: string, adjustment: int, carbs_pct: int, protein_pct: int, fat_pct: int, fluids_ml: ?int, meals?: list<array<string, mixed>>}  $inputs
+     * @param  array{equation: string, body_fat_pct: ?float, adjustment: int, carbs_pct: int, protein_pct: int, fat_pct: int, fluids_ml: ?int, meals?: list<array<string, mixed>>}  $inputs
      *
      * @throws InvalidArgumentException when the plan has errors or a value is out of range
      */
@@ -131,13 +130,11 @@ class ClientWorkspace
     {
         $this->ensureLinked($nutritionist, $link);
         EnergyEquation::from($inputs['equation']);
-        ActivityLevel::from($inputs['activity']);
 
         $result = $this->plans->calculate($link->user->profile, $inputs);
 
         DB::transaction(function () use ($nutritionist, $link, $inputs, $result) {
             $this->applyPlan($nutritionist, $link, $result);
-            $this->profiles->saveActivity($link->user, ['activity_level' => $inputs['activity']]);
 
             $link->plan()->firstOrNew()->forceFill([
                 'updated_by' => $nutritionist->getKey(),

@@ -11,9 +11,9 @@ use App\Services\Nutrition\Fit\MealFitCalculator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The design's example man (lightly active ×1.55: 2240 kcal, balanced template). One meal = 30% of the day:
- * 672 kcal, 84 g carbohydrate, 33.6 g protein, 22.5 g fat, 7.5 g saturated, 16.8 g sugars,
- * 9.3 g fibre, 600 mg sodium.
+ * A man, 30, 178 cm, 80 kg, seated at work and lifting weights four times a week, losing weight:
+ * 2305 kcal (the sport template). One meal = 30% of the day: 692 kcal, about 83 g carbohydrate,
+ * 38 g protein, 23 g fat, 7.8 g saturated, 17.4 g sugars, 9.7 g fibre, 600 mg sodium.
  */
 class MealFitCalculatorTest extends TestCase
 {
@@ -29,7 +29,9 @@ class MealFitCalculatorTest extends TestCase
     {
         return (new CriteriaCalculator($this->rules))->calculate($overrides + [
             'sex' => 'male', 'age' => 30, 'height_cm' => 178, 'weight_kg' => 80,
-            'activity' => 'light', 'goal' => 'lose', 'allergens' => [],
+            // Seated at work, weights four times a week: 2805 kcal a day, 2305 to lose.
+            'daily_life' => 'seated', 'work_days' => 7, 'exercises' => [['type' => 'weights', 'times' => 4, 'minutes' => 60]],
+            'goal' => 'lose', 'allergens' => [],
         ]);
     }
 
@@ -57,10 +59,10 @@ class MealFitCalculatorTest extends TestCase
 
         $this->assertSame(4, $fit->level);
         $this->assertSame(['grams' => 350, 'kcal' => 600, 'whole' => true], $fit->portion);
-        $this->assertSame(['energy' => 27, 'protein' => 27, 'carbs' => 29, 'fat' => 27], $fit->share);
-        $this->assertStringContainsString('27% من احتياجك اليومي', $fit->reasons[0]);
+        $this->assertSame(['energy' => 26, 'protein' => 23, 'carbs' => 29, 'fat' => 26], $fit->share);
+        $this->assertStringContainsString('26% من احتياجك اليومي', $fit->reasons[0]);
         $this->assertSame([], $fit->notes);
-        $this->assertSame('المتوازن', $fit->template);
+        $this->assertSame('النشاط الرياضي', $fit->template);
     }
 
     public function test_the_level_follows_the_largest_overshoot(): void
@@ -73,7 +75,7 @@ class MealFitCalculatorTest extends TestCase
         // Fat 31.5 g = 40% over 22.5 g.
         $this->assertSame(2, $this->judge($this->meal(['fat_g' => 31.5]))->level);
 
-        // Energy 1075 kcal = 60% over 672: a target, so "needs attention" at most (step 2).
+        // Energy 1075 kcal = 55% over 692: a target, so "needs attention" at most (step 2).
         $this->assertSame(2, $this->judge($this->meal(['energy_kcal' => 1075]))->level);
 
         // Exactly 10% over still suits very well.
@@ -82,7 +84,7 @@ class MealFitCalculatorTest extends TestCase
 
     public function test_the_suitable_portion_keeps_every_limit(): void
     {
-        // Fat 31.5 g over 22.5 g: 71% of 350 g = 250 g (down to tens), 600 × 250/350 = 429 kcal.
+        // Fat 31.5 g over 23 g: 73% of 350 g = 250 g (down to tens), 600 × 250/350 = 429 kcal.
         $fit = $this->judge($this->meal(['fat_g' => 31.5]));
         $this->assertSame(['grams' => 250, 'kcal' => 429, 'whole' => false], $fit->portion);
 
@@ -201,7 +203,7 @@ class MealFitCalculatorTest extends TestCase
         $this->assertSame(['grams' => 70, 'kcal' => 420, 'whole' => false], $fit->portion);
     }
 
-    /** The nutritionist's plan lunch: 35% of 2240 = 784 kcal, with carbs kept to 60 g on purpose. */
+    /** A nutritionist's plan lunch of 784 kcal (35% of a 2240 kcal plan), with carbs kept to 60 g on purpose. */
     private function withLunch(): CriteriaSheet
     {
         return $this->sheet()->withMeal([

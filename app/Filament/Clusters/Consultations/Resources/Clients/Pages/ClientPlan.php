@@ -3,7 +3,6 @@
 namespace App\Filament\Clusters\Consultations\Resources\Clients\Pages;
 
 use App\Data\Nutrition\NutritionPlanResult;
-use App\Enums\ActivityLevel;
 use App\Enums\EnergyEquation;
 use App\Filament\Clusters\Consultations\Resources\Clients\ClientResource;
 use App\Models\ConsultationRequest;
@@ -66,9 +65,8 @@ class ClientPlan extends Page implements HasForms
 
         if ($this->canPlan()) {
             $plan = $this->record->plan;
-            $activity = $this->record->user->profile->activity_level->value;
             $this->form->fill($plan
-                ? $plan->inputs($activity)
+                ? $plan->inputs()
                 : app(NutritionPlans::class)->defaults($this->record, app(PersonalCriteria::class)->for($this->record->user)->template['macros']));
         }
     }
@@ -98,7 +96,7 @@ class ClientPlan extends Page implements HasForms
             ->statePath('data')
             ->components([
                 Section::make('1. الأساس')
-                    ->description('معادلة الأيض الأساسي ومعامل النشاط.')
+                    ->description(fn () => 'معادلة الأيض الأساسي. النهار والرياضة من ملف المراجع: '.$this->record->user->profile->activitySummary().' (تتغيّر من "تعديل بيانات المراجع").')
                     ->columns(2)
                     ->components([
                         Radio::make('equation')->label('المعادلة')->required()->live()
@@ -108,8 +106,6 @@ class ClientPlan extends Page implements HasForms
                             ->minValue($plan['body_fat_range'][0])->maxValue($plan['body_fat_range'][1])
                             ->visible(fn (Get $get) => EnergyEquation::tryFrom((string) $get('equation'))?->needsBodyFat() ?? false)
                             ->required(fn (Get $get) => EnergyEquation::tryFrom((string) $get('equation'))?->needsBodyFat() ?? false),
-                        Select::make('activity')->label('معامل النشاط')->required()->live()->selectablePlaceholder(false)
-                            ->options(collect(ActivityLevel::cases())->mapWithKeys(fn (ActivityLevel $a) => [$a->value => $a->label().' (×'.$a->factor().')'])->all()),
                     ]),
 
                 Section::make('2. السعرات')
@@ -259,7 +255,7 @@ class ClientPlan extends Page implements HasForms
     /** The plan worked out from what is on the form now (nothing is saved). */
     public function preview(): ?NutritionPlanResult
     {
-        if (! $this->canPlan() || empty($this->data['activity'])) {
+        if (! $this->canPlan() || empty($this->data['equation'])) {
             return null;
         }
 

@@ -3,6 +3,7 @@
 namespace App\Services\Nutrition;
 
 use App\Enums\Allergen;
+use App\Enums\DailyLife;
 use App\Models\User;
 use App\Models\UserProfile;
 
@@ -27,9 +28,22 @@ class UserProfileService
         return $profile;
     }
 
-    /** @param  array{activity_level: string, goal: string}  $activity */
+    /**
+     * The day, the exercise and the goal (any of them; the nutritionist edits the first two).
+     * Work days only for a job or study; an empty list of exercise is "none".
+     *
+     * @param  array{daily_life?: string, work_days?: ?int, exercises?: array<array{type: string, times: int|string, minutes: int|string}>, goal?: string}  $activity
+     */
     public function saveActivity(User $user, array $activity): UserProfile
     {
+        if (isset($activity['daily_life'])) {
+            $activity['work_days'] = DailyLife::from($activity['daily_life'])->hasWorkDays() ? (int) ($activity['work_days'] ?? 7) : null;
+        }
+        if (array_key_exists('exercises', $activity)) {
+            $activity['exercises'] = array_map(fn (array $e) => [
+                'type' => (string) $e['type'], 'times' => (int) $e['times'], 'minutes' => (int) $e['minutes'],
+            ], array_values($activity['exercises'])) ?: null;
+        }
         $profile = $this->profileOf($user)->fill($activity);
         $profile->save();
 

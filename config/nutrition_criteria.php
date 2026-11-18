@@ -6,16 +6,16 @@
 |
 | The platform serves healthy adults and people who train, with their allergies; health
 | conditions were removed (the owner's decision, Nov 2026; the old work is in main's history
-| at b76d834). Daily calories: Mifflin-St Jeor x activity, plus the goal's change; the
-| template shares them between carbohydrate, protein and fat. A nutritionist's value
-| overrides the computed one for their client.
+| at b76d834). Daily calories: Mifflin-St Jeor × the day's factor + exercise, plus the goal's
+| change; protein per kg, fat 30%, carbohydrate the rest. A nutritionist's value overrides
+| the computed one for their client.
 |
 | 'refs' name the sources of a rule (config/nutrition_references.php); 'info_only' rules are
 | shown but never judge a meal.
 |
 | Rule types (CriteriaCalculator):
 |   energy      the daily calorie target
-|   macro       the template's share of calories for carbs, protein or fat, in grams
+|   macro       the template's grams of carbs, protein or fat ('macro_rule')
 |   per_kg      grams per kg of body weight
 |   energy_pct  a share of the daily calories, turned into grams with 'kcal_per_g'
 |   per_1000    grams per 1000 kcal of the daily target
@@ -52,32 +52,69 @@ return [
     'fit_near_pct' => 5,
 
     /*
-    | Physical activity level => multiplier of the resting energy (App\Enums\ActivityLevel).
-    | Each one inside the FAO/WHO/UNU ranges (fao_energy_2004, Table 5.3): sedentary or light
-    | 1.40–1.69, active 1.70–1.99, vigorous 2.00–2.40 (the owner's decision 1a). The old
-    | 1.2–1.9 had no source, and 1.2 and 1.375 were under the lowest level adults live at.
+    | The new calculation (the owner's decisions, Nov 2026): TDEE = BMR × the day's factor
+    | (without exercise) + the exercise's extra. App\Services\Nutrition\Criteria\EnergyCalculator.
+    |
+    | The day without exercise (App\Enums\DailyLife), from FAO/WHO/UNU 2004 Table 5.1:
+    |   home      1.40  a day at home worked out the FAO way gives 1.37, under the lowest
+    |                   level adults live at (1.40), so 1.40
+    |   seated    1.53  FAO's own office worker who "does not exercise"
+    |   standing  1.64  FAO's waiter with its hour of exercise taken out: (42.2 − 4.2 + 1.4) ÷ 24
+    |   physical  1.80  inside FAO's band for masons and builders (1.70–1.99): the least exact
+    | With work on some days only, the days off count as home: (days × factor + rest × 1.40) ÷ 7.
     */
-    'activity_factors' => [
-        'sedentary' => 1.40,
-        'light' => 1.55,
-        'moderate' => 1.75,
-        'very' => 2.00,
-        'extreme' => 2.20,
+    'daily_life' => [
+        'home' => 1.40,
+        'seated' => 1.53,
+        'standing' => 1.64,
+        'physical' => 1.80,
     ],
-    'activity_refs' => ['fao_energy_2004'],
+    'daily_life_refs' => ['fao_energy_2004'],
+
+    /*
+    | Exercise: the extra an hour = MET × weight − 'replaced_par' × BMR ÷ 24 (the hour would
+    | have been sitting, PAR 1.4 in FAO Table 5.1, already in the day's factor), averaged over
+    | the week. "1 MET = 1 kcal/kg/hr" (compendium_2024). Values and codes from the 2024 Adult
+    | Compendium of Physical Activities. 'sport_days': training on this many days a week or
+    | more brings the sport template.
+    */
+    'replaced_par' => 1.4,
+    'sport_days' => 3,
+    'max_exercises' => 3,
+    'exercise_refs' => ['compendium_2024', 'who_pa_2020'],
+    'exercises' => [
+        'walk' => ['label' => 'مشي عادي', 'met' => 3.0, 'code' => '17170'],
+        'brisk_walk' => ['label' => 'مشي سريع', 'met' => 4.8, 'code' => '17200'],
+        'jog' => ['label' => 'هرولة', 'met' => 7.5, 'code' => '12020'],
+        'run' => ['label' => 'جري (نحو 10 كم/س)', 'met' => 9.3, 'code' => '12050'],
+        'weights' => ['label' => 'حديد عادي', 'met' => 3.5, 'code' => '02054'],
+        'gym' => ['label' => 'نادي عام أو كلاسات', 'met' => 5.5, 'code' => '02060'],
+        'weights_hard' => ['label' => 'حديد قوي (بناء أجسام)', 'met' => 6.0, 'code' => '02050'],
+        'cardio' => ['label' => 'كارديو متوسط (أوربيتراك)', 'met' => 5.0, 'code' => '02048'],
+        'cycling' => ['label' => 'دراجة', 'met' => 7.0, 'code' => '01014'],
+        'swim' => ['label' => 'سباحة هادئة', 'met' => 5.8, 'code' => '18240'],
+        'swim_fast' => ['label' => 'سباحة سريعة', 'met' => 9.8, 'code' => '18230'],
+        'football' => ['label' => 'كرة قدم ودّية', 'met' => 7.0, 'code' => '15610'],
+        'football_match' => ['label' => 'كرة قدم (مباراة)', 'met' => 9.5, 'code' => '15605'],
+        'basketball' => ['label' => 'كرة سلة', 'met' => 7.5, 'code' => '15055'],
+        'boxing' => ['label' => 'ملاكمة على الكيس', 'met' => 5.8, 'code' => '15110'],
+    ],
+
+    /* TDEE ÷ BMR outside this range (FAO: what adults sustain) asks the person to check their answers. */
+    'pal_range' => [1.40, 2.40],
 
     /*
     | Calories added to the daily need for each goal (App\Enums\Goal): a 500 kcal deficit
-    | (a normal weight may lose too, told so gently: the owner's decision 2a), and +300 to
-    | gain, counted like the rest; it has no reference yet, so the sources page calls it our
-    | choice (decision 4a).
+    | (nice_obesity_ng246 1.16.4: most studies used 500 to 800; a normal weight may lose too,
+    | told so gently: decision 2a), and +300 to gain, counted like the rest; it has no
+    | reference yet, so the sources page calls it our choice (decision 4a).
     */
     'goal_adjustment' => [
         'lose' => -500,
         'maintain' => 0,
         'gain' => 300,
     ],
-    'goal_refs' => ['aha_obesity_2013'],
+    'goal_refs' => ['aha_obesity_2013', 'nice_obesity_ng246'],
 
     /*
     | The nutritionist's nutrition plan (App\Services\Nutrition\Plan, the owner's decisions
@@ -184,7 +221,7 @@ return [
         ],
         'protein_g' => [
             'label' => 'البروتين', 'unit' => 'غ', 'bound' => 'target', 'scope' => 'day',
-            'nutrient' => 'protein_g', 'kind' => 'guidance', 'refs' => ['nasem_amdr'],
+            'nutrient' => 'protein_g', 'kind' => 'guidance', 'refs' => ['dga_2025_protein', 'nasem_amdr'],
             'default' => ['type' => 'macro', 'macro' => 'protein'],
             'range' => [20, 400],
         ],
@@ -257,19 +294,51 @@ return [
         ],
     ],
 
-    /* The template everyone starts from. */
+    /*
+    | Sharing the calories (the owner's decisions, Nov 2026): protein first, in grams per kg
+    | (dga_2025_protein: "1.2–1.6 grams of protein per kilogram of body weight per day"), fat
+    | 30% of the calories (who_fats_2023), carbohydrate the rest. When the carbohydrate falls
+    | under 45% (nasem_amdr), the fat comes down 5 points at a time to 20%, never the protein;
+    | and the protein never passes 35% of the calories (nasem_amdr).
+    */
+    'macro_rule' => [
+        'fat_pct' => 30,
+        'fat_min_pct' => 20,
+        'fat_step' => 5,
+        'carbs_min_pct' => 45,
+        'protein_max_pct' => 35,
+    ],
+    'protein_refs' => ['dga_2025_protein'],
+
+    /* The template a goal brings; training on 'sport_days' days a week or more brings 'sport'. */
+    'goal_templates' => ['maintain' => 'balanced', 'lose' => 'weight_loss', 'gain' => 'gain'],
     'default_template' => 'balanced',
 
     /*
-    | Diet templates: macros in % of calories (carbs / protein / fat). The four new ones
-    | (balanced, weight loss, gain and muscle, sport) come with the new calculation.
+    | The four templates: the protein each asks for, in grams per kg ('protein_per_kg': one value,
+    | or one per goal). Sport keeps the goal's protein for now: its carbohydrate per kg waits for
+    | the ACSM/AND/DC 2016 statement to be read. A nutritionist may choose any of them.
     */
     'templates' => [
         'balanced' => [
-            'label' => 'المتوازن', 'group' => 'general', 'source' => 'NASEM · WHO',
-            'refs' => ['nasem_amdr', 'who_fats_2023'],
-            'description' => 'توزيع للبالغين الأصحاء داخل المجالات المرجعية: كربوهيدرات 50%، بروتين 20%، دهون 30%.',
-            'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
+            'label' => 'التغذية المتوازنة', 'group' => 'general',
+            'description' => 'للمحافظة على الوزن بأكل متوازن: بروتين 1.2 غ لكل كغ، دهون 30% من السعرات، والباقي كربوهيدرات.',
+            'protein_per_kg' => 1.2,
+        ],
+        'weight_loss' => [
+            'label' => 'إنقاص الوزن', 'group' => 'general',
+            'description' => 'عجز هادئ في السعرات، وبروتين أعلى (1.6 غ لكل كغ) ليحمي العضل وأنت تنقص.',
+            'protein_per_kg' => 1.6,
+        ],
+        'gain' => [
+            'label' => 'زيادة الوزن والعضل', 'group' => 'general',
+            'description' => 'سعرات أكثر قليلاً من حرقك، وبروتين 1.6 غ لكل كغ ليُبنى العضل مع التمرين.',
+            'protein_per_kg' => 1.6,
+        ],
+        'sport' => [
+            'label' => 'النشاط الرياضي', 'group' => 'general',
+            'description' => 'لمن يتمرّن 3 أيام أو أكثر: سعرات تمرينه محسوبة كاملة، والبروتين حسب هدفه.',
+            'protein_per_kg' => ['maintain' => 1.2, 'lose' => 1.6, 'gain' => 1.6],
         ],
     ],
 

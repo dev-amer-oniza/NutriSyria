@@ -5,15 +5,16 @@ namespace App\Services\Nutrition\Plan;
 use App\Data\Nutrition\NutritionPlanResult;
 use App\Enums\EnergyEquation;
 use App\Enums\Sex;
+use App\Services\Nutrition\Criteria\EnergyCalculator;
 
 /**
  * Works out a nutritionist's plan for one client (pure: arrays in, a result out). The steps the
- * nutritionist asked for: resting energy by the chosen equation, times the activity factor,
- * plus the chosen change; the calories shared between carbohydrate, protein and fat by %;
+ * nutritionist asked for: resting energy by the chosen equation, times the client's day factor,
+ * plus their exercise (EnergyCalculator, the same as the site's), plus the chosen change; the calories shared between carbohydrate, protein and fat by %;
  * and the fluids. Rules and limits are in config/nutrition_criteria.php (plan).
  *
- * Profile keys: sex, age, height_cm, weight_kg.
- * Plan keys: equation, body_fat_pct (nullable), activity (level key), adjustment (kcal),
+ * Profile keys: sex, age, height_cm, weight_kg, daily_life, work_days, exercises (the profile's).
+ * Plan keys: equation, body_fat_pct (nullable), adjustment (kcal),
  * carbs_pct, protein_pct, fat_pct, fluids_ml (nullable), and optionally meals: a list of
  * {type, label, time, share_pct, carbs_g, protein_g, fat_g} (phase 2).
  */
@@ -29,7 +30,8 @@ final class NutritionPlanCalculator
         $sex = Sex::from($profile['sex']);
         $equation = EnergyEquation::tryFrom((string) ($plan['equation'] ?? '')) ?? EnergyEquation::Mifflin;
         $bodyFat = isset($plan['body_fat_pct']) && $plan['body_fat_pct'] !== '' ? (float) $plan['body_fat_pct'] : null;
-        $factor = (float) ($this->rules['activity_factors'][$plan['activity'] ?? ''] ?? 1.4);
+        $energy = new EnergyCalculator($this->rules);
+        $factor = $energy->factor((string) $profile['daily_life'], $profile['work_days'] ?? null);
         $adjustment = (int) ($plan['adjustment'] ?? 0);
         $errors = [];
         $warnings = [];
@@ -39,7 +41,8 @@ final class NutritionPlanCalculator
             $errors[] = 'معادلة Katch-McArdle تحتاج نسبة الدهون في الجسم.';
         }
 
-        $tdee = $bmr === null ? null : $bmr * $factor;
+        $exercise = $bmr === null ? 0.0 : $energy->exercise($bmr, (float) $profile['weight_kg'], $profile['exercises'] ?? []);
+        $tdee = $bmr === null ? null : $bmr * $factor + $exercise;
         $target = $tdee === null ? null : (int) (round(($tdee + $adjustment) / 10) * 10);
 
         $minimum = (int) $this->rules['min_kcal'][$sex->value];
@@ -65,7 +68,8 @@ final class NutritionPlanCalculator
         return new NutritionPlanResult(
             bmr: $bmr === null ? null : (int) round($bmr),
             tdee: $tdee === null ? null : (int) round($tdee),
-            activityFactor: $factor,
+            activityFactor: round($factor, 3),
+            exercise: (int) round($exercise),
             adjustment: $adjustment,
             target: $target,
             macros: $macros,

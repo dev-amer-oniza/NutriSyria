@@ -32,6 +32,19 @@
     .ns-type__name { font-size: 15px; line-height: 24px; font-weight: 600; color: var(--ink); }
     .ns-type__hint { font-size: 12px; line-height: 18px; color: var(--ink-muted); }
 
+    /* Onboarding, activity: work days as seven chips, and one row a sport. */
+    .ns-days { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .ns-days__day { position: relative; min-width: 44px; justify-content: center; }
+    .ns-days__day:has(:checked) { background: var(--pine); border-color: var(--pine); color: var(--on-pine); }
+    .ns-days__day:has(:focus-visible) { box-shadow: var(--focus-ring); }
+    .ns-sport { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) 44px; gap: var(--space-2); align-items: end; }
+    .ns-sport label { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+    .ns-sport__label { font-size: 12px; line-height: 18px; color: var(--ink-muted); }
+    .ns-sport .ns-input { height: 44px; }
+    .ns-sport__remove { height: 44px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-raised); color: var(--ink-muted); font: inherit; font-size: 20px; cursor: pointer; }
+    .ns-sport__remove:hover { border-color: var(--terracotta-ink); color: var(--terracotta-ink); }
+    .ns-sport__add { align-self: flex-start; }
+
     .ns-form__submit { width: 100%; height: 52px; font-size: 16px; }
     .ns-form__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
     .ns-form__aside { margin: 0; text-align: center; font-size: 15px; line-height: 24px; color: var(--ink-muted); }
@@ -71,5 +84,7 @@
     @media (max-width: 640px) {
         .ns-auth__main { padding: var(--space-6) var(--space-4) var(--space-8); }
         .ns-types__grid { grid-template-columns: minmax(0, 1fr); }
+        .ns-sport { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px; }
+        .ns-sport__type { grid-column: 1 / -1; }
     }
 }

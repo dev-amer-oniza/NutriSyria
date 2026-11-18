@@ -22,6 +22,7 @@ class NutritionPlans
             'age' => $profile->age(),
             'height_cm' => $profile->height_cm,
             'weight_kg' => $profile->weight_kg,
+            ...$profile->activity(),
         ], $inputs);
     }
 
@@ -31,7 +32,7 @@ class NutritionPlans
         $plan = $link->plan;
         $profile = $link->user->profile;
 
-        return $plan && $profile?->canCalculate() ? $this->calculate($profile, $plan->inputs($profile->activity_level->value)) : null;
+        return $plan && $profile?->canCalculate() ? $this->calculate($profile, $plan->inputs()) : null;
     }
 
     /** What a new plan starts from: Mifflin, the profile's goal change and the current template's shares. */
@@ -42,7 +43,6 @@ class NutritionPlans
         return [
             'equation' => 'mifflin',
             'body_fat_pct' => null,
-            'activity' => $profile->activity_level->value,
             'adjustment' => (int) config('nutrition_criteria.goal_adjustment.'.$profile->goal->value),
             'carbs_pct' => $templateMacros['carbs'],
             'protein_pct' => $templateMacros['protein'],

@@ -12,7 +12,7 @@
             'الوزن' => $profile?->weight_kg ? round($profile->weight_kg, 1).' كغ' : null,
             'مؤشر كتلة الجسم' => $bmi ? number_format($bmi->value, 1).' · '.$bmi->clinical : null,
             'الوزن الصحي لطوله' => $bmi ? $bmi->healthyMinKg.'–'.$bmi->healthyMaxKg.' كغ' : null,
-            'النشاط' => $profile?->activity_level?->label(),
+            'النشاط' => $profile?->daily_life ? $profile->activitySummary() : null,
             'الهدف' => $profile?->goal?->label(),
             'مرتبط منذ' => $this->record->responded_at?->format('Y-m-d'),
         ]);

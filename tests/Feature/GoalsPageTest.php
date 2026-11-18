@@ -56,7 +56,7 @@ class GoalsPageTest extends TestCase
 
         $user->profile()->create([
             'sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => 178, 'weight_kg' => 80,
-            'activity_level' => 'moderate', 'goal' => 'lose', 'allergies' => [], 'completed_at' => now(),
+            'daily_life' => 'physical', 'work_days' => 7, 'goal' => 'lose', 'allergies' => [], 'completed_at' => now(),
         ]);
         $this->actingAs($user->fresh())->get(route('site.goals'))->assertSee(route('site.meals', ['suits' => 1]), false);
     }
