@@ -387,6 +387,47 @@ return [
         'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
     ],
 
+    /* The kidneys (step 7, batch 4). */
+
+    'kdigo_2024_ckd' => [
+        'org' => 'KDIGO',
+        'title' => 'KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease (Executive Summary)',
+        'year' => 2024,
+        'url' => 'https://kdigo.org/wp-content/uploads/2017/02/KDIGO-2024-CKD-Guideline-Executive-Summary.pdf',
+        'where' => 'Chapter 3.3 Diet: Practice Points 3.3.1, 3.3.2; Recommendations 3.3.1.1, 3.3.2.1',
+        'quote' => 'Practice Point 3.3.2: Use renal dietitians or accredited nutrition providers to educate people with CKD about dietary adaptations regarding sodium, phosphorus, potassium, and protein intake, tailored to their individual needs, and severity of CKD and other comorbid conditions. … Recommendation 3.3.1.1: We suggest maintaining a protein intake of 0.8 g/kg body weight/d in adults with CKD G3–G5 (2C). Practice Point 3.3.1.1: Avoid high protein intake (>1.3 g/kg body weight/d) in adults with CKD at risk of progression. Practice Point 3.3.1.2: In adults with CKD who are willing and able, and who are at risk of kidney failure, consider prescribing, under close supervision, a very low–protein diet (0.3–0.4 g/kg body weight/d) supplemented with essential amino acids or ketoacid analogs (up to 0.6 g/kg body weight/d). … Recommendation 3.3.2.1: We suggest that sodium intake be <2 g of sodium per day (or <90 mmol of sodium per day, or <5 g of sodium chloride per day) in people with CKD (2C). … this guideline is not intended for people receiving dialysis nor those who have a kidney transplant.',
+        'summary' => 'للمرحلة 3 إلى 5 قبل الغسيل: بروتين 0.8 غ لكل كغ في اليوم، وتجنّب أكثر من 1.3، والبروتين القليل جداً تحت إشراف فقط. صوديوم أقل من 2 غ. البوتاسيوم والفوسفور مع أخصائي تغذية الكلى. لا يشمل الغسيل.',
+        'applies' => 'البالغون مع مرض الكلى المزمن، المرحلة 3 إلى 5، قبل الغسيل',
+        'read_at' => '2026-11-18',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'nice_ckd_ng203' => [
+        'org' => 'NICE',
+        'title' => 'Chronic kidney disease: assessment and management (NG203)',
+        'year' => 2021,
+        'url' => 'https://www.nice.org.uk/guidance/ng203/chapter/Recommendations',
+        'where' => 'Recommendations 1.4.7 to 1.4.9 (Dietary interventions, Low-protein diets)',
+        'quote' => 'Offer dietary advice about potassium, phosphate, calorie and salt intake appropriate to the severity of CKD. [2008, amended 2014] If dietary intervention is agreed, provide it alongside education, detailed dietary assessment and supervision to ensure malnutrition is prevented. [2008] Do not offer low-protein diets (dietary protein intake less than 0.6 to 0.8 g/kg/day) to adults with CKD. [2014]',
+        'summary' => 'نصيحة البوتاسيوم والفوسفات والسعرات والملح حسب شدة المرض، مع إشراف يمنع سوء التغذية. لا حمية بروتين أقل من 0.6 إلى 0.8 غ لكل كغ.',
+        'applies' => 'البالغون مع مرض الكلى المزمن',
+        'read_at' => '2026-11-18',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'niddk_hemodialysis' => [
+        'org' => 'NIDDK (NIH)',
+        'title' => 'Eating & Nutrition for Hemodialysis',
+        'year' => 2026,
+        'url' => 'https://www.niddk.nih.gov/health-information/kidney-disease/kidney-failure/hemodialysis/eating-nutrition',
+        'where' => 'Protein; Sodium; Liquids',
+        'quote' => 'Renal dietitians encourage most people on hemodialysis to eat high-quality protein because it produces less waste for removal during dialysis. … Do not use salt substitutes because they contain potassium. … Work with your renal dietitian to set a goal for how much liquid you can have each day.',
+        'summary' => 'بروتين جيد النوعية، وبلا بدائل ملح (فيها بوتاسيوم)، والسوائل يحددها أخصائي تغذية الكلى. بلا أرقام.',
+        'applies' => 'البالغون على الغسيل الدموي',
+        'read_at' => '2026-11-18',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
     /* The liver (step 3). */
 
     'who_hepatitis_a' => [

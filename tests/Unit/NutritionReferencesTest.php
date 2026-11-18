@@ -269,6 +269,28 @@ class NutritionReferencesTest extends TestCase
         $this->assertArrayNotHasKey('refs', $this->rules['templates']['mediterranean']);
     }
 
+    public function test_the_kidneys_follow_their_references(): void
+    {
+        // Step 7, batch 4: KDIGO's 0.8 g/kg for CKD G3-G5; NICE forbids going under 0.6-0.8.
+        $protein = $this->rules['templates']['ckd']['rules']['protein_g'];
+        $this->assertSame([0.8, 'max', ['kdigo_2024_ckd']], [$protein['value'], $protein['bound'], $protein['refs']]);
+        $this->assertStringContainsString('maintaining a protein intake of 0.8 g/kg body weight/d in adults with CKD G3–G5', $this->quote('kdigo_2024_ckd'));
+        $this->assertStringContainsString('Do not offer low-protein diets (dietary protein intake less than 0.6 to 0.8 g/kg/day)', $this->quote('nice_ckd_ng203'));
+        $this->assertSame('ckd', $this->rules['conditions']['kidney']['template']);
+
+        // Sodium under 2 g: the general limit already, so no rule of the templates' own.
+        $this->assertStringContainsString('sodium intake be <2 g of sodium per day', $this->quote('kdigo_2024_ckd'));
+        $this->assertSame(2000, $this->rules['criteria']['sodium_mg']['default']['value']);
+        foreach (['ckd', 'dialysis'] as $template) {
+            $this->assertArrayNotHasKey('sodium_mg', $this->rules['templates'][$template]['rules'], $template);
+        }
+
+        // Dialysis is outside KDIGO 2024; its 1.2 g/kg waits for KDOQI 2020 to be read.
+        $this->assertStringContainsString('not intended for people receiving dialysis', $this->quote('kdigo_2024_ckd'));
+        $this->assertArrayNotHasKey('refs', $this->rules['templates']['dialysis']['rules']['protein_g']);
+        $this->assertStringContainsString('Do not use salt substitutes because they contain potassium', $this->quote('niddk_hemodialysis'));
+    }
+
     public function test_hepatitis_jaundice_and_fatty_liver_bring_no_figures(): void
     {
         foreach (['hepatitis_acute', 'hepatitis_chronic', 'jaundice', 'fatty_liver', 'liver_cirrhosis'] as $key) {

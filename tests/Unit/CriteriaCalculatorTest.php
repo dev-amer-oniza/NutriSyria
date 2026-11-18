@@ -184,17 +184,22 @@ class CriteriaCalculatorTest extends TestCase
         $sheet = $this->calculate(['conditions' => ['diabetes', 'kidney']]);
 
         $this->assertSame('ckd', $sheet->template['key']);
-        $this->assertSame('max', $sheet->get('protein_g')->pending->bound, 'kidneys: protein becomes a ceiling');
-        $this->assertSame(['protein_g' => 48.0, 'meal_carbohydrate_g' => 60.0, 'sugars_g' => 32.0],     // 0.6 g/kg; from the diabetes template
-            $this->pending($sheet, ['protein_g', 'meal_carbohydrate_g', 'sugars_g']));
-        $this->assertNull($sheet->get('protein_min_g'), 'no RDA floor above the kidneys\' protein ceiling, even one not verified yet');
+        $this->assertSame(['max', 64.0, true], [$sheet->get('protein_g')->bound, $sheet->get('protein_g')->value, $sheet->get('protein_g')->verified],
+            'kidneys: protein becomes KDIGO\'s ceiling, 0.8 g/kg');
+        $this->assertSame(['meal_carbohydrate_g' => 60.0, 'sugars_g' => 32.0],     // from the diabetes template
+            $this->pending($sheet, ['meal_carbohydrate_g', 'sugars_g']));
+        $this->assertSame(56.0, $sheet->get('protein_min_g')->value, 'the RDA floor stays under the 64 g ceiling');
         $this->assertCount(2, $sheet->advice, 'the kidneys\' and diabetes\' (its carbohydrate is the doctor\'s number)');
-        $this->assertCount(2, $sheet->pendingConditions);
+        $this->assertCount(1, $sheet->pendingConditions, 'only diabetes: the kidneys\' protein is verified now');
 
         $dialysis = $this->calculate(['conditions' => ['kidney', 'dialysis']]);
         $this->assertSame('dialysis', $dialysis->template['key']);
         $this->assertSame('min', $dialysis->get('protein_g')->pending->bound, "a lower template's ceiling never flips the winner's floor");
-        $this->assertSame(['protein_g' => 96.0], $this->pending($dialysis, ['protein_g']));        // 1.2 g/kg
+        $this->assertSame(['protein_g' => 96.0], $this->pending($dialysis, ['protein_g']));        // 1.2 g/kg, KDOQI not read yet
+        $this->assertNotSame('max', $dialysis->get('protein_g')->bound, 'KDIGO\'s CKD ceiling is not for dialysis');
+
+        $small = $this->calculate(['conditions' => ['kidney'], 'sex' => 'female', 'weight_kg' => 50]);
+        $this->assertNull($small->get('protein_min_g'), 'no RDA floor (46 g) above the kidneys\' ceiling (40 g)');
 
         $bp = $this->calculate(['conditions' => ['diabetes', 'hypertension']]);
         $this->assertSame('diabetes', $bp->template['key']);

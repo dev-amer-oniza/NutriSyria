@@ -58,8 +58,12 @@ class MedicalReferencesTest extends TestCase
         $this->assertSame('موثّق جزئياً 1/2', $celiac->statusLabel());
 
         $ckd = $this->references->template('ckd');
-        $this->assertSame(ReferenceCard::PENDING, $ckd->status);
-        $this->assertSame('حتى 0.6 غ لكل كغ من الوزن في اليوم', $ckd->rules[1]->value);
+        $this->assertSame(ReferenceCard::PARTIAL, $ckd->status, 'its protein is KDIGO\'s, its split has no reference');
+        $this->assertSame('حتى 0.8 غ لكل كغ من الوزن في اليوم', $ckd->rules[1]->value);
+
+        $dialysis = $this->references->template('dialysis');
+        $this->assertSame(ReferenceCard::PENDING, $dialysis->status);
+        $this->assertSame('على الأقل 1.2 غ لكل كغ من الوزن في اليوم', $dialysis->rules[1]->value);
     }
 
     public function test_a_condition_counts_the_template_it_brings(): void

@@ -364,25 +364,30 @@ return [
             'description' => 'أكل صحي، وإنقاص 5–7% من الوزن إن كان أعلى من الطبيعي.',
             'macros' => ['carbs' => 40, 'protein' => 25, 'fat' => 35],
         ],
+        /*
+        | The kidneys (step 7, batch 4, decisions 1a 2a 3a 4a). KDIGO 2024 3.3.1.1: protein 0.8
+        | g/kg a day for CKD G3-G5 (a ceiling here); NICE NG203 1.4.9 forbids going under 0.6-0.8,
+        | so the old 0.6 went. Sodium <2 g (KDIGO 3.3.2.1) is the general limit already. Dialysis
+        | is outside KDIGO 2024: its 1.2 g/kg floor waits for KDOQI 2020 to be read (pending).
+        | Neither split has a reference: judged with the balanced shares unless a nutritionist chose it.
+        */
         'ckd' => [
-            'label' => 'الكلى قبل الغسيل (CKD 3-5)', 'group' => 'kidney', 'source' => 'KDOQI 2020',
-            'description' => 'بروتين منخفض (حتى 0.6 غ لكل كغ) لحماية الكلى.',
+            'label' => 'الكلى قبل الغسيل (CKD 3-5)', 'group' => 'kidney', 'source' => 'KDIGO 2024',
+            'description' => 'بروتين معتدل (حتى 0.8 غ لكل كغ)، وملح قليل، وأكل نباتي أكثر.',
             'macros' => ['carbs' => 55, 'protein' => 10, 'fat' => 35],
             'rules' => [
-                'protein_g' => ['type' => 'per_kg', 'value' => 0.6, 'bound' => 'max'],
-                'sodium_mg' => ['type' => 'fixed', 'value' => 2000],
+                'protein_g' => ['type' => 'per_kg', 'value' => 0.8, 'bound' => 'max', 'refs' => ['kdigo_2024_ckd']],
             ],
-            'see_nutritionist' => 'أمراض الكلى تحتاج أرقاماً شخصية (البوتاسيوم والفوسفور) يحددها لك أخصائي.',
+            'see_nutritionist' => 'أمراض الكلى تحتاج أرقاماً شخصية (البوتاسيوم والفوسفور) يحددها لك أخصائي تغذية الكلى حسب مرحلتك.',
         ],
         'dialysis' => [
             'label' => 'غسيل الكلى', 'group' => 'kidney', 'source' => 'KDOQI 2020',
-            'description' => 'بروتين أعلى (1.2 غ لكل كغ على الأقل) لتعويض ما يفقده الغسيل.',
+            'description' => 'بروتين أعلى لتعويض ما يفقده الغسيل، وملح وسوائل محسوبة.',
             'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
             'rules' => [
                 'protein_g' => ['type' => 'per_kg', 'value' => 1.2, 'bound' => 'min'],
-                'sodium_mg' => ['type' => 'fixed', 'value' => 2000],
             ],
-            'see_nutritionist' => 'الغسيل يحتاج أرقاماً شخصية (البوتاسيوم والفوسفور والسوائل) يحددها لك أخصائي.',
+            'see_nutritionist' => 'الغسيل يحتاج أرقاماً شخصية (البروتين والبوتاسيوم والفوسفور والسوائل) يحددها لك أخصائي تغذية الكلى.',
         ],
         /*
         | Digestion (step 7, batch 1, decisions 1a 3a): the references give no grams of fat for
@@ -497,8 +502,8 @@ return [
         'high_cholesterol' => [
             'criteria' => ['fat_sat_g' => ['type' => 'energy_pct', 'pct' => 7, 'kcal_per_g' => 9, 'refs' => ['nice_cvd_ng238']]],
         ],
-        'kidney' => ['template' => 'ckd'],
-        'dialysis' => ['template' => 'dialysis'],
+        'kidney' => ['template' => 'ckd', 'refs' => ['kdigo_2024_ckd', 'nice_ckd_ng203']],
+        'dialysis' => ['template' => 'dialysis', 'refs' => ['niddk_hemodialysis']],
         /*
         | The liver (step 3, decisions 1a 2a 3a 4a). What each reference says:
         |  - fatty liver: a Mediterranean pattern and weight loss, with no figure for saturated
