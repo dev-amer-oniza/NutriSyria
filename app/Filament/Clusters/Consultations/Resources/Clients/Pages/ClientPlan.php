@@ -143,10 +143,7 @@ class ClientPlan extends Page implements HasForms
                         TextInput::make('fluids_ml')->label('السوائل في اليوم')->suffix('مل')->integer()->live(onBlur: true)
                             ->minValue($plan['fluids_range'][0])->maxValue($plan['fluids_range'][1])
                             ->placeholder(fn () => $this->preview()?->fluids['suggested'])
-                            ->required(fn () => $this->preview()?->fluids['manual'] ?? false)
-                            ->helperText(fn () => ($this->preview()?->fluids['manual'] ?? false)
-                                ? 'حالة المراجع (القلب أو الكلى) تحتاج تحديد السوائل حسب توصية الطبيب، فلا نقترح رقماً.'
-                                : 'اتركه فارغاً لنستعمل المقترح: '.$plan['fluids_ml_per_kg'].' مل لكل كغ.'),
+                            ->helperText('اتركه فارغاً لنستعمل المقترح: '.$plan['fluids_ml_per_kg'].' مل لكل كغ.'),
                     ]),
 
                 Section::make('5. الوجبات')->key('mealsSection')

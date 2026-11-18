@@ -1,46 +1,26 @@
 {{--
-    The person's diet template: name, why it was chosen, and how it shares the day's calories.
-    Params: $sheet (CriteriaSheet); on "my criteria" also $selectable (templates a person may
-    pick) and $locked (their nutritionist chose it).
+    The person's diet template and how it shares the day's calories, read only: the template
+    comes from the calculation, or from their nutritionist. Params: $sheet (CriteriaSheet).
 --}}
 @php
     $template = $sheet->template;
     $parts = ['carbs' => ['الكربوهيدرات', 'carbohydrate_g', 'ns-key-carbs'], 'protein' => ['البروتين', 'protein_g', 'ns-key-protein'], 'fat' => ['الدهون', 'fat_g', 'ns-key-fat']];
 @endphp
-<section class="ns-template" aria-labelledby="template-title" x-data="{ choosing: false }">
+<section class="ns-template" aria-labelledby="template-title">
     <div class="ns-template__head">
         <div>
             <p class="ns-template__kicker">قالبك الغذائي</p>
             <h2 class="ns-template__name" id="template-title">{{ $template['label'] }}</h2>
             <p class="ns-template__why">
-                <span @class(['ns-source', 'ns-source--'.$template['source']->value])>
-                    {{ match ($template['source']) {
-                        \App\Enums\CriterionSource::Default => ($template['brought_by'] ?? []) !== []
-                            ? 'اخترناه حسب حالتك: '.implode('، ', $template['brought_by'])
-                            : 'القالب العام',
-                        \App\Enums\CriterionSource::User => 'اخترته أنت',
-                        \App\Enums\CriterionSource::Nutritionist => 'اختاره أخصائيّك',
-                    } }}
-                </span>
+                @if ($template['source'] === \App\Enums\CriterionSource::Nutritionist)
+                    <span class="ns-source ns-source--nutritionist">اختاره أخصائيّك</span>
+                @endif
                 {{ $template['description'] }}
             </p>
-            @if ($template['source'] === \App\Enums\CriterionSource::Default && ($template['brought_by'] ?? []) === [] && $sheet->conditions !== [])
-                <p class="ns-field__hint">حالاتك الصحية لا تغيّر توزيع السعرات في مراجعها، فنستعمل القالب العام الموثّق، ونطبّق ما تقوله مراجعها في «معاييري» وتقييم الوجبات.</p>
-            @endif
             @if (! empty($template['note']))
                 <p class="ns-field__hint">ملاحظة أخصائيّك: {{ $template['note'] }}</p>
             @endif
-            @if (($template['verified'] ?? true) === false)
-                <p class="ns-criterion__pending">هذا القالب قيد التوثيق: نقيّم وجباتك الآن بتوزيع «{{ $template['judging'] }}» الموثّق، ونعرض قالبك للمعلومة.</p>
-            @endif
         </div>
-        @isset($selectable)
-            @if ($locked)
-                <span class="ns-criterion__locked">يغيّره أخصائيّك فقط</span>
-            @else
-                <button class="ns-btn ns-btn--ghost ns-btn--sm" type="button" x-show="! choosing" @click="choosing = true">تغيير القالب</button>
-            @endif
-        @endisset
     </div>
 
     <div class="ns-macrobar" role="img" aria-label="توزيع السعرات حسب القالب">
@@ -57,31 +37,4 @@
             </div>
         @endforeach
     </dl>
-
-    @isset($selectable)
-        @unless ($locked)
-            <form class="ns-template__choose" method="post" action="{{ route('site.template.update') }}" x-show="choosing" x-cloak>
-                @csrf @method('put')
-                @include('site.components.form.choice-cards', [
-                    'name' => 'template', 'legend' => 'اختر قالباً عاماً', 'cols' => 1, 'selected' => $template['key'],
-                    // Words, not "50 / 20 / 30": numbers joined by slashes reverse in right-to-left text.
-                    'options' => collect($selectable)->map(fn ($t) => [
-                        'label' => $t['label'],
-                        'hint' => 'كربوهيدرات '.$t['macros']['carbs'].'% · بروتين '.$t['macros']['protein'].'% · دهون '.$t['macros']['fat'].'%. '.$t['description'],
-                    ])->all(),
-                ])
-                <p class="ns-field__hint">قوالب الحالات الصحية (السكري، الكلى...) تُختار تلقائياً من حالتك، أو يختارها لك أخصائي.</p>
-                <div class="ns-form__row">
-                    <button class="ns-btn ns-btn--ghost ns-btn--sm" type="button" @click="choosing = false">إلغاء</button>
-                    <button class="ns-btn ns-btn--primary ns-btn--sm" type="submit">اعتمد القالب</button>
-                </div>
-            </form>
-            @if ($template['source'] === \App\Enums\CriterionSource::User)
-                <form method="post" action="{{ route('site.template.reset') }}" x-show="! choosing">
-                    @csrf @method('delete')
-                    <button class="ns-link ns-resend__btn" type="submit">أرجع القالب المناسب لحالتي</button>
-                </form>
-            @endif
-        @endunless
-    @endisset
 </section>

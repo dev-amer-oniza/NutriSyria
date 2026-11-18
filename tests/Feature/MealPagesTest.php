@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\Nutrition\Criteria\PersonalCriteria;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\MealFixtures;
 use Tests\TestCase;
@@ -30,7 +31,7 @@ class MealPagesTest extends TestCase
         $user = User::forceCreate(['name' => 'سامر', 'email' => uniqid().'@example.com', 'password' => 'x-secret-1', 'is_active' => true, 'email_verified_at' => now()]);
         $user->profile()->create($profile + [
             'sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => 178, 'weight_kg' => 80,
-            'activity_level' => 'light', 'goal' => 'lose', 'health_conditions' => [], 'allergies' => [],
+            'activity_level' => 'light', 'goal' => 'lose', 'allergies' => [],
             'completed_at' => now(),
         ]);
 
@@ -121,43 +122,29 @@ class MealPagesTest extends TestCase
         $this->get(route('site.meals', ['suits' => 1]))->assertSee('مجدرة')->assertDontSee('منسف كبير');
     }
 
-    public function test_a_rule_not_verified_yet_is_information_until_a_doctor_gives_the_number(): void
+    public function test_a_nutritionists_meal_limit_judges_as_a_strict_one(): void
     {
-        // A rule not verified yet (fat intolerance's 15 g a meal, before step 7 found no figure).
-        config(['nutrition_criteria.conditions.fat_intolerance.criteria' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]]]);
-        // 250 g with 17.5 g fat: within the day's verified fat share (22 g), past the
-        // fat-intolerance meal limit (15 g) that is waiting for its references.
+        // 250 g with 17.5 g fat: within the day's fat share (22 g), past the nutritionist's 15 g a meal.
         $meal = $this->approvedMeal('مجدرة', per100g: ['energy_kcal' => 166, 'protein_g' => 6, 'carbohydrate_g' => 24.8, 'fat_g' => 7, 'fiber_g' => 3]);
-        $this->actingAs($this->person(['health_conditions' => ['fat_intolerance']]));
+        $user = $this->person();
+        $this->actingAs($user);
+        $this->get(route('site.meals.show', $meal))->assertOk()->assertSee('مناسبة جداً');
 
-        $this->get(route('site.meals.show', $meal))->assertOk()
-            ->assertSee('مناسبة جداً')
-            ->assertSee('على احتياجك العام')
-            ->assertSee('للمعلومة، لا يدخل في التقييم بعد: دهون الوجبة فيها 18 غ، وحد «عدم تحمّل الدسم» 15 غ للوجبة قيد التوثيق.')
-            ->assertSee('قيّمناها على: احتياجك العام (موثّق). قيد التوثيق: حدود عدم تحمّل الدسم. ننصحك بأخصائي.')
-            // "من أين هذا الحد؟" opens the person's condition on the sources page (step 3b, 4a).
-            ->assertSee(route('site.sources').'#fat_intolerance', false)
-            ->assertSee('من أين هذا الحد؟');
-
-        // The person's doctor gave them 15 g a meal: it judges now, as a strict limit.
-        $this->put(route('site.criteria.update', 'meal_fat_g'), ['value' => 15, 'from_doctor' => '1'])->assertSessionHas('status');
-        $this->get(route('site.criteria'))->assertSee('من طبيبك');
+        app(PersonalCriteria::class)->setByNutritionist($user, 'meal_fat_g', 15,
+            User::forceCreate(['name' => 'د. ريم', 'email' => 'reem@example.com', 'password' => 'x-secret-1', 'is_active' => true]));
+        $this->get(route('site.criteria'))->assertSee('حدده أخصائيّك');
         $this->get(route('site.meals.show', $meal))->assertOk()
             ->assertSee('مناسبة باعتدال')
-            ->assertSee('دهون الوجبة فيها 18 غ، والحد الذي حدّده لك طبيبك 15 غ للوجبة، أي أكثر بـ17%.')
-            ->assertSee('وأرقام طبيبك')
-            ->assertDontSee('للمعلومة، لا يدخل في التقييم بعد');
-
-        // Back to the calculated value: information again.
-        $this->delete(route('site.criteria.reset', 'meal_fat_g'))->assertSessionHas('status');
-        $this->get(route('site.meals.show', $meal))->assertSee('مناسبة جداً')->assertSee('للمعلومة، لا يدخل في التقييم بعد');
+            ->assertSee('دهون الوجبة فيها 18 غ، والحد الذي حدّده لك أخصائيّك 15 غ للوجبة، أي أكثر بـ17%.')
+            ->assertDontSee('قيد التوثيق')
+            ->assertDontSee('من أين هذا الحد؟');
     }
 
     public function test_an_allergen_in_an_ingredient_makes_the_meal_unfit(): void
     {
         $bulgur = $this->ingredient('برغل', allergens: ['gluten']);
         $meal = $this->approvedMeal('مجدرة', ingredient: [$this->lentils, $bulgur]);
-        $this->actingAs($this->person(['health_conditions' => ['celiac']]));
+        $this->actingAs($this->person(['allergies' => ['gluten']]));
 
         $this->get(route('site.meals.show', $meal))->assertOk()
             ->assertSee('يحتوي على: الغلوتين')

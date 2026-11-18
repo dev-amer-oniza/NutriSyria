@@ -50,19 +50,10 @@
     .ns-criterion__value > .ns-num { font-size: 22px; line-height: 30px; font-weight: 600; color: var(--ink); }
     .ns-criterion__meal { margin-inline-start: var(--space-3); }
     .ns-criterion__basis { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font-size: 13px; line-height: 20px; color: var(--ink-muted); }
-    .ns-criterion__actions { display: flex; align-items: center; gap: var(--space-2); align-self: center; }
-    .ns-criterion__locked { font-size: 13px; color: var(--pine); font-weight: 600; }
-    .ns-criterion__edit { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
-    .ns-criterion__edit .ns-input { width: 140px; height: 40px; }
-    .ns-criterion__unit { font-size: 14px; color: var(--ink-muted); }
-    .ns-criterion__edit .ns-field__error { flex-basis: 100%; }
     .ns-source { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; }
     .ns-source--default { background: var(--sand); color: var(--ink); }
     .ns-source--user { background: var(--terracotta-soft); color: var(--terracotta-ink); }
     .ns-source--doctor { background: var(--pine-soft); color: var(--pine); }
-    .ns-criterion__pending { margin: var(--space-1) 0 0; font-size: 12px; line-height: 18px; color: var(--ink-muted); }
-    .ns-criterion__pending::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-inline-end: var(--space-2); border-radius: 50%; background: var(--sand-strong, #d9cfbf); vertical-align: middle; }
-    .ns-criterion__doctor { flex-basis: 100%; order: 1; font-size: 13px; }
     .ns-source--nutritionist { background: var(--pine-soft); color: var(--pine); }
     .ns-health { margin-top: var(--space-8); padding: var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-lg); }
     .ns-health h2 { margin: 0 0 var(--space-3); }
@@ -92,7 +83,6 @@
     .ns-template__macros dt { display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
     .ns-template__macros dd { margin: 2px 0 0; font-size: 13px; color: var(--ink-muted); }
     .ns-template__macros dd .ns-num { font-size: 22px; line-height: 30px; font-weight: 600; color: var(--ink); }
-    .ns-template__choose { display: flex; flex-direction: column; gap: var(--space-3); padding-top: var(--space-4); border-top: 1px solid var(--line); }
     @media (max-width: 640px) {
         .ns-template__macros { grid-template-columns: minmax(0, 1fr); }
     }

@@ -37,17 +37,19 @@ class OnboardingTest extends TestCase
         $this->post('/onboarding/health', $health)->assertRedirect('/onboarding/done');
     }
 
-    public function test_no_deficit_under_25_and_the_surplus_is_only_shown(): void
+    public function test_a_normal_weight_may_lose_and_the_surplus_counts(): void
     {
-        // 62 kg at 178 cm: BMI 19.6. The deficit's reference is for overweight and obesity.
+        // 62 kg at 178 cm: BMI 19.6. The deficit applies, told gently (decision 2a).
         $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => '178', 'weight_kg' => '62']);
         $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'lose']);
         $this->post('/onboarding/health', []);
-        $this->get('/onboarding/done')->assertOk()->assertSee('بلا عجز: مؤشر كتلة جسمك أقل من');
+        $this->get('/onboarding/done')->assertOk()
+            ->assertSee('لهدف إنقاص الوزن')
+            ->assertSee('وزنك ضمن الطبيعي لطولك');
 
         $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'gain']);
         $this->get('/onboarding/done')->assertOk()
-            ->assertSee('لا يوجد إرشاد رسمي لهذا الرقم')
+            ->assertSee('لهدف زيادة الوزن (رقم اختيار منّا')
             ->assertSee('للمعلومة');                                // the total sugars
     }
 
@@ -95,34 +97,22 @@ class OnboardingTest extends TestCase
             ->assertSessionHasErrors(['activity_level', 'goal']);
     }
 
-    public function test_health_data_needs_consent_is_encrypted_and_can_be_deleted(): void
+    public function test_allergies_need_consent_are_encrypted_and_can_be_deleted(): void
     {
         $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1990, 'height_cm' => 178, 'weight_kg' => 80]);
         $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'lose']);
 
-        $this->post('/onboarding/health', ['conditions' => ['diabetes'], 'allergies' => ['sesame']])
-            ->assertSessionHasErrors('consent');
-        $this->post('/onboarding/health', ['conditions' => ['pregnant_or_breastfeeding'], 'consent' => '1'])
-            ->assertSessionHasErrors('conditions.0');
-
-        $this->post('/onboarding/health', ['conditions' => ['diabetes'], 'allergies' => ['sesame'], 'consent' => '1'])
-            ->assertRedirect('/onboarding/done');
+        $this->post('/onboarding/health', ['allergies' => ['sesame']])->assertSessionHasErrors('consent');
+        $this->post('/onboarding/health', ['allergies' => ['sesame'], 'consent' => '1'])->assertRedirect('/onboarding/done');
 
         $profile = $this->user->fresh()->profile;
-        $this->assertSame(['diabetes'], $profile->health_conditions);
+        $this->assertSame(['sesame'], $profile->allergies);
         $this->assertNotNull($profile->health_consent_at);
-        $raw = DB::table('user_profiles')->value('health_conditions');
-        $this->assertStringNotContainsString('diabetes', $raw, 'stored encrypted');
-
-        $sheet = app(PersonalCriteria::class)->for($this->user->fresh());
-        // Step 7, batch 2: no carbohydrate figure a meal for diabetes; the doctor's, when given.
-        $this->assertNull($sheet->get('meal_carbohydrate_g'));
-        $this->assertStringContainsString('اكتبه في معاييري', implode(' ', $sheet->advice));
-        $this->assertSame(['sesame'], $sheet->allergens);
+        $this->assertStringNotContainsString('sesame', DB::table('user_profiles')->value('allergies'), 'stored encrypted');
+        $this->assertSame(['sesame'], app(PersonalCriteria::class)->for($this->user->fresh())->allergens);
 
         $this->delete('/account/health')->assertSessionHas('status');
         $profile->refresh();
-        $this->assertNull($profile->health_conditions);
         $this->assertNull($profile->allergies);
         $this->assertNull($profile->health_consent_at);
         $this->assertSame(80.0, $profile->weight_kg, 'body data stays');
@@ -145,143 +135,51 @@ class OnboardingTest extends TestCase
         $this->get('/')->assertDontSee('أكمل ملفك');
     }
 
-    public function test_a_person_changes_a_criterion_and_puts_it_back(): void
+    public function test_a_person_reads_their_criteria_and_changes_them_through_the_profile_only(): void
     {
         $this->completeSetUp();
 
-        $this->put('/account/criteria/sodium_mg', ['value' => '١٨٠٠'])->assertSessionHas('status');
-        $sodium = app(PersonalCriteria::class)->for($this->user->fresh())->get('sodium_mg');
-        $this->assertSame(1800.0, $sodium->value);
-        $this->assertSame(CriterionSource::User, $sodium->source);
-        $this->assertSame(2000.0, $sodium->defaultValue);
-
-        $this->put('/account/criteria/sodium_mg', ['value' => '99999'])->assertSessionHasErrors('value');
-        $this->put('/account/criteria/not_a_criterion', ['value' => '1'])->assertNotFound();
-
-        // A criterion with no default, switched on by the person.
-        $this->put('/account/criteria/meal_carbohydrate_g', ['value' => '70']);
-        $this->assertSame(70.0, app(PersonalCriteria::class)->for($this->user->fresh())->get('meal_carbohydrate_g')->value);
-
-        $this->delete('/account/criteria/sodium_mg')->assertSessionHas('status');
-        $this->assertSame(CriterionSource::Default, app(PersonalCriteria::class)->for($this->user->fresh())->get('sodium_mg')->source);
-
-        $this->assertSame(3, UserCriterionChange::where('user_id', $this->user->id)->count(), 'set, set, reset are logged');
-        $this->get('/account/criteria')->assertOk()->assertSee('معاييري')->assertSee('كربوهيدرات الوجبة');
+        $this->get('/account/criteria')->assertOk()
+            ->assertSee('معاييري')
+            ->assertSee('الصوديوم')
+            ->assertSee('لتغييرها عدّل بياناتك')
+            ->assertDontSee('هذا الرقم حدّده لي طبيبي')
+            ->assertDontSee('تغيير القالب');
+        $this->put('/account/criteria/sodium_mg', ['value' => '1800'])->assertNotFound();
+        $this->put('/account/template', ['template' => 'balanced'])->assertNotFound();
     }
 
-    public function test_a_nutritionist_value_wins_and_is_locked_for_the_person(): void
+    public function test_a_nutritionist_value_wins_until_the_link_ends(): void
     {
         $this->completeSetUp();
         $nutritionist = User::forceCreate(['name' => 'د. ريم', 'email' => 'reem@example.com', 'password' => 'x-secret-1', 'is_active' => true]);
         $criteria = app(PersonalCriteria::class);
 
-        $this->put('/account/criteria/protein_g', ['value' => 110]);
         $criteria->setByNutritionist($this->user, 'protein_g', 120, $nutritionist, 'حسب تحاليلك');
 
         $protein = $criteria->for($this->user->fresh())->get('protein_g');
         $this->assertSame(120.0, $protein->value);
         $this->assertSame(CriterionSource::Nutritionist, $protein->source);
         $this->assertSame('حسب تحاليلك', $protein->note);
+        $this->get('/account/criteria')->assertSee('حدده أخصائيّك');
 
-        $this->put('/account/criteria/protein_g', ['value' => 90])->assertSessionHas('error');
-        $this->delete('/account/criteria/protein_g')->assertSessionHas('error');
-        $this->assertSame(120.0, $criteria->for($this->user->fresh())->get('protein_g')->value);
-        $this->get('/account/criteria')->assertSee('يغيّره أخصائيّك فقط');
-
-        // Ending the link: the person's own value comes back.
+        // Ending the link: the computed value comes back.
         $criteria->clearNutritionist($this->user, $nutritionist);
-        $this->assertSame(110.0, $criteria->for($this->user->fresh())->get('protein_g')->value);
+        $this->assertSame(CriterionSource::Default, $criteria->for($this->user->fresh())->get('protein_g')->source);
+        $this->assertSame(2, UserCriterionChange::where('user_id', $this->user->id)->count(), 'set and reset are logged');
     }
 
-    public function test_the_health_step_offers_digestion_conditions_with_the_others(): void
+    public function test_the_health_step_offers_allergies_only_and_says_who_the_platform_is_for(): void
     {
-        $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1990, 'height_cm' => 178, 'weight_kg' => 80]);
+        $this->post('/onboarding/body', ['sex' => 'female', 'birth_year' => 1990, 'height_cm' => 165, 'weight_kg' => 60]);
         $this->post('/onboarding/activity', ['activity_level' => 'moderate', 'goal' => 'maintain']);
 
         $this->get('/onboarding/health')->assertOk()
-            ->assertSee('الهضم والدسم')
-            ->assertSee('القلب والكلى')
-            ->assertSee('استئصال المرارة')
-            ->assertSee('عدم تحمّل الدسم')
-            ->assertSee('غسيل الكلى')
-            ->assertSee('فقر الدم')
-            ->assertDontSee('حامل أو مرضعة')
-            ->assertDontSee('سكري الحمل')
-            ->assertDontSee('سن الأمل');
-
-        $this->post('/onboarding/health', ['conditions' => ['gallbladder_removed', 'anemia'], 'consent' => '1'])
-            ->assertRedirect('/onboarding/done');
-
-        $sheet = app(PersonalCriteria::class)->for($this->user->fresh());
-        // Step 7: no reference gives a fat figure after the gallbladder goes (NICE CG188).
-        $this->assertNull($sheet->get('meal_fat_g'));
-        $this->assertSame(8.0, $sheet->get('iron_mg')->value);
-        $this->get('/account/criteria')->assertSee('دهون الوجبة')->assertSee('الحديد');
-    }
-
-    public function test_the_template_card_says_which_condition_chose_it_or_that_it_is_the_general_one(): void
-    {
-        $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1990, 'height_cm' => 178, 'weight_kg' => 80]);
-        $this->post('/onboarding/activity', ['activity_level' => 'moderate', 'goal' => 'maintain']);
-
-        // The gallbladder brings no template (step 7): the general one, said so, not "for your condition".
-        $this->post('/onboarding/health', ['conditions' => ['gallbladder_removed', 'fat_intolerance'], 'consent' => '1']);
-        $this->get('/account/criteria')->assertOk()
-            ->assertSee('القالب العام')
-            ->assertSee('حالاتك الصحية لا تغيّر توزيع السعرات في مراجعها')
-            ->assertDontSee('اخترناه حسب حالتك');
-
-        // Celiac brings its own: named with the condition.
-        $this->post('/onboarding/health', ['conditions' => ['celiac'], 'consent' => '1']);
-        $this->get('/account/criteria')->assertOk()
-            ->assertSee('اخترناه حسب حالتك: السيلياك (حساسية الغلوتين)')
-            ->assertDontSee('حالاتك الصحية لا تغيّر توزيع السعرات');
-    }
-
-    public function test_jaundice_explains_its_causes_and_brings_no_limits(): void
-    {
-        $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1990, 'height_cm' => 178, 'weight_kg' => 80]);
-        $this->post('/onboarding/activity', ['activity_level' => 'moderate', 'goal' => 'maintain']);
-
-        $this->get('/onboarding/health')->assertOk()
-            ->assertSee('الكبد')
-            ->assertSee('يرقان (السبب غير معروف بعد)')
-            ->assertSee('اليرقان علامة لا مرض')
-            ->assertSee('التهاب كبد فيروسي حاد (A أو E)')
-            ->assertSee('تليّف الكبد')
-            ->assertDontSee('الكبد الوبائي أو التليّف');                    // no longer offered
-
-        $this->post('/onboarding/health', ['conditions' => ['jaundice'], 'consent' => '1'])->assertRedirect('/onboarding/done');
-
-        // A sign, not a disease (step 3, decision 4a): the general needs, nothing pending.
-        $sheet = app(PersonalCriteria::class)->for($this->user->fresh());
-        $this->assertSame('balanced', $sheet->template['key']);
-        $this->assertSame([], $sheet->pendingConditions);
-        $this->get('/onboarding/done')->assertSee('اليرقان له أكثر من سبب');
-
-        // The old mixed choice cannot be picked again.
-        $this->post('/onboarding/health', ['conditions' => ['liver_cirrhosis'], 'consent' => '1'])->assertSessionHasErrors('conditions.0');
-    }
-
-    public function test_a_person_picks_a_general_template_and_puts_it_back(): void
-    {
-        $this->completeSetUp();
-        $this->get('/onboarding/done')->assertSee('المتوازن')->assertSee('القالب العام')->assertDontSee('اخترناه حسب حالتك');
-
-        $this->put('/account/template', ['template' => 'ckd'])->assertSessionHasErrors('template');
-        $this->put('/account/template', ['template' => 'mediterranean'])->assertSessionHas('status');
-
-        $sheet = app(PersonalCriteria::class)->for($this->user->fresh());
-        $this->assertSame('mediterranean', $sheet->template['key']);
-        $this->assertSame(CriterionSource::User, $sheet->template['source']);
-        // Not verified yet: the balanced 20% judges (step 2, decision 1a), and the card says so.
-        $this->assertSame(112.0, $sheet->get('protein_g')->value);
-        $this->get('/account/criteria')->assertSee('حمية البحر المتوسط')->assertSee('اخترته أنت')
-            ->assertSee('هذا القالب قيد التوثيق: نقيّم وجباتك الآن بتوزيع «المتوازن» الموثّق');
-
-        $this->delete('/account/template')->assertSessionHas('status');
-        $this->assertSame('balanced', app(PersonalCriteria::class)->for($this->user->fresh())->template['key']);
-        $this->assertSame(2, UserCriterionChange::where('criterion', 'template')->count());
+            ->assertSee('حساسيات')
+            ->assertSee('السمسم')
+            ->assertSee('إن كنتِ حاملاً أو مرضعة')
+            ->assertDontSee('السكري')
+            ->assertDontSee('غسيل الكلى');
     }
 
     public function test_a_nutritionist_template_is_locked_for_the_person(): void
@@ -290,24 +188,13 @@ class OnboardingTest extends TestCase
         $nutritionist = User::forceCreate(['name' => 'د. ريم', 'email' => 'reem2@example.com', 'password' => 'x-secret-1', 'is_active' => true]);
         $criteria = app(PersonalCriteria::class);
 
-        $criteria->setTemplateByNutritionist($this->user, 'dialysis', $nutritionist, 'حسب تحاليلك');
-        $this->assertSame('dialysis', $criteria->for($this->user->fresh())->template['key']);
+        config(['nutrition_criteria.templates.sport' => ['label' => 'قالب الأخصائي', 'group' => 'general', 'description' => 'تجربة', 'macros' => ['carbs' => 55, 'protein' => 25, 'fat' => 20]]]);
+        $criteria->setTemplateByNutritionist($this->user, 'sport', $nutritionist, 'حسب تحاليلك');
+        $this->assertSame('sport', $criteria->for($this->user->fresh())->template['key']);
 
-        $this->put('/account/template', ['template' => 'balanced'])->assertSessionHas('error');
-        $this->get('/account/criteria')->assertSee('غسيل الكلى')->assertSee('اختاره أخصائيّك');
+        $this->get('/account/criteria')->assertSee('قالب الأخصائي')->assertSee('اختاره أخصائيّك')->assertSee('ملاحظة أخصائيّك: حسب تحاليلك');
 
         $criteria->clearNutritionist($this->user, $nutritionist);
         $this->assertSame('balanced', $criteria->for($this->user->fresh())->template['key']);
-    }
-
-    public function test_women_only_conditions_go_when_the_sex_changes(): void
-    {
-        $this->post('/onboarding/body', ['sex' => 'female', 'birth_year' => 1975, 'height_cm' => 160, 'weight_kg' => 65]);
-        $this->post('/onboarding/activity', ['activity_level' => 'light', 'goal' => 'maintain']);
-        $this->post('/onboarding/health', ['conditions' => ['menopause', 'gout'], 'consent' => '1']);
-
-        $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1975, 'height_cm' => 160, 'weight_kg' => 65]);
-
-        $this->assertSame(['gout'], $this->user->fresh()->profile->health_conditions);
     }
 }

@@ -16,9 +16,9 @@ class BmiCalculatorTest extends TestCase
     }
 
     /** A weight giving exactly this index for 1.70 m. */
-    private function at(float $bmi, ?Goal $goal = null, array $conditions = []): BmiAssessment
+    private function at(float $bmi, ?Goal $goal = null): BmiAssessment
     {
-        return $this->calculator()->assess(170, $bmi * 1.7 ** 2, $goal, $conditions);
+        return $this->calculator()->assess(170, $bmi * 1.7 ** 2, $goal);
     }
 
     public function test_each_class_starts_where_the_owner_set_it(): void
@@ -54,16 +54,9 @@ class BmiCalculatorTest extends TestCase
         $this->assertStringContainsString('قد لا تناسبك زيادة الوزن', $this->at(31, Goal::Gain)->warning);
         $this->assertNull($this->at(17.5, Goal::Gain)->warning);
         $this->assertNull($this->at(27, Goal::Gain)->warning);       // overweight: no warning
-        $this->assertNull($this->at(22, Goal::Lose)->warning);
-    }
-
-    public function test_pregnancy_keeps_the_number_but_not_the_class(): void
-    {
-        $result = $this->at(31, Goal::Gain, ['pregnant_or_breastfeeding']);
-
-        $this->assertSame(31.0, $result->value);
-        $this->assertFalse($result->classified());
-        $this->assertNull($result->warning);
+        $this->assertNull($this->at(22, Goal::Maintain)->warning);
+        // A normal weight may lose (decision 2a), told so gently.
+        $this->assertStringContainsString('وزنك ضمن الطبيعي لطولك', $this->at(22, Goal::Lose)->warning);
     }
 
     public function test_no_index_without_height_or_weight(): void

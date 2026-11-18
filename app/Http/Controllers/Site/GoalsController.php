@@ -17,7 +17,6 @@ class GoalsController extends Controller
 
         return view('site.pages.goals', [
             'goals' => $guide->goals(),
-            'conditions' => $guide->conditions(),
             // Meals are judged per person, never per goal (decision 3b): the way to "my meals".
             'next' => match (true) {
                 $user === null => ['label' => 'أنشئ حسابك', 'url' => route('site.register'), 'text' => 'أدخل بياناتك وهدفك مرة واحدة، فنقيّم لك كل وجبة.'],

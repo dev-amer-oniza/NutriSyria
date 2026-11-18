@@ -4,15 +4,14 @@
         $profile = $client->profile;
         $sheet = $this->sheet();
         $bmi = $profile?->bmi();
-        $conditions = collect($profile?->health_conditions ?? [])->map(fn ($c) => \App\Enums\HealthCondition::tryFrom($c)?->label())->filter();
         $allergies = collect($profile?->allergies ?? [])->map(fn ($a) => \App\Enums\Allergen::tryFrom($a)?->label())->filter();
         $facts = array_filter([
             'العمر' => $profile?->age() ? $profile->age().' سنة' : null,
             'الجنس' => $profile?->sex?->label(),
             'الطول' => $profile?->height_cm ? round($profile->height_cm).' سم' : null,
             'الوزن' => $profile?->weight_kg ? round($profile->weight_kg, 1).' كغ' : null,
-            'مؤشر كتلة الجسم' => $bmi ? number_format($bmi->value, 1).' · '.($bmi->clinical ?? 'لا يُصنَّف في الحمل') : null,
-            'الوزن الصحي لطوله' => $bmi?->classified() ? $bmi->healthyMinKg.'–'.$bmi->healthyMaxKg.' كغ' : null,
+            'مؤشر كتلة الجسم' => $bmi ? number_format($bmi->value, 1).' · '.$bmi->clinical : null,
+            'الوزن الصحي لطوله' => $bmi ? $bmi->healthyMinKg.'–'.$bmi->healthyMaxKg.' كغ' : null,
             'النشاط' => $profile?->activity_level?->label(),
             'الهدف' => $profile?->goal?->label(),
             'مرتبط منذ' => $this->record->responded_at?->format('Y-m-d'),
@@ -36,14 +35,6 @@
         </x-filament::section>
 
         <x-filament::section heading="السجل الصحي" description="شاركه المراجع معك عند طلب الاستشارة.">
-            <p class="text-sm text-gray-500 dark:text-gray-400">الحالات الصحية</p>
-            <div class="mb-4 mt-1 flex flex-wrap gap-2">
-                @forelse ($conditions as $label)
-                    <x-filament::badge color="warning">{{ $label }}</x-filament::badge>
-                @empty
-                    <span class="text-sm">لا حالات مسجّلة.</span>
-                @endforelse
-            </div>
             <p class="text-sm text-gray-500 dark:text-gray-400">الحساسيات</p>
             <div class="mt-1 flex flex-wrap gap-2">
                 @forelse ($allergies as $label)

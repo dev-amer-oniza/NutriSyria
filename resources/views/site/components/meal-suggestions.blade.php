@@ -1,5 +1,5 @@
 {{--
-    "ماذا تستطيع أن تفعل" (step 6): changes tried on the meal and judged again, only those that
+    "ماذا تستطيع أن تفعل": changes tried on the meal and judged again, only those that
     help. Params: $suggestions (list<MealSuggestion>), $meal (MealFacts), $editor (true inside
     "اطبخها على طريقتك": the button applies the change to the recipe being edited).
 --}}
@@ -18,9 +18,6 @@
                 <li class="ns-suggest__item">
                     <div class="ns-suggest__text">
                         <strong>{{ $s->text($restaurant) }}</strong>@if ($s->amount !== null)<span>، و{{ $name }} فيها <span class="ns-num">{{ \App\Services\Nutrition\Fit\MealFitCalculator::number($s->amount) }}</span> {{ $unit }}</span>@endif
-                        @if ($s->within)
-                            <span class="ns-suggest__within">ضمن حد «{{ $s->within }}» (قيد التوثيق، للمعلومة)</span>
-                        @endif
                     </div>
                     <div class="ns-suggest__then">
                         @include('site.components.fit-verdict', ['level' => $s->level, 'compact' => true])

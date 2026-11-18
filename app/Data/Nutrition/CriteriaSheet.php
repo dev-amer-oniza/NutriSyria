@@ -10,8 +10,7 @@ final readonly class CriteriaSheet
     /**
      * @param  array<string, CriterionValue>  $criteria  keyed by criterion key
      * @param  array{bmr: int, tdee: int, adjustment: int, floored: bool}  $energy
-     * @param  array{key: string, label: string, description: string, macros: array{carbs: int, protein: int, fat: int}, source: CriterionSource, verified?: bool, judging?: string, brought_by?: list<string>, note?: string}  $template
-     * @param  list<string>  $advice  reasons to see a nutritionist
+     * @param  array{key: string, label: string, description: string, macros: array{carbs: int, protein: int, fat: int}, source: CriterionSource, note?: string}  $template
      * @param  list<string>  $allergens  App\Enums\Allergen values to avoid
      * @param  array{name: string, time: ?string, share: float, kcal: int, targets: array<string, float>}|null  $meal
      *                                                                                                                 the nutritionist's plan lunch that restaurant dishes are judged against (else meal_share of the day)
@@ -21,22 +20,13 @@ final readonly class CriteriaSheet
         public array $energy,
         public float $mealShare,
         public array $template,
-        public array $advice = [],
         public array $allergens = [],
         public ?array $meal = null,
-        /** A condition whose digestion may suffer from much legume fibre at once (HealthCondition::feelsLegumeFibre). */
-        public bool $sensitiveDigestion = false,
-        /** @var list<string> the person's conditions with rules not verified yet, by name */
-        public array $pendingConditions = [],
-        /** @var array<string, string> allergens a template avoids => why ("ومرض السيلياك يُعالَج بتجنّبه تماماً") */
-        public array $avoided = [],
-        /** @var list<string> the person's condition keys, for the card "من أين هذا الحد؟" opens */
-        public array $conditions = [],
     ) {}
 
     private function copy(array $criteria, float $mealShare, array $template, ?array $meal): self
     {
-        return new self($criteria, $this->energy, $mealShare, $template, $this->advice, $this->allergens, $meal, $this->sensitiveDigestion, $this->pendingConditions, $this->avoided, $this->conditions);
+        return new self($criteria, $this->energy, $mealShare, $template, $this->allergens, $meal);
     }
 
     public function get(string $key): ?CriterionValue

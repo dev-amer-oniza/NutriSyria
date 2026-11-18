@@ -21,18 +21,8 @@ final readonly class MealFit
         public string $template,
         /** "غداؤك في خطة أخصائيّك (14:00، 697 سعرة)" when judged against the plan's lunch */
         public ?string $basis = null,
-        /** @var list<string> rules not verified yet that the meal goes past: shown, never judged */
-        public array $info = [],
-        /** "قيّمناها على: …": what judged the meal, and what waits for its references */
-        public ?string $grounds = null,
-        /** The person has conditions not verified yet: the verdict is "على احتياجك العام". */
-        public bool $general = false,
-        /** The card of the sources page (/sources#…) that holds this person's limits. */
-        public ?string $sources = null,
         /** @var array<int, string> reason index => the nutrient it is about, for "من أين الدهون؟" */
         public array $causes = [],
-        /** @var list<string> the nutrient of each information line, in order */
-        public array $infoCauses = [],
     ) {}
 
     /** What the verdict is based on, for the person reading it. */

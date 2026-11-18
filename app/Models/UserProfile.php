@@ -10,20 +10,17 @@ use App\Enums\Sex;
 use App\Services\Nutrition\Criteria\BmiCalculator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * A site user's nutrition profile (App\Services\Nutrition\UserProfileService).
  *
  * @property Sex|null $sex
- * @property list<string>|null $health_conditions
- * @property Carbon|null $recovery_reminded_at
  */
 class UserProfile extends Model
 {
     protected $fillable = [
         'sex', 'birth_year', 'height_cm', 'weight_kg', 'activity_level', 'goal',
-        'health_conditions', 'allergies', 'health_consent_at', 'completed_at',
+        'allergies', 'health_consent_at', 'completed_at',
     ];
 
     protected function casts(): array
@@ -36,12 +33,9 @@ class UserProfile extends Model
             'activity_level' => ActivityLevel::class,
             'goal' => Goal::class,
             // Health data: encrypted at rest.
-            'health_conditions' => 'encrypted:array',
             'allergies' => 'encrypted:array',
             'health_consent_at' => 'datetime',
             'completed_at' => 'datetime',
-            // Set by App\Services\Nutrition\RecoveryReminder only (not fillable).
-            'recovery_reminded_at' => 'datetime',
         ];
     }
 
@@ -85,7 +79,7 @@ class UserProfile extends Model
     public function bmi(): ?BmiAssessment
     {
         return $this->height_cm && $this->weight_kg
-            ? (new BmiCalculator(config('nutrition_criteria.bmi')))->assess((float) $this->height_cm, (float) $this->weight_kg, $this->goal, $this->health_conditions ?? [])
+            ? (new BmiCalculator(config('nutrition_criteria.bmi')))->assess((float) $this->height_cm, (float) $this->weight_kg, $this->goal)
             : null;
     }
 

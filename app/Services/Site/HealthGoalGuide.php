@@ -2,9 +2,6 @@
 
 namespace App\Services\Site;
 
-use App\Enums\HealthCondition;
-use App\Enums\Sex;
-
 /**
  * What each health goal changes in our calculations, told with the numbers the system really
  * uses (config/nutrition_criteria.php), so the page never drifts from the engine
@@ -17,7 +14,7 @@ class HealthGoalGuide
     private const EXAMPLE_KCAL = 2000;
 
     /**
-     * The six goals (config/site.php goals), in order.
+     * The goals (config/site.php goals), in order.
      *
      * @return list<array{key: string, icon: string, label: string, lead: string, rules: list<string>, how: string, note: ?string}>
      */
@@ -28,72 +25,46 @@ class HealthGoalGuide
         $pct = fn (array $rule) => $rule['pct'].'%';
         $mealShare = (int) round($c['meal_share'] * 100);
         $fiberPerDay = $c['criteria']['fiber_g']['default']['value'] * self::EXAMPLE_KCAL / 1000;
-        $selectable = array_values(array_map(fn (array $tpl) => $tpl['label'], array_filter($t, fn (array $tpl) => $tpl['selectable'] ?? false)));
 
         $texts = [
             'weight-loss' => [
                 'lead' => 'نحسب احتياجك اليومي من عمرك وطولك ووزنك ونشاطك، ثم ننقص منه بهدوء.',
                 'rules' => [
-                    'ننقص '.abs($c['goal_adjustment']['lose']).' سعرة من احتياجك اليومي إن كان مؤشر كتلة جسمك '.$c['deficit_min_bmi'].' أو أكثر، كما يوصي المرجع لمن وزنه أعلى من الطبيعي. وتحته لا ننقص، وننصحك بأخصائي.',
+                    'ننقص '.abs($c['goal_adjustment']['lose']).' سعرة من احتياجك اليومي. وإن كان وزنك ضمن الطبيعي، نحسبها لك وننبّهك بلطف ألا تنزل تحت الوزن الصحي لطولك.',
                     'لا ننزل أبداً تحت '.number_format($c['min_kcal']['female']).' سعرة للمرأة و'.number_format($c['min_kcal']['male']).' للرجل.',
                     'كل وجبة تُقارن بحصتها من يومك ('.$mealShare.'%)، والسعرات والدهون والكربوهيدرات تُحسب حين تتجاوزها.',
-                    'إن كانت الوجبة أكبر من حصتك، نقترح عليك وزناً أصغر منها يناسبك.',
+                    'إن كانت الوجبة أكبر من حصتك، نقترح عليك جزءاً أصغر منها يناسبك.',
                 ],
                 'how' => 'اختر "إنقاص الوزن" هدفاً حين تُعدّ حسابك.',
-                'note' => 'في الحمل والرضاعة وسكري الحمل لا ننقص السعرات أبداً.',
+                'note' => 'NutriSyria حالياً للبالغين الأصحاء ومن يمارسون الرياضة، لا للحوامل والمرضعات.',
             ],
             'muscle' => [
-                'lead' => 'لا نملك قالباً خاصاً لبناء العضلات، ونقول ذلك بصراحة. ما نحسبه:',
+                'lead' => 'لبناء العضل تحتاج سعرات أكثر قليلاً من حرقك، وبروتيناً كافياً.',
                 'rules' => [
-                    'يُنصح عادةً بنحو '.$c['goal_adjustment']['gain'].' سعرة إضافية في اليوم، لكن لا يوجد إرشاد رسمي لهذا الرقم، فنعرضه لك ونقيّم وجباتك على سعرات الحفاظ على وزنك.',
-                    'البروتين هدف بنسبة '.$t['balanced']['macros']['protein'].'% من سعراتك في القالب المتوازن، فيزيد بزيادتها.',
+                    'نضيف '.$c['goal_adjustment']['gain'].' سعرة إلى احتياجك اليومي، ونقيّم وجباتك عليها. لم نجد لهذا الرقم مرجعاً رسمياً بعد، فهو اختيار منّا نعلنه في صفحة المصادر.',
+                    'البروتين هدف بنسبة '.$t['balanced']['macros']['protein'].'% من سعراتك، فيزيد بزيادتها.',
                     'إن قلّ بروتين الوجبة كثيراً عن حصتها من الحد الأدنى لاحتياجك اليومي ('.$c['criteria']['protein_min_g']['default']['female'].' غ للمرأة و'.$c['criteria']['protein_min_g']['default']['male'].' غ للرجل)، نذكر ذلك ملاحظةً لتكمّله في وجبة أخرى.',
                 ],
-                'how' => 'اختر "زيادة الوزن" هدفاً حين تُعدّ حسابك. ولرقم بروتين يناسب تمرينك، يحدده لك أخصائي.',
-                'note' => null,
-            ],
-            'diabetes' => [
-                // Step 7, batch 2: what NICE NG28 and NG247 say, no figure of ours.
-                'lead' => 'السكري لا يعني منع الكربوهيدرات: نفس الأكل الصحي للجميع، وكمّيتها في الوجبة تُحدَّد لك أنت.',
-                'rules' => [
-                    'المرجع يوصي بنفس نصائح الأكل الصحي لعامة الناس: كربوهيدرات غنية بالألياف (خضار وفواكه وحبوب كاملة وبقوليات)، وألبان قليلة الدسم، ودهون مشبعة أقل.',
-                    'لا رقم عاماً لكربوهيدرات الوجبة: المرجع يقول إنها تُحدَّد لكل شخص حسب علاجه. إن أعطاك طبيبك أو أخصائيّك رقماً، اكتبه في معاييري فنقيّم كل وجبة عليه.',
-                    'سكري الحمل: لا حمية بعينها أفضل من غيرها، ولا إنقاص للوزن أثناء الحمل، وأخصائية تغذية لكل حامل.',
-                    'السكريات: نعرضها للمعلومة. '.$c['criteria']['sugars_g']['note'],
-                ],
-                'how' => 'أضف "السكري" (أو سكري الحمل، أو مقاومة الإنسولين) إلى سجلك الصحي.',
-                'note' => null,
-            ],
-            'heart' => [
-                'lead' => 'للقلب والضغط، الأهم هو الملح والدهون المشبعة.',
-                'rules' => [
-                    // Step 7, batch 3: DASH from NHLBI's booklet, the rest from NICE.
-                    'ارتفاع الضغط: قالب DASH كما في دراساته، والصوديوم حتى '.number_format($t['dash']['rules']['sodium_mg']['value']).' ملغ في اليوم بدل '.number_format($c['criteria']['sodium_mg']['default']['value']).'، والدهون المشبعة حتى '.$pct($t['dash']['rules']['fat_sat_g']).' من السعرات.',
-                    'أمراض القلب: الدهون المشبعة حتى '.$pct($c['conditions']['heart_disease']['criteria']['fat_sat_g']).' من السعرات بدل '.$pct($c['criteria']['fat_sat_g']['default']).'، وزيت الزيتون بدل الدسم الحيواني.',
-                    'ارتفاع الكولسترول: الدهون المشبعة حتى '.$pct($t['dyslipidemia']['rules']['fat_sat_g']).' من السعرات.',
-                    'قصور القلب: المرجع لا ينصح بتقليل الملح والسوائل للجميع؛ يحددهما طبيبك إن لزم، فاكتب رقمه في معاييري. وتجنّب بدائل الملح التي فيها بوتاسيوم.',
-                ],
-                'how' => 'أضف حالتك إلى سجلك الصحي. وإن لم تكن عندك حالة، يمكنك اختيار قالب DASH بنفسك.',
+                'how' => 'اختر "زيادة الوزن" هدفاً حين تُعدّ حسابك.',
                 'note' => null,
             ],
             'fiber' => [
-                'lead' => 'الألياف تشبعك أطول، وتفيد الهضم والسكر والكولسترول.',
+                'lead' => 'الألياف تشبعك أطول، وتفيد الهضم.',
                 'rules' => [
                     'الهدف '.$c['criteria']['fiber_g']['default']['value'].' غ ألياف لكل 1000 سعرة. لمن يحتاج '.number_format(self::EXAMPLE_KCAL).' سعرة: '.$fiberPerDay.' غ في اليوم، أي نحو '.(int) round($fiberPerDay * $c['meal_share']).' غ في الوجبة.',
                     'الألياف حد أدنى: نقصها في وجبة ملاحظة لتكمّلها في وجبة أخرى، ولا يخفض الدرجة.',
                     'بطاقة كل وجبة تعرض أليافها للحصة.',
                 ],
-                'how' => 'هذا المعيار مفعّل للجميع، ويمكنك رفعه من "معاييري".',
+                'how' => 'هذا المعيار مفعّل للجميع.',
                 'note' => null,
             ],
             'balanced' => [
-                'lead' => 'بلا حالة صحية، نبدأ من التوزيع المتوازن المعتمد للبالغين.',
+                'lead' => 'نبدأ من التوزيع المتوازن المعتمد للبالغين.',
                 'rules' => [
                     'القالب المتوازن: كربوهيدرات '.$t['balanced']['macros']['carbs'].'%، بروتين '.$t['balanced']['macros']['protein'].'%، دهون '.$t['balanced']['macros']['fat'].'% من السعرات.',
                     'الدهون المشبعة حتى '.$pct($c['criteria']['fat_sat_g']['default']).' من السعرات، والصوديوم حتى '.number_format($c['criteria']['sodium_mg']['default']['value']).' ملغ. والسكريات للمعلومة فقط.',
-                    'يمكنك أن تختار بنفسك: '.implode('، أو ', $selectable).'.',
                 ],
-                'how' => 'هذا ما نستعمله ما لم تضف حالة صحية أو تختر قالباً آخر.',
+                'how' => 'هذا ما نستعمله لكل حساب، ما لم يختر لك أخصائيّك غيره.',
                 'note' => null,
             ],
         ];
@@ -104,49 +75,5 @@ class HealthGoalGuide
         }
 
         return $goals;
-    }
-
-    /**
-     * Every condition we calculate for, in the onboarding's groups, with what it brings.
-     *
-     * @return list<array{label: string, conditions: list<array{label: string, template: ?string, text: string, specialist: bool}>}>
-     */
-    public function conditions(): array
-    {
-        $c = config('nutrition_criteria');
-
-        return array_map(fn (array $group) => [
-            'label' => $group['label'],
-            'conditions' => array_map(function (HealthCondition $condition) use ($c) {
-                $rules = $c['conditions'][$condition->value] ?? [];
-                $template = isset($rules['template']) ? $c['templates'][$rules['template']] : null;
-
-                return [
-                    'label' => $condition->label(),
-                    'template' => $template['label'] ?? null,
-                    'text' => $template['description'] ?? ($this->ownRules($rules['criteria'] ?? [])
-                        ?: 'احتياجك العام: المراجع لا تعطي لها أرقاماً خاصة.'),
-                    'hint' => $condition->hint(),
-                    'specialist' => isset($rules['see_nutritionist']) || isset($template['see_nutritionist']),
-                ];
-            }, $group['conditions']),
-        ], array_values(HealthCondition::grouped(Sex::Female))); // every condition, women-only ones included
-    }
-
-    /** A condition without a template, told by its own limits (e.g. anaemia's iron). */
-    private function ownRules(array $criteria): string
-    {
-        $parts = [];
-        foreach ($criteria as $key => $rule) {
-            $criterion = config("nutrition_criteria.criteria.{$key}");
-            $parts[] = match ($rule['type']) {
-                'by_sex' => "{$criterion['label']}: {$rule['female']} {$criterion['unit']} للمرأة و{$rule['male']} للرجل في اليوم.",
-                'per_kg' => "{$criterion['label']}: {$rule['value']} {$criterion['unit']} لكل كغ من الوزن في اليوم.",
-                'energy_pct' => "{$criterion['label']}: حتى {$rule['pct']}% من السعرات في اليوم.",
-                default => "{$criterion['label']}: {$rule['value']} {$criterion['unit']} في اليوم.",
-            };
-        }
-
-        return implode(' ', $parts);
     }
 }

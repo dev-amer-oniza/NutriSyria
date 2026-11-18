@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  */
 class NutritionPlanCalculatorTest extends TestCase
 {
-    private const MAN = ['sex' => 'male', 'age' => 30, 'height_cm' => 178, 'weight_kg' => 80, 'conditions' => []];
+    private const MAN = ['sex' => 'male', 'age' => 30, 'height_cm' => 178, 'weight_kg' => 80];
 
     private const PLAN = [
         'equation' => 'mifflin', 'body_fat_pct' => null, 'activity' => 'light', 'adjustment' => -500,
@@ -67,25 +67,17 @@ class NutritionPlanCalculatorTest extends TestCase
         $this->assertFalse($result->isValid());
     }
 
-    public function test_below_the_safe_minimum_or_a_deficit_in_pregnancy_is_a_warning_not_an_error(): void
+    public function test_below_the_safe_minimum_is_a_warning_not_an_error(): void
     {
         $small = $this->calculate(['activity' => 'sedentary', 'adjustment' => -750], ['sex' => 'female', 'weight_kg' => 55, 'height_cm' => 155, 'age' => 50]);
         $this->assertTrue($small->isValid());
         $this->assertStringContainsString('أقل من الحد الأدنى الآمن', $small->warnings[0]);
-
-        $pregnant = $this->calculate([], ['sex' => 'female', 'conditions' => ['pregnant_or_breastfeeding']]);
-        $this->assertStringContainsString('الحمل', implode(' ', $pregnant->warnings));
     }
 
-    public function test_fluids_are_suggested_unless_the_doctor_decides_them(): void
+    public function test_fluids_are_suggested_or_typed(): void
     {
-        $this->assertSame(['ml' => 2800, 'suggested' => 2800, 'manual' => false], $this->calculate()->fluids);   // 35 ml × 80 kg
+        $this->assertSame(['ml' => 2800, 'suggested' => 2800], $this->calculate()->fluids);   // 35 ml × 80 kg
         $this->assertSame(2500, $this->calculate(['fluids_ml' => 2500])->fluids['ml']);
-
-        $dialysis = $this->calculate([], ['conditions' => ['dialysis']]);
-        $this->assertSame(['ml' => null, 'suggested' => null, 'manual' => true], $dialysis->fluids);
-        $this->assertFalse($dialysis->isValid());
-        $this->assertTrue($this->calculate(['fluids_ml' => 1000], ['conditions' => ['dialysis']])->isValid());
     }
 
     /** The standard five meals, filled by distribute() (2a). */

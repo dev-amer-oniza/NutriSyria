@@ -2,40 +2,24 @@
     One person's verdict on one meal (MealFit, or an example person on the home page).
     Params: $level 1..4, $reasons (list), $notes (list, optional), $share (energy, protein,
     carbs, fat: percent or null), $portion ({grams, kcal, whole?} or null), $who (optional),
-    $info (rules not verified yet, shown only), $grounds ("قيّمناها على: …"), $general (bool),
-    $sources (the /sources card of the person's limits, for "من أين هذا الحد؟"),
-    $meal (MealFacts), $causes (reason index => nutrient) and $infoCauses (the same for $info),
-    for "من أين الدهون؟" under a reason or an information line; $fitSuggestions (MealSuggestion list)
+    $meal (MealFacts), $causes (reason index => nutrient), for "من أين الدهون؟" under a reason;
+    $fitSuggestions (MealSuggestion list)
     and $editor (inside "اطبخها على طريقتك"), for "ماذا تستطيع أن تفعل".
 --}}
 @include('site.components.fit-verdict', ['level' => $level])
-@if (! empty($general))<p class="ns-fit__general">على احتياجك العام</p>@endif
 @isset($who)<p class="ns-fit__who">{{ $who }}</p>@endisset
 
 <ul class="ns-reasons">
     @foreach ($reasons as $i => $reason)
         <li>
             {{ $reason }}
-            {{-- "ليش؟" (step 4): the ingredients behind a nutrient that went over. --}}
+            {{-- "ليش؟": the ingredients behind a nutrient that went over. --}}
             @if (($meal ?? null) instanceof \App\Data\Nutrition\MealFacts && isset($causes[$i]))
                 @include('site.components.meal-sources', ['meal' => $meal, 'code' => $causes[$i]])
             @endif
         </li>
     @endforeach
 </ul>
-
-@if (! empty($info))
-    <ul class="ns-fit__info">
-        @foreach ($info as $i => $line)
-            <li>
-                {{ $line }}
-                @if (($meal ?? null) instanceof \App\Data\Nutrition\MealFacts && isset($infoCauses[$i]))
-                    @include('site.components.meal-sources', ['meal' => $meal, 'code' => $infoCauses[$i]])
-                @endif
-            </li>
-        @endforeach
-    </ul>
-@endif
 
 @if (! empty($notes))
     <ul class="ns-fit__notes">
@@ -64,5 +48,3 @@
 @if (($meal ?? null) instanceof \App\Data\Nutrition\MealFacts && ! empty($fitSuggestions))
     @include('site.components.meal-suggestions', ['suggestions' => $fitSuggestions, 'meal' => $meal, 'editor' => $editor ?? false])
 @endif
-
-@if (! empty($grounds))<p class="ns-fit__grounds">{{ $grounds }}@if (! empty($sources)) <a class="ns-link" href="{{ route('site.sources') }}#{{ $sources }}">من أين هذا الحد؟</a>@endif</p>@endif

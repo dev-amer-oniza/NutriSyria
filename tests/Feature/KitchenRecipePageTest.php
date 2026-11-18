@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\FoodPortion;
 use App\Models\MeasureUnit;
 use App\Models\User;
+use App\Services\Nutrition\Criteria\PersonalCriteria;
 use App\Services\Site\Kitchen\KitchenIngredientCatalog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -63,14 +64,13 @@ class KitchenRecipePageTest extends TestCase
 
     public function test_their_own_result_offers_a_change_to_try_on_the_spot(): void
     {
-        // A rule not verified yet (fat intolerance's 15 g a meal, before step 7 found no figure).
-        config(['nutrition_criteria.conditions.fat_intolerance.criteria' => ['meal_fat_g' => ['type' => 'fixed', 'value' => 15]]]);
-        // 40 g oil on top for 2: 20 g fat a serving, past fat intolerance's 15 g (not verified yet).
+        // 40 g oil on top for 2: 20 g fat a serving, past the nutritionist's 15 g a meal.
         $user = User::forceCreate(['name' => 'سامر', 'email' => uniqid().'@example.com', 'password' => 'x-secret-1', 'is_active' => true, 'email_verified_at' => now()]);
         $user->profile()->create([
             'sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => 178, 'weight_kg' => 80, 'activity_level' => 'light',
-            'goal' => 'maintain', 'health_conditions' => ['fat_intolerance'], 'allergies' => [], 'completed_at' => now(),
+            'goal' => 'maintain', 'allergies' => [], 'completed_at' => now(),
         ]);
+        app(PersonalCriteria::class)->setByNutritionist($user, 'meal_fat_g', 15, User::forceCreate(['name' => 'د. ريم', 'email' => uniqid().'@example.com', 'password' => 'x-secret-1', 'is_active' => true]));
 
         $html = $this->actingAs($user)
             ->postJson(route('site.kitchen.recipe.analyze', $this->dish->id), $this->body([[$this->lentils, 280], [$this->oil, 40, true]], servings: 2, after: 260))

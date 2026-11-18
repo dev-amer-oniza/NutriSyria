@@ -39,7 +39,7 @@ class PlanForClientTest extends TestCase
         $this->setUpMeals();
 
         $this->link = $this->linked($this->client(), $this->nutritionist());
-        $this->link->user->profile->update(['health_conditions' => [], 'allergies' => []]);
+        $this->link->user->profile->update(['allergies' => []]);
     }
 
     private function savePlan(array $meals): void

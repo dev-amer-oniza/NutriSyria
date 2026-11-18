@@ -29,7 +29,7 @@ class MealFitCalculatorTest extends TestCase
     {
         return (new CriteriaCalculator($this->rules))->calculate($overrides + [
             'sex' => 'male', 'age' => 30, 'height_cm' => 178, 'weight_kg' => 80,
-            'activity' => 'light', 'goal' => 'lose', 'conditions' => [], 'allergens' => [],
+            'activity' => 'light', 'goal' => 'lose', 'allergens' => [],
         ]);
     }
 
@@ -150,16 +150,6 @@ class MealFitCalculatorTest extends TestCase
         $this->assertSame('فيها الغلوتين، وكتبتَ في ملفك أنه يسبّب لك حساسية.', $fit->reasons[0]);
     }
 
-    public function test_celiac_disease_avoids_gluten_through_its_template(): void
-    {
-        $fit = $this->judge($this->meal([], ['gluten']), $this->sheet(['conditions' => ['celiac']]));
-
-        $this->assertSame(1, $fit->level);
-        $this->assertSame('فيها الغلوتين، ومرض السيلياك يُعالَج بتجنّبه تماماً.', $fit->reasons[0]);
-        $this->assertSame('قيّمناها على: احتياجك العام (موثّق)، وتجنّب الغلوتين.', $fit->grounds);
-        $this->assertFalse($fit->general, 'celiac brings no rule waiting for its references');
-    }
-
     public function test_unchecked_ingredients_warn_people_with_allergies_only(): void
     {
         $withAllergy = $this->judge($this->meal([], [], checked: false), $this->sheet(['allergens' => ['peanuts']]));
@@ -170,58 +160,38 @@ class MealFitCalculatorTest extends TestCase
         $this->assertStringNotContainsString('مسبّبات الحساسية', implode(' ', $without->reasons));
     }
 
-    /** A doctor's number for one criterion, as the person types it in معاييري. */
-    private function withDoctor(CriteriaSheet $sheet, string $key, float $value): CriteriaSheet
+    /** A nutritionist's number for one criterion, as they set it for their client. */
+    private function withNutritionist(CriteriaSheet $sheet, string $key, float $value): CriteriaSheet
     {
         $definition = $this->rules['criteria'][$key];
         $base = $sheet->get($key) ?? new CriterionValue($key, $definition['label'], $definition['unit'], $definition['bound'],
             $definition['scope'], $definition['nutrient'], $value, CriterionSource::Default, '');
 
-        return $sheet->with($base->overriddenBy(CriterionSource::Doctor, $value, null));
+        return $sheet->with($base->overriddenBy(CriterionSource::Nutritionist, $value, null));
     }
 
-    public function test_a_rule_not_verified_yet_is_shown_but_never_judges(): void
+    public function test_a_nutritionists_number_judges_as_a_strict_limit(): void
     {
-        // The diabetes template's 60 g a meal as it was, waiting for its references (a fixture since
-        // step 7 found no figure for it): 70 g changes nothing.
-        $this->rules['conditions']['diabetes'] = ['template' => 'diabetes'];
-        $this->rules['templates']['diabetes']['label'] = 'السكري (تحكّم بالكربوهيدرات)';
-        $this->rules['templates']['diabetes']['rules'] = ['meal_carbohydrate_g' => ['type' => 'fixed', 'value' => 60]];
-        $fit = $this->judge($this->meal(['carbohydrate_g' => 70]), $this->sheet(['conditions' => ['diabetes']]));
+        $sheet = $this->withNutritionist($this->sheet(), 'meal_carbohydrate_g', 60);
 
-        $this->assertSame(4, $fit->level);
-        $this->assertTrue($fit->general);
-        $this->assertSame(['للمعلومة، لا يدخل في التقييم بعد: كربوهيدرات الوجبة فيها 70 غ، وحد «قالب السكري (تحكّم بالكربوهيدرات)» 60 غ للوجبة قيد التوثيق. إن حدّد لك طبيبك هذا الحد، اكتبه في معاييري فنقيّم عليه.'], $fit->info);
-        $this->assertSame('قيّمناها على: احتياجك العام (موثّق). قيد التوثيق: حدود السكري. ننصحك بأخصائي.', $fit->grounds);
-        $this->assertSame(['carbohydrate_g'], $fit->infoCauses);
-        $this->assertSame([], $fit->causes, 'the energy reason is about no single nutrient');
-        $this->assertStringContainsString('وكل الحدود الموثّقة محترمة', $fit->reasons[0]);
-    }
-
-    public function test_a_doctors_number_judges_as_a_strict_limit(): void
-    {
-        $sheet = $this->withDoctor($this->sheet(['conditions' => ['diabetes']]), 'meal_carbohydrate_g', 60);
-
-        // 70 g is 17% over: in moderation, held to the doctor's number.
+        // 70 g is 17% over: in moderation, held to the nutritionist's number.
         $fit = $this->judge($this->meal(['carbohydrate_g' => 70]), $sheet);
         $this->assertSame(3, $fit->level);
-        $this->assertSame('كربوهيدرات الوجبة فيها 70 غ، والحد الذي حدّده لك طبيبك 60 غ للوجبة، أي أكثر بـ17%.', $fit->reasons[0]);
-        $this->assertSame([], $fit->info);
-        $this->assertStringContainsString('وأرقام طبيبك', $fit->grounds);
+        $this->assertSame('كربوهيدرات الوجبة فيها 70 غ، والحد الذي حدّده لك أخصائيّك 60 غ للوجبة، أي أكثر بـ17%.', $fit->reasons[0]);
 
-        // 100 g is 67% over: a doctor's limit may say "not for you now".
+        // 100 g is 67% over: a nutritionist's limit may say "not for you now".
         $this->assertSame(1, $this->judge($this->meal(['carbohydrate_g' => 100]), $sheet)->level);
     }
 
     public function test_one_reason_a_nutrient_the_one_that_drops_the_verdict_most(): void
     {
-        // Fat 31.5 g: 40% over the day's share (22.5 g, a target) and 110% over the doctor's 15 g a meal.
-        $sheet = $this->withDoctor($this->sheet(), 'meal_fat_g', 15);
+        // Fat 31.5 g: 40% over the day's share (22.5 g, a target) and 110% over the nutritionist's 15 g a meal.
+        $sheet = $this->withNutritionist($this->sheet(), 'meal_fat_g', 15);
         $fit = $this->judge($this->meal(['fat_g' => 31.5]), $sheet);
 
         $this->assertSame(1, $fit->level);
         $this->assertCount(1, array_filter($fit->reasons, fn (string $r) => str_contains($r, 'دهون')));
-        $this->assertStringStartsWith('دهون الوجبة فيها 32 غ، والحد الذي حدّده لك طبيبك 15 غ للوجبة', $fit->reasons[0]);
+        $this->assertStringStartsWith('دهون الوجبة فيها 32 غ، والحد الذي حدّده لك أخصائيّك 15 غ للوجبة', $fit->reasons[0]);
     }
 
     public function test_values_per_100_g_when_the_serving_is_unknown(): void
@@ -269,30 +239,10 @@ class MealFitCalculatorTest extends TestCase
     public function test_just_over_a_limit_reads_within_not_a_tiny_percent(): void
     {
         // 15.1 g of fat against the doctor's meal limit of 15 g.
-        $sheet = $this->withDoctor($this->sheet(), 'meal_fat_g', 15);
+        $sheet = $this->withNutritionist($this->sheet(), 'meal_fat_g', 15);
         $fit = $this->judge($this->meal(['fat_g' => 15.1, 'energy_kcal' => 450]), $sheet);
 
         $this->assertSame(4, $fit->level);
-        $this->assertContains('دهون الوجبة فيها 15 غ، أي بحدود الحد الذي حدّده لك طبيبك للوجبة (15 غ).', $fit->reasons);
-    }
-
-    public function test_legume_fibre_gets_a_note_for_a_sensitive_digestion_only(): void
-    {
-        $hummus = new MealFacts(
-            id: 2, name: 'حمص بطحينة', brand: 'المطبخ السوري', description: null, servingGrams: 115,
-            nutrients: ['energy_kcal' => 268, 'carbohydrate_g' => 26, 'protein_g' => 10, 'fat_g' => 15, 'fiber_g' => 7.6, 'sodium_mg' => 306],
-            verification: 'calculated', image: null, allergensChecked: true, ingredients: ['حمص', 'طحينة', 'ثوم'],
-        );
-
-        $sensitive = $this->judge($hummus, $this->sheet(['conditions' => ['gallbladder_removed']]));
-        $this->assertStringContainsString('7.6 غ ألياف من البقوليات', implode(' ', $sensitive->notes));
-
-        // Without such a condition, or without legumes, no note.
-        $this->assertStringNotContainsString('البقوليات', implode(' ', $this->judge($hummus)->notes));
-        $noLegumes = new MealFacts(
-            id: 3, name: 'بطاطا', brand: 'x', description: null, servingGrams: 115,
-            nutrients: ['fiber_g' => 7.6], verification: 'calculated', image: null, ingredients: ['بطاطا'],
-        );
-        $this->assertStringNotContainsString('البقوليات', implode(' ', $this->judge($noLegumes, $this->sheet(['conditions' => ['gallbladder_removed']]))->notes));
+        $this->assertContains('دهون الوجبة فيها 15 غ، أي بحدود الحد الذي حدّده لك أخصائيّك للوجبة (15 غ).', $fit->reasons);
     }
 }

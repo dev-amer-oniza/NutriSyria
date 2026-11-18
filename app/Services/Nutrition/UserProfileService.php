@@ -3,8 +3,6 @@
 namespace App\Services\Nutrition;
 
 use App\Enums\Allergen;
-use App\Enums\HealthCondition;
-use App\Enums\Sex;
 use App\Models\User;
 use App\Models\UserProfile;
 
@@ -24,16 +22,6 @@ class UserProfileService
     public function saveBody(User $user, array $body): UserProfile
     {
         $profile = $this->profileOf($user)->fill($body);
-
-        // Pregnancy, gestational diabetes and menopause only apply to women.
-        if ($profile->health_conditions) {
-            $sex = Sex::from($body['sex']);
-            $profile->health_conditions = array_values(array_filter(
-                $profile->health_conditions,
-                fn (string $c) => HealthCondition::tryFrom($c)?->appliesTo($sex) ?? false,
-            ));
-        }
-
         $profile->save();
 
         return $profile;
@@ -49,19 +37,17 @@ class UserProfileService
     }
 
     /**
-     * The optional last step. Anything chosen is kept only with the person's consent
+     * The last step: allergies. Anything chosen is kept only with the person's consent
      * (checked by the form); choosing nothing clears it. Either way the set-up is done.
      *
-     * @param  list<HealthCondition>  $conditions
      * @param  list<Allergen>  $allergens
      */
-    public function saveHealth(User $user, array $conditions, array $allergens): UserProfile
+    public function saveHealth(User $user, array $allergens): UserProfile
     {
         $profile = $this->profileOf($user);
-        $any = $conditions || $allergens;
+        $any = $allergens !== [];
 
         $profile->fill([
-            'health_conditions' => $any ? array_map(fn ($c) => $c->value, $conditions) : null,
             'allergies' => $any ? array_map(fn ($a) => $a->value, $allergens) : null,
             'health_consent_at' => $any ? ($profile->health_consent_at ?? now()) : null,
             'completed_at' => $profile->completed_at ?? now(),
@@ -70,13 +56,13 @@ class UserProfileService
         return $profile;
     }
 
-    /** "Delete my health data": conditions, allergies and the consent go; body and goal stay. */
+    /** "Delete my health data": allergies and the consent go; body and goal stay. */
     public function deleteHealth(User $user): void
     {
         $profile = $this->profileOf($user);
 
         if ($profile->exists) {
-            $profile->fill(['health_conditions' => null, 'allergies' => null, 'health_consent_at' => null])->save();
+            $profile->fill(['allergies' => null, 'health_consent_at' => null])->save();
         }
     }
 }

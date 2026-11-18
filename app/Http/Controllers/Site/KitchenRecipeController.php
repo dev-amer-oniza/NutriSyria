@@ -93,7 +93,7 @@ class KitchenRecipeController extends Controller
         }
 
         // Less of an ingredient weighs less: the cooked weight is estimated again from ours.
-        return [[...$recipe, 'weight_after' => null], (new MealSuggestion($changes, 0, true))->text(false)];
+        return [[...$recipe, 'weight_after' => null], (new MealSuggestion($changes, 0))->text(false)];
     }
 
     /** An amount cut to an easy number: whole above 10, halves below (the same in site.js). */

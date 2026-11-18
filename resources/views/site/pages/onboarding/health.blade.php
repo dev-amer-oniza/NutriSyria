@@ -2,30 +2,23 @@
 
 @section('title', 'صحتي')
 @section('heading', 'صحتك')
-@section('lead', 'اختياري. نستعمله لننبّهك حين لا تناسب وجبةٌ حالتك أو حساسيتك.')
+@section('lead', 'اختياري. إن كان عندك حساسية من طعام، نخبرك بكل وجبة فيها ما يسبّبها لك.')
 
 @section('form')
     @php
-        $checkedConditions = old('conditions', $profile->health_conditions ?? []);
         $checkedAllergies = old('allergies', $profile->allergies ?? []);
     @endphp
     <form class="ns-form" method="post" action="{{ route('site.onboarding.health') }}" novalidate
-          x-data="{ any: @js((bool) ($checkedConditions || $checkedAllergies)) }"
+          x-data="{ any: @js((bool) $checkedAllergies) }"
           @change="any = $el.querySelectorAll('input[name$=\'[]\']:checked').length > 0">
         @csrf
-        {{-- All groups post the same "conditions" list; errors show under the first one only. --}}
-        @foreach ($options['groups'] as $group)
-            @continue(empty($group['conditions']))
-            @include('site.components.form.choice-cards', [
-                'name' => 'conditions', 'legend' => $group['label'], 'multiple' => true,
-                'selected' => $checkedConditions, 'showErrors' => $loop->first,
-                'options' => collect($group['conditions'])->mapWithKeys(fn ($c) => [$c->value => array_filter(['label' => $c->label(), 'hint' => $c->hint()])])->all(),
-            ])
-        @endforeach
         @include('site.components.form.choice-cards', [
             'name' => 'allergies', 'legend' => 'حساسيات', 'multiple' => true, 'cols' => 4, 'selected' => $checkedAllergies,
             'options' => collect($options['allergens'])->mapWithKeys(fn ($a) => [$a->value => ['label' => $a->label()]])->all(),
         ])
+
+        {{-- The owner's decision: the platform is for healthy adults and people who train, not yet for pregnancy. --}}
+        <p class="ns-field__hint">NutriSyria حالياً للبالغين الأصحاء ومن يمارسون الرياضة. إن كنتِ حاملاً أو مرضعة، أو عندك حالة صحية، فاحتياجك يحدده طبيبك أو أخصائي تغذية، لا هذا الحساب.</p>
 
         <div x-show="any" x-cloak>
             <label class="ns-check ns-consent">

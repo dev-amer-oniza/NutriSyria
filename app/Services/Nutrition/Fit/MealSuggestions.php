@@ -8,15 +8,14 @@ use App\Data\Nutrition\MealFit;
 use App\Data\Nutrition\MealSuggestion;
 
 /**
- * "ماذا تستطيع أن تفعل" (step 6 of the medical plan, decisions 1a 2a): changes tried on a meal
+ * "ماذا تستطيع أن تفعل" (decisions 1a 2a): changes tried on a meal
  * and judged again in full, kept only when they help. Pure.
  *
  *  - What goes on top (after cooking) is tried without it; for a restaurant, that is the only
  *    change, the one a diner can ask for (decision 10a).
  *  - In the kitchen, the three ingredients giving most of a nutrient that went over are tried
  *    at three quarters, two thirds and half, and the smallest cut that helps is offered.
- *  - A change helps when the level goes up; or, when nothing raises it, when the meal comes
- *    within a limit not verified yet that it went past (shown as such, never a verdict).
+ *  - A change helps when the level goes up.
  */
 final class MealSuggestions
 {
@@ -30,7 +29,7 @@ final class MealSuggestions
     /** @return list<MealSuggestion> */
     public function for(CriteriaSheet $sheet, MealFacts $meal, MealFit $fit): array
     {
-        $targets = array_values(array_unique([...array_values($fit->causes), ...$fit->infoCauses]));
+        $targets = array_values(array_unique(array_values($fit->causes)));
         // Nothing went over, or an allergen decides: no change of amounts helps.
         if ($meal->lines === [] || $targets === [] || array_intersect($sheet->allergens, $meal->allergens) !== []) {
             return [];
@@ -76,8 +75,8 @@ final class MealSuggestions
         $found = array_values(array_filter($found));
         // What raises the level most first; then one change before two, leaving out what goes on
         // top before cutting the dish itself, and the fewest grams off the plate.
-        usort($found, fn (MealSuggestion $a, MealSuggestion $b) => [$b->improved, $b->level, count($a->changes), $b->onTopOnly(), $a->cutGrams]
-            <=> [$a->improved, $a->level, count($b->changes), $a->onTopOnly(), $b->cutGrams]);
+        usort($found, fn (MealSuggestion $a, MealSuggestion $b) => [$b->level, count($a->changes), $b->onTopOnly(), $a->cutGrams]
+            <=> [$a->level, count($b->changes), $a->onTopOnly(), $b->cutGrams]);
 
         return array_slice($found, 0, self::MAX);
     }
@@ -110,9 +109,7 @@ final class MealSuggestions
             $changed = $changed->without($line, $keep);
         }
         $after = $this->calculator->judge($sheet, $changed);
-        $improved = $after->level > $fit->level;
-        $cleared = array_values(array_diff($fit->infoCauses, $after->infoCauses));
-        if (! $improved && ($cleared === [] || $after->level < $fit->level)) {
+        if ($after->level <= $fit->level) {
             return null;
         }
 
@@ -129,10 +126,8 @@ final class MealSuggestions
         return new MealSuggestion(
             changes: array_map(fn (array $c) => ['ingredient' => $c[0]['label'], 'after' => $c[0]['after'], 'keep' => $c[1]], $cuts),
             level: $after->level,
-            improved: $improved,
             nutrient: $meal->platform ? $nutrient : null,
             amount: $meal->platform && $nutrient ? $changed->amount($nutrient) : null,
-            within: $improved ? null : $this->origin($sheet, $cleared[0]),
             cutGrams: array_sum(array_map(fn (array $c) => ($c[0]['grams'] ?? 0) * (1 - $c[1]), $cuts)),
         );
     }
@@ -144,19 +139,5 @@ final class MealSuggestions
         usort($lines, fn (array $a, array $b) => $b['nutrients'][$nutrient] <=> $a['nutrients'][$nutrient]);
 
         return array_slice($lines, 0, 3);
-    }
-
-    /** "عدم تحمّل الدسم": where the limit not verified yet on a nutrient comes from. */
-    private function origin(CriteriaSheet $sheet, string $nutrient): ?string
-    {
-        foreach ($sheet->criteria as $criterion) {
-            foreach ([$criterion->verified ? null : $criterion, $criterion->pending] as $rule) {
-                if ($rule && $rule->nutrient === $nutrient && $rule->bound === 'max') {
-                    return $rule->origin ?? 'حالتك';
-                }
-            }
-        }
-
-        return null;
     }
 }

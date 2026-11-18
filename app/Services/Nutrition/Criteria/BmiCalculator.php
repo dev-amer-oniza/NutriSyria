@@ -13,15 +13,16 @@ use App\Enums\Goal;
 class BmiCalculator
 {
     private const WARNINGS = [
-        'lose' => 'وزنك أقل من الطبيعي لطولك، فلا ننصحك بإنقاص الوزن. نقترح أن تختار "المحافظة على وزني"، أو أن تستشير أخصائي تغذية.',
+        'underweight.lose' => 'وزنك أقل من الطبيعي لطولك، فلا ننصحك بإنقاص الوزن. نقترح أن تختار "المحافظة على وزني"، أو أن تستشير أخصائي تغذية.',
+        // A normal weight may lose too (the owner's decision 2a), told so gently.
+        'normal.lose' => 'وزنك ضمن الطبيعي لطولك. حسبنا لك إنقاصاً هادئاً كما طلبت، وانتبه ألا تنزل تحت الوزن الصحي لطولك.',
         'gain' => 'وزنك أعلى بكثير من الطبيعي لطولك، فقد لا تناسبك زيادة الوزن. نقترح أن تراجع هدفك مع أخصائي تغذية.',
     ];
 
-    /** @param  array{classes: list<array<string, mixed>>, healthy: array{0: float, 1: float}, not_for: list<string>}  $rules  config('nutrition_criteria.bmi') */
+    /** @param  array{classes: list<array<string, mixed>>, healthy: array{0: float, 1: float}}  $rules  config('nutrition_criteria.bmi') */
     public function __construct(private readonly array $rules) {}
 
-    /** @param  list<string>  $conditions  the person's health conditions */
-    public function assess(float $heightCm, float $weightKg, ?Goal $goal = null, array $conditions = []): ?BmiAssessment
+    public function assess(float $heightCm, float $weightKg, ?Goal $goal = null): ?BmiAssessment
     {
         if ($heightCm <= 0 || $weightKg <= 0) {
             return null;
@@ -32,16 +33,12 @@ class BmiCalculator
         [$low, $high] = $this->rules['healthy'];
         $range = [(int) ceil($low * $metres ** 2), (int) floor($high * $metres ** 2)];
 
-        // In pregnancy the index says nothing useful: the number stays, the class does not.
-        if (array_intersect($conditions, $this->rules['not_for'])) {
-            return new BmiAssessment($value, null, null, null, ...$range);
-        }
-
         $class = $this->classOf($value);
 
         return new BmiAssessment(
             $value, $class['key'], $class['label'], $class['clinical'], ...$range,
-            warning: $goal && in_array($goal->value, $class['warn'] ?? [], true) ? self::WARNINGS[$goal->value] : null,
+            warning: $goal && in_array($goal->value, $class['warn'] ?? [], true)
+                ? (self::WARNINGS[$class['key'].'.'.$goal->value] ?? self::WARNINGS[$goal->value] ?? null) : null,
         );
     }
 

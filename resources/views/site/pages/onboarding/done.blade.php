@@ -42,19 +42,14 @@
                         بمعادلة Mifflin-St Jeor: احتياجك وأنت في راحة <span class="ns-num">{{ number_format($sheet->energy['bmr']) }}</span> سعرة،
                         ومع نشاطك <span class="ns-num">{{ number_format($sheet->energy['tdee']) }}</span>،
                         @if ($sheet->energy['adjustment'] < 0) ناقص <span class="ns-num">{{ abs($sheet->energy['adjustment']) }}</span> لهدف إنقاص الوزن.
-                        @elseif (($sheet->energy['held'] ?? null) === 'bmi') بلا عجز: مؤشر كتلة جسمك أقل من <span class="ns-num">{{ config('nutrition_criteria.deficit_min_bmi') }}</span>، والمرجع يوصي بإنقاص السعرات لمن وزنه أعلى من الطبيعي. إن أردت إنقاص وزنك فاسأل أخصائي تغذية.
-                        @elseif (($sheet->energy['held'] ?? null) === 'reference') بلا عجز: {{ $sheet->energy['held_why'] }}
-                        @elseif (($sheet->energy['held'] ?? null) === 'template') بلا عجز، لأن قالبك لا يسمح بإنقاص السعرات.
-                        @elseif (($sheet->energy['held'] ?? null) === 'condition') بلا عجز، لأن حالتك تحتاج طاقة كافية.
-                        @elseif (($sheet->energy['surplus'] ?? 0) > 0) ولزيادة الوزن يُنصح عادةً بنحو <span class="ns-num">{{ $sheet->energy['surplus'] }}</span> سعرة إضافية، لكن لا يوجد إرشاد رسمي لهذا الرقم، فنقيّم وجباتك على سعرات الحفاظ على وزنك، ويحدد لك أخصائي الزيادة المناسبة.
+                        @elseif ($sheet->energy['adjustment'] > 0) زائد <span class="ns-num">{{ $sheet->energy['adjustment'] }}</span> لهدف زيادة الوزن (رقم اختيار منّا، لم نجد له مرجعاً رسمياً بعد).
                         @else بلا تعديل لأن هدفك المحافظة على وزنك.
                         @endif
                         @if ($sheet->energy['floored']) ورفعناها إلى الحد الأدنى الآمن. @endif
-                        @if ($sheet->energy['raised'] ?? null) ورفعناها إلى <span class="ns-num">{{ $sheet->energy['raised'] }}</span> سعرة لكل كغ من وزنك، كما يوصي إرشاد EASL لـ{{ $sheet->energy['raised_by'] }}. @endif
                     </p>
                 </div>
 
-                @include('site.components.nutritionist-cta', ['reasons' => $sheet->advice])
+                @include('site.components.nutritionist-cta')
 
                 <div class="ns-form__row ns-needs__actions">
                     <a class="ns-btn ns-btn--secondary" href="{{ route('site.criteria') }}">كل معاييري</a>

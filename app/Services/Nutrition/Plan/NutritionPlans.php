@@ -22,7 +22,6 @@ class NutritionPlans
             'age' => $profile->age(),
             'height_cm' => $profile->height_cm,
             'weight_kg' => $profile->weight_kg,
-            'conditions' => $profile->health_conditions ?? [],
         ], $inputs);
     }
 
