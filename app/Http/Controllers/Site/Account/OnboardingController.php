@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Site\Account;
 
-use App\Enums\ActivityLevel;
 use App\Enums\Allergen;
+use App\Enums\DailyLife;
 use App\Enums\Goal;
 use App\Enums\OnboardingStep;
 use App\Enums\Sex;
@@ -35,7 +35,7 @@ class OnboardingController extends Controller
             'profile' => $profile,
             'options' => match ($step) {
                 OnboardingStep::Body => ['sexes' => Sex::cases()],
-                OnboardingStep::Activity => ['levels' => ActivityLevel::cases(), 'goals' => Goal::cases()],
+                OnboardingStep::Activity => ['days' => DailyLife::cases(), 'exercises' => config('nutrition_criteria.exercises'), 'goals' => Goal::cases()],
                 OnboardingStep::Health => ['allergens' => Allergen::cases()],
             },
         ]);

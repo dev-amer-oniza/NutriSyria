@@ -44,6 +44,22 @@ Alpine.data('fitDemo', () => ({
  * A message that closes itself after `timeout` ms (0 = stays until closed). Pointing at it
  * or focusing inside it pauses the countdown, so it never vanishes while being read.
  */
+/**
+ * Onboarding, "your activity": the day's choice shows the work-days question for a job or
+ * study, and the exercise rows grow and shrink (up to max). The server checks everything.
+ */
+Alpine.data('activityStep', ({ day, rows, max }) => ({
+    day,
+    rows,
+    max,
+    add() {
+        if (this.rows.length < this.max) this.rows.push({ type: '', times: '', minutes: '' });
+    },
+    remove(i) {
+        this.rows.splice(i, 1);
+    },
+}));
+
 Alpine.data('flash', (timeout) => ({
     open: true,
     paused: false,

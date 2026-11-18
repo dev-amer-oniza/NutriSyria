@@ -38,15 +38,10 @@
                         @endforeach
                     </dl>
 
-                    <p class="ns-needs__how">
-                        بمعادلة Mifflin-St Jeor: احتياجك وأنت في راحة <span class="ns-num">{{ number_format($sheet->energy['bmr']) }}</span> سعرة،
-                        ومع نشاطك <span class="ns-num">{{ number_format($sheet->energy['tdee']) }}</span>،
-                        @if ($sheet->energy['adjustment'] < 0) ناقص <span class="ns-num">{{ abs($sheet->energy['adjustment']) }}</span> لهدف إنقاص الوزن.
-                        @elseif ($sheet->energy['adjustment'] > 0) زائد <span class="ns-num">{{ $sheet->energy['adjustment'] }}</span> لهدف زيادة الوزن (رقم اختيار منّا، لم نجد له مرجعاً رسمياً بعد).
-                        @else بلا تعديل لأن هدفك المحافظة على وزنك.
-                        @endif
-                        @if ($sheet->energy['floored']) ورفعناها إلى الحد الأدنى الآمن. @endif
-                    </p>
+                    <div class="ns-needs__how">
+                        <h2 class="t-label">كيف حسبناها؟</h2>
+                        @include('site.components.energy-steps', ['energy' => $sheet->energy])
+                    </div>
                 </div>
 
                 @include('site.components.nutritionist-cta')

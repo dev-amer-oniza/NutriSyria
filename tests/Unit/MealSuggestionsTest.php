@@ -26,7 +26,7 @@ class MealSuggestionsTest extends TestCase
     {
         return (new CriteriaCalculator($this->rules))->calculate([
             'sex' => 'male', 'age' => 30, 'height_cm' => 170, 'weight_kg' => 70,
-            'activity' => 'light', 'goal' => 'maintain', 'allergens' => $allergens,
+            'daily_life' => 'seated', 'work_days' => 7, 'goal' => 'maintain', 'allergens' => $allergens,
         ]);
     }
 

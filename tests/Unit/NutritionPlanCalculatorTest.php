@@ -7,15 +7,19 @@ use App\Services\Nutrition\Plan\NutritionPlanCalculator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The nutritionist's plan (decisions 1a 2a 3a). The person is the design's example man:
- * 30, 178 cm, 80 kg, lightly active (×1.55); Mifflin gives 1768 kcal at rest, 2740 with activity.
+ * The nutritionist's plan (decisions 1a 2a 3a). The person: man, 28, 178 cm, 80 kg, seated at work
+ * every day (×1.53) and weights four times a week; Mifflin gives 1778 kcal at rest, 2820 a day,
+ * the same as the site's own calculation (CriteriaCalculatorTest, Ahmad).
  */
 class NutritionPlanCalculatorTest extends TestCase
 {
-    private const MAN = ['sex' => 'male', 'age' => 30, 'height_cm' => 178, 'weight_kg' => 80];
+    private const MAN = [
+        'sex' => 'male', 'age' => 28, 'height_cm' => 178, 'weight_kg' => 80, 'daily_life' => 'seated', 'work_days' => 7,
+        'exercises' => [['type' => 'weights', 'times' => 4, 'minutes' => 60]],
+    ];
 
     private const PLAN = [
-        'equation' => 'mifflin', 'body_fat_pct' => null, 'activity' => 'light', 'adjustment' => -500,
+        'equation' => 'mifflin', 'body_fat_pct' => null, 'adjustment' => -500,
         'carbs_pct' => 50, 'protein_pct' => 20, 'fat_pct' => 30, 'fluids_ml' => null,
     ];
 
@@ -29,17 +33,19 @@ class NutritionPlanCalculatorTest extends TestCase
     {
         $result = $this->calculate();
 
-        $this->assertSame([1768, 2740, -500, 2240], [$result->bmr, $result->tdee, $result->adjustment, $result->target]);
-        $this->assertSame(['pct' => 50, 'g' => 280, 'kcal' => 1120], $result->macros['carbs']);
-        $this->assertSame(['pct' => 20, 'g' => 112, 'kcal' => 448], $result->macros['protein']);
-        $this->assertSame(['pct' => 30, 'g' => 75, 'kcal' => 675], $result->macros['fat']);
-        $this->assertSame(1.4, $result->proteinPerKg);
+        // 1777.5 × 1.53 = 2719.6, + weights 100.7 = 2820.3; − 500 → 2320.
+        $this->assertSame([1778, 1.53, 101, 2820, -500, 2320], [$result->bmr, $result->activityFactor, $result->exercise, $result->tdee, $result->adjustment, $result->target]);
+        $this->assertSame(['pct' => 50, 'g' => 290, 'kcal' => 1160], $result->macros['carbs']);
+        $this->assertSame(['pct' => 20, 'g' => 116, 'kcal' => 464], $result->macros['protein']);
+        $this->assertSame(['pct' => 30, 'g' => 77, 'kcal' => 693], $result->macros['fat']);
+        $this->assertSame(1.5, $result->proteinPerKg);
         $this->assertTrue($result->isValid());
     }
 
     public function test_each_equation(): void
     {
-        $this->assertSame(1844, $this->calculate(['equation' => 'harris_benedict'])->bmr);
+        // 88.362 + 13.397 × 80 + 4.799 × 178 − 5.677 × 28 = 1855.4
+        $this->assertSame(1855, $this->calculate(['equation' => 'harris_benedict'])->bmr);
         $this->assertSame(1752, $this->calculate(['equation' => 'katch_mcardle', 'body_fat_pct' => 20])->bmr);  // 370 + 21.6 × 64 kg lean
         $this->assertSame(1325, $this->calculate(['equation' => 'harris_benedict'], ['sex' => 'female', 'weight_kg' => 60, 'height_cm' => 160, 'age' => 40])->bmr);
     }
@@ -54,9 +60,9 @@ class NutritionPlanCalculatorTest extends TestCase
 
     public function test_any_change_from_the_slider_and_the_strong_presets(): void
     {
-        $this->assertSame(1990, $this->calculate(['adjustment' => -750])->target);
-        $this->assertSame(3240, $this->calculate(['adjustment' => 500])->target);
-        $this->assertSame(2390, $this->calculate(['adjustment' => -350])->target);
+        $this->assertSame(2070, $this->calculate(['adjustment' => -750])->target);
+        $this->assertSame(3320, $this->calculate(['adjustment' => 500])->target);
+        $this->assertSame(2470, $this->calculate(['adjustment' => -350])->target);
     }
 
     public function test_the_shares_must_make_100(): void
@@ -69,7 +75,7 @@ class NutritionPlanCalculatorTest extends TestCase
 
     public function test_below_the_safe_minimum_is_a_warning_not_an_error(): void
     {
-        $small = $this->calculate(['activity' => 'sedentary', 'adjustment' => -750], ['sex' => 'female', 'weight_kg' => 55, 'height_cm' => 155, 'age' => 50]);
+        $small = $this->calculate(['adjustment' => -750], ['sex' => 'female', 'weight_kg' => 55, 'height_cm' => 155, 'age' => 50, 'daily_life' => 'home', 'exercises' => []]);
         $this->assertTrue($small->isValid());
         $this->assertStringContainsString('أقل من الحد الأدنى الآمن', $small->warnings[0]);
     }
@@ -84,7 +90,7 @@ class NutritionPlanCalculatorTest extends TestCase
     private function standardMeals(): array
     {
         $types = [['breakfast', '08:00', 25], ['snack', '11:00', 10], ['lunch', '14:00', 35], ['snack', '17:00', 10], ['dinner', '20:00', 20]];
-        $grams = NutritionPlanCalculator::distribute(['carbs' => 280, 'protein' => 112, 'fat' => 75], array_column($types, 2));
+        $grams = NutritionPlanCalculator::distribute(['carbs' => 290, 'protein' => 116, 'fat' => 77], array_column($types, 2));
 
         return array_map(fn ($t, $g) => ['type' => $t[0], 'time' => $t[1], 'share_pct' => $t[2]] + $g, $types, $grams);
     }
@@ -103,7 +109,8 @@ class NutritionPlanCalculatorTest extends TestCase
         $result = $this->calculate(['meals' => $this->standardMeals()]);
 
         $lunch = $result->meals[2];
-        $this->assertSame(['lunch', 'غداء', 784, 782, -2], [$lunch['type'], $lunch['name'], $lunch['kcal'], $lunch['macro_kcal'], $lunch['diff']]);
+        // 35% of 2320 = 812; 101 g carbs, 41 g protein, 27 g fat = 811.
+        $this->assertSame(['lunch', 'غداء', 812, 811, -1], [$lunch['type'], $lunch['name'], $lunch['kcal'], $lunch['macro_kcal'], $lunch['diff']]);
         $this->assertSame(['share' => 0, 'carbs' => 0, 'protein' => 0, 'fat' => 0], $result->remaining);
         $this->assertTrue($result->isValid());
         $this->assertSame([], $result->warnings);

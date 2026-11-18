@@ -67,7 +67,7 @@ class KitchenRecipePageTest extends TestCase
         // 40 g oil on top for 2: 20 g fat a serving, past the nutritionist's 15 g a meal.
         $user = User::forceCreate(['name' => 'سامر', 'email' => uniqid().'@example.com', 'password' => 'x-secret-1', 'is_active' => true, 'email_verified_at' => now()]);
         $user->profile()->create([
-            'sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => 178, 'weight_kg' => 80, 'activity_level' => 'light',
+            'sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => 178, 'weight_kg' => 80, 'daily_life' => 'seated', 'work_days' => 7,
             'goal' => 'maintain', 'allergies' => [], 'completed_at' => now(),
         ]);
         app(PersonalCriteria::class)->setByNutritionist($user, 'meal_fat_g', 15, User::forceCreate(['name' => 'د. ريم', 'email' => uniqid().'@example.com', 'password' => 'x-secret-1', 'is_active' => true]));

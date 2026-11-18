@@ -26,7 +26,7 @@ class BmiDisplayTest extends TestCase
         $user = User::forceCreate(['name' => 'سامر', 'email' => uniqid().'@example.com', 'password' => 'x-secret-1', 'is_active' => true, 'email_verified_at' => now()]);
         $user->profile()->create($profile + [
             'sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => 178, 'weight_kg' => 80,
-            'activity_level' => 'moderate', 'goal' => 'maintain', 'allergies' => [], 'completed_at' => now(),
+            'daily_life' => 'physical', 'work_days' => 7, 'goal' => 'maintain', 'allergies' => [], 'completed_at' => now(),
         ]);
 
         return $user->fresh();

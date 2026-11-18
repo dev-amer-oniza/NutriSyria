@@ -125,7 +125,7 @@ class ClientWorkspaceTest extends TestCase
         Livewire::test(ViewClient::class, ['record' => $link->id])
             ->callAction('resetTemplate')
             ->assertNotified('عاد القالب.');
-        $this->assertSame('balanced', app(PersonalCriteria::class)->for($link->user)->template['key']);
+        $this->assertSame('weight_loss', app(PersonalCriteria::class)->for($link->user)->template['key']);   // back to her goal's template
     }
 
     public function test_the_nutritionist_sets_and_resets_a_criterion(): void

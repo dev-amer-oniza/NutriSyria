@@ -15,8 +15,8 @@ use Tests\TestCase;
 
 /**
  * Plan phase 3 (decisions 1a 2a 3a 4a): dishes judged against the plan's lunch, and the plan
- * shown to the client. The client (fixtures) has 1540 kcal from the plan below; the lunch is
- * 35% = 539 kcal with 50 g carbs. The mujaddara serving (250 g) has 415 kcal and 62 g carbs.
+ * shown to the client. The client (fixtures) has 1510 kcal from the plan below; the lunch is
+ * 35% = 529 kcal with 50 g carbs. The mujaddara serving (250 g) has 415 kcal and 62 g carbs.
  */
 class PlanForClientTest extends TestCase
 {
@@ -27,7 +27,7 @@ class PlanForClientTest extends TestCase
     private ConsultationRequest $link;
 
     private const PLAN = [
-        'equation' => 'mifflin', 'body_fat_pct' => null, 'activity' => 'light', 'adjustment' => -750,
+        'equation' => 'mifflin', 'body_fat_pct' => null, 'adjustment' => -750,
         'carbs_pct' => 45, 'protein_pct' => 20, 'fat_pct' => 35, 'fluids_ml' => 2500,
     ];
 
@@ -71,7 +71,7 @@ class PlanForClientTest extends TestCase
         $meal = $this->approvedMeal('مجدرة');
 
         $this->actingAs($this->link->user->fresh())->get(route('site.meals.show', $meal))->assertOk()
-            ->assertSee('مقارنةً بغدائك في خطة أخصائيّك (14:00، 539 سعرة)')
+            ->assertSee('مقارنةً بغدائك في خطة أخصائيّك (14:00، 529 سعرة)')
             ->assertSee('وغداؤك في خطتك 50 غ');                               // 62 g carbs against the lunch's 50 g
     }
 
@@ -91,8 +91,8 @@ class PlanForClientTest extends TestCase
 
         $this->actingAs($this->link->user->fresh())->get(route('site.criteria'))->assertOk()
             ->assertSee('خطتك من أخصائيّك')
-            ->assertSeeInOrder(['1,540', '173', '77', '60', '2.5'])            // kcal, carbs, protein, fat (g), fluids (l)
-            ->assertSeeInOrder(['08:00', 'فطور', '14:00', 'غداء', '539', '20:00', 'عشاء'])
+            ->assertSeeInOrder(['1,510', '170', '76', '59', '2.5'])            // kcal, carbs, protein, fat (g), fluids (l)
+            ->assertSeeInOrder(['08:00', 'فطور', '14:00', 'غداء', '529', '20:00', 'عشاء'])
             ->assertSee('غداء: <span class="ns-num">50</span>', false)       // the criteria list shows the lunch's own grams
             ->assertDontSee('الأيض')                                           // no BMR, equation or change (3a)
             ->assertDontSee('Mifflin')

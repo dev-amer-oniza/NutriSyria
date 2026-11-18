@@ -30,13 +30,12 @@ class NutritionPlan extends Model
         return $this->belongsTo(ConsultationRequest::class, 'consultation_request_id');
     }
 
-    /** The plan as NutritionPlanCalculator reads it (the activity level lives on the profile). */
-    public function inputs(string $activity): array
+    /** The plan as NutritionPlanCalculator reads it (the day and the exercise live on the profile). */
+    public function inputs(): array
     {
         return [
             'equation' => $this->equation->value,
             'body_fat_pct' => $this->body_fat_pct,
-            'activity' => $activity,
             'adjustment' => $this->adjustment_kcal,
             'carbs_pct' => $this->carbs_pct,
             'protein_pct' => $this->protein_pct,

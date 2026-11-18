@@ -33,8 +33,8 @@ class NutritionReferencesTest extends TestCase
     public function test_every_named_reference_exists_and_was_read(): void
     {
         $named = [
-            ...$this->rules['activity_refs'], ...$this->rules['goal_refs'], ...$this->rules['min_kcal_refs'],
-            ...$this->rules['bmi']['refs'], ...$this->rules['templates']['balanced']['refs'],
+            ...$this->rules['daily_life_refs'], ...$this->rules['exercise_refs'], ...$this->rules['protein_refs'],
+            ...$this->rules['goal_refs'], ...$this->rules['min_kcal_refs'], ...$this->rules['bmi']['refs'],
         ];
         foreach ($this->rules['criteria'] as $criterion) {
             $named = [...$named, ...($criterion['refs'] ?? [])];
@@ -95,17 +95,25 @@ class NutritionReferencesTest extends TestCase
         $this->assertFalse($this->refs['who_free_sugars_2015']['gates']['applicability'], 'free sugars are not our total sugars');
     }
 
-    public function test_the_balanced_template_is_inside_the_reference_ranges(): void
+    public function test_the_macro_rule_stays_inside_the_reference_ranges(): void
     {
-        $macros = $this->rules['templates']['balanced']['macros'];
+        $rule = $this->rules['macro_rule'];
 
+        // NASEM: fat 20–35%, carbohydrate 45–65%, protein 10–35%; WHO: fat 30% or less.
         $this->assertStringContainsString('Adults: Fat 20–35 · Carbohydrate 45–65 · Protein 10–35', $this->quote('nasem_amdr'));
-        $this->assertTrue($macros['carbs'] >= 45 && $macros['carbs'] <= 65);
-        $this->assertTrue($macros['protein'] >= 10 && $macros['protein'] <= 35);
-        $this->assertTrue($macros['fat'] >= 20 && $macros['fat'] <= 35);
         $this->assertStringContainsString('limit total fat intake to 30% of total energy intake or less', $this->quote('who_fats_2023'));
-        $this->assertLessThanOrEqual(30, $macros['fat']);
-        $this->assertStringNotContainsString('ADA', $this->rules['templates']['balanced']['label']);
+        $this->assertSame([30, 20, 45, 35], [$rule['fat_pct'], $rule['fat_min_pct'], $rule['carbs_min_pct'], $rule['protein_max_pct']]);
+    }
+
+    public function test_protein_per_kg_is_inside_the_guidelines_range(): void
+    {
+        $this->assertStringContainsString('1.2–1.6 grams of protein per kilogram of body weight per day', $this->quote('dga_2025_protein'));
+
+        foreach ($this->rules['templates'] as $key => $template) {
+            foreach ((array) $template['protein_per_kg'] as $perKg) {
+                $this->assertTrue($perKg >= 1.2 && $perKg <= 1.6, "$key $perKg");
+            }
+        }
     }
 
     public function test_the_energy_equation_is_mifflins(): void
@@ -117,18 +125,34 @@ class NutritionReferencesTest extends TestCase
         $this->assertSame(10 * 60 + 6.25 * 160 - 5 * 45 - 161, EnergyEquation::Mifflin->bmr(Sex::Female, 45, 160, 60));
     }
 
-    public function test_every_activity_factor_is_inside_the_fao_ranges(): void
+    public function test_the_day_factors_come_from_fao(): void
     {
         $quote = $this->quote('fao_energy_2004');
-        $this->assertStringContainsString('Sedentary or light activity lifestyle 1.40-1.69', $quote);
-        $this->assertStringContainsString('Active or moderately active lifestyle 1.70-1.99', $quote);
-        $this->assertStringContainsString('Vigorous or vigorously active lifestyle 2.00-2.40', $quote);
+        $factors = $this->rules['daily_life'];
 
-        $ranges = ['sedentary' => [1.40, 1.69], 'light' => [1.40, 1.69], 'moderate' => [1.70, 1.99], 'very' => [2.00, 2.40], 'extreme' => [2.00, 2.40]];
-        foreach ($this->rules['activity_factors'] as $level => $factor) {
-            [$low, $high] = $ranges[$level];
-            $this->assertTrue($factor >= $low && $factor <= $high, "$level $factor");
+        // Seated work: FAO's example of someone who does not exercise, 36.7 ÷ 24.
+        $this->assertStringContainsString('Total 24 36.7 36.7/24 = 1.53', $quote);
+        $this->assertSame(1.53, $factors['seated']);
+        // Standing work: FAO's waiter, without its hour of exercise (4.2) and with that hour seated (1.4).
+        $this->assertStringContainsString('Total 24 42.2 42.2/24 = 1.76', $quote);
+        $this->assertSame(round((42.2 - 4.2 + 1.4) / 24, 2), $factors['standing']);
+        // At home: the lowest a sustained day reaches; physical work: inside the masons' 1.70–1.99.
+        $this->assertStringContainsString('range from about 1.40 to 2.40', $quote);
+        $this->assertSame(1.40, $factors['home']);
+        $this->assertStringContainsString('Active or moderately active lifestyle 1.70-1.99', $quote);
+        $this->assertTrue($factors['physical'] >= 1.70 && $factors['physical'] <= 1.99);
+        $this->assertSame([1.40, 2.40], $this->rules['pal_range']);
+    }
+
+    public function test_every_exercise_reads_its_met_from_the_compendium(): void
+    {
+        $quote = $this->quote('compendium_2024');
+
+        $this->assertStringContainsString('1 MET = 1 kcal/kg/hr', $quote);
+        foreach ($this->rules['exercises'] as $key => $exercise) {
+            $this->assertMatchesRegularExpression('/'.$exercise['code'].' '.preg_quote(number_format($exercise['met'], 1), '/').' /', $quote, $key);
         }
+        $this->assertSame(1.4, $this->rules['replaced_par'], 'the hour counted as seated is taken off (FAO: 1.4 for light leisure)');
     }
 
     public function test_the_deficit_and_the_floor_follow_the_obesity_guideline(): void
@@ -137,6 +161,9 @@ class NutritionReferencesTest extends TestCase
 
         $this->assertSame(-500, $this->rules['goal_adjustment']['lose']);
         $this->assertStringContainsString('Prescribe a 500-kcal/d or 750-kcal/d energy deficit', $quote);
+        $this->assertStringContainsString('Many used a 500 to 800 kilocalories a day deficit', $this->quote('nice_obesity_ng246'));
+        // Under the minimum is a specialist's low-energy diet, not ours.
+        $this->assertStringContainsString('Consider low-energy diets (800 to 1,200 kilocalories per day', $this->quote('nice_obesity_ng246'));
         $this->assertArrayNotHasKey('deficit_min_bmi', $this->rules, 'a normal weight may lose too (decision 2a)');
 
         $this->assertSame(['female' => 1200, 'male' => 1500], $this->rules['min_kcal']);

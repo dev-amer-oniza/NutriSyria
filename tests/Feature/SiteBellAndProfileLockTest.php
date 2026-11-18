@@ -89,7 +89,7 @@ class SiteBellAndProfileLockTest extends TestCase
             ->assertRedirect(route('site.criteria'))->assertSessionHas('error', EnsureProfileUnlocked::MESSAGE);
         $this->post(route('site.onboarding.body'), ['sex' => 'female', 'birth_year' => 1990, 'height_cm' => 165, 'weight_kg' => 60])
             ->assertSessionHas('error');
-        $this->post(route('site.onboarding.activity'), ['activity_level' => 'very', 'goal' => 'gain'])->assertSessionHas('error');
+        $this->post(route('site.onboarding.activity'), ['daily_life' => 'physical', 'work_days' => 6, 'goal' => 'gain'])->assertSessionHas('error');
         $this->post(route('site.onboarding.health'), ['allergies' => []])->assertSessionHas('error');
         $this->delete(route('site.health.destroy'))->assertSessionHas('error');
 
@@ -130,7 +130,8 @@ class SiteBellAndProfileLockTest extends TestCase
         Livewire::test(ViewClient::class, ['record' => $link->id])
             ->callAction('editProfile', [
                 'sex' => 'female', 'birth_year' => now()->year - 34, 'height_cm' => 165, 'weight_kg' => 72,
-                'activity_level' => 'moderate', 'goal' => 'lose',
+                'daily_life' => 'standing', 'work_days' => 5, 'goal' => 'lose',
+                'exercises' => [['type' => 'swim', 'times' => 2, 'minutes' => 45]],
                 'allergies' => ['gluten'],
             ])
             ->assertHasNoActionErrors()
@@ -138,7 +139,8 @@ class SiteBellAndProfileLockTest extends TestCase
 
         $profile = $client->profile->fresh();
         $this->assertSame(72.0, (float) $profile->weight_kg);
-        $this->assertSame('moderate', $profile->activity_level->value);
+        $this->assertSame(['standing', 5], [$profile->daily_life->value, $profile->work_days]);
+        $this->assertSame([['type' => 'swim', 'times' => 2, 'minutes' => 45]], $profile->exercises);
         $this->assertSame(['gluten'], $profile->allergies);
         $this->assertSame(1, $client->notifications()->where('data->title', 'like', 'حدّث%')->count());
     }

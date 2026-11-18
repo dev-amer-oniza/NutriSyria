@@ -4,9 +4,9 @@ namespace App\Filament\Clusters\Consultations\Resources\Clients\Pages;
 
 use App\Data\Nutrition\CriteriaSheet;
 use App\Data\Nutrition\NutritionPlanResult;
-use App\Enums\ActivityLevel;
 use App\Enums\Allergen;
 use App\Enums\CriterionSource;
+use App\Enums\DailyLife;
 use App\Enums\Goal;
 use App\Enums\Sex;
 use App\Filament\Clusters\Consultations\Resources\Clients\ClientResource;
@@ -16,6 +16,7 @@ use App\Services\Nutrition\Criteria\PersonalCriteria;
 use App\Services\Nutrition\Plan\NutritionPlans;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -23,6 +24,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Arr;
@@ -116,7 +118,7 @@ class ViewClient extends Page
             ->modalHeading(fn () => 'بيانات '.$this->record->user->name)
             ->modalDescription('لا يستطيع المراجع تعديلها ما دام الارتباط قائماً. يصله إشعار بالتحديث.')
             ->fillForm(fn () => Arr::only($this->record->user->profile?->attributesToArray() ?? [], [
-                'sex', 'birth_year', 'height_cm', 'weight_kg', 'activity_level', 'goal', 'allergies',
+                'sex', 'birth_year', 'height_cm', 'weight_kg', 'daily_life', 'work_days', 'exercises', 'goal', 'allergies',
             ]))
             ->schema([
                 Grid::make(2)->schema([
@@ -124,9 +126,21 @@ class ViewClient extends Page
                     TextInput::make('birth_year')->label('سنة الميلاد')->integer()->required()->minValue($year - 100)->maxValue($year - 10),
                     TextInput::make('height_cm')->label('الطول')->suffix('سم')->numeric()->required()->minValue(120)->maxValue(230),
                     TextInput::make('weight_kg')->label('الوزن')->suffix('كغ')->numeric()->required()->minValue(30)->maxValue(300),
-                    Select::make('activity_level')->label('النشاط')->options($options(ActivityLevel::cases()))->required(),
+                    Select::make('daily_life')->label('نهاره بلا رياضة')->live()->required()
+                        ->options(collect(DailyLife::cases())->mapWithKeys(fn (DailyLife $d) => [$d->value => $d->label().' (×'.$d->factor().')'])->all()),
+                    TextInput::make('work_days')->label('أيام الدوام بالأسبوع')->integer()->minValue(1)->maxValue(7)
+                        ->visible(fn (Get $get) => DailyLife::tryFrom((string) $get('daily_life'))?->hasWorkDays() ?? false)
+                        ->required(fn (Get $get) => DailyLife::tryFrom((string) $get('daily_life'))?->hasWorkDays() ?? false),
                     Select::make('goal')->label('الهدف')->options($options(Goal::cases()))->required(),
                 ]),
+                Repeater::make('exercises')->label('الرياضة')->defaultItems(0)->maxItems((int) config('nutrition_criteria.max_exercises'))
+                    ->addActionLabel('أضف رياضة')->columns(3)
+                    ->schema([
+                        Select::make('type')->label('النوع')->required()
+                            ->options(collect(config('nutrition_criteria.exercises'))->map(fn (array $e) => $e['label'].' ('.$e['met'].' MET)')->all()),
+                        TextInput::make('times')->label('مرات بالأسبوع')->integer()->required()->minValue(1)->maxValue(14),
+                        TextInput::make('minutes')->label('دقائق المرة')->integer()->required()->minValue(5)->maxValue(300),
+                    ]),
                 CheckboxList::make('allergies')->label('الحساسيات')->options($options(Allergen::cases()))->columns(4),
             ])
             ->action(function (array $data) {
@@ -147,7 +161,7 @@ class ViewClient extends Page
             ->schema([
                 Select::make('template')
                     ->label('القالب')
-                    ->options(collect(config('nutrition_criteria.templates'))->map(fn (array $t) => $t['label'].' (كربوهيدرات '.$t['macros']['carbs'].'٪، بروتين '.$t['macros']['protein'].'٪، دهون '.$t['macros']['fat'].'٪)')->all())
+                    ->options(collect(config('nutrition_criteria.templates'))->map(fn (array $t) => $t['label'].' (بروتين '.(is_array($t['protein_per_kg']) ? implode('–', array_unique($t['protein_per_kg'])) : $t['protein_per_kg']).' غ/كغ)')->all())
                     ->required()
                     ->searchable(),
                 Textarea::make('note')

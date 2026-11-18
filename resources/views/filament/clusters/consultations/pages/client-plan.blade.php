@@ -25,7 +25,8 @@
                     @if ($result)
                         <dl class="space-y-2 text-sm">
                             <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">الأيض الأساسي (BMR)</dt><dd class="font-semibold">{{ $result->bmr !== null ? number_format($result->bmr) : '—' }}</dd></div>
-                            <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">× معامل النشاط</dt><dd class="font-semibold">{{ $result->activityFactor }}</dd></div>
+                            <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">× معامل النهار</dt><dd class="font-semibold">{{ $result->activityFactor }}</dd></div>
+                            <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">+ الرياضة (معدّل اليوم)</dt><dd class="font-semibold">{{ number_format($result->exercise) }}</dd></div>
                             <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">الاحتياج اليومي</dt><dd class="font-semibold">{{ $result->tdee !== null ? number_format($result->tdee) : '—' }}</dd></div>
                             <div class="flex justify-between gap-4"><dt class="text-gray-500 dark:text-gray-400">التعديل</dt><dd class="font-semibold" dir="ltr">{{ $this::signed($result->adjustment) }}</dd></div>
                             <div class="flex justify-between gap-4 border-t border-gray-200 pt-2 dark:border-white/10">

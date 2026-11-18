@@ -114,7 +114,7 @@ class ConsultationTest extends TestCase
         $this->assertSame(1, ConsultationRequest::count());
 
         // A nutritionist may book a colleague, never themself.
-        $omar->user->profile()->create(['sex' => 'male', 'birth_year' => 1985, 'height_cm' => 175, 'weight_kg' => 80, 'activity_level' => 'light', 'goal' => 'maintain']);
+        $omar->user->profile()->create(['sex' => 'male', 'birth_year' => 1985, 'height_cm' => 175, 'weight_kg' => 80, 'daily_life' => 'seated', 'work_days' => 7, 'goal' => 'maintain']);
         $this->send($omar->user, $omar, ['whatsapp' => $omar->user->phone])->assertRedirect(route('site.nutritionists.show', $omar))->assertSessionHas('error');
         $this->actingAs($omar->user)->get(route('site.nutritionists.show', $omar))->assertSee('هذه صفحتك');
     }

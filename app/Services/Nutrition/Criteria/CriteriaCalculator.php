@@ -13,9 +13,13 @@ use InvalidArgumentException;
  * Works out a person's default criteria from their profile and the rules in
  * config/nutrition_criteria.php. Pure: no database, arrays in and a CriteriaSheet out.
  *
- * Profile keys: sex (male|female), age, height_cm, weight_kg, activity (level key),
- * goal (lose|maintain|gain), allergens (list), and optionally template (one chosen by the
- * person's nutritionist) with template_source.
+ * Profile keys: sex (male|female), age, height_cm, weight_kg, daily_life (App\Enums\DailyLife),
+ * work_days (nullable), exercises (list of {type, times, minutes}), goal (lose|maintain|gain),
+ * allergens (list), and optionally template (one chosen by the person's nutritionist) with
+ * template_source.
+ *
+ * The template comes from the answers (the owner's decision): the nutritionist's choice, else
+ * 'sport' for training on sport_days a week or more, else the goal's template.
  */
 final class CriteriaCalculator
 {
@@ -23,14 +27,12 @@ final class CriteriaCalculator
 
     public function calculate(array $profile): CriteriaSheet
     {
-        $chosen = $profile['template'] ?? null;
-        [$templateKey, $templateSource] = $chosen && isset($this->rules['templates'][$chosen])
-            ? [$chosen, $profile['template_source'] ?? CriterionSource::Nutritionist]
-            : [$this->rules['default_template'], CriterionSource::Default];
+        [$templateKey, $templateSource] = $this->template($profile);
         $template = $this->rules['templates'][$templateKey];
 
         $energy = $this->energy($profile);
-        $context = ['profile' => $profile, 'kcal' => $energy['target'], 'template' => $template];
+        $macros = $this->macros($template, $profile, $energy['target']);
+        $context = ['profile' => $profile, 'kcal' => $energy['target'], 'macros' => $macros, 'template' => $template];
 
         // Every criterion with a default rule (the macros from the template), then the template's own rules.
         $criteria = [];
@@ -60,35 +62,91 @@ final class CriteriaCalculator
                 'key' => $templateKey,
                 'label' => $template['label'],
                 'description' => $template['description'],
-                'macros' => $template['macros'],
+                // The shares the grams make, in % of the calories (the nutritionist's plan starts from them).
+                'macros' => $macros['pct'],
                 'source' => $templateSource,
             ],
             allergens: array_values(array_unique($profile['allergens'] ?? [])),
         );
     }
 
+    /** @return array{0: string, 1: CriterionSource} */
+    private function template(array $profile): array
+    {
+        $chosen = $profile['template'] ?? null;
+        if ($chosen && isset($this->rules['templates'][$chosen])) {
+            return [$chosen, $profile['template_source'] ?? CriterionSource::Nutritionist];
+        }
+        if (EnergyCalculator::trainingDays($profile['exercises'] ?? []) >= (int) $this->rules['sport_days']) {
+            return ['sport', CriterionSource::Default];
+        }
+
+        return [$this->rules['goal_templates'][$profile['goal']] ?? $this->rules['default_template'], CriterionSource::Default];
+    }
+
     /**
-     * Mifflin-St Jeor resting energy, times the activity level, plus the goal's change, never
-     * below the safe minimum ('floored').
+     * The day's energy (EnergyCalculator), and the goal's change kept safe: a deficit never
+     * goes under the minimum ('floored'), and when the day itself is at or under it, there is
+     * no deficit at all ('held': more activity or a nutritionist, not less food).
      *
-     * @return array{bmr: int, tdee: int, adjustment: int, floored: bool, target: int}
+     * @return array{bmr: int, factor: float, base: int, exercise: int, tdee: int, pal: float, unusual: bool, adjustment: int, floored: bool, held: bool, target: int}
      */
     private function energy(array $profile): array
     {
-        $bmr = EnergyEquation::Mifflin->bmr(Sex::from($profile['sex']), (int) $profile['age'], (float) $profile['height_cm'], (float) $profile['weight_kg']);
-        $tdee = $bmr * (float) $this->rules['activity_factors'][$profile['activity']];
-        $adjustment = (int) $this->rules['goal_adjustment'][$profile['goal']];
+        $weight = (float) $profile['weight_kg'];
+        $bmr = EnergyEquation::Mifflin->bmr(Sex::from($profile['sex']), (int) $profile['age'], (float) $profile['height_cm'], $weight);
+        $day = (new EnergyCalculator($this->rules))->day($bmr, $weight, $profile['daily_life'], $profile['work_days'] ?? null, $profile['exercises'] ?? []);
+        $tdee = (int) round($day['tdee']);
 
+        $adjustment = (int) $this->rules['goal_adjustment'][$profile['goal']];
         $minimum = (int) $this->rules['min_kcal'][$profile['sex']];
-        $target = $tdee + $adjustment;
+        [$floored, $held] = [false, false];
+        if ($adjustment < 0 && $tdee <= $minimum) {
+            [$adjustment, $held] = [0, true];
+        } elseif ($adjustment < 0 && $tdee + $adjustment < $minimum) {
+            [$adjustment, $floored] = [$minimum - $tdee, true];
+        }
 
         return [
             'bmr' => (int) round($bmr),
-            'tdee' => (int) round($tdee),
+            'factor' => round($day['factor'], 3),
+            'base' => (int) round($day['base']),
+            'exercise' => (int) round($day['exercise']),
+            'tdee' => $tdee,
+            'pal' => round($day['pal'], 2),
+            'unusual' => $day['unusual'],
             'adjustment' => $adjustment,
-            'floored' => $target < $minimum,
-            'target' => (int) (round(max($target, $minimum) / 10) * 10),
+            'floored' => $floored,
+            'held' => $held,
+            'target' => $tdee + $adjustment,
         ];
+    }
+
+    /**
+     * Protein first, in grams per kg (never past protein_max_pct of the calories); fat at
+     * fat_pct, coming down fat_step at a time to fat_min_pct while the carbohydrate is under
+     * carbs_min_pct; carbohydrate the rest (config macro_rule).
+     *
+     * @return array{g: array{carbs: float, protein: float, fat: float}, pct: array{carbs: int, protein: int, fat: int}, protein_per_kg: float}
+     */
+    private function macros(array $template, array $profile, int $kcal): array
+    {
+        $rule = $this->rules['macro_rule'];
+        $perG = $this->rules['kcal_per_g'];
+        $perKg = $template['protein_per_kg'];
+        $perKg = (float) (is_array($perKg) ? ($perKg[$profile['goal']] ?? reset($perKg)) : $perKg);
+
+        $protein = min($perKg * (float) $profile['weight_kg'], $kcal * $rule['protein_max_pct'] / 100 / $perG['protein']);
+        $fatPct = (int) $rule['fat_pct'];
+        $carbs = fn (int $fatPct) => ($kcal - $protein * $perG['protein'] - $kcal * $fatPct / 100) / $perG['carbs'];
+        while ($fatPct > $rule['fat_min_pct'] && $carbs($fatPct) * $perG['carbs'] < $kcal * $rule['carbs_min_pct'] / 100) {
+            $fatPct = max((int) $rule['fat_min_pct'], $fatPct - (int) $rule['fat_step']);
+        }
+
+        $grams = ['carbs' => max(0.0, $carbs($fatPct)), 'protein' => $protein, 'fat' => $kcal * $fatPct / 100 / $perG['fat']];
+        $pct = fn (string $m) => $kcal > 0 ? (int) round($grams[$m] * $perG[$m] / $kcal * 100) : 0;
+
+        return ['g' => $grams, 'pct' => ['carbs' => $pct('carbs'), 'protein' => $pct('protein'), 'fat' => $pct('fat')], 'protein_per_kg' => $perKg];
     }
 
     private function value(string $key, string $bound, array $rule, array $context, string $why = ''): CriterionValue
@@ -119,8 +177,8 @@ final class CriteriaCalculator
         $profile = $context['profile'];
 
         return match ($rule['type']) {
-            'energy' => [$kcal, 'معادلة Mifflin-St Jeor مضروبة بمستوى نشاطك، ومعدّلة حسب هدفك'],
-            'macro' => $this->macro($rule['macro'], $context['template'], $kcal),
+            'energy' => [$kcal, 'معادلة Mifflin-St Jeor مضروبة بمعامل نهارك، مع تمرينك، ومعدّلة حسب هدفك'],
+            'macro' => $this->macro($rule['macro'], $context),
             'per_kg' => [(float) $profile['weight_kg'] * (float) $rule['value'], $rule['value'].' غ لكل كغ من وزنك'],
             'energy_pct' => [$kcal * $rule['pct'] / 100 / $rule['kcal_per_g'], $rule['pct'].'% من سعراتك اليومية'],
             'per_1000' => [$kcal / 1000 * $rule['value'], $rule['value'].' غ لكل 1000 سعرة'],
@@ -131,10 +189,14 @@ final class CriteriaCalculator
     }
 
     /** @return array{0: float, 1: string} */
-    private function macro(string $macro, array $template, int $kcal): array
+    private function macro(string $macro, array $context): array
     {
-        $pct = $template['macros'][$macro];
+        $grams = $context['macros']['g'][$macro];
 
-        return [$kcal * $pct / 100 / $this->rules['kcal_per_g'][$macro], $pct.'% من سعراتك حسب قالب '.$template['label']];
+        return [$grams, match ($macro) {
+            'protein' => $context['macros']['protein_per_kg'].' غ لكل كغ من وزنك (قالب '.$context['template']['label'].')',
+            'fat' => $context['macros']['pct']['fat'].'% من سعراتك',
+            default => 'باقي السعرات بعد البروتين والدهون',
+        }];
     }
 }
