@@ -64,6 +64,8 @@ final class CriteriaCalculator
                 'description' => $template['description'],
                 // The shares the grams make, in % of the calories (the nutritionist's plan starts from them).
                 'macros' => $macros['pct'],
+                // For people who train: their level and its carbohydrate per kg (null otherwise).
+                'sport' => $macros['sport'],
                 'source' => $templateSource,
             ],
             allergens: array_values(array_unique($profile['allergens'] ?? [])),
@@ -125,9 +127,11 @@ final class CriteriaCalculator
     /**
      * Protein first, in grams per kg (never past protein_max_pct of the calories); fat at
      * fat_pct, coming down fat_step at a time to fat_min_pct while the carbohydrate is under
-     * carbs_min_pct; carbohydrate the rest (config macro_rule).
+     * carbs_min_pct; carbohydrate the rest (config macro_rule). A template for people who train
+     * ('sport_carbs') also needs the least carbohydrate per kg of its training level (acsm_2016):
+     * the fat keeps coming down for it, never under fat_min_pct, and a shortfall is reported.
      *
-     * @return array{g: array{carbs: float, protein: float, fat: float}, pct: array{carbs: int, protein: int, fat: int}, protein_per_kg: float}
+     * @return array{g: array{carbs: float, protein: float, fat: float}, pct: array{carbs: int, protein: int, fat: int}, protein_per_kg: float, sport: ?array{level: string, label: string, hours: float, range: array{0: int|float, 1: int|float}, per_kg: float, short: bool}}
      */
     private function macros(array $template, array $profile, int $kcal): array
     {
@@ -139,14 +143,49 @@ final class CriteriaCalculator
         $protein = min($perKg * (float) $profile['weight_kg'], $kcal * $rule['protein_max_pct'] / 100 / $perG['protein']);
         $fatPct = (int) $rule['fat_pct'];
         $carbs = fn (int $fatPct) => ($kcal - $protein * $perG['protein'] - $kcal * $fatPct / 100) / $perG['carbs'];
-        while ($fatPct > $rule['fat_min_pct'] && $carbs($fatPct) * $perG['carbs'] < $kcal * $rule['carbs_min_pct'] / 100) {
+        $weight = (float) $profile['weight_kg'];
+        $level = ($template['sport_carbs'] ?? false) ? $this->sportLevel($profile['exercises'] ?? []) : null;
+        $carbsFloor = max($kcal * $rule['carbs_min_pct'] / 100 / $perG['carbs'], $level ? $level['g_per_kg'][0] * $weight : 0);
+        while ($fatPct > $rule['fat_min_pct'] && $carbs($fatPct) < $carbsFloor) {
             $fatPct = max((int) $rule['fat_min_pct'], $fatPct - (int) $rule['fat_step']);
         }
 
         $grams = ['carbs' => max(0.0, $carbs($fatPct)), 'protein' => $protein, 'fat' => $kcal * $fatPct / 100 / $perG['fat']];
         $pct = fn (string $m) => $kcal > 0 ? (int) round($grams[$m] * $perG[$m] / $kcal * 100) : 0;
 
-        return ['g' => $grams, 'pct' => ['carbs' => $pct('carbs'), 'protein' => $pct('protein'), 'fat' => $pct('fat')], 'protein_per_kg' => $perKg];
+        $perKgCarbs = round($grams['carbs'] / $weight, 1);
+
+        return [
+            'g' => $grams,
+            'pct' => ['carbs' => $pct('carbs'), 'protein' => $pct('protein'), 'fat' => $pct('fat')],
+            'protein_per_kg' => $perKg,
+            'sport' => $level ? [
+                'level' => $level['key'],
+                'label' => $level['label'],
+                'hours' => round(EnergyCalculator::dailyHours($profile['exercises'] ?? []), 2),
+                'range' => $level['g_per_kg'],
+                'per_kg' => $perKgCarbs,
+                'short' => $perKgCarbs < $level['g_per_kg'][0],
+            ] : null,
+        ];
+    }
+
+    /**
+     * The training level from the hours a day on average (config sport_carbs, decision 3a).
+     *
+     * @return array{key: string, label: string, below_hours: int|float|null, g_per_kg: array{0: int|float, 1: int|float}}
+     */
+    private function sportLevel(array $exercises): array
+    {
+        $hours = EnergyCalculator::dailyHours($exercises);
+        $levels = $this->rules['sport_carbs']['levels'];
+        foreach ($levels as $level) {
+            if ($level['below_hours'] === null || $hours < $level['below_hours']) {
+                return $level;
+            }
+        }
+
+        return end($levels);
     }
 
     private function value(string $key, string $bound, array $rule, array $context, string $why = ''): CriterionValue

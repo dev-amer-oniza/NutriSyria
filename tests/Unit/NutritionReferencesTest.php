@@ -35,6 +35,7 @@ class NutritionReferencesTest extends TestCase
         $named = [
             ...$this->rules['daily_life_refs'], ...$this->rules['exercise_refs'], ...$this->rules['protein_refs'],
             ...$this->rules['goal_refs'], ...$this->rules['min_kcal_refs'], ...$this->rules['bmi']['refs'],
+            ...$this->rules['sport_carbs']['refs'],
         ];
         foreach ($this->rules['criteria'] as $criterion) {
             $named = [...$named, ...($criterion['refs'] ?? [])];
@@ -103,6 +104,30 @@ class NutritionReferencesTest extends TestCase
         $this->assertStringContainsString('Adults: Fat 20–35 · Carbohydrate 45–65 · Protein 10–35', $this->quote('nasem_amdr'));
         $this->assertStringContainsString('limit total fat intake to 30% of total energy intake or less', $this->quote('who_fats_2023'));
         $this->assertSame([30, 20, 45, 35], [$rule['fat_pct'], $rule['fat_min_pct'], $rule['carbs_min_pct'], $rule['protein_max_pct']]);
+    }
+
+    public function test_the_sport_carbohydrate_levels_read_from_the_athletes_statement(): void
+    {
+        $quote = $this->quote('acsm_2016');
+
+        $this->assertStringContainsString('Light Low intensity or skill-based activities 3–5 g/kg', $quote);
+        $this->assertStringContainsString('Moderate Moderate exercise program (eg, ~1 h per day) 5–7 g/kg/d', $quote);
+        $this->assertStringContainsString('High Endurance program (eg, 1–3 h/d mod-high-intensity exercise) 6–10 g/kg/d', $quote);
+        $this->assertStringContainsString('Very High Extreme commitment (eg, >4–5 h/d mod-high intensity exercise 8–12 g/kg/d', $quote);
+        $this->assertSame(
+            ['light' => [3, 5], 'moderate' => [5, 7], 'high' => [6, 10], 'very_high' => [8, 12]],
+            array_column($this->rules['sport_carbs']['levels'], 'g_per_kg', 'key'),
+        );
+        // The hours: under ~1 h, about 1 h, 1–3 h, 4 h and more (the boundaries between are ours).
+        $this->assertSame([0.75, 1.5, 4, null], array_column($this->rules['sport_carbs']['levels'], 'below_hours'));
+
+        // Protein 1.2–2.0 g/kg; never fat under 20%.
+        $this->assertStringContainsString('generally ranges from 1.2 to 2.0 g/kg/d', $quote);
+        foreach ((array) $this->rules['templates']['sport']['protein_per_kg'] as $perKg) {
+            $this->assertTrue($perKg >= 1.2 && $perKg <= 2.0);
+        }
+        $this->assertStringContainsString('discouraged from chronic implementation of fat intakes below 20% of energy intake', $quote);
+        $this->assertSame(20, $this->rules['macro_rule']['fat_min_pct']);
     }
 
     public function test_protein_per_kg_is_inside_the_guidelines_range(): void

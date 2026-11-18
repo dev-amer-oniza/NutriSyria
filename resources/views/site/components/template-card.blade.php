@@ -37,4 +37,15 @@
             </div>
         @endforeach
     </dl>
+
+    @if (! empty($template['sport']))
+        @php $sport = $template['sport']; @endphp
+        <p class="ns-template__sport">
+            تمرينك <b>{{ $sport['label'] }}</b> (نحو <span class="ns-num">{{ (int) round($sport['hours'] * 60) }}</span> دقيقة في اليوم كمعدّل)، ومن يتمرّن هكذا يحتاج
+            <span class="ns-num">{{ $sport['range'][0] }}–{{ $sport['range'][1] }}</span> غ كربوهيدرات لكل كغ من وزنه. حصتك <span class="ns-num">{{ $sport['per_kg'] }}</span> غ لكل كغ.
+            @if ($sport['short'])
+                <br>سعراتك لهدفك لا تكفي أكثر من ذلك، فخفّفنا الدهون إلى أقل حد. هذا يكفي للأيام الهادئة، أما لتمرين قوي فاستشر أخصائياً ليوزّع أكلك عليه.
+            @endif
+        </p>
+    @endif
 </section>

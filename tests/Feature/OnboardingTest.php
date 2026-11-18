@@ -82,6 +82,7 @@ class OnboardingTest extends TestCase
             ->assertSee('1,957')
             ->assertSee('587')
             ->assertSee('النشاط الرياضي')                              // training 3 days a week
+            ->assertSeeInOrder(['تمرينك', 'خفيف', '32', 'دقيقة في اليوم', '3–5', 'غ كربوهيدرات لكل كغ', '3.4'])  // acsm_2016
             ->assertSee('الاستشارة الأولى مجانية');
 
         $profile = $this->user->fresh()->profile;
