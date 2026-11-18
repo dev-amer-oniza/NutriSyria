@@ -40,6 +40,13 @@ class EnergyCalculatorTest extends TestCase
         $this->assertFalse($day['unusual']);
     }
 
+    public function test_the_hours_a_day_add_every_sport(): void
+    {
+        $this->assertSame(0.0, (float) EnergyCalculator::dailyHours([]));
+        // (3 × 60 + 3 × 15) min ÷ 60 ÷ 7 = 0.536 h
+        $this->assertEqualsWithDelta(225 / 60 / 7, EnergyCalculator::dailyHours([['type' => 'weights', 'times' => 3, 'minutes' => 60], ['type' => 'cardio', 'times' => 3, 'minutes' => 15]]), 1e-9);
+    }
+
     public function test_training_days_are_the_most_of_any_one_sport(): void
     {
         $this->assertSame(0, EnergyCalculator::trainingDays([]));

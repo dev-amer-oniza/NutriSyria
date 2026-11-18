@@ -84,4 +84,14 @@ final class EnergyCalculator
     {
         return $exercises === [] ? 0 : max(array_map(fn (array $e) => (int) $e['times'], $exercises));
     }
+
+    /**
+     * The training hours a day on average: every sport's hours a week, over seven days.
+     *
+     * @param  list<array{type: string, times: int, minutes: int}>  $exercises
+     */
+    public static function dailyHours(array $exercises): float
+    {
+        return array_sum(array_map(fn (array $e) => max(0, (int) $e['times']) * max(0, (int) $e['minutes']), $exercises)) / 60 / 7;
+    }
 }

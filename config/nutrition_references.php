@@ -215,6 +215,19 @@ return [
         'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
     ],
 
+    'acsm_2016' => [
+        'org' => 'Academy of Nutrition and Dietetics / Dietitians of Canada / ACSM',
+        'title' => 'Nutrition and Athletic Performance (Thomas, Erdman, Burke). Med Sci Sports Exerc 2016;48(3):543–568',
+        'year' => 2016,
+        'url' => 'https://doi.org/10.1249/MSS.0000000000000852',
+        'where' => 'Table 2; Protein needs; Fat; Summary',
+        'quote' => 'TABLE 2. Summary of guidelines for carbohydrate intake by athletes. … Light Low intensity or skill-based activities 3–5 g/kg of athlete\'s body weight/d … Moderate Moderate exercise program (eg, ~1 h per day) 5–7 g/kg/d … High Endurance program (eg, 1–3 h/d mod-high-intensity exercise) 6–10 g/kg/d … Very High Extreme commitment (eg, >4–5 h/d mod-high intensity exercise 8–12 g/kg/d … On other occasions, when exercise quality or intensity is less important, it may be less important to achieve these carbohydrate targets … In these cases, carbohydrate intake may be chosen to suit energy goals, food preferences, or food availability. … dietary protein intake necessary to support metabolic adaptation, repair, remodeling, and for protein turnover generally ranges from 1.2 to 2.0 g/kg/d. Higher intakes may be indicated for short periods during intensified training or when reducing energy intake. … Athletes should be discouraged from chronic implementation of fat intakes below 20% of energy intake … fat intakes associated with eating styles that accommodate dietary goals typically range from 20%–35% of total energy intake.',
+        'summary' => 'كربوهيدرات الرياضيين باليوم حسب التمرين: خفيف 3–5، متوسط (نحو ساعة) 5–7، عالٍ (1–3 ساعات) 6–10، عالٍ جداً (4–5 ساعات) 8–12 غ/كغ؛ البروتين 1.2–2.0 غ/كغ؛ الدهون 20–35% ولا تحت 20%.',
+        'applies' => 'البالغون الذين يتمرّنون',
+        'read_at' => '2026-11-18',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
     'dga_2025_protein' => [
         'org' => 'USDA/HHS',
         'title' => 'Dietary Guidelines for Americans, 2025–2030',

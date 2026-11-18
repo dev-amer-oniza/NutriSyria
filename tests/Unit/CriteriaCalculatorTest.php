@@ -88,6 +88,55 @@ class CriteriaCalculatorTest extends TestCase
         $this->assertSame([2757.0, 109.0, 92.0, 374.0], $this->macros($this->calculate(self::STUDENT, 'gain')));
     }
 
+    public function test_the_sport_template_checks_the_carbohydrate_of_the_training_level(): void
+    {
+        // The student trains 225 min a week = 32 min a day: "light", 3–5 g/kg (acsm_2016).
+        // 348 g ÷ 68 kg = 5.1 g/kg: nothing to change.
+        $this->assertSame(
+            ['level' => 'light', 'label' => 'خفيف', 'hours' => 0.54, 'range' => [3, 5], 'per_kg' => 5.1, 'short' => false],
+            $this->calculate(self::STUDENT)->template['sport'],
+        );
+        $this->assertNull($this->calculate(self::AMER)->template['sport'], 'only for the sport template');
+    }
+
+    public function test_the_fat_comes_down_to_make_room_for_the_trainings_carbohydrate(): void
+    {
+        // Man, 25, 175 cm, 65 kg, seated at work 5 days, jogging 6 × 75 min (64 min a day: "moderate", 5–7 g/kg).
+        // BMR 1623.75 × 1.4929 = 2424.0; jogging (7.5 × 65 − 94.7) × 7.5 h ÷ 7 = 420.8; 2844.8. To lose: 2345.
+        // Protein 1.6 × 65 = 104 g; at fat 30% the carbohydrate is 306 g, under 5 × 65 = 325 g: fat 25%, 336 g.
+        $sheet = $this->calculate([
+            'sex' => 'male', 'age' => 25, 'height_cm' => 175, 'weight_kg' => 65, 'daily_life' => 'seated', 'work_days' => 5,
+            'exercises' => [['type' => 'jog', 'times' => 6, 'minutes' => 75]],
+        ], 'lose');
+
+        $this->assertSame([2345.0, 104.0, 65.0, 336.0], $this->macros($sheet));
+        $this->assertSame(['moderate', 5.2, false], [$sheet->template['sport']['level'], $sheet->template['sport']['per_kg'], $sheet->template['sport']['short']]);
+    }
+
+    public function test_when_the_calories_cannot_hold_the_trainings_carbohydrate_the_person_is_told(): void
+    {
+        // Woman, 30, 165 cm, 55 kg, seated 5 days, cycling 5 × 90 min ("moderate"): 2229 a day, 1729 to lose.
+        // Protein 88 g; even at fat 20% (38 g) the carbohydrate is 258 g = 4.7 g/kg, under 5: no calories added.
+        $sheet = $this->calculate([
+            'sex' => 'female', 'age' => 30, 'height_cm' => 165, 'weight_kg' => 55, 'daily_life' => 'seated', 'work_days' => 5,
+            'exercises' => [['type' => 'cycling', 'times' => 5, 'minutes' => 90]],
+        ], 'lose');
+
+        $this->assertSame([1729.0, 88.0, 38.0, 258.0], $this->macros($sheet));
+        $this->assertSame(20, $sheet->template['macros']['fat']);
+        $this->assertSame([4.7, true], [$sheet->template['sport']['per_kg'], $sheet->template['sport']['short']]);
+    }
+
+    public function test_the_training_level_follows_the_hours_a_day(): void
+    {
+        $level = fn (int $minutesAWeek) => $this->calculate(['exercises' => [['type' => 'run', 'times' => 7, 'minutes' => intdiv($minutesAWeek, 7)]]] + self::AMER)->template['sport']['level'];
+
+        $this->assertSame('light', $level(7 * 40));
+        $this->assertSame('moderate', $level(7 * 60));
+        $this->assertSame('high', $level(7 * 120));
+        $this->assertSame('very_high', $level(7 * 240));
+    }
+
     public function test_seated_every_day_with_weights_four_times(): void
     {
         // Ahmad: man, 28, 178 cm, 80 kg. BMR 1777.5 × 1.53 = 2719.6;

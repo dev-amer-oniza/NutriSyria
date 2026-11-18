@@ -308,7 +308,25 @@ return [
         'carbs_min_pct' => 45,
         'protein_max_pct' => 35,
     ],
-    'protein_refs' => ['dga_2025_protein'],
+    'protein_refs' => ['dga_2025_protein', 'acsm_2016'],
+
+    /*
+    | Carbohydrate for people who train (acsm_2016, Table 2), by the training hours a day on
+    | average (hours a week ÷ 7; the owner's decisions 1a 3a). A check on the sport template
+    | only: when the carbohydrate is under its level's least, the fat comes down to fat_min_pct
+    | to make room; if still short, the person is told, and no calories are added (the statement:
+    | otherwise "carbohydrate intake may be chosen to suit energy goals"). The hour boundaries
+    | are ours: the statement gives "~1 h per day", "1–3 h/d" and ">4–5 h/d".
+    */
+    'sport_carbs' => [
+        'refs' => ['acsm_2016'],
+        'levels' => [
+            ['key' => 'light', 'label' => 'خفيف', 'below_hours' => 0.75, 'g_per_kg' => [3, 5]],
+            ['key' => 'moderate', 'label' => 'متوسط', 'below_hours' => 1.5, 'g_per_kg' => [5, 7]],
+            ['key' => 'high', 'label' => 'عالٍ', 'below_hours' => 4, 'g_per_kg' => [6, 10]],
+            ['key' => 'very_high', 'label' => 'عالٍ جداً', 'below_hours' => null, 'g_per_kg' => [8, 12]],
+        ],
+    ],
 
     /* The template a goal brings; training on 'sport_days' days a week or more brings 'sport'. */
     'goal_templates' => ['maintain' => 'balanced', 'lose' => 'weight_loss', 'gain' => 'gain'],
@@ -316,8 +334,8 @@ return [
 
     /*
     | The four templates: the protein each asks for, in grams per kg ('protein_per_kg': one value,
-    | or one per goal). Sport keeps the goal's protein for now: its carbohydrate per kg waits for
-    | the ACSM/AND/DC 2016 statement to be read. A nutritionist may choose any of them.
+    | or one per goal). Sport keeps the goal's protein (acsm_2016: 1.2 to 2.0 g/kg/d; decision 2a)
+    | and checks its carbohydrate per kg (sport_carbs). A nutritionist may choose any of them.
     */
     'templates' => [
         'balanced' => [
@@ -337,8 +355,9 @@ return [
         ],
         'sport' => [
             'label' => 'النشاط الرياضي', 'group' => 'general',
-            'description' => 'لمن يتمرّن 3 أيام أو أكثر: سعرات تمرينه محسوبة كاملة، والبروتين حسب هدفه.',
+            'description' => 'لمن يتمرّن 3 أيام أو أكثر: سعرات تمرينه محسوبة كاملة، والبروتين حسب هدفه، والكربوهيدرات بقدر تمرينه.',
             'protein_per_kg' => ['maintain' => 1.2, 'lose' => 1.6, 'gain' => 1.6],
+            'sport_carbs' => true,
         ],
     ],
 
