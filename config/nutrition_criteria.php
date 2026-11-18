@@ -311,18 +311,28 @@ return [
             'description' => 'غني بالخضار والحبوب الكاملة وزيت الزيتون والسمك، لصحة القلب والكبد.',
             'macros' => ['carbs' => 50, 'protein' => 15, 'fat' => 35],
         ],
+        /*
+        | The heart (step 7, batch 3, decisions 1a 2a 3a 4a 5a 6a). DASH is NHLBI's booklet word for
+        | word: 55/18/27, saturated fat 6%, and sodium 1,500 mg (its footnote: "particularly
+        | effective for… those who already had high blood pressure"); its fibre, 30 g for 2,100
+        | kcal, is our 14 g a 1,000. Heart failure: NICE NG106 1.9.10 says not to restrict sodium
+        | routinely, so the 1,500 went (the template stays in the nutritionist's library).
+        */
         'dash' => [
             'label' => 'DASH لضغط الدم', 'group' => 'heart', 'selectable' => true, 'source' => 'NHLBI',
-            'description' => 'غني بالحبوب الكاملة والفواكه والخضار والألبان قليلة الدسم، وقليل الملح.',
+            'refs' => ['nhlbi_dash_2006'],
+            'description' => 'غني بالحبوب الكاملة والفواكه والخضار والألبان قليلة الدسم، وقليل الملح والدهون المشبعة.',
             'macros' => ['carbs' => 55, 'protein' => 18, 'fat' => 27],
-            'rules' => ['sodium_mg' => ['type' => 'fixed', 'value' => 1500]],
+            'rules' => [
+                'sodium_mg' => ['type' => 'fixed', 'value' => 1500, 'refs' => ['nhlbi_dash_2006']],
+                'fat_sat_g' => ['type' => 'energy_pct', 'pct' => 6, 'kcal_per_g' => 9, 'refs' => ['nhlbi_dash_2006']],
+            ],
         ],
         'chf' => [
-            'label' => 'قصور القلب', 'group' => 'heart', 'source' => 'AHA',
-            'description' => 'تحكّم بالصوديوم والسوائل لدعم كفاءة القلب.',
+            'label' => 'قصور القلب', 'group' => 'heart', 'source' => 'NICE',
+            'description' => 'بلا تقييد روتيني للملح والسوائل؛ يحددهما الطبيب أو الأخصائي إن لزم.',
             'macros' => ['carbs' => 50, 'protein' => 20, 'fat' => 30],
-            'rules' => ['sodium_mg' => ['type' => 'fixed', 'value' => 1500]],
-            'see_nutritionist' => 'قصور القلب يحتاج ضبطاً للسوائل والصوديوم يحدده لك أخصائي.',
+            'see_nutritionist' => 'قصور القلب يحتاج متابعة: الملح والسوائل يحددهما طبيبك أو أخصائيّك إن لزم، فإن أعطاك رقماً اكتبه في معاييري.',
         ],
         /*
         | Diabetes and metabolism (step 7, batch 2, decisions 1a 2a 3a 4a): no reference gives a
@@ -453,12 +463,20 @@ return [
     | brings, and limits of its own. When several set the same limit, the stricter wins.
     */
     'conditions' => [
-        'hypertension' => ['template' => 'dash'],
+        /*
+        | The heart (step 7, batch 3): high blood pressure brings DASH (nhlbi_dash_2006), with
+        | NICE NG136's advice on salt; heart disease NICE NG238's saturated fat 7% and no
+        | template; heart failure the general needs (NICE NG106: no routine sodium limit).
+        */
+        'hypertension' => ['template' => 'dash', 'refs' => ['nice_htn_ng136', 'nhlbi_dash_2006']],
         'heart_disease' => [
-            'template' => 'dash',
-            'criteria' => ['fat_sat_g' => ['type' => 'energy_pct', 'pct' => 6, 'kcal_per_g' => 9]],
+            'refs' => ['nice_cvd_ng238'],
+            'criteria' => ['fat_sat_g' => ['type' => 'energy_pct', 'pct' => 7, 'kcal_per_g' => 9, 'refs' => ['nice_cvd_ng238']]],
         ],
-        'heart_failure' => ['template' => 'chf'],
+        'heart_failure' => [
+            'refs' => ['nice_hf_ng106'],
+            'see_nutritionist' => 'قصور القلب يحتاج متابعة طبيبك: إن حدّد لك حداً للصوديوم أو للسوائل، اكتبه في معاييري فنقيّم عليه.',
+        ],
         /*
         | Diabetes and metabolism (step 7, batch 2): the general needs, verified, and the
         | references' advice; the carbohydrate a meal is the doctor's or nutritionist's number.

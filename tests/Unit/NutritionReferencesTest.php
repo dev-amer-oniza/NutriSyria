@@ -47,7 +47,7 @@ class NutritionReferencesTest extends TestCase
             }
         }
         foreach ($this->rules['templates'] as $template) {
-            $named = [...$named, ...($template['no_deficit_refs'] ?? [])];
+            $named = [...$named, ...($template['refs'] ?? []), ...($template['no_deficit_refs'] ?? [])];
             foreach ($template['rules'] ?? [] as $rule) {
                 $named = [...$named, ...($rule['refs'] ?? [])];
             }
@@ -231,6 +231,42 @@ class NutritionReferencesTest extends TestCase
             $this->assertSame(['nice_maternal_ng247'], $this->rules['conditions'][$key]['no_deficit_refs'], $key);
         }
         $this->assertStringContainsString('intentional weight loss during pregnancy is not recommended', $this->quote('nice_maternal_ng247'));
+    }
+
+    public function test_the_heart_follows_its_references(): void
+    {
+        // Step 7, batch 3: DASH word for word from NHLBI's booklet.
+        $dash = $this->rules['templates']['dash'];
+        $this->assertSame(['carbs' => 55, 'protein' => 18, 'fat' => 27], $dash['macros']);
+        $this->assertSame(['nhlbi_dash_2006'], $dash['refs']);
+        foreach (['Total fat 27% of calories', 'Saturated fat 6% of calories', 'Protein 18% of calories', 'Carbohydrate 55% of calories'] as $goal) {
+            $this->assertStringContainsString($goal, $this->quote('nhlbi_dash_2006'));
+        }
+        $this->assertSame([6, ['nhlbi_dash_2006']], [$dash['rules']['fat_sat_g']['pct'], $dash['rules']['fat_sat_g']['refs']]);
+        $this->assertSame([1500, ['nhlbi_dash_2006']], [$dash['rules']['sodium_mg']['value'], $dash['rules']['sodium_mg']['refs']]);
+        $this->assertStringContainsString('1,500 mg sodium was a lower goal tested', $this->quote('nhlbi_dash_2006'));
+        $this->assertStringContainsString('those who already had high blood pressure', $this->quote('nhlbi_dash_2006'));
+        // Its fibre, 30 g for 2,100 kcal, is our general 14 g a 1,000.
+        $this->assertStringContainsString('Fiber 30 g', $this->quote('nhlbi_dash_2006'));
+        $this->assertSame(14, (int) round(30 / 2.1));
+        $this->assertSame(14, $this->rules['criteria']['fiber_g']['default']['value']);
+
+        $this->assertSame('dash', $this->rules['conditions']['hypertension']['template']);
+        $this->assertStringContainsString('keep their dietary sodium intake low', $this->quote('nice_htn_ng136'));
+
+        // Heart disease: NICE's 7%, no template.
+        $heart = $this->rules['conditions']['heart_disease'];
+        $this->assertArrayNotHasKey('template', $heart);
+        $this->assertSame([7, ['nice_cvd_ng238']], [$heart['criteria']['fat_sat_g']['pct'], $heart['criteria']['fat_sat_g']['refs']]);
+
+        // Heart failure: no routine sodium limit, so none of ours.
+        $this->assertArrayNotHasKey('template', $this->rules['conditions']['heart_failure']);
+        $this->assertArrayNotHasKey('criteria', $this->rules['conditions']['heart_failure']);
+        $this->assertArrayNotHasKey('rules', $this->rules['templates']['chf']);
+        $this->assertStringContainsString('Do not routinely advise people with heart failure to restrict their sodium or fluid consumption', $this->quote('nice_hf_ng106'));
+
+        // The Mediterranean split has no reference yet: judged with the balanced shares.
+        $this->assertArrayNotHasKey('refs', $this->rules['templates']['mediterranean']);
     }
 
     public function test_hepatitis_jaundice_and_fatty_liver_bring_no_figures(): void

@@ -346,6 +346,47 @@ return [
         'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
     ],
 
+    /* The heart (step 7, batch 3). */
+
+    'nhlbi_dash_2006' => [
+        'org' => 'NHLBI (NIH)',
+        'title' => 'Your Guide to Lowering Your Blood Pressure With DASH (NIH Publication No. 06-4082)',
+        'year' => 2006,
+        'url' => 'https://www.nhlbi.nih.gov/files/docs/public/heart/new_dash.pdf',
+        'where' => 'Box 2, Daily Nutrient Goals Used in the DASH Studies (for a 2,100 Calorie Eating Plan)',
+        'quote' => 'Total fat 27% of calories · Saturated fat 6% of calories · Protein 18% of calories · Carbohydrate 55% of calories · Cholesterol 150 mg · Sodium 2,300 mg* · Potassium 4,700 mg · Calcium 1,250 mg · Magnesium 500 mg · Fiber 30 g. * 1,500 mg sodium was a lower goal tested and found to be even better for lowering blood pressure. It was particularly effective for middle-aged and older individuals, African Americans, and those who already had high blood pressure.',
+        'summary' => 'خطة DASH كما طُبّقت في دراساتها: كربوهيدرات 55%، بروتين 18%، دهون 27%، مشبعة 6%، ألياف 30 غ لـ2100 سعرة، وصوديوم 2300 ملغ، و1500 أفضل لخفض الضغط خاصة لمن عنده ضغط مرتفع.',
+        'applies' => 'البالغون، ومن عنده ارتفاع ضغط الدم خاصة (للصوديوم 1500)',
+        'read_at' => '2026-11-18',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'nice_htn_ng136' => [
+        'org' => 'NICE',
+        'title' => 'Hypertension in adults: diagnosis and management (NG136)',
+        'year' => 2019,
+        'url' => 'https://www.nice.org.uk/guidance/ng136/chapter/Recommendations',
+        'where' => 'Recommendations 1.4.2 and 1.4.5 (Lifestyle interventions)',
+        'quote' => "Ask about people's diet and exercise patterns because a healthy diet and regular exercise can reduce blood pressure. Offer appropriate guidance and written or audiovisual materials to promote lifestyle changes. [2004] … Encourage people to keep their dietary sodium intake low, either by reducing or substituting sodium salt, as this can reduce blood pressure. Note that salt substitutes containing potassium chloride should not be used by older people, people with diabetes, pregnant women, people with kidney disease and people taking some antihypertensive drugs, such as ACE inhibitors and angiotensin II receptor blockers. Encourage salt reduction in these groups. [2004, amended 2019]",
+        'summary' => 'أكل صحي ونشاط، وملح قليل. بدائل الملح التي فيها كلوريد البوتاسيوم لا تُستعمل لكبار السن ومرضى السكري والحوامل ومرضى الكلى ومن يأخذ أدوية ACE أو ARB. بلا رقم.',
+        'applies' => 'البالغون مع ارتفاع ضغط الدم',
+        'read_at' => '2026-11-18',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
+    'nice_hf_ng106' => [
+        'org' => 'NICE',
+        'title' => 'Chronic heart failure in adults: diagnosis and management (NG106)',
+        'year' => 2018,
+        'url' => 'https://www.nice.org.uk/guidance/ng106/chapter/Recommendations',
+        'where' => 'Recommendations 1.9.10 and 1.9.11 (Salt and fluid restriction)',
+        'quote' => 'Do not routinely advise people with heart failure to restrict their sodium or fluid consumption. Ask about salt and fluid consumption and, if needed, advise as follows: restricting fluids for people with dilutional hyponatraemia; reducing intake for people with high levels of salt or fluid consumption. Continue to review the need to restrict salt or fluid. [2018] … Advise people with heart failure to avoid salt substitutes that contain potassium. [2018]',
+        'summary' => 'لا يُنصح روتينياً بتقييد الصوديوم أو السوائل؛ يُقيَّدان حسب الحاجة (نقص الصوديوم في الدم، أو استهلاك عالٍ)، وتُراجع الحاجة باستمرار. وتجنّب بدائل الملح التي فيها بوتاسيوم.',
+        'applies' => 'البالغون مع قصور القلب المزمن',
+        'read_at' => '2026-11-18',
+        'gates' => ['source' => true, 'applicability' => true, 'test' => true, 'specialist' => false],
+    ],
+
     /* The liver (step 3). */
 
     'who_hepatitis_a' => [

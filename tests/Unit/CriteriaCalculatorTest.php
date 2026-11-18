@@ -198,8 +198,8 @@ class CriteriaCalculatorTest extends TestCase
 
         $bp = $this->calculate(['conditions' => ['diabetes', 'hypertension']]);
         $this->assertSame('diabetes', $bp->template['key']);
-        $this->assertSame(['sodium_mg' => 1500.0], $this->pending($bp, ['sodium_mg']), "DASH's sodium limit still comes along");
-        $this->assertSame(2000.0, $bp->get('sodium_mg')->value, 'the verified general limit judges');
+        $this->assertSame(1500.0, $bp->get('sodium_mg')->value, "DASH's verified sodium limit still comes along, and the stricter wins");
+        $this->assertTrue($bp->get('sodium_mg')->verified);
     }
 
     public function test_conditions_add_their_own_limits_and_the_stricter_wins(): void
@@ -207,8 +207,18 @@ class CriteriaCalculatorTest extends TestCase
         $sheet = $this->calculate(['conditions' => ['hypertension', 'fatty_liver', 'heart_disease']]);
 
         $this->assertSame('dash', $sheet->template['key']);
-        $this->assertSame(['sodium_mg' => 1500.0, 'sugars_g' => null, 'fat_sat_g' => 17.0], $this->pending($sheet, ['sodium_mg', 'sugars_g', 'fat_sat_g']));
-        $this->assertSame(['sodium_mg' => 2000.0, 'fat_sat_g' => 29.0], $this->values($sheet, ['sodium_mg', 'fat_sat_g']));
+        $this->assertSame(['sodium_mg' => null, 'sugars_g' => null, 'fat_sat_g' => null], $this->pending($sheet, ['sodium_mg', 'sugars_g', 'fat_sat_g']));
+        // DASH's 6% is stricter than heart disease's 7% (NICE); both verified.
+        $this->assertSame(['sodium_mg' => 1500.0, 'fat_sat_g' => 17.0], $this->values($sheet, ['sodium_mg', 'fat_sat_g']));
+
+        $heart = $this->calculate(['conditions' => ['heart_disease']]);
+        $this->assertSame('balanced', $heart->template['key'], 'heart disease brings no template');
+        $this->assertSame(20.0, $heart->get('fat_sat_g')->value);   // 7% of 2593 kcal ÷ 9
+        $this->assertTrue($heart->get('fat_sat_g')->verified);
+
+        $failure = $this->calculate(['conditions' => ['heart_failure']]);
+        $this->assertSame(['balanced', 2000.0], [$failure->template['key'], $failure->get('sodium_mg')->value], 'heart failure: no routine sodium limit');
+        $this->assertSame([], $failure->pendingConditions);
     }
 
     public function test_a_nutritionists_template_judges_with_its_own_rules(): void
