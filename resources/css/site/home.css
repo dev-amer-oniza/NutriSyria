@@ -11,14 +11,14 @@
     .ns-hero__title span { color: var(--terracotta); }
     .ns-hero__lead { margin: 0 0 var(--space-6); max-width: 600px; }
     .ns-try { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-5); }
-    .ns-try > span { font-size: 14px; line-height: 22px; color: var(--ink-muted); margin-inline-end: var(--space-1); }
+    .ns-try > span { font-size: 1rem; line-height: 1.5rem; color: var(--ink-muted); margin-inline-end: var(--space-1); }
     .ns-hero__visual { display: flex; justify-content: center; }
 
     /* ---------- Analysis panel with the personal fit ---------- */
     .ns-panel { position: relative; margin-top: var(--space-4); width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: var(--space-5); padding: var(--space-6) var(--space-6) var(--space-5); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); }
     .ns-panel__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
-    .ns-panel__title { margin: 0; font-size: 22px; line-height: 34px; font-weight: 600; color: var(--ink); }
-    .ns-panel__sub { margin: 0; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-panel__title { margin: 0; font-size: 1.375rem; line-height: 2.125rem; font-weight: 600; color: var(--ink); }
+    .ns-panel__sub { margin: 0; font-size: 0.9375rem; line-height: 1.375rem; color: var(--ink-muted); }
     .ns-panel__main { display: grid; grid-template-columns: minmax(0, 1fr) 168px; gap: var(--space-5); align-items: center; }
     .ns-panel__energy { display: flex; flex-direction: column; gap: var(--space-4); }
     /* The plate: the meal's photo, or the tiles when it has none. */
@@ -26,37 +26,37 @@
     .ns-panel__plate img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .ns-energy__fig { display: flex; align-items: baseline; gap: var(--space-2); }
     .ns-energy__fig .t-figure-xl { color: var(--pine); }
-    .ns-energy__unit { font-size: 15px; line-height: 24px; color: var(--ink-muted); }
+    .ns-energy__unit { font-size: 1.0625rem; line-height: 1.625rem; color: var(--ink-muted); }
     .ns-panel__stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); }
     .ns-panel__stats .ns-stat + .ns-stat { padding-inline-start: var(--space-3); border-inline-start: 1px solid var(--line); }
 
     .ns-fit { display: flex; flex-direction: column; gap: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--line); }
-    .ns-fit__ask { margin: 0; font-size: 14px; line-height: 22px; font-weight: 600; color: var(--ink); }
+    .ns-fit__ask { margin: 0; font-size: 1rem; line-height: 1.5rem; font-weight: 600; color: var(--ink); }
     .ns-fit__people { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-    .ns-fit__people .ns-chip { height: 34px; padding: 0 var(--space-3); font-size: 13px; }
-    .ns-fit__who { margin: calc(-1 * var(--space-2)) 0 0; font-size: 12px; line-height: 18px; color: var(--ink-muted); }
+    .ns-fit__people .ns-chip { height: 34px; padding: 0 var(--space-3); font-size: 0.9375rem; }
+    .ns-fit__who { margin: calc(-1 * var(--space-2)) 0 0; font-size: 0.875rem; line-height: 1.25rem; color: var(--ink-muted); }
     .ns-reasons { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
-    .ns-reasons li { display: flex; gap: var(--space-2); font-size: 14px; line-height: 22px; color: var(--ink); }
+    .ns-reasons li { display: flex; gap: var(--space-2); font-size: 1rem; line-height: 1.5rem; color: var(--ink); }
     .ns-reasons li::before { content: ""; flex: none; width: 10px; height: 10px; margin-top: 6px; background: var(--sage); border-top-left-radius: var(--radius-arc); }
-    .ns-fit__share-title { margin: 0 0 var(--space-2); font-size: 12px; line-height: 18px; font-weight: 600; color: var(--ink-muted); }
+    .ns-fit__share-title { margin: 0 0 var(--space-2); font-size: 0.875rem; line-height: 1.25rem; font-weight: 600; color: var(--ink-muted); }
     /* The plate (stage 3): a pie filled to the fraction, the reason, and two folds. */
     .ns-plate { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-md); }
-    .ns-plate p { margin: 0; display: flex; flex-direction: column; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
-    .ns-plate b { font-size: 16px; line-height: 24px; font-weight: 600; color: var(--ink); }
+    .ns-plate p { margin: 0; display: flex; flex-direction: column; font-size: 0.9375rem; line-height: 1.375rem; color: var(--ink-muted); }
+    .ns-plate b { font-size: 1.0625rem; line-height: 1.5625rem; font-weight: 600; color: var(--ink); }
     .ns-plate .ns-num { font-weight: 600; color: var(--pine); }
     .ns-plate__pie { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--pine); background: conic-gradient(var(--pine) 0 var(--fill, 100%), var(--sand) 0); }
     .ns-plate__pie--none { border-color: var(--line-strong); background: var(--sand); }
-    .ns-fit__headline { margin: 0; font-size: 15px; line-height: 24px; font-weight: 500; color: var(--ink); }
-    .ns-why, .ns-more { font-size: 14px; line-height: 22px; }
+    .ns-fit__headline { margin: 0; font-size: 1.0625rem; line-height: 1.625rem; font-weight: 500; color: var(--ink); }
+    .ns-why, .ns-more { font-size: 1rem; line-height: 1.5rem; }
     .ns-why summary, .ns-more summary { cursor: pointer; font-weight: 600; color: var(--pine); width: fit-content; }
     .ns-why summary:focus-visible, .ns-more summary:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
     .ns-why ol { margin: var(--space-2) 0 0; padding-inline-start: var(--space-5); color: var(--ink); }
-    .ns-why__refs { margin: var(--space-2) 0 0; font-size: 13px; color: var(--ink-muted); }
+    .ns-why__refs { margin: var(--space-2) 0 0; font-size: 0.9375rem; color: var(--ink-muted); }
     .ns-more[open] { display: flex; flex-direction: column; gap: var(--space-3); }
-    .ns-portion { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-md); font-size: 14px; line-height: 22px; }
+    .ns-portion { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-md); font-size: 1rem; line-height: 1.5rem; }
     .ns-portion b { font-weight: 600; }
     .ns-portion .ns-num { font-weight: 600; color: var(--pine); }
-    .ns-panel__source { margin: 0; display: flex; align-items: center; gap: var(--space-2); font-size: 12px; line-height: 18px; color: var(--ink-muted); }
+    .ns-panel__source { margin: 0; display: flex; align-items: center; gap: var(--space-2); font-size: 0.875rem; line-height: 1.25rem; color: var(--ink-muted); }
     .ns-panel__source span { flex: 1; }
     .ns-panel__source a { color: var(--pine); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 
@@ -73,11 +73,11 @@
     .ns-banner { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: var(--space-3); padding: var(--space-6); border-radius: var(--radius-lg); background: #dde8d8; }
     .ns-banner::before { content: ""; position: absolute; inset: 0; background: var(--tiles-pattern-green) center / cover; transform: scaleX(-1); }
     .ns-banner > * { position: relative; }
-    .ns-banner__title { margin: 0; font-size: 28px; line-height: 42px; font-weight: 700; color: var(--pine); }
-    .ns-banner__text { margin: 0 0 var(--space-2); max-width: 220px; font-size: 14px; line-height: 24px; color: var(--ink-muted); }
+    .ns-banner__title { margin: 0; font-size: 1.75rem; line-height: 2.625rem; font-weight: 700; color: var(--pine); }
+    .ns-banner__text { margin: 0 0 var(--space-2); max-width: 220px; font-size: 1rem; line-height: 1.625rem; color: var(--ink-muted); }
     .ns-explore__meals { min-width: 0; display: flex; flex-direction: column; gap: var(--space-3); }
     .ns-explore__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
-    .ns-explore__title { margin: 0; font-size: 24px; line-height: 36px; font-weight: 700; color: var(--pine); }
+    .ns-explore__title { margin: 0; font-size: 1.5rem; line-height: 2.25rem; font-weight: 700; color: var(--pine); }
     .ns-explore__head .ns-link { color: var(--terracotta-ink); }
     .ns-explore__strip { flex: 1; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-3); }
     .ns-xtile { position: relative; display: flex; flex-direction: column; min-height: 200px; border-radius: var(--radius-md); overflow: hidden; background: var(--pine); color: var(--on-pine); box-shadow: var(--shadow-sm); transition: transform .15s ease, box-shadow .15s ease; }
@@ -93,9 +93,9 @@
     .ns-xtile__cover--4 { background-image: var(--tiles-cover-4); }
     .ns-xtile__fit { position: absolute; inset-block-start: var(--space-2); inset-inline-start: var(--space-2); padding: 2px var(--space-2); border-radius: var(--radius-sm); background: var(--surface-raised); color: var(--ink); }
     .ns-xtile__foot { display: flex; flex-direction: column; gap: 2px; padding: var(--space-3); }
-    .ns-xtile__name { color: inherit; font-size: 16px; line-height: 24px; font-weight: 600; text-decoration: none; outline: none; }
+    .ns-xtile__name { color: inherit; font-size: 1.0625rem; line-height: 1.5625rem; font-weight: 600; text-decoration: none; outline: none; }
     .ns-xtile__name::after { content: ""; position: absolute; inset: 0; }   /* the whole tile opens the meal */
-    .ns-xtile__meta { font-size: 12px; line-height: 18px; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ns-xtile__meta { font-size: 0.875rem; line-height: 1.25rem; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .ns-xtile__brand { position: relative; z-index: 1; color: inherit; text-decoration: underline; text-underline-offset: 3px; }   /* above the tile's stretched link */
 
@@ -105,40 +105,40 @@
     .ns-join__in { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: var(--space-8); align-items: center; padding-top: var(--space-6); padding-bottom: var(--space-6); }
     .ns-join__lead { display: flex; align-items: center; gap: var(--space-6); }
     .ns-join__lead .ns-btn { flex: none; order: -1; }
-    .ns-join__title { margin: 0 0 var(--space-1); font-size: 24px; line-height: 36px; font-weight: 700; color: var(--on-pine); }
-    .ns-join__text { margin: 0; font-size: 14px; line-height: 22px; color: var(--sage); }
+    .ns-join__title { margin: 0 0 var(--space-1); font-size: 1.5rem; line-height: 2.25rem; font-weight: 700; color: var(--on-pine); }
+    .ns-join__text { margin: 0; font-size: 1rem; line-height: 1.5rem; color: var(--sage); }
     .ns-join__points { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); }
     .ns-join__points li + li { border-inline-start: 1px solid color-mix(in srgb, var(--on-pine) 22%, transparent); }
     .ns-join__points a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 var(--space-4); text-align: center; color: var(--on-pine); text-decoration: none; border-radius: var(--radius-sm); }
     .ns-join__points a:focus-visible { outline: none; box-shadow: var(--focus-ring-on-pine); }
     .ns-join__points .ns-icon { width: 30px; height: 30px; margin-bottom: var(--space-1); }
-    .ns-join__points b { font-size: 16px; line-height: 24px; font-weight: 600; }
+    .ns-join__points b { font-size: 1.0625rem; line-height: 1.5625rem; font-weight: 600; }
     .ns-join__points a:hover b { text-decoration: underline; text-underline-offset: 4px; }
-    .ns-join__points span { font-size: 13px; line-height: 20px; color: var(--sage); }
+    .ns-join__points span { font-size: 0.9375rem; line-height: 1.375rem; color: var(--sage); }
 
     /* ---------- How it works: four steps in a row ---------- */
     .ns-how { padding: var(--space-6) 0 var(--space-4); }
     .ns-how__in { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: var(--space-5); align-items: center; }
-    .ns-how__title { margin: 0 0 var(--space-1); padding-inline-start: var(--space-3); border-inline-start: 4px solid var(--terracotta); font-size: 24px; line-height: 32px; font-weight: 700; color: var(--pine); }
-    .ns-how__lead { margin: 0; font-size: 14px; line-height: 22px; color: var(--ink-muted); }
+    .ns-how__title { margin: 0 0 var(--space-1); padding-inline-start: var(--space-3); border-inline-start: 4px solid var(--terracotta); font-size: 1.5rem; line-height: 2rem; font-weight: 700; color: var(--pine); }
+    .ns-how__lead { margin: 0; font-size: 1rem; line-height: 1.5rem; color: var(--ink-muted); }
     .ns-how__steps { list-style: none; margin: 0; padding: var(--space-4); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-6); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
     .ns-how__step { position: relative; display: flex; align-items: center; gap: var(--space-3); }
     .ns-how__step:not(:last-child)::after { content: ""; position: absolute; inset-inline-end: calc(-1 * var(--space-4)); top: 50%; width: 8px; height: 8px; border-inline-end: 1.6px solid var(--line-strong); border-bottom: 1.6px solid var(--line-strong); transform: translateY(-50%) rotate(45deg); }
     [dir="ltr"] .ns-how__step:not(:last-child)::after { transform: translateY(-50%) rotate(-45deg); }
     .ns-how__icon { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--radius-md); background: var(--pine-soft); color: var(--pine); }
     .ns-how__step:nth-child(even) .ns-how__icon { background: var(--terracotta-soft); color: var(--terracotta-ink); }
-    .ns-how__n { display: block; font-size: 13px; line-height: 18px; font-weight: 600; color: var(--terracotta-ink); }
-    .ns-how__step h3 { margin: 0; font-size: 15px; line-height: 24px; font-weight: 600; color: var(--ink); }
-    .ns-how__step p { margin: 0; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-how__n { display: block; font-size: 0.9375rem; line-height: 1.25rem; font-weight: 600; color: var(--terracotta-ink); }
+    .ns-how__step h3 { margin: 0; font-size: 1.0625rem; line-height: 1.625rem; font-weight: 600; color: var(--ink); }
+    .ns-how__step p { margin: 0; font-size: 0.9375rem; line-height: 1.375rem; color: var(--ink-muted); }
 
     /* ---------- Steps ---------- */
     .ns-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); }
     .ns-step { position: relative; display: flex; flex-direction: column; align-items: flex-start; }
     .ns-step__art { height: 96px; margin-bottom: var(--space-5); }
     .ns-step:not(:last-child)::after { content: ""; position: absolute; top: 48px; inset-inline-start: 120px; inset-inline-end: calc(-1 * var(--space-4)); height: 1px; background: var(--line-strong); }
-    .ns-step__n { font-size: 13px; line-height: 20px; font-weight: 600; color: var(--ink-muted); }
-    .ns-step__title { margin: var(--space-1) 0 var(--space-2); font-size: 22px; line-height: 34px; font-weight: 600; color: var(--ink); }
-    .ns-step__text { margin: 0; font-size: 15px; line-height: 26px; color: var(--ink-muted); max-width: 260px; }
+    .ns-step__n { font-size: 0.9375rem; line-height: 1.375rem; font-weight: 600; color: var(--ink-muted); }
+    .ns-step__title { margin: var(--space-1) 0 var(--space-2); font-size: 1.375rem; line-height: 2.125rem; font-weight: 600; color: var(--ink); }
+    .ns-step__text { margin: 0; font-size: 1.0625rem; line-height: 1.75rem; color: var(--ink-muted); max-width: 260px; }
 
     /* ---------- Trust band ---------- */
     .ns-trust { background: var(--pine); color: var(--on-pine); overflow: hidden; }
@@ -147,7 +147,7 @@
     .ns-trust__lead { margin: 0 0 var(--space-8); max-width: 620px; color: var(--sage); }
     .ns-levels { list-style: none; margin: 0 0 var(--space-8); padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
     .ns-level { padding-top: var(--space-4); border-top: 1px solid color-mix(in srgb, var(--on-pine) 22%, transparent); }
-    .ns-level p { margin: var(--space-3) 0 0; font-size: 15px; line-height: 26px; color: var(--on-pine); }
+    .ns-level p { margin: var(--space-3) 0 0; font-size: 1.0625rem; line-height: 1.75rem; color: var(--on-pine); }
     .ns-trust__art { justify-self: end; width: 360px; height: auto; }
 
     /* ---------- Goals + call to action ---------- */
@@ -157,7 +157,7 @@
     .ns-goals__chips { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2); }
     .ns-cta { display: flex; align-items: center; justify-content: space-between; min-height: 288px; background: var(--sand); border-radius: var(--radius-xl); overflow: hidden; }
     .ns-cta__copy { padding: var(--space-10); max-width: 640px; }
-    .ns-cta__title { margin: 0 0 var(--space-2); font-size: 30px; line-height: 46px; font-weight: 600; color: var(--ink); }
+    .ns-cta__title { margin: 0 0 var(--space-2); font-size: 1.875rem; line-height: 2.875rem; font-weight: 600; color: var(--ink); }
     .ns-cta__copy .t-body { margin: 0; }
     .ns-cta__actions { display: flex; gap: var(--space-3); margin-top: var(--space-6); }
     .ns-cta__art { align-self: stretch; width: 384px; max-width: 42%; height: auto; min-height: 288px; object-fit: cover; }
