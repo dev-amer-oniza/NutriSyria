@@ -34,12 +34,13 @@
                 @endif
             </form>
 
-            @if ($profiles->isNotEmpty())
+            @if ($page->isNotEmpty())
                 <div class="ns-nutris">
-                    @foreach ($profiles as $profile)
+                    @foreach ($page as $profile)
                         @include('site.components.nutritionist-card', ['profile' => $profile])
                     @endforeach
                 </div>
+                @include('site.partials.pager', ['page' => $page])
             @else
                 <div class="ns-empty">
                     <img class="ns-empty__mark" src="{{ asset('images/site/nutritionist-cover.svg') }}" alt="" loading="lazy">

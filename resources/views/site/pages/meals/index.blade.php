@@ -28,7 +28,7 @@
                 @else
                     <p class="ns-meals__hint">سجّل الدخول لترى مدى مناسبة كل وجبة لجسمك وهدفك. <a class="ns-link" href="{{ route('site.login') }}">سجّل الدخول</a></p>
                 @endif
-                <p class="ns-meals__count"><span class="ns-num">{{ count($dishes) }}</span> وجبة</p>
+                <p class="ns-meals__count"><span class="ns-num">{{ $page->total() }}</span> وجبة</p>
             </div>
 
             @if ($dishes)
@@ -37,6 +37,7 @@
                         @include('site.components.dish-card', ['dish' => $dish])
                     @endforeach
                 </div>
+                @include('site.partials.pager', ['page' => $page])
             @else
                 <div class="ns-empty">
                     <span class="ns-empty__mark">@include('site.partials.icon', ['name' => 'bowl'])</span>

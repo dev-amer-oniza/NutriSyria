@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Consultations\NutritionistSearchRequest;
 use App\Services\Consultations\ConsultationService;
 use App\Services\Consultations\NutritionistDirectory;
+use App\Support\Site\Pages;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,7 @@ class NutritionistController extends Controller
     public function index(NutritionistSearchRequest $request, NutritionistDirectory $directory): View
     {
         return view('site.pages.nutritionists.index', [
-            'profiles' => $directory->listed($request->specialty(), $request->city()),
+            'page' => Pages::of($directory->listed($request->specialty(), $request->city()), $request),
             'specialty' => $request->specialty(),
             'city' => $request->city(),
             'specialties' => NutritionistSpecialty::options(),

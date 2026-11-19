@@ -54,6 +54,28 @@ class MealPagesTest extends TestCase
             ->assertSee('أنشئ حسابك');
     }
 
+    public function test_the_meals_come_in_pages_with_buttons_and_the_meal_page_has_a_back_button(): void
+    {
+        foreach (range(1, 25) as $day) {
+            $this->approvedMeal('وجبة رقم '.$day, approvedAt: sprintf('2026-10-%02d', $day));
+        }
+
+        $first = $this->get(route('site.meals'))->assertOk()
+            ->assertSee('وجبة رقم 25')
+            ->assertDontSee('وجبة رقم 1<', false)
+            ->assertSee('صفحات القائمة')
+            ->assertSee(route('site.meals', ['page' => 2]), false);
+        $this->assertStringContainsString('<span class="ns-num">25</span> وجبة', $first->getContent());
+
+        $this->get(route('site.meals', ['page' => 2]))->assertOk()
+            ->assertSee('وجبة رقم 1')
+            ->assertDontSee('وجبة رقم 25');
+
+        $meal = Product::query()->where('name', 'وجبة رقم 3')->firstOrFail();
+        $this->get(route('site.meals.show', $meal))->assertOk()
+            ->assertSee('class="ns-back" href="'.route('site.meals').'"', false);
+    }
+
     public function test_every_meal_names_its_restaurant_with_a_link_to_its_page(): void
     {
         $meal = $this->approvedMeal('مجدرة');

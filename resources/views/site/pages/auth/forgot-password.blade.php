@@ -10,6 +10,6 @@
         @include('site.components.form.honeypot')
         @include('site.components.form.field', ['name' => 'email', 'label' => 'البريد الإلكتروني', 'type' => 'email', 'autocomplete' => 'email', 'inputmode' => 'email', 'dir' => 'ltr', 'autofocus' => true])
         <button class="ns-btn ns-btn--primary ns-form__submit" type="submit">أرسل الرمز</button>
-        <p class="ns-form__aside"><a class="ns-link" href="{{ route('site.login') }}">العودة إلى تسجيل الدخول</a></p>
+        <p class="ns-form__aside">@include('site.partials.back', ['href' => route('site.login'), 'label' => 'تسجيل الدخول'])</p>
     </form>
 @endsection

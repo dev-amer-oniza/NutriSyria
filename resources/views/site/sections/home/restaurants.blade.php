@@ -7,7 +7,7 @@
                 <h2 class="t-title" id="restaurants-title">مطاعم معنا</h2>
                 <p class="t-lead ns-muted">مطاعم تشارك وصفاتها، فنحسب قيم وجباتها ويعتمدها أخصائي التغذية.</p>
             </div>
-            <a class="ns-link" href="{{ route('site.brands') }}">كل المطاعم@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
+            <a class="ns-btn ns-btn--secondary ns-btn--sm ns-more-btn" href="{{ route('site.brands') }}">كل المطاعم@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
         </div>
 
         @if ($restaurants)

@@ -14,7 +14,7 @@
 
     <section class="ns-section">
         <div class="ns-wrap ns-restaurant">
-            <a class="ns-link" href="{{ route('site.brands') }}">كل المطاعم</a>
+            @include('site.partials.back', ['href' => route('site.brands'), 'label' => 'كل المطاعم'])
 
             <header class="ns-restaurant__head">
                 <span class="ns-restaurant__logo">
