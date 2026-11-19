@@ -39,6 +39,20 @@
     .ns-reasons li { display: flex; gap: var(--space-2); font-size: 14px; line-height: 22px; color: var(--ink); }
     .ns-reasons li::before { content: ""; flex: none; width: 10px; height: 10px; margin-top: 6px; background: var(--sage); border-top-left-radius: var(--radius-arc); }
     .ns-fit__share-title { margin: 0 0 var(--space-2); font-size: 12px; line-height: 18px; font-weight: 600; color: var(--ink-muted); }
+    /* The plate (stage 3): a pie filled to the fraction, the reason, and two folds. */
+    .ns-plate { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-md); }
+    .ns-plate p { margin: 0; display: flex; flex-direction: column; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-plate b { font-size: 16px; line-height: 24px; font-weight: 600; color: var(--ink); }
+    .ns-plate .ns-num { font-weight: 600; color: var(--pine); }
+    .ns-plate__pie { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--pine); background: conic-gradient(var(--pine) 0 var(--fill, 100%), var(--sand) 0); }
+    .ns-plate__pie--none { border-color: var(--line-strong); background: var(--sand); }
+    .ns-fit__headline { margin: 0; font-size: 15px; line-height: 24px; font-weight: 500; color: var(--ink); }
+    .ns-why, .ns-more { font-size: 14px; line-height: 22px; }
+    .ns-why summary, .ns-more summary { cursor: pointer; font-weight: 600; color: var(--pine); width: fit-content; }
+    .ns-why summary:focus-visible, .ns-more summary:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
+    .ns-why ol { margin: var(--space-2) 0 0; padding-inline-start: var(--space-5); color: var(--ink); }
+    .ns-why__refs { margin: var(--space-2) 0 0; font-size: 13px; color: var(--ink-muted); }
+    .ns-more[open] { display: flex; flex-direction: column; gap: var(--space-3); }
     .ns-portion { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-md); font-size: 14px; line-height: 22px; }
     .ns-portion b { font-weight: 600; }
     .ns-portion .ns-num { font-weight: 600; color: var(--pine); }

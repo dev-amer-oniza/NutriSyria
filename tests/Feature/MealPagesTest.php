@@ -103,7 +103,8 @@ class MealPagesTest extends TestCase
             ->assertSee('مدى مناسبتها لك')
             ->assertSee('مناسبة جداً')
             ->assertSee('19% من احتياجك اليومي')            // 415 / 2204
-            ->assertSee('الحصة كاملة')
+            ->assertSee('كُل الصحن كاملاً')
+            ->assertSeeInOrder(['ضمن حدودك في هذه الوجبة.', 'من أين هذا الحد؟', 'السعرات في يومك', 'تفاصيل أكثر'])
             ->assertSee('لا تتوفر قيمة الدهون المشبعة')      // no saturated fat value: named, not guessed
             ->assertSee('حسب قالبك: إنقاص الوزن');
     }
@@ -137,7 +138,10 @@ class MealPagesTest extends TestCase
             ->assertSee('مناسبة باعتدال')
             ->assertSee('دهون الوجبة فيها 18 غ، والحد الذي حدّده لك أخصائيّك 15 غ للوجبة، أي أكثر بـ17%.')
             ->assertDontSee('قيد التوثيق')
-            ->assertDontSee('من أين هذا الحد؟');
+            // The nutritionist's limit leads; its chain names them, and no reference of ours.
+            ->assertSee('دهون فيها أكثر من الحد الذي حدّده لك أخصائيّك.')
+            ->assertSee('دهون: حد للوجبة الواحدة 15 غ، حدّده لك أخصائيّك.')
+            ->assertDontSee('المرجع:');
     }
 
     public function test_an_allergen_in_an_ingredient_makes_the_meal_unfit(): void

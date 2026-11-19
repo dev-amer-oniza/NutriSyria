@@ -58,7 +58,7 @@ class MealFitCalculatorTest extends TestCase
         $fit = $this->judge($this->meal());
 
         $this->assertSame(4, $fit->level);
-        $this->assertSame(['grams' => 350, 'kcal' => 600, 'whole' => true], $fit->portion);
+        $this->assertSame(['fraction' => 1.0, 'grams' => 350, 'kcal' => 600, 'whole' => true, 'per100g' => false], $fit->portion);
         $this->assertSame(['energy' => 26, 'protein' => 23, 'carbs' => 29, 'fat' => 26], $fit->share);
         $this->assertStringContainsString('26% من احتياجك اليومي', $fit->reasons[0]);
         $this->assertSame([], $fit->notes);
@@ -84,12 +84,41 @@ class MealFitCalculatorTest extends TestCase
 
     public function test_the_suitable_portion_keeps_every_limit(): void
     {
-        // Fat 31.5 g over 23 g: 73% of 350 g = 250 g (down to tens), 600 × 250/350 = 429 kcal.
+        // Fat 31.5 g over 23 g: 73% of the plate is within, down to the quarter: ½, 175 g, 300 kcal.
         $fit = $this->judge($this->meal(['fat_g' => 31.5]));
-        $this->assertSame(['grams' => 250, 'kcal' => 429, 'whole' => false], $fit->portion);
+        $this->assertSame(['fraction' => 0.5, 'grams' => 175, 'kcal' => 300, 'whole' => false, 'per100g' => false], $fit->portion);
+        $this->assertSame('½ (نصف الصحن)', MealFitCalculator::plate($fit->portion['fraction']));
 
-        // Less than 40% of the serving: no portion is offered.
-        $this->assertNull($this->judge($this->meal(['sodium_mg' => 2000]))->portion);
+        // Fat 25 g: 92% within: ¾. Sodium 2000 mg against 600: 30%: ¼. Sodium 3000 mg: 20%, none.
+        $this->assertSame(0.75, $this->judge($this->meal(['fat_g' => 25]))->portion['fraction']);
+        $this->assertSame(0.25, $this->judge($this->meal(['sodium_mg' => 2000]))->portion['fraction']);
+        $this->assertNull($this->judge($this->meal(['sodium_mg' => 3000]))->portion);
+        $this->assertSame(['الصحن كاملاً', '¾ (ثلاثة أرباع الصحن)', '¼ (ربع الصحن)'], [MealFitCalculator::plate(1.0), MealFitCalculator::plate(0.75), MealFitCalculator::plate(0.25)]);
+    }
+
+    public function test_one_short_reason_leads_and_says_where_its_limit_comes_from(): void
+    {
+        // Fat 31.5 g: the day's 77 g is 30% of 2305 kcal; a meal is 30% of it, 23.1 g; 36% more.
+        $fit = $this->judge($this->meal(['fat_g' => 31.5]));
+
+        $this->assertSame('الدهون فيها أكثر من حصتك في الوجبة.', $fit->headline);
+        $this->assertSame([
+            'الدهون في يومك 77 غ: 30% من سعراتك.',
+            'الوجبة الواحدة 30% من يومك، أي 23 غ.',
+            'في هذه الوجبة 32 غ، أي أكثر بـ36%.',
+        ], $fit->why['steps']);
+        $this->assertSame(['nasem_amdr', 'who_fats_2023'], $fit->why['refs']);
+
+        // Within every limit: said plainly, with the calories' chain.
+        $fit = $this->judge($this->meal());
+        $this->assertSame('ضمن حدودك في هذه الوجبة.', $fit->headline);
+        $this->assertSame('في هذه الوجبة 600 سعرة.', $fit->why['steps'][2]);
+
+        // An allergen leads, whatever else.
+        $fit = $this->judge($this->meal(['fat_g' => 31.5], ['peanuts']), $this->sheet(['allergens' => ['peanuts']]));
+        $this->assertStringStartsWith('فيها ', $fit->headline);
+        $this->assertStringEndsWith('، وعندك حساسية منه.', $fit->headline);
+        $this->assertSame([], $fit->why['refs']);
     }
 
     public function test_reasons_are_ordered_by_overshoot_and_capped_at_three(): void
@@ -200,7 +229,8 @@ class MealFitCalculatorTest extends TestCase
     {
         $fit = $this->judge($this->meal(['fat_g' => 31.5], serving: null));
 
-        $this->assertSame(['grams' => 70, 'kcal' => 420, 'whole' => false], $fit->portion);
+        // Per 100 g: half of it, and no plate to speak of.
+        $this->assertSame(['fraction' => 0.5, 'grams' => 50, 'kcal' => 300, 'whole' => false, 'per100g' => true], $fit->portion);
     }
 
     /** A nutritionist's plan lunch of 784 kcal (35% of a 2240 kcal plan), with carbs kept to 60 g on purpose. */

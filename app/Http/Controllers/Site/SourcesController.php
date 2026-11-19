@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
-use App\Services\Nutrition\Fit\MealFitCalculator;
 use App\Services\Site\DataCoverage;
 use Illuminate\Contracts\View\View;
 
@@ -28,7 +27,7 @@ class SourcesController extends Controller
                 "درجات المناسبة الأربع: تجاوز حتى {$tolerance['suits']}% «مناسبة جداً»، حتى {$tolerance['moderate']}% «باعتدال»، حتى {$tolerance['unfit']}% «تحتاج انتباهاً»، وأكثر «غير مناسبة لك الآن» (لحد وضعه أخصائيّك).",
                 'تجاوز أقل من '.$rules['fit_near_pct'].'% نكتبه «بحدود» لا بنسبة.',
                 'ملاحظة النقص (ألياف، بروتين…) تظهر فقط إن كانت الوجبة أقل من '.(100 - $tolerance['moderate']).'% من حصتها.',
-                'لا نقترح حصة أصغر من '.(int) round(MealFitCalculator::MIN_PORTION_SHARE * 100).'% من الصحن.',
+                'الحصة المناسبة بالصحن: كامل أو ¾ أو ½ أو ¼، مقرّبة للأسفل حتى لا تتجاوز حدودك، ولا نقترح أقل من ربع الصحن.',
             ],
         ]);
     }

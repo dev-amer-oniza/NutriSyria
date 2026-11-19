@@ -41,6 +41,8 @@ class FitPanel
                 'notes' => $fit->notes,
                 'share' => $fit->share,
                 'portion' => $fit->portion,
+                'headline' => $fit->headline,
+                'why' => $fit->why,
             ]],
             'source' => 'أحدث وجبة اعتمدها أخصائي التغذية، مقيّمة على معاييرك.',
             'link' => route('site.meals.show', $meal->id),
