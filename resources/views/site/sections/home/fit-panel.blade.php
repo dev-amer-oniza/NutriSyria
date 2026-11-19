@@ -11,7 +11,7 @@
     <div class="ns-panel__main">
         <div class="ns-panel__energy">
             <div class="ns-energy__fig">
-                <span class="ns-num t-figure-xl">{{ $meal['kcal'] }}</span>
+                <span class="ns-num t-figure-xl" data-count>{{ $meal['kcal'] }}</span>
                 <span class="ns-energy__unit">سعرة حرارية</span>
             </div>
             @include('site.components.macro-bar', $meal['macros'])

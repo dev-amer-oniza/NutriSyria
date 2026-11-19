@@ -1,5 +1,5 @@
 {{-- Share of one person's daily needs in a serving. Param $share: energy, protein, carbs, fat (percent, or null when the meal lacks the value). --}}
-<dl class="ns-share">
+<dl class="ns-share" data-fill>
     @foreach (['energy' => 'الطاقة', 'protein' => 'بروتين', 'carbs' => 'كربوهيدرات', 'fat' => 'دهون'] as $field => $label)
         <div>
             <dt><i class="ns-stat__key ns-key-{{ $field }}"></i>{{ $label }}</dt>

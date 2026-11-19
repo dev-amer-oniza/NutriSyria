@@ -1,6 +1,6 @@
 @php($register = route('site.register'))
 
-<section class="ns-section" aria-labelledby="goals-title">
+<section class="ns-section ns-tint ns-tint--blush" aria-labelledby="goals-title">
     <div class="ns-wrap">
         <div class="ns-goals">
             <div>

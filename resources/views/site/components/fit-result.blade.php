@@ -16,7 +16,7 @@
 @endphp
 @include('site.components.fit-verdict', ['level' => $level])
 
-<div class="ns-plate">
+<div class="ns-plate" data-fill>
     @if ($portion === null)
         <span class="ns-plate__pie ns-plate__pie--none" aria-hidden="true"></span>
         <p><b>لا ننصح بها لك الآن</b></p>

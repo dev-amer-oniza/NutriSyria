@@ -1,5 +1,5 @@
 {{-- Line icons, 24px grid, stroke 1.6. Params: $name, $size ('sm' optional). --}}
-<svg @class(['ns-icon', 'ns-icon--sm' => ($size ?? null) === 'sm']) viewBox="0 0 24 24" aria-hidden="true">
+<svg @class(['ns-icon', 'ns-icon--'.$name, 'ns-icon--sm' => ($size ?? null) === 'sm']) viewBox="0 0 24 24" aria-hidden="true">
     @switch($name)
         @case('bread')
             <path d="M5 11.5a3.5 3.5 0 0 1 1-6.9h12a3.5 3.5 0 0 1 1 6.9V19a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1Z"/><path d="M9 11v5M12 10v6M15 11v5"/>

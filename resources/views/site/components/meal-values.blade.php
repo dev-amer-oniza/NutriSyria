@@ -38,7 +38,7 @@
         </div>
     @endif
     <div class="ns-energy__fig">
-        <span class="ns-num t-figure-xl">{{ $value('energy_kcal') }}</span>
+        <span class="ns-num t-figure-xl" data-count>{{ $value('energy_kcal') }}</span>
         <span class="ns-energy__unit">سعرة حرارية</span>
     </div>
     @include('site.components.macro-bar', ['protein' => $grams('protein_g'), 'carbs' => $grams('carbohydrate_g'), 'fat' => $grams('fat_g')])

@@ -13,7 +13,7 @@
                 <p class="ns-eyebrow">احتياجك اليومي</p>
                 <div class="ns-needs">
                     <div class="ns-needs__energy">
-                        <span class="ns-num t-figure-xl">{{ number_format($kcal->value) }}</span>
+                        <span class="ns-num t-figure-xl" data-count>{{ number_format($kcal->value) }}</span>
                         <span class="ns-energy__unit">سعرة في اليوم</span>
                     </div>
                     @if ($sheet->meal)
