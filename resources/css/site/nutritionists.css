@@ -9,11 +9,11 @@
     .ns-nutri:focus-visible { outline: none; box-shadow: var(--focus-ring); }
     .ns-nutri__photo { flex: none; width: 80px; height: 80px; border-radius: var(--radius-full); overflow: hidden; background: var(--sand); }
     .ns-nutri__photo img { width: 100%; height: 100%; object-fit: cover; }
-    .ns-nutri__name { margin: 0; font-size: 18px; line-height: 28px; font-weight: 600; }
-    .ns-nutri__meta { margin: 2px 0 var(--space-2); font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-nutri__name { margin: 0; font-size: 1.125rem; line-height: 1.75rem; font-weight: 600; }
+    .ns-nutri__meta { margin: 2px 0 var(--space-2); font-size: 0.9375rem; line-height: 1.375rem; color: var(--ink-muted); }
     .ns-nutri__tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-    .ns-nutri__tags li { padding: 2px 10px; border-radius: var(--radius-full); background: var(--pine-soft); color: var(--pine); font-size: 12px; line-height: 20px; }
-    .ns-nutri__free { margin: var(--space-2) 0 0; font-size: 13px; font-weight: 600; color: var(--terracotta-ink); }
+    .ns-nutri__tags li { padding: 2px 10px; border-radius: var(--radius-full); background: var(--pine-soft); color: var(--pine); font-size: 0.875rem; line-height: 1.375rem; }
+    .ns-nutri__free { margin: var(--space-2) 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--terracotta-ink); }
 
     .ns-nutri-page { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-8); align-items: start; }
     .ns-nutri-page__head { display: flex; align-items: center; gap: var(--space-5); margin: var(--space-5) 0; }
@@ -21,11 +21,11 @@
     .ns-nutri-page__photo { flex: none; width: 120px; height: 120px; border-radius: var(--radius-full); overflow: hidden; background: var(--sand); }
     .ns-nutri-page__photo img { width: 100%; height: 100%; object-fit: cover; }
     .ns-nutri-page__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-3); margin: 0 0 var(--space-6); padding: var(--space-4) 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-    .ns-nutri-page__facts dt { font-size: 13px; color: var(--ink-muted); }
-    .ns-nutri-page__facts dd { margin: 2px 0 0; font-size: 15px; font-weight: 600; }
+    .ns-nutri-page__facts dt { font-size: 0.9375rem; color: var(--ink-muted); }
+    .ns-nutri-page__facts dd { margin: 2px 0 0; font-size: 1.0625rem; font-weight: 600; }
     .ns-nutri-page__bio { white-space: pre-line; }
     .ns-nutri-page__book { position: sticky; top: 100px; padding: var(--space-5); background: var(--pine-soft); border-radius: var(--radius-lg); color: var(--pine); }
-    .ns-nutri-page__steps { margin: 0 0 var(--space-5); padding-inline-start: var(--space-5); font-size: 14px; line-height: 24px; color: var(--ink); }
+    .ns-nutri-page__steps { margin: 0 0 var(--space-5); padding-inline-start: var(--space-5); font-size: 1rem; line-height: 1.625rem; color: var(--ink); }
     .ns-nutri-page__cta { width: 100%; }
     .ns-nutri-page__cta[aria-disabled="true"] { opacity: .6; cursor: default; }
 
@@ -46,26 +46,26 @@
     .ns-person { display: flex; align-items: center; gap: var(--space-3); }
     .ns-person__photo { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--radius-full); overflow: hidden; background: var(--sand); }
     .ns-person__photo img { width: 100%; height: 100%; object-fit: cover; }
-    .ns-person__name { display: block; font-size: 17px; line-height: 26px; font-weight: 600; color: var(--ink); text-decoration: none; }
+    .ns-person__name { display: block; font-size: 1.125rem; line-height: 1.6875rem; font-weight: 600; color: var(--ink); text-decoration: none; }
     a.ns-person__name:hover { color: var(--pine); }
-    .ns-person__meta { display: block; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-person__meta { display: block; font-size: 0.9375rem; line-height: 1.375rem; color: var(--ink-muted); }
 
     .ns-book { max-width: 680px; }
     .ns-book .t-title { margin: var(--space-3) 0 var(--space-5); }
     .ns-book__form { margin-top: var(--space-6); }
-    .ns-textarea { height: auto; min-height: 120px; padding-block: var(--space-3); line-height: 26px; resize: vertical; }
-    .ns-book__note { margin: 0; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--pine-soft); color: var(--pine); font-size: 14px; line-height: 24px; }
+    .ns-textarea { height: auto; min-height: 120px; padding-block: var(--space-3); line-height: 1.625rem; resize: vertical; }
+    .ns-book__note { margin: 0; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--pine-soft); color: var(--pine); font-size: 1rem; line-height: 1.625rem; }
 
     .ns-book__card { display: grid; gap: var(--space-4); margin-bottom: var(--space-8); padding: var(--space-5); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); }
     .ns-book__card--accepted { border-color: var(--pine); box-shadow: inset 0 0 0 1px var(--pine); }
     .ns-book__card .t-body { margin: 0; }
     .ns-book__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
-    .ns-book__reason { margin: 0; padding: var(--space-3) var(--space-4); border-inline-start: 3px solid var(--line-strong); background: var(--sand); border-radius: var(--radius-sm); white-space: pre-line; font-size: 15px; line-height: 26px; }
+    .ns-book__reason { margin: 0; padding: var(--space-3) var(--space-4); border-inline-start: 3px solid var(--line-strong); background: var(--sand); border-radius: var(--radius-sm); white-space: pre-line; font-size: 1.0625rem; line-height: 1.75rem; }
     .ns-book__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
     .ns-book__end { padding-top: var(--space-4); border-top: 1px solid var(--line); }
     .ns-book__end .ns-field__hint { margin-top: var(--space-1); }
 
-    .ns-status { display: inline-flex; padding: 2px 12px; border-radius: var(--radius-full); font-size: 13px; line-height: 22px; font-weight: 600; background: var(--sand); color: var(--ink-muted); }
+    .ns-status { display: inline-flex; padding: 2px 12px; border-radius: var(--radius-full); font-size: 0.9375rem; line-height: 1.5rem; font-weight: 600; background: var(--sand); color: var(--ink-muted); }
     .ns-status--pending { background: var(--terracotta-soft); color: var(--terracotta-ink); }
     .ns-status--accepted { background: var(--pine-soft); color: var(--pine); }
 
@@ -73,5 +73,5 @@
     .ns-book__history li { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--line); }
     .ns-book__history .ns-field__hint { flex-basis: 100%; margin: 0; }
     .ns-book__who { font-weight: 600; }
-    .ns-book__when { margin-inline-start: auto; font-family: var(--font-latin); font-size: 13px; color: var(--ink-muted); }
+    .ns-book__when { margin-inline-start: auto; font-family: var(--font-latin); font-size: 0.9375rem; color: var(--ink-muted); }
 }

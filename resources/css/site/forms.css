@@ -3,23 +3,23 @@
     /* ---------- Fields ---------- */
     .ns-form { display: flex; flex-direction: column; gap: var(--space-5); }
     .ns-field { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; margin: 0; padding: 0; border: 0; }
-    .ns-field__label { font-size: 15px; line-height: 24px; font-weight: 600; color: var(--ink); padding: 0; }
-    .ns-field__hint { margin: 0; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
-    .ns-field__error { margin: 0; font-size: 13px; line-height: 20px; font-weight: 500; color: var(--terracotta-ink); }
-    .ns-input { width: 100%; height: 52px; padding: 0 var(--space-4); border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: var(--surface-raised); color: var(--ink); font: inherit; font-size: 16px; transition: border-color .15s ease, box-shadow .15s ease; }
+    .ns-field__label { font-size: 1.0625rem; line-height: 1.625rem; font-weight: 600; color: var(--ink); padding: 0; }
+    .ns-field__hint { margin: 0; font-size: 0.9375rem; line-height: 1.375rem; color: var(--ink-muted); }
+    .ns-field__error { margin: 0; font-size: 0.9375rem; line-height: 1.375rem; font-weight: 500; color: var(--terracotta-ink); }
+    .ns-input { width: 100%; height: 52px; padding: 0 var(--space-4); border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: var(--surface-raised); color: var(--ink); font: inherit; font-size: 1.0625rem; transition: border-color .15s ease, box-shadow .15s ease; }
     .ns-input[dir="ltr"] { text-align: right; }
     .ns-input[dir="ltr"]:focus, .ns-input[dir="ltr"]:not(:placeholder-shown) { text-align: left; }
     .ns-input::placeholder { color: var(--ink-muted); opacity: .7; }
     .ns-input:focus { outline: none; border-color: var(--pine); box-shadow: var(--focus-ring); }
     .ns-input[aria-invalid="true"] { border-color: var(--terracotta-ink); }
-    .ns-input--code { height: 60px; font-family: var(--font-latin); font-size: 26px; font-weight: 600; letter-spacing: .5em; text-align: center !important; }
+    .ns-input--code { height: 60px; font-family: var(--font-latin); font-size: 1.625rem; font-weight: 600; letter-spacing: .5em; text-align: center !important; }
 
     .ns-password { position: relative; }
     .ns-password .ns-input { padding-left: 84px; padding-right: var(--space-4); } /* the input is ltr; the button sits on the left */
-    .ns-password__toggle { position: absolute; top: 8px; left: 8px; height: 36px; padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm); background: var(--sand); color: var(--pine); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .ns-password__toggle { position: absolute; top: 8px; left: 8px; height: 36px; padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm); background: var(--sand); color: var(--pine); font: inherit; font-size: 0.9375rem; font-weight: 600; cursor: pointer; }
     .ns-password__toggle:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
-    .ns-check { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 14px; line-height: 22px; cursor: pointer; }
+    .ns-check { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 1rem; line-height: 1.5rem; cursor: pointer; }
     .ns-check input { width: 18px; height: 18px; accent-color: var(--pine); }
 
     /* Account type: three cards, the chosen one in pine. */
@@ -29,8 +29,8 @@
     .ns-type:has(:checked) { border-color: var(--pine); background: var(--pine-soft); box-shadow: inset 0 0 0 1px var(--pine); }
     .ns-type:has(:focus-visible) { box-shadow: var(--focus-ring); }
     .ns-type__radio { position: absolute; opacity: 0; pointer-events: none; }
-    .ns-type__name { font-size: 15px; line-height: 24px; font-weight: 600; color: var(--ink); }
-    .ns-type__hint { font-size: 12px; line-height: 18px; color: var(--ink-muted); }
+    .ns-type__name { font-size: 1.0625rem; line-height: 1.625rem; font-weight: 600; color: var(--ink); }
+    .ns-type__hint { font-size: 0.875rem; line-height: 1.25rem; color: var(--ink-muted); }
 
     /* Onboarding, activity: work days as seven chips, and one row a sport. */
     .ns-days { display: flex; flex-wrap: wrap; gap: var(--space-2); }
@@ -39,26 +39,26 @@
     .ns-days__day:has(:focus-visible) { box-shadow: var(--focus-ring); }
     .ns-sport { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) 44px; gap: var(--space-2); align-items: end; }
     .ns-sport label { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
-    .ns-sport__label { font-size: 12px; line-height: 18px; color: var(--ink-muted); }
+    .ns-sport__label { font-size: 0.875rem; line-height: 1.25rem; color: var(--ink-muted); }
     .ns-sport .ns-input { height: 44px; }
-    .ns-sport__remove { height: 44px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-raised); color: var(--ink-muted); font: inherit; font-size: 20px; cursor: pointer; }
+    .ns-sport__remove { height: 44px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-raised); color: var(--ink-muted); font: inherit; font-size: 1.25rem; cursor: pointer; }
     .ns-sport__remove:hover { border-color: var(--terracotta-ink); color: var(--terracotta-ink); }
     .ns-sport__add { align-self: flex-start; }
 
-    .ns-form__submit { width: 100%; height: 52px; font-size: 16px; }
+    .ns-form__submit { width: 100%; height: 52px; font-size: 1.0625rem; }
     .ns-form__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
-    .ns-form__aside { margin: 0; text-align: center; font-size: 15px; line-height: 24px; color: var(--ink-muted); }
-    .ns-form__fine { margin: calc(-1 * var(--space-3)) 0 0; text-align: center; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-form__aside { margin: 0; text-align: center; font-size: 1.0625rem; line-height: 1.625rem; color: var(--ink-muted); }
+    .ns-form__fine { margin: calc(-1 * var(--space-3)) 0 0; text-align: center; font-size: 0.9375rem; line-height: 1.375rem; color: var(--ink-muted); }
 
-    .ns-resend { display: flex; align-items: center; justify-content: center; gap: var(--space-2); margin-top: var(--space-5); font-size: 14px; color: var(--ink-muted); }
+    .ns-resend { display: flex; align-items: center; justify-content: center; gap: var(--space-2); margin-top: var(--space-5); font-size: 1rem; color: var(--ink-muted); }
     .ns-resend__btn { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; cursor: pointer; }
     .ns-resend__btn:disabled { color: var(--ink-muted); cursor: default; text-decoration: none; }
 
     /* "Continue with Google": Google's own colours belong to its mark only. */
-    .ns-btn--google { width: 100%; height: 52px; border-color: var(--line-strong); background: var(--surface-raised); color: var(--ink); font-size: 16px; font-weight: 600; }
+    .ns-btn--google { width: 100%; height: 52px; border-color: var(--line-strong); background: var(--surface-raised); color: var(--ink); font-size: 1.0625rem; font-weight: 600; }
     .ns-btn--google:hover { background: var(--sand); }
     .ns-btn--google svg { width: 20px; height: 20px; flex: none; }
-    .ns-divider { display: flex; align-items: center; gap: var(--space-3); margin: 0; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+    .ns-divider { display: flex; align-items: center; gap: var(--space-3); margin: 0; font-size: 0.9375rem; line-height: 1.375rem; color: var(--ink-muted); }
     .ns-divider::before, .ns-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 
     .ns-hp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
@@ -73,9 +73,9 @@
     .ns-auth__story { position: relative; }   /* centred in the aside, no tiles (the owner's request) */
     .ns-auth__story h2 { margin: 0 0 var(--space-6); color: var(--on-pine); }
     .ns-auth__people { list-style: none; margin: 0 0 var(--space-5); padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
-    .ns-auth__people li { display: flex; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid color-mix(in srgb, var(--on-pine) 18%, transparent); border-radius: var(--radius-md); font-size: 15px; line-height: 24px; }
+    .ns-auth__people li { display: flex; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid color-mix(in srgb, var(--on-pine) 18%, transparent); border-radius: var(--radius-md); font-size: 1.0625rem; line-height: 1.625rem; }
     .ns-auth__people b { color: var(--sage); font-weight: 600; }
-    .ns-auth__note { margin: 0; font-size: 13px; line-height: 20px; color: var(--sage); }
+    .ns-auth__note { margin: 0; font-size: 0.9375rem; line-height: 1.375rem; color: var(--sage); }
 
     @media (max-width: 1080px) {
         .ns-auth { grid-template-columns: minmax(0, 1fr); min-height: 0; }
