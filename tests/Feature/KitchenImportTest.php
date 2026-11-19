@@ -110,6 +110,6 @@ CSV;
             }
         }
         $this->assertSame(array_unique($names), $names, 'one name a dish across the files');
-        $this->assertCount(17, $names);   // breakfast 7, lunch 10
+        $this->assertCount(27, $names);   // breakfast 7, lunch 10, dinner 10
     }
 }
