@@ -13,7 +13,7 @@
         <div class="ns-explore__meals">
             <div class="ns-explore__head">
                 <h2 class="ns-explore__title" id="dishes-title">استكشف الوجبات</h2>
-                <a class="ns-link" href="{{ route('site.meals') }}">عرض الكل@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
+                <a class="ns-btn ns-btn--secondary ns-btn--sm ns-more-btn" href="{{ route('site.meals') }}">عرض كل الوجبات@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
             </div>
 
             @if ($dishes)

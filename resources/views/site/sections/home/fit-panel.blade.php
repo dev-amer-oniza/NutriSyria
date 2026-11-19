@@ -52,6 +52,6 @@
     <p class="ns-panel__source">
         @include('site.partials.icon', ['name' => 'document', 'size' => 'sm'])
         <span>{{ $meal['source'] }}</span>
-        <a href="{{ $meal['link'] ?? route('site.method') }}">{{ $meal['link_label'] ?? 'المنهجية' }}</a>
+        <a class="ns-link" href="{{ $meal['link'] ?? route('site.method') }}">{{ $meal['link_label'] ?? 'المنهجية' }}</a>
     </p>
 </section>

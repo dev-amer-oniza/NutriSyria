@@ -6,7 +6,7 @@
     <section class="ns-section">
         <div class="ns-wrap ns-nutri-page">
             <div class="ns-nutri-page__main">
-                <a class="ns-link" href="{{ route('site.nutritionists') }}">كل الأخصائيين</a>
+                @include('site.partials.back', ['href' => route('site.nutritionists'), 'label' => 'كل الأخصائيين'])
 
                 <div class="ns-nutri-page__head">
                     <div class="ns-nutri-page__photo">

@@ -22,15 +22,16 @@
                     <a class="ns-chip" href="{{ route('site.brands', array_filter(['q' => $search])) }}" @if (! $deliveryOnly) aria-current="page" @endif>كل المطاعم</a>
                     <a class="ns-chip" href="{{ route('site.brands', array_filter(['q' => $search, 'delivery' => 1])) }}" @if ($deliveryOnly) aria-current="page" @endif>عندهم توصيل</a>
                 </nav>
-                <p class="ns-meals__count"><span class="ns-num">{{ count($restaurants) }}</span> مطعم</p>
+                <p class="ns-meals__count"><span class="ns-num">{{ $page->total() }}</span> مطعم</p>
             </div>
 
-            @if ($restaurants)
+            @if ($page->isNotEmpty())
                 <div class="ns-rests">
-                    @foreach ($restaurants as $restaurant)
+                    @foreach ($page as $restaurant)
                         @include('site.components.restaurant-card', ['restaurant' => $restaurant])
                     @endforeach
                 </div>
+                @include('site.partials.pager', ['page' => $page])
             @else
                 <div class="ns-empty">
                     <img class="ns-empty__mark" src="{{ asset('images/site/restaurant-cover.svg') }}" alt="" loading="lazy">

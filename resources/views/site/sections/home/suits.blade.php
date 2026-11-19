@@ -8,7 +8,7 @@
                 <p class="t-lead ns-muted">مختارة من معاييرك أنت: الأنسب أولاً.</p>
             </div>
             @if ($suits)
-                <a class="ns-link" href="{{ route('site.meals', ['suits' => 1]) }}">كل ما يناسبك@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
+                <a class="ns-btn ns-btn--secondary ns-btn--sm ns-more-btn" href="{{ route('site.meals', ['suits' => 1]) }}">كل ما يناسبك@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
             @endif
         </div>
 

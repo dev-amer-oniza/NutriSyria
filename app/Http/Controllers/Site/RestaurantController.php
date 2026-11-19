@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Restaurants\RestaurantSearchRequest;
 use App\Services\Site\MenuView;
 use App\Services\Site\RestaurantDirectory;
+use App\Support\Site\Pages;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -15,7 +16,7 @@ class RestaurantController extends Controller
     public function index(RestaurantSearchRequest $request, RestaurantDirectory $restaurants): View
     {
         return view('site.pages.restaurants.index', [
-            'restaurants' => $restaurants->all($request->search(), $request->deliveryOnly()),
+            'page' => Pages::of($restaurants->all($request->search(), $request->deliveryOnly()), $request),
             'search' => $request->search(),
             'deliveryOnly' => $request->deliveryOnly(),
         ]);

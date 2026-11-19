@@ -14,7 +14,7 @@
                  'storageKey' => 'ns.myRecipe.'.$meal->id,
                  'maxLines' => \App\Http\Requests\Kitchen\CustomRecipeRequest::MAX_LINES,
              ]))">
-            <a class="ns-link" href="{{ route('site.meals.show', $meal->id) }}">{{ $meal->name }}</a>
+            @include('site.partials.back', ['href' => route('site.meals.show', $meal->id), 'label' => $meal->name])
             <header class="ns-mine-page__head">
                 <p class="ns-eyebrow">المطبخ السوري · اطبخها على طريقتك</p>
                 <h1 class="t-title">{{ $meal->name }} على طريقتك</h1>

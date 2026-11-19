@@ -10,7 +10,7 @@
     <section class="ns-section">
         <div class="ns-wrap ns-meal">
             <div class="ns-meal__main">
-                <a class="ns-link" href="{{ route('site.meals') }}">كل الوجبات</a>
+                @include('site.partials.back', ['href' => route('site.meals'), 'label' => 'كل الوجبات'])
 
                 <div class="ns-meal__head">
                     <div class="ns-meal__cover">

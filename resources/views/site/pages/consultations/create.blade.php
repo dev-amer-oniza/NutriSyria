@@ -5,7 +5,7 @@
 @section('content')
     <section class="ns-section">
         <div class="ns-wrap ns-book">
-            <a class="ns-link" href="{{ route('site.nutritionists.show', $profile) }}">العودة إلى صفحة الأخصائي</a>
+            @include('site.partials.back', ['href' => route('site.nutritionists.show', $profile), 'label' => 'صفحة الأخصائي'])
             <h1 class="t-title">طلب استشارة</h1>
             @include('site.components.nutritionist-person', ['profile' => $profile])
 

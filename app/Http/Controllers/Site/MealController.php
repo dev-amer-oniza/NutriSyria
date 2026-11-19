@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Meals\MealSearchRequest;
 use App\Services\Nutrition\Fit\MealFitService;
 use App\Services\Site\MealCatalog;
+use App\Support\Site\Pages;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -19,14 +20,19 @@ class MealController extends Controller
     public function index(MealSearchRequest $request, MealCatalog $catalog, MealFitService $fits): View
     {
         $meals = $catalog->meals(search: $request->search());
-        $verdicts = $fits->judgeAll($request->user(), $meals);
 
-        if ($request->onlySuiting() && $verdicts) {
-            $meals = array_values(array_filter($meals, fn (MealFacts $m) => $verdicts[$m->id]->level >= self::SUITING_LEVEL));
+        // "Suits me" needs every verdict to filter; otherwise only the meals on this page are judged.
+        if ($request->onlySuiting() && $fits->sheetFor($request->user()) !== null) {
+            $verdicts = $fits->judgeAll($request->user(), $meals);
+            $meals = array_filter($meals, fn (MealFacts $m) => $verdicts[$m->id]->level >= self::SUITING_LEVEL);
         }
 
+        $page = Pages::of($meals, $request);
+        $verdicts ??= $fits->judgeAll($request->user(), $page->items());
+
         return view('site.pages.meals.index', [
-            'dishes' => array_map(fn (MealFacts $m) => $m->card($verdicts[$m->id] ?? null), $meals),
+            'dishes' => array_map(fn (MealFacts $m) => $m->card($verdicts[$m->id] ?? null), $page->items()),
+            'page' => $page,
             'search' => $request->search(),
             'onlySuiting' => $request->onlySuiting(),
             'personal' => $fits->sheetFor($request->user()) !== null,
