@@ -1,5 +1,7 @@
 /* Identity tokens. The five brand colours come first; everything after is a tint or role. */
 :root {
+    --page-max: 1760px;
+    --page-gutter: clamp(16px, 3.5vw, 56px);
     --pine: #0f3d32;
     --terracotta: #c15b3f;
     --sage: #a7b89f;
