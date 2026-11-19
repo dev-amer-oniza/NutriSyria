@@ -1,10 +1,12 @@
 /* Page chrome shared by every site page: container, header, sections, footer. */
 @layer components {
-    .ns-wrap { max-width: 1280px; margin: 0 auto; padding: 0 var(--space-8); }
+    /* The page box: wide screens use their width (owner's request), with a side gutter that grows
+       with the screen; long text keeps its own reading width inside. */
+    .ns-wrap { max-width: var(--page-max); margin: 0 auto; padding: 0 var(--page-gutter); }
 
     /* ---------- Header (partials/header) ---------- */
     .ns-header { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
-    .ns-header__in { max-width: 1280px; margin: 0 auto; height: 76px; padding: 0 var(--space-8); display: flex; align-items: center; gap: var(--space-8); }
+    .ns-header__in { max-width: var(--page-max); margin: 0 auto; height: 76px; padding: 0 var(--page-gutter); display: flex; align-items: center; gap: var(--space-8); }
     .ns-nav { display: flex; align-items: center; gap: var(--space-1); flex: 1; }
     .ns-nav a { font-size: 15px; line-height: 24px; font-weight: 500; color: var(--ink); text-decoration: none; padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); }
     .ns-nav a:hover { background: var(--sand); }

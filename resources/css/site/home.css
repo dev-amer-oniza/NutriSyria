@@ -5,11 +5,11 @@
     /* The tiles (the identity's official pattern) fill the card's side and fade toward the copy. */
     .ns-hero::before { content: ""; position: absolute; inset: 0; inset-inline-start: 38%; background: var(--tiles-pattern) center / cover no-repeat; opacity: .8;
         -webkit-mask-image: linear-gradient(to left, transparent 0, #000 55%); mask-image: linear-gradient(to left, transparent 0, #000 55%); }
-    .ns-hero__in { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-10); align-items: start; }
-    .ns-hero__copy { padding-top: var(--space-8); }
+    .ns-hero__in { position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--space-10); align-items: center; }
+    .ns-hero__copy { padding-block: var(--space-6); }
     .ns-hero__title { margin: 0 0 var(--space-5); color: var(--pine); font-weight: 700; }
     .ns-hero__title span { color: var(--terracotta); }
-    .ns-hero__lead { margin: 0 0 var(--space-6); max-width: 500px; }
+    .ns-hero__lead { margin: 0 0 var(--space-6); max-width: 600px; }
     .ns-try { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-5); }
     .ns-try > span { font-size: 14px; line-height: 22px; color: var(--ink-muted); margin-inline-end: var(--space-1); }
     .ns-hero__visual { display: flex; justify-content: center; }
