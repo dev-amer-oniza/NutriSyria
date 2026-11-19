@@ -23,14 +23,20 @@ use App\Enums\Allergen;
  *  - a meal holding one of the person's allergens is "not for you now"; when an ingredient's
  *    allergens were not checked yet, people with allergies are told so;
  *  - a value the meal lacks is left out and named, never guessed;
- *  - the suitable portion is the largest part of the serving within every counted limit.
+ *  - the suitable portion is the largest part of the serving within every counted limit, said
+ *    as a plate: whole, ¾, ½ or ¼, rounded down so it never passes a limit (stage 3, 1a);
+ *  - one short reason without numbers leads (2a), with "من أين هذا الحد؟": how its limit was
+ *    reached, step by step, and the references (3a). The rest stays under "تفاصيل أكثر".
  */
 class MealFitCalculator
 {
     private const MAX_REASONS = 3;
 
+    /** The plates offered, largest first; under the last one, no portion is offered. */
+    public const PLATES = [1.0, 0.75, 0.5, 0.25];
+
     /** Below this share of the serving, a smaller portion is not offered. */
-    public const MIN_PORTION_SHARE = 0.4;
+    public const MIN_PORTION_SHARE = 0.25;
 
     /** @param  array{fit_tolerance: array{suits: int, moderate: int, unfit: int}, fit_target_limits: list<string>, fit_near_pct?: int, criteria?: array<string, array<string, mixed>>}  $rules  config('nutrition_criteria') */
     public function __construct(private readonly array $rules) {}
@@ -95,6 +101,8 @@ class MealFitCalculator
         }
         $reasons = array_slice(array_values(array_filter($reasons, fn (array $r) => (bool) $r[0])), 0, self::MAX_REASONS);
 
+        [$headline, $why] = $this->headline($sheet, $meal, $found, $overs);
+
         $notes = [
             ...array_map(fn (array $u) => $this->underNote($sheet, ...$u), array_values($unders)),
             ...($missing ? ['لا تتوفر قيمة '.implode(' و', array_unique($missing)).' لهذه الوجبة، فلم تدخل في التقييم.'] : []),
@@ -109,7 +117,75 @@ class MealFitCalculator
             notes: $notes,
             template: $sheet->template['label'],
             basis: $sheet->meal ? sprintf('غدائك في خطة أخصائيّك (%s%s سعرة)', $sheet->meal['time'] ? $sheet->meal['time'].'، ' : '', number_format($sheet->meal['kcal'])) : null,
+            headline: $headline,
+            why: $why,
         );
+    }
+
+    /**
+     * The one reason that leads, in plain words, and how its limit was reached.
+     *
+     * @param  list<string>  $found  the person's allergens in the meal
+     * @param  list<array{0: CriterionValue, 1: float, 2: float, 3: float, 4: int}>  $overs  sorted, worst first
+     * @return array{0: string, 1: ?array{steps: list<string>, refs: list<string>}}
+     */
+    private function headline(CriteriaSheet $sheet, MealFacts $meal, array $found, array $overs): array
+    {
+        if ($found) {
+            $name = Allergen::tryFrom($found[0])?->label() ?? $found[0];
+
+            return ["فيها {$name}، وعندك حساسية منه.", ['steps' => ["كتبتَ في ملفك أن {$name} يسبّب لك حساسية، وأحد مكوّنات هذه الوجبة فيه {$name}."], 'refs' => []]];
+        }
+
+        [$criterion, $amount, $limit, $over, $level] = $overs[0] ?? [null, 0.0, 0.0, 0.0, 4];
+        if ($criterion && $level < 4) {
+            $than = match (true) {
+                $criterion->scope === 'meal' && $criterion->source->setter() !== null => 'من الحد الذي حدّده لك '.$criterion->source->setter(),
+                $sheet->meal !== null && $criterion->scope === 'day' => 'من غدائك في خطة أخصائيّك',
+                default => 'من حصتك في الوجبة',
+            };
+
+            return [$this->nutrientName($criterion).' فيها أكثر '.$than.'.', $this->why($sheet, $criterion, $amount, $limit, $over)];
+        }
+        if ($sheet->allergens && ! $meal->allergensChecked) {
+            return ['لم نتحقق بعد من مسبّبات الحساسية فيها، فاسأل المطعم عنها.', null];
+        }
+        if ($criterion) {
+            return [$this->nutrientName($criterion).' فيها قريب من حصتك في الوجبة، وضمن حدودك.', $this->why($sheet, $criterion, $amount, $limit, $over)];
+        }
+
+        $energy = $sheet->get('energy_kcal');
+        $kcal = $meal->amount('energy_kcal');
+
+        return ['ضمن حدودك في هذه الوجبة.', $energy && $kcal !== null ? $this->why($sheet, $energy, $kcal, $sheet->perMeal($energy), 0.0) : null];
+    }
+
+    /**
+     * "من أين هذا الحد؟": the day's value and its basis, the meal's share of it, and what the
+     * meal holds; the references only for a value we work out (a nutritionist's is their own).
+     *
+     * @return array{steps: list<string>, refs: list<string>}
+     */
+    private function why(CriteriaSheet $sheet, CriterionValue $criterion, float $amount, float $limit, float $over): array
+    {
+        $n = fn (float $v) => self::number($v).' '.$criterion->unit;
+        $name = $this->nutrientName($criterion);
+        $own = $criterion->source->setter();
+
+        $steps = $criterion->scope === 'meal'
+            ? [sprintf('%s: حد للوجبة الواحدة %s، %s.', $name, $n($limit), $own ? 'حدّده لك '.$own : 'محسوب لك')]
+            : [
+                sprintf('%s في يومك %s: %s.', $name, $n($criterion->value), $own ? 'حدّده لك '.$own : $criterion->basis),
+                $sheet->meal !== null
+                    ? sprintf('غداؤك في خطة أخصائيّك له %s.', $n($limit))
+                    : sprintf('الوجبة الواحدة %d%% من يومك، أي %s.', (int) round($sheet->mealShare * 100), $n($limit)),
+            ];
+        $steps[] = sprintf('في هذه الوجبة %s%s', $n($amount), $over >= 0.5 ? '، أي أكثر بـ'.(int) round($over).'%.' : '.');
+
+        return [
+            'steps' => $steps,
+            'refs' => $own ? [] : array_values($this->rules['criteria'][$criterion->key]['refs'] ?? []),
+        ];
     }
 
     /** Upper limits always; targets only when listed (energy, carbohydrate, fat); never an information. */
@@ -205,23 +281,41 @@ class MealFitCalculator
         ];
     }
 
-    /** @return array{grams: int, kcal: ?int, whole: bool}|null */
+    /**
+     * The largest plate (whole, ¾, ½, ¼) within every counted limit: down to the quarter, so
+     * it never passes one; null under a quarter. Without the serving's weight (values per 100 g)
+     * there is no plate to speak of: 'per100g' says so, and the grams are what to show.
+     *
+     * @return array{fraction: float, grams: int, kcal: ?int, whole: bool, per100g: bool}|null
+     */
     private function portion(MealFacts $meal, float $factor): ?array
     {
         $kcal = $meal->amount('energy_kcal');
 
-        if ($factor >= 1) {
-            return ['grams' => (int) round($meal->portionGrams()), 'kcal' => $kcal !== null ? (int) round($kcal) : null, 'whole' => true];
-        }
-        if ($factor < self::MIN_PORTION_SHARE) {
-            return null;
+        foreach (self::PLATES as $fraction) {
+            if ($factor >= $fraction) {
+                return [
+                    'fraction' => $fraction,
+                    'grams' => (int) round($meal->portionGrams() * $fraction),
+                    'kcal' => $kcal !== null ? (int) round($kcal * $fraction) : null,
+                    'whole' => $fraction >= 1.0,
+                    'per100g' => $meal->servingGrams === null,
+                ];
+            }
         }
 
-        // Down to whole tens of grams, so the portion stays within the limits.
-        $grams = (int) (floor($meal->portionGrams() * $factor / 10) * 10);
-        $scale = $grams / $meal->portionGrams();
+        return null;
+    }
 
-        return ['grams' => $grams, 'kcal' => $kcal !== null ? (int) round($kcal * $scale) : null, 'whole' => false];
+    /** "½ (نصف الصحن)": the plate as a sign and what it means (the owner's request). */
+    public static function plate(float $fraction): string
+    {
+        return match (true) {
+            $fraction >= 1.0 => 'الصحن كاملاً',
+            $fraction >= 0.75 => '¾ (ثلاثة أرباع الصحن)',
+            $fraction >= 0.5 => '½ (نصف الصحن)',
+            default => '¼ (ربع الصحن)',
+        };
     }
 
     /** The nutrient's plain name for "no value" notes (the meal limit shares it with the day value). */

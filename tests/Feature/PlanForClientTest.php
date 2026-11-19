@@ -72,7 +72,9 @@ class PlanForClientTest extends TestCase
 
         $this->actingAs($this->link->user->fresh())->get(route('site.meals.show', $meal))->assertOk()
             ->assertSee('مقارنةً بغدائك في خطة أخصائيّك (14:00، 529 سعرة)')
-            ->assertSee('وغداؤك في خطتك 50 غ');                               // 62 g carbs against the lunch's 50 g
+            ->assertSee('وغداؤك في خطتك 50 غ')                                // 62 g carbs against the lunch's 50 g
+            ->assertSee('الكربوهيدرات فيها أكثر من غدائك في خطة أخصائيّك.')
+            ->assertSee('غداؤك في خطة أخصائيّك له 50 غ.');
     }
 
     public function test_without_a_lunch_the_usual_share_of_the_day_applies(): void

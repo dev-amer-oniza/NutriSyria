@@ -9,7 +9,7 @@ final readonly class MealFit
      * @param  int  $level  4 suits very well … 1 not for you now (config/site.php fit_levels)
      * @param  list<string>  $reasons  why, most important first
      * @param  array{energy: ?int, protein: ?int, carbs: ?int, fat: ?int}  $share  percent of the day's needs
-     * @param  array{grams: int, kcal: ?int, whole: bool}|null  $portion  the largest portion within the limits; null when none suits
+     * @param  array{fraction: float, grams: int, kcal: ?int, whole: bool, per100g: bool}|null  $portion  the largest plate (1, ¾, ½, ¼) within the limits; null when none suits
      * @param  list<string>  $notes  what is missing from the meal, or values we lack
      */
     public function __construct(
@@ -23,6 +23,10 @@ final readonly class MealFit
         public ?string $basis = null,
         /** @var array<int, string> reason index => the nutrient it is about, for "من أين الدهون؟" */
         public array $causes = [],
+        /** The one reason that leads, without numbers ("الدهون فيها أكثر من حصتك في الوجبة.") */
+        public string $headline = '',
+        /** @var array{steps: list<string>, refs: list<string>}|null "من أين هذا الحد؟" for the headline */
+        public ?array $why = null,
     ) {}
 
     /** What the verdict is based on, for the person reading it. */

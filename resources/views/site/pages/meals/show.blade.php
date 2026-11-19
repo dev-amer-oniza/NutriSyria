@@ -65,6 +65,7 @@
                         @include('site.components.fit-result', [
                             'level' => $fit->level, 'reasons' => $fit->reasons, 'notes' => $fit->notes,
                             'share' => $fit->share, 'portion' => $fit->portion, 'who' => $fit->who(),
+                            'headline' => $fit->headline, 'why' => $fit->why,
                             'meal' => $meal, 'causes' => $fit->causes, 'fitSuggestions' => $suggestions,
                         ])
                     </div>
