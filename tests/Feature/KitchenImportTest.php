@@ -93,16 +93,23 @@ CSV;
         $this->assertSame(1, Product::where('name', 'حمص بطحينة')->count());
     }
 
-    public function test_the_breakfast_file_is_well_formed(): void
+    public function test_every_kitchen_file_is_well_formed(): void
     {
-        $file = KitchenRecipeFile::parse((string) file_get_contents(database_path('data/kitchen/breakfast.csv')));
+        $files = glob(database_path('data/kitchen/*.csv'));
+        $this->assertNotEmpty($files);
 
-        $this->assertSame([], $file['problems']);
-        $this->assertCount(7, $file['dishes']);
-        foreach ($file['dishes'] as $dish) {
-            $before = array_sum(array_map(fn ($l) => $l['after'] ? 0 : $l['grams'], $dish['lines']));
-            $this->assertSame('الفطور', $dish['category'], $dish['name']);
-            $this->assertGreaterThan(0, $before, $dish['name']);
+        $names = [];
+        foreach ($files as $path) {
+            $file = KitchenRecipeFile::parse((string) file_get_contents($path));
+            $this->assertSame([], $file['problems'], basename($path));
+            foreach ($file['dishes'] as $dish) {
+                $before = array_sum(array_map(fn ($l) => $l['after'] ? 0 : $l['grams'], $dish['lines']));
+                $this->assertGreaterThan(0, $before, $dish['name']);
+                $this->assertNotNull($dish['description'], $dish['name']);
+                $names[] = $dish['name'];
+            }
         }
+        $this->assertSame(array_unique($names), $names, 'one name a dish across the files');
+        $this->assertCount(17, $names);   // breakfast 7, lunch 10
     }
 }
