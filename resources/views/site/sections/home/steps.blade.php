@@ -5,7 +5,7 @@
     ['icon' => 'target', 'title' => 'اعرف مناسبتها لك', 'text' => 'حكم بأربع درجات وفق بياناتك.'],
     ['icon' => 'bowl', 'title' => 'اختر حصتك بثقة', 'text' => 'نقترح الحصة الأنسب لهدفك.'],
 ])
-<section class="ns-how" aria-labelledby="steps-title">
+<section class="ns-how ns-tint ns-tint--sage" aria-labelledby="steps-title">
     <div class="ns-wrap ns-how__in">
         <div class="ns-how__head">
             <h2 class="ns-how__title" id="steps-title">كيف نعمل؟</h2>

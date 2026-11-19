@@ -377,5 +377,80 @@ Alpine.data('customRecipe', (config) => ({
     },
 }));
 
+/*
+ * Life on the page (owner's request): sections rise into view, cards in a grid follow one
+ * another, numbers count up and bars fill once they are seen. Only content that is already
+ * on the page when it loads; nothing moves for people who ask for less motion.
+ */
+const GRIDS = '.ns-dishes, .ns-rests, .ns-nutris, .ns-explore__strip, .ns-how__steps, .ns-steps, .ns-goals, .ns-levels, .ns-method__levels, .ns-partners__benefits, .ns-join__points';
+const STAGGER_MS = 70;
+const STAGGER_MAX = 6;
+const COUNT_MS = 900;
+
+function countUp(el) {
+    const text = el.textContent.trim();
+    const target = Number(text.replace(/,/g, ''));
+    if (!Number.isFinite(target) || target === 0) return;
+
+    const decimals = (text.split('.')[1] || '').length;
+    const grouped = text.includes(',');
+    const format = (n) => (grouped
+        ? n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+        : n.toFixed(decimals));
+    const start = performance.now();
+
+    const step = (now) => {
+        const t = Math.min(1, (now - start) / COUNT_MS);
+        el.textContent = format(target * (1 - Math.pow(1 - t, 3)));
+        if (t < 1) requestAnimationFrame(step);
+        else el.textContent = text;   // end on the server's exact figure
+    };
+    requestAnimationFrame(step);
+}
+
+function bringToLife() {
+    const main = document.getElementById('main');
+    if (!main || !('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const seen = new IntersectionObserver((entries) => {
+        entries.forEach(({ isIntersecting, target }) => {
+            if (!isIntersecting) return;
+            seen.unobserve(target);
+
+            if (target.classList.contains('ns-reveal')) {
+                target.classList.add('is-in');
+                // Once in, the element goes back to its own styles (hover lifts and all).
+                const settle = () => target.classList.remove('ns-reveal', 'is-in');
+                target.addEventListener('transitionend', settle, { once: true });
+                setTimeout(settle, 1200);
+            }
+            if (target.classList.contains('ns-fill')) target.classList.add('is-filled');
+            if (target.hasAttribute('data-count')) countUp(target);
+        });
+    }, { rootMargin: '0px 0px -8% 0px' });
+
+    const reveal = (el, delay = 0) => {
+        el.classList.add('ns-reveal');
+        if (delay) el.style.setProperty('--reveal-delay', `${delay}ms`);
+        seen.observe(el);
+    };
+
+    // Each block of a page rises once; a grid's cards rise one after another instead.
+    main.querySelectorAll('.ns-wrap > *').forEach((block) => {
+        if (block.matches(GRIDS) || block.closest('.ns-reveal, [x-data]:not(#main)') || block.matches('[x-cloak]')) return;
+        if (block.querySelector(GRIDS)) return;
+        reveal(block);
+    });
+    main.querySelectorAll(GRIDS).forEach((grid) => {
+        [...grid.children].forEach((card, i) => reveal(card, Math.min(i, STAGGER_MAX) * STAGGER_MS));
+    });
+
+    main.querySelectorAll('[data-fill]').forEach((el) => { el.classList.add('ns-fill'); seen.observe(el); });
+    main.querySelectorAll('[data-count]').forEach((el) => seen.observe(el));
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bringToLife);
+else bringToLife();
+
 window.Alpine = Alpine;
 Alpine.start();

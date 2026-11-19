@@ -1,5 +1,5 @@
 {{-- Param $restaurants (App\Data\Site\RestaurantFacts, most meals first). --}}
-<section class="ns-section" aria-labelledby="restaurants-title">
+<section class="ns-section ns-tint ns-tint--sand" aria-labelledby="restaurants-title">
     <div class="ns-wrap">
         <div class="ns-section__head">
             <div>
