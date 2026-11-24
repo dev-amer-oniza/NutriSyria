@@ -1,17 +1,80 @@
 # رفع NutriSyria على السيرفر
 
-دليل لسيرفر واحد صغير (VPS بـ 2 غيغا رام يكفي لمئات المستخدمين): Nginx + PHP-FPM + MySQL على نفس الجهاز.
-لا Redis، ولا queue worker، ولا scheduler، ولا Python على السيرفر.
+طريقتان: **استضافة cPanel مشتركة** (الحالية: LiteSpeed + MariaDB، انظر القسم التالي)، أو سيرفر صغير خاص (VPS: Nginx + PHP-FPM + MySQL، آخر الملف).
+في الحالتين: لا Redis، ولا queue worker، ولا scheduler (Cron)، ولا Python على السيرفر.
 
 ## ما يحتاجه السيرفر
 
 - **PHP 8.3.36 أو أحدث** (أو 8.4.27+ / 8.5.12+): النسخ الأقدم فيها ثغرتا **PHP2Shell** (CVE-2026-109618 وCVE-2026-109619، تنفيذ أوامر عن بُعد بلا تسجيل دخول)، و`composer install` يرفضها. حدّث PHP دورياً (`apt upgrade`)، مع الإضافات: `pdo_mysql`، `mbstring`، `intl`، `gd`، `zip`، `exif`، `bcmath`، `opcache`.
-- **MySQL 8** أو **MariaDB 10.6+**.
-- **Nginx** و**Composer**.
+- **MySQL 8** أو **MariaDB 10.5+** (الاتصال `mysql`، فالـ uuid نص عادي؛ XAMPP نفسه 10.4).
+- **Composer**، وعلى VPS **Nginx**.
+- الإضافات أيضاً: `fileinfo` (رفع الصور والملفات)، وهي مفعّلة افتراضياً على VPS لكن ليس دائماً في cPanel.
 - **Node.js** غير لازم على السيرفر إن بُنيت الواجهة على جهازك ورُفع مجلد `public/build`.
 - **Python غير لازم:** أداة المطابقة تُشغَّل على جهازك (قرار صاحب المشروع)، ويُرفع ناتجها من "رفع دفعة جديدة".
 
-## أول رفع
+## على استضافة cPanel (الاستضافة الحالية)
+
+فُحصت: PHP 8.3.37، MariaDB 10.5، LiteSpeed (يقرأ `public/.htaccess`)، SSH وGit وSSL. الكود في `~/nutrisyria` **خارج** `public_html`، و`public_html` يصير رابطاً إلى `~/nutrisyria/public`، فلا يصل أحد إلى `.env` أو الكود.
+
+### 1. PHP (من الواجهة)
+- **Select PHP Version:** النسخة **8.3** (تأكد أنها 8.3.36+)، وفي Extensions فعّل فوق الافتراضي: `intl`، `fileinfo`، `opcache` (مع `pdo_mysql`، `mbstring`، `gd`، `zip`، `exif`، `bcmath`).
+- **Options** في نفس الصفحة: `memory_limit` 256M، `upload_max_filesize` 10M، `post_max_size` 12M، و`session.upload_progress.enabled` Off إن ظهر (وإلا اطلبه من الشركة؛ حماية إضافية من PHP2Shell).
+
+### 2. قاعدة البيانات والبريد (من الواجهة)
+- **Manage My Databases:** قاعدة ومستخدم بكلمة مرور قوية، وكل الصلاحيات للمستخدم على القاعدة. cPanel يضيف بادئة الحساب للاسمين (`nutrisyr_…`).
+- **حسابات البريد الإلكتروني:** `noreply@` على الدومين. إعداداته من "Connect Devices" (عادةً `mail.<الدومين>` والمنفذ 465 SSL).
+
+### 3. الكود (SSH)
+```bash
+php -v                                   # يجب أن يطابق النسخة المختارة (8.3.x)
+# مفتاح قراءة فقط لـ GitHub: يُضاف العام منه في المستودع: Settings ← Deploy keys (بلا "Allow write")
+ssh-keygen -t ed25519 -f ~/.ssh/github_nutrisyria -N ""
+cat ~/.ssh/github_nutrisyria.pub
+printf 'Host github.com\n  IdentityFile ~/.ssh/github_nutrisyria\n  IdentitiesOnly yes\n' >> ~/.ssh/config && chmod 600 ~/.ssh/config
+git clone git@github.com:dev-amer-oniza/NutriSyria.git ~/nutrisyria && cd ~/nutrisyria
+composer install --no-dev --optimize-autoloader
+# بلا أمر composer: curl -sS https://getcomposer.org/installer | php  ثم  php composer.phar install --no-dev --optimize-autoloader
+```
+
+### 4. ما يُرفع من جهازك (إدارة الملفات ← رفع ثم فك الضغط)
+- `public/build` بعد `npm ci && npm run build` على جهازك (لا Node على السيرفر).
+- صور `storage/app/public` (المنتجات والمطاعم والأخصائيون) إلى نفس المكان.
+- القاعدة المحلية: phpMyAdmin على جهازك ← Export (SQL)، ثم phpMyAdmin في cPanel ← القاعدة الجديدة ← Import.
+
+### 5. الإعدادات
+```bash
+cp .env.production.example .env && chmod 600 .env
+nano .env      # APP_URL، DB_*، MAIL_*، (GOOGLE_*، FDC_API_KEY اختياري)
+```
+**`APP_KEY` نفسه من `.env` جهازك، لا `key:generate`،** لأن القاعدة المحلية تُرفع كما هي، وفيها مشفّر بهذا المفتاح: الحساسيات ورموز الدخول. مفتاح جديد يجعلها غير مقروءة.
+
+### 6. التشغيل
+```bash
+chmod -R 775 storage bootstrap/cache
+php artisan migrate --force              # فقط ما استُجد بعد نسخة القاعدة (لا db:seed: البيانات المرجعية فيها)
+php artisan optimize && php artisan filament:optimize
+php artisan meals:contributions --all
+# ربط الدومين بالمنصة (public_html الفارغ يُحفظ احتياطاً)
+mv ~/public_html ~/public_html.old && ln -s ~/nutrisyria/public ~/public_html
+```
+`public/.htaccess` يحوّل كل زيارة إلى HTTPS (عدا localhost)، ويرفض الملفات المخفية، ويضغط النصوص، ويخلي المتصفح يحفظ الملفات المبنية سنة والصور شهراً.
+
+### كل تحديث بعد ذلك (cPanel)
+```bash
+cd ~/nutrisyria && php artisan down
+git pull && composer install --no-dev --optimize-autoloader
+# ارفع public/build الجديد من جهازك إن تغيّرت الواجهة
+php artisan migrate --force
+php artisan optimize:clear && php artisan optimize && php artisan filament:optimize
+php artisan up
+```
+
+### النسخ الاحتياطي (cPanel)
+JetBackup 5 في الواجهة ينسخ الملفات والقاعدة. نزّل نسخة يدوية من القاعدة (phpMyAdmin ← Export) قبل أي تحديث فيه migration.
+
+## على سيرفر خاص (VPS)
+
+### أول رفع
 
 ```bash
 # 1. الكود والمكتبات (بلا مكتبات التطوير)
@@ -20,7 +83,7 @@ composer install --no-dev --optimize-autoloader
 
 # 2. الإعدادات
 cp .env.production.example .env      # ثم املأ الفراغات: الرابط، قاعدة البيانات، البريد
-php artisan key:generate
+php artisan key:generate            # فقط لقاعدة جديدة؛ مع قاعدة منقولة انسخ APP_KEY القديم
 
 # 3. الواجهة: إما هنا (يحتاج Node) أو على جهازك ثم ارفع public/build
 npm ci && npm run build
@@ -37,7 +100,7 @@ php artisan filament:optimize
 chown -R www-data:www-data storage bootstrap/cache
 ```
 
-## كل تحديث بعد ذلك
+### كل تحديث بعد ذلك
 
 ```bash
 php artisan down
@@ -55,7 +118,7 @@ php artisan up
 
 **مهم:** بعد أي تعديل على `.env` شغّل `php artisan optimize` من جديد، لأن الإعدادات محفوظة مجمّعة.
 
-## Nginx
+### Nginx
 
 ```nginx
 server {
@@ -86,7 +149,7 @@ server {
 
 ثم شهادة HTTPS مجانية: `certbot --nginx -d nutrisyria.example`.
 
-## PHP (OPcache)
+### PHP (OPcache)
 
 في `/etc/php/8.3/fpm/conf.d/99-nutrisyria.ini`:
 
@@ -103,7 +166,7 @@ post_max_size=12M
 
 بعد كل تحديث: `sudo systemctl reload php8.3-fpm`.
 
-## النسخ الاحتياطي
+### النسخ الاحتياطي
 
 نسخة يومية من قاعدة البيانات ومجلد الصور، تُحفظ خارج السيرفر:
 
@@ -116,6 +179,7 @@ post_max_size=12M
 
 ## الفحص بعد الرفع
 
-- `https://nutrisyria.example/up` يرد 200.
-- الرئيسية واللوحة `/admin` تفتحان، والدخول برمز البريد يصل.
+- `https://<الدومين>/up` يرد 200، و`http://` يحوّل إلى `https://`.
+- `https://<الدومين>/.env` يرد 403 أو 404، أبداً المحتوى.
+- الرئيسية واللوحة `/admin` تفتحان، والتسجيل برمز البريد يصل، والصور تظهر.
 - `storage/logs/laravel-YYYY-MM-DD.log` بلا أخطاء.
