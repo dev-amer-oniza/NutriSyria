@@ -116,7 +116,7 @@ class DailyLog
 
         $needs = [];
         foreach (DayLog::VALUES as $value) {
-            $needs[$value] = (float) ($sheet->get($value)?->value ?? 0);
+            $needs[$value] = (float) ($sheet->get($value)->value ?? 0);
         }
 
         return $needs;

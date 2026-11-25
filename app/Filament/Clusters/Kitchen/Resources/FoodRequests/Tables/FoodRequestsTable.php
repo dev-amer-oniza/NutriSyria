@@ -52,7 +52,7 @@ class FoodRequestsTable
                 TextColumn::make('status')
                     ->label('الحالة')
                     ->badge()
-                    ->description(fn (FoodRequest $record) => $record->product?->name ?? $record->admin_note),
+                    ->description(fn (FoodRequest $record) => $record->product->name ?? $record->admin_note),
             ])
             ->filters([
                 SelectFilter::make('status')
