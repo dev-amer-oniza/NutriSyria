@@ -58,9 +58,9 @@
                         <table class="ns-sport-example__table">
                             <thead><tr><th scope="col">النوع</th><th scope="col">كم يوم بالأسبوع؟</th><th scope="col">كم دقيقة باليوم؟</th></tr></thead>
                             <tbody>
-                                <tr><td>هرولة</td><td class="ns-num">3</td><td class="ns-num">30</td></tr>
-                                <tr><td>مشي سريع</td><td class="ns-num">3</td><td class="ns-num">30</td></tr>
-                                <tr><td>مشي سريع</td><td class="ns-num">1</td><td class="ns-num">60</td></tr>
+                                <tr><td>هرولة</td><td><span class="ns-num">3</span></td><td><span class="ns-num">30</span></td></tr>
+                                <tr><td>مشي سريع</td><td><span class="ns-num">3</span></td><td><span class="ns-num">30</span></td></tr>
+                                <tr><td>مشي سريع</td><td><span class="ns-num">1</span></td><td><span class="ns-num">60</span></td></tr>
                             </tbody>
                         </table>
                         <p class="ns-sport-example__how">وبسؤال «بالمجمل، كم يوم بالأسبوع بتتمرّن؟» بتختار <strong class="ns-num">4</strong>.</p>
