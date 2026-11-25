@@ -9,7 +9,16 @@
     .ns-daily__head h1 { margin: 0; }
     .ns-daily__head .t-lead { margin: var(--space-1) 0 0; }
 
-    .ns-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--space-2); flex: 1 1 520px; max-width: 720px; }
+    .ns-weeknav { flex: 1 1 520px; max-width: 720px; display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+    .ns-weeknav__bar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--space-3); }
+    .ns-weeknav__bar > :first-child { justify-self: start; }
+    .ns-weeknav__bar > :last-child { justify-self: end; }
+    .ns-weeknav__range { margin: 0; font-size: 1rem; line-height: 1.5rem; font-weight: 600; color: var(--ink-muted); white-space: nowrap; }
+    .ns-weeknav__go { white-space: nowrap; }
+    .ns-weeknav__go { gap: var(--space-1); }
+    @media (max-width: 520px) { .ns-weeknav__word { display: none; } .ns-weeknav__bar { gap: var(--space-2); } }
+    @media (max-width: 400px) { .ns-weeknav__go { padding: 0 var(--space-3); font-size: 0.875rem; } .ns-weeknav__range { font-size: 0.875rem; } }
+    .ns-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--space-2); }
     .ns-week__day { min-width: 0; overflow: hidden; white-space: nowrap; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: var(--space-2) 0; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-raised); color: var(--ink-muted); font-size: 0.875rem; line-height: 1.25rem; text-decoration: none; transition: border-color .15s ease, transform .2s var(--ease-out), box-shadow .2s ease; }
     .ns-week__day b { font-size: 1.25rem; line-height: 1.75rem; color: var(--ink); }
     .ns-week__day i { width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--line); }

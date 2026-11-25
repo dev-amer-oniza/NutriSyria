@@ -13,8 +13,9 @@ use InvalidArgumentException;
 
 /**
  * "يومي": what a person ate, day by day. A meal is logged with the values of the part eaten,
- * kept as they were (a later recipe change never rewrites the past). Reading a day costs two
- * queries whatever is in it: the day's entries and the week's logged dates.
+ * kept as they were (a later recipe change never rewrites the past). Reading a day costs three
+ * queries whatever is in it: the day's entries, the week's logged dates, and the first logged day
+ * (how far back "الأسبوع الماضي" goes).
  */
 class DailyLog
 {
@@ -103,7 +104,16 @@ class DailyLog
             }
         }
 
-        return new DayLog($date, $date->equalTo($today), $entries, $eaten, $this->needs($user), $this->week($user, $date, $today));
+        $week = $this->week($user, $date, $today);
+        $weekStart = $week[0]['date'];
+        $first = MealLog::query()->whereBelongsTo($user)->min('eaten_on');
+
+        return new DayLog(
+            $date, $date->equalTo($today), $entries, $eaten, $this->needs($user), $week,
+            // Back a week at a time, as far as the week of the first logged meal.
+            previousWeek: $first !== null && CarbonImmutable::parse($first)->lessThan($weekStart) ? $date->subWeek() : null,
+            nextWeek: $weekStart->addWeek()->lessThanOrEqualTo($today) ? $date->addWeek()->min($today) : null,
+        );
     }
 
     /** @return array<string, float>|null the four daily needs from the person's criteria sheet */

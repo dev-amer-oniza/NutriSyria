@@ -151,6 +151,40 @@ class DailyLogTest extends TestCase
         $this->get(route('site.daily', ['date' => 'garbage']))->assertOk();
     }
 
+    public function test_the_weeks_go_back_as_far_as_the_first_meal_logged(): void
+    {
+        $user = $this->person();
+        $meal = $this->approvedMeal('مجدرة');
+
+        // Nothing logged yet: no week to go back to, and no week after this one.
+        $this->actingAs($user)->get(route('site.daily'))->assertOk()
+            ->assertDontSee('rel="prev"', false)->assertDontSee('rel="next"', false)
+            ->assertSee('21 – 27 تشرين التاني');
+
+        // A meal logged on Monday 2026-11-10, two weeks before this one (Saturday 21 to Friday 27).
+        $this->travelTo(CarbonImmutable::parse('2026-11-10 13:00', 'Asia/Damascus'));
+        $this->post(route('site.daily.store', $meal), ['amount' => 1, 'meal_type' => 'lunch']);
+        $this->travelTo(CarbonImmutable::parse('2026-11-25 20:30', 'Asia/Damascus'));
+
+        $this->get(route('site.daily'))->assertOk()
+            ->assertSee(route('site.daily', ['date' => '2026-11-18']), false)
+            ->assertDontSee('rel="next"', false);
+
+        $this->get(route('site.daily', ['date' => '2026-11-18']))->assertOk()
+            ->assertSee('14 – 20 تشرين التاني')
+            ->assertSee(route('site.daily', ['date' => '2026-11-11']), false)
+            // The week after is this one: it opens today itself.
+            ->assertSee('rel="next"', false);
+
+        // The week of the first meal: it shows, and there is nothing before it.
+        $this->get(route('site.daily', ['date' => '2026-11-11']))->assertOk()
+            ->assertSee('7 – 13 تشرين التاني')
+            ->assertDontSee('rel="prev"', false)
+            ->assertSee(route('site.daily', ['date' => '2026-11-10']), false);
+
+        $this->get(route('site.daily', ['date' => '2026-11-10']))->assertOk()->assertSee('مجدرة');
+    }
+
     public function test_without_a_profile_the_day_asks_to_complete_it(): void
     {
         $user = User::forceCreate(['name' => 'جديد', 'email' => 'n@example.com', 'password' => 'x-secret-1', 'is_active' => true, 'email_verified_at' => now()]);

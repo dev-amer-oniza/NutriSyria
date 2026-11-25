@@ -26,6 +26,10 @@ final readonly class DayLog
         public array $eaten,
         public ?array $needs,
         public array $week,
+        /** A day of the week before (same weekday), or null before the first week anything was logged. */
+        public ?CarbonImmutable $previousWeek = null,
+        /** A day of the week after, or null in this week (capped at today). */
+        public ?CarbonImmutable $nextWeek = null,
     ) {}
 
     /** What is left of a daily need (never below zero), or null with no needs. */
