@@ -6,15 +6,31 @@
 
 @section('form')
     @php
-        $rows = old('exercises', $profile->exercises ?? []);
+        // The saved rows as the question's answers (rows of one sport from before are joined),
+        // or what was just sent when the form comes back with an error.
+        $saved = \App\Services\Nutrition\Criteria\SportAnswers::fromRows($profile->exercises, $profile->training_days);
+        $sent = session()->hasOldInput();
+        $chosen = $sent ? array_values((array) old('sports', [])) : array_keys($saved['sports']);
+        $sports = [];
+        foreach ($options['exercises'] as $key => $exercise) {
+            $sports[$key] = [
+                'days' => (int) ($sent ? old("sport_days.$key") : ($saved['sports'][$key]['days'] ?? 0)),
+                'minutes' => (int) ($sent ? old("sport_minutes.$key") : ($saved['sports'][$key]['minutes'] ?? 0)),
+            ];
+        }
         $state = [
             'day' => old('daily_life', $profile->daily_life?->value),
-            'rows' => array_values(array_map(fn ($r) => ['type' => $r['type'] ?? '', 'times' => $r['times'] ?? '', 'minutes' => $r['minutes'] ?? ''], is_array($rows) ? $rows : [])),
+            'days' => $sent ? (old('training_days') === null || old('training_days') === '' ? null : (int) old('training_days')) : ($profile->daily_life ? $saved['days'] : null),
+            'chosen' => $chosen,
+            'sports' => $sports,
+            'perHour' => $options['perHour'],
             'max' => (int) config('nutrition_criteria.max_exercises'),
+            'more' => collect($chosen)->contains(fn ($k) => empty($options['exercises'][$k]['popular'])),
         ];
         $workDays = (int) old('work_days', $profile->work_days ?? 0);
-        // Sent back with errors: show what was sent, not the saved answer.
-        $trainingDays = (int) (session()->hasOldInput() ? old('training_days') : ($profile->training_days ?? 0));
+        $popular = array_filter($options['exercises'], fn ($e) => ! empty($e['popular']));
+        $others = array_filter($options['exercises'], fn ($e) => empty($e['popular']));
+        $minutes = \App\Services\Nutrition\Criteria\SportAnswers::minuteOptions();
     @endphp
     <form class="ns-form" method="post" action="{{ route('site.onboarding.activity') }}" novalidate x-data="activityStep(@js($state))">
         @csrf
@@ -39,78 +55,70 @@
             @error('work_days')<p class="ns-field__error">{{ $message }}</p>@enderror
         </fieldset>
 
-        <fieldset class="ns-field">
+        <fieldset class="ns-field ns-train">
             <legend class="ns-field__label">2. الرياضة والتمرين</legend>
-            <p class="ns-field__hint">اكتب الرياضة اللي بتعملها بأسبوعك العادي. ما بتتمرّن؟ اتركها فاضية.</p>
-            <div class="ns-sport-tip">
-                <p class="ns-sport-tip__title">بتعمل أكتر من رياضة، أو المدة بتختلف من يوم ليوم؟</p>
-                <ul class="ns-sport-tip__list">
-                    <li>كل رياضة بسطر لحالها، حتى لو بنفس اليوم.</li>
-                    <li>نفس الرياضة بمدة مختلفة؟ ضيفها بسطر تاني.</li>
-                </ul>
-                <details class="ns-sport-example">
-                    <summary class="ns-sport-example__btn">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3Z"/></svg>
-                        شوف مثال
-                    </summary>
-                    <div class="ns-sport-example__body">
-                        <p class="ns-sport-example__story">«بتمرّن 3 أيام بالأسبوع ساعة: نص ساعة هرولة ونص ساعة مشي سريع. وبيوم رابع بمشي مشي سريع ساعة كاملة.»</p>
-                        <p class="ns-sport-example__how">هيك بتعبّي الخانات:</p>
-                        <table class="ns-sport-example__table">
-                            <thead><tr><th scope="col">النوع</th><th scope="col">كم يوم بالأسبوع؟</th><th scope="col">كم دقيقة باليوم؟</th></tr></thead>
-                            <tbody>
-                                <tr><td>هرولة</td><td><span class="ns-num">3</span></td><td><span class="ns-num">30</span></td></tr>
-                                <tr><td>مشي سريع</td><td><span class="ns-num">3</span></td><td><span class="ns-num">30</span></td></tr>
-                                <tr><td>مشي سريع</td><td><span class="ns-num">1</span></td><td><span class="ns-num">60</span></td></tr>
-                            </tbody>
-                        </table>
-                        <p class="ns-sport-example__how">وبسؤال «بالمجمل، كم يوم بالأسبوع بتتمرّن؟» بتختار <strong class="ns-num">4</strong>.</p>
-                    </div>
-                </details>
-            </div>
-            <template x-for="(row, i) in rows" :key="i">
-                <div class="ns-sport">
-                    <label class="ns-sport__type">
-                        <span class="ns-sport__label">النوع</span>
-                        <select class="ns-input" :name="`exercises[${i}][type]`" x-model="row.type">
-                            <option value="">اختر</option>
-                            @foreach ($options['exercises'] as $key => $exercise)
-                                <option value="{{ $key }}">{{ $exercise['label'] }}</option>
-                            @endforeach
-                        </select>
-                    </label>
-                    <label>
-                        <span class="ns-sport__label">كم يوم بالأسبوع؟</span>
-                        <input class="ns-input" type="text" inputmode="numeric" :name="`exercises[${i}][times]`" x-model="row.times">
-                    </label>
-                    <label>
-                        <span class="ns-sport__label">كم دقيقة باليوم؟</span>
-                        <input class="ns-input" type="text" inputmode="numeric" :name="`exercises[${i}][minutes]`" x-model="row.minutes">
-                    </label>
-                    <button class="ns-sport__remove" type="button" @click="remove(i)" aria-label="احذف هذه الرياضة">×</button>
-                </div>
-            </template>
-            <button class="ns-btn ns-btn--secondary ns-sport__add" type="button" @click="add()" x-show="rows.length < max">
-                <svg class="ns-sport__add-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-                <span x-text="rows.length ? 'أضف رياضة تانية' : 'أضف رياضة'">أضف رياضة</span>
-            </button>
-            @foreach (['exercises', 'exercises.*.type', 'exercises.*.times', 'exercises.*.minutes'] as $field)
-                @error($field)<p class="ns-field__error">{{ $message }}</p>@enderror
-            @endforeach
+            <p class="ns-field__hint">تقريباً بيكفي، على أسبوعك العادي.</p>
 
-            {{-- Two rows or more: they cannot tell whether two sports share a day, so we ask. --}}
-            <div class="ns-sport-days" x-show="rows.length > 1" x-cloak>
-                <p class="ns-field__label" id="training-days-label">بالمجمل، كم يوم بالأسبوع بتتمرّن؟</p>
-                <p class="ns-field__hint">اليوم اللي بتعمل فيه رياضتين بينحسب يوم واحد.</p>
-                <div class="ns-days" role="radiogroup" aria-labelledby="training-days-label">
-                    @foreach (range(1, 7) as $n)
-                        <label class="ns-chip ns-days__day">
-                            <input class="ns-type__radio" type="radio" name="training_days" value="{{ $n }}" @checked($trainingDays === $n)>
-                            <span class="ns-num">{{ $n }}</span>
-                        </label>
+            <p class="ns-train__q" id="train-days">كم يوم بالأسبوع بتتمرّن؟</p>
+            <div class="ns-days" role="radiogroup" aria-labelledby="train-days">
+                @foreach (range(0, 7) as $n)
+                    <label @class(['ns-chip', 'ns-days__day', 'ns-days__none' => $n === 0])>
+                        <input class="ns-type__radio" type="radio" name="training_days" value="{{ $n }}" x-model.number="days">
+                        @if ($n === 0)<span>ولا يوم</span>@else<span class="ns-num">{{ $n }}</span>@endif
+                    </label>
+                @endforeach
+            </div>
+            @error('training_days')<p class="ns-field__error">{{ $message }}</p>@enderror
+
+            <div class="ns-train__more" x-show="days > 0" x-cloak>
+                <p class="ns-train__q" id="train-what">شو بتعمل بهالأيام؟</p>
+                <p class="ns-field__hint">اختار وحدة أو أكتر، لحد {{ config('nutrition_criteria.max_exercises') }}.</p>
+                <div class="ns-sports" role="group" aria-labelledby="train-what">
+                    @foreach ([$popular, $others] as $group => $list)
+                        @foreach ($list as $key => $exercise)
+                            <label class="ns-sportcard" @if ($group === 1) x-show="more || chosen.includes('{{ $key }}')" x-cloak @endif
+                                   :class="{ 'is-off': ! chosen.includes('{{ $key }}') && chosen.length >= max }">
+                                <input class="ns-type__radio" type="checkbox" name="sports[]" value="{{ $key }}" x-model="chosen"
+                                       :disabled="! chosen.includes('{{ $key }}') && chosen.length >= max">
+                                <span class="ns-sportcard__icon">@include('site.partials.icon', ['name' => $exercise['icon'] ?? 'cardio'])</span>
+                                <span class="ns-sportcard__name">{{ $exercise['label'] }}</span>
+                            </label>
+                        @endforeach
                     @endforeach
                 </div>
-                @error('training_days')<p class="ns-field__error">{{ $message }}</p>@enderror
+                <button class="ns-btn ns-btn--secondary ns-btn--sm ns-train__others" type="button" x-show="! more" @click="more = true">رياضات تانية</button>
+                @error('sports')<p class="ns-field__error">{{ $message }}</p>@enderror
+
+                <template x-for="key in chosen" :key="key">
+                    <div class="ns-sportq">
+                        <p class="ns-sportq__title" x-text="label(key)"></p>
+                        <p class="ns-sportq__ask">من أيام تمرينك الـ<span class="ns-num" x-text="days"></span>، كم يوم؟</p>
+                        <div class="ns-days">
+                            <template x-for="n in days" :key="n">
+                                <label class="ns-chip ns-days__day">
+                                    <input class="ns-type__radio" type="radio" :name="`sport_days[${key}]`" :value="n" x-model.number="sports[key].days">
+                                    <span class="ns-num" x-text="n"></span>
+                                </label>
+                            </template>
+                        </div>
+                        <p class="ns-sportq__ask">كم دقيقة تقريباً؟</p>
+                        <div class="ns-days">
+                            @foreach ($minutes as $m)
+                                <label class="ns-chip ns-days__day ns-days__min">
+                                    <input class="ns-type__radio" type="radio" :name="`sport_minutes[${key}]`" value="{{ $m }}" x-model.number="sports[key].minutes">
+                                    <span class="ns-num">{{ $m }}{{ $loop->last ? '+' : '' }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                </template>
+                @foreach ($errors->get('sport_days.*') + $errors->get('sport_minutes.*') as $messages)
+                    <p class="ns-field__error">{{ $messages[0] }}</p>
+                @endforeach
+
+                <p class="ns-train__sum" x-show="extra() > 0" x-cloak>
+                    رياضتك بتزيد احتياجك حوالي <b class="ns-num" x-text="extra()"></b> سعرة باليوم.
+                </p>
             </div>
         </fieldset>
 

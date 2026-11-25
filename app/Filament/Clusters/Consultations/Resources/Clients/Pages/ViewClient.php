@@ -14,8 +14,8 @@ use App\Filament\Clusters\Consultations\Resources\Clients\ClientResource;
 use App\Models\ConsultationRequest;
 use App\Services\Consultations\ClientWorkspace;
 use App\Services\Daily\ClientDiary;
-use App\Services\Nutrition\Criteria\EnergyCalculator;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
+use App\Services\Nutrition\Criteria\SportAnswers;
 use App\Services\Nutrition\Plan\NutritionPlans;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
@@ -126,9 +126,13 @@ class ViewClient extends Page
             ->authorize('view', $this->record)
             ->modalHeading(fn () => 'بيانات '.$this->record->user->name)
             ->modalDescription('لا يستطيع المراجع تعديلها ما دام الارتباط قائماً. يصله إشعار بالتحديث.')
-            ->fillForm(fn () => Arr::only($this->record->user->profile?->attributesToArray() ?? [], [
-                'sex', 'birth_year', 'height_cm', 'weight_kg', 'daily_life', 'work_days', 'exercises', 'training_days', 'goal', 'allergies',
-            ]))
+            ->fillForm(function () {
+                $profile = $this->record->user->profile;
+                $answers = SportAnswers::fromRows($profile?->exercises, $profile?->training_days);
+
+                return Arr::only($profile?->attributesToArray() ?? [], ['sex', 'birth_year', 'height_cm', 'weight_kg', 'daily_life', 'work_days', 'goal', 'allergies'])
+                    + ['training_days' => $answers['days'], 'sports' => collect($answers['sports'])->map(fn ($s, $type) => ['type' => $type] + $s)->values()->all()];
+            })
             ->schema([
                 Grid::make(2)->schema([
                     Select::make('sex')->label('الجنس')->options($options(Sex::cases()))->required(),
@@ -142,24 +146,35 @@ class ViewClient extends Page
                         ->required(fn (Get $get) => DailyLife::tryFrom((string) $get('daily_life'))?->hasWorkDays() ?? false),
                     Select::make('goal')->label('الهدف')->options($options(Goal::cases()))->required(),
                 ]),
-                Repeater::make('exercises')->label('الرياضة')->defaultItems(0)->maxItems((int) config('nutrition_criteria.max_exercises'))
-                    ->helperText('كل رياضة بسطر، حتى لو بنفس اليوم. نفس الرياضة بمدة مختلفة بسطر تاني.')
+                // The site's three questions: the training days, the sports, and each one's days and minutes.
+                Select::make('training_days')->label('كم يوم بالأسبوع يتمرّن؟')->required()->live()
+                    ->options([0 => 'ولا يوم'] + array_combine(range(1, 7), array_map('strval', range(1, 7))))
+                    ->helperText('يحدّد قالب النشاط الرياضي (3 أيام فأكثر)، لا السعرات.'),
+                Repeater::make('sports')->label('شو بيعمل بهالأيام؟')->defaultItems(0)->maxItems((int) config('nutrition_criteria.max_exercises'))
                     ->addActionLabel('أضف رياضة')->columns(3)->live()
+                    ->visible(fn (Get $get) => (int) $get('training_days') > 0)
+                    ->minItems(fn (Get $get) => (int) $get('training_days') > 0 ? 1 : 0)
                     ->schema([
-                        Select::make('type')->label('النوع')->required()
+                        Select::make('type')->label('الرياضة')->required()->distinct()
                             ->options(collect(config('nutrition_criteria.exercises'))->map(fn (array $e) => $e['label'].' ('.$e['met'].' MET)')->all()),
-                        TextInput::make('times')->label('كم يوم بالأسبوع')->integer()->required()->minValue(1)->maxValue(14),
-                        TextInput::make('minutes')->label('كم دقيقة باليوم')->integer()->required()->minValue(5)->maxValue(300),
+                        Select::make('days')->label('كم يوم منها')->required()
+                            ->options(fn (Get $get) => array_combine(range(1, max(1, (int) $get('../../training_days'))), array_map('strval', range(1, max(1, (int) $get('../../training_days')))))),
+                        Select::make('minutes')->label('كم دقيقة تقريباً')->required()
+                            ->options(collect(SportAnswers::minuteOptions())->mapWithKeys(fn (int $m, int $i) => [$m => $m.($i === count(SportAnswers::minuteOptions()) - 1 ? '+' : '')])->all()),
                     ]),
-                // Two rows or more cannot tell whether two sports share a day: the days in all.
-                TextInput::make('training_days')->label('بالمجمل، كم يوم بالأسبوع يتمرّن؟')->integer()->maxValue(7)
-                    ->helperText('اليوم الذي فيه رياضتان يُحسب يوماً واحداً. يحدّد قالب النشاط الرياضي، لا السعرات.')
-                    ->minValue(fn (Get $get) => max(1, EnergyCalculator::fewestDays(self::numericRows($get('exercises')))))
-                    ->visible(fn (Get $get) => count((array) $get('exercises')) > 1)
-                    ->required(fn (Get $get) => count((array) $get('exercises')) > 1),
                 CheckboxList::make('allergies')->label('الحساسيات')->options($options(Allergen::cases()))->columns(4),
             ])
             ->action(function (array $data) {
+                $days = (int) ($data['training_days'] ?? 0);
+                $sports = $days > 0 ? collect($data['sports'] ?? [])->mapWithKeys(fn (array $s) => [$s['type'] => ['days' => min($days, (int) $s['days']), 'minutes' => (int) $s['minutes']]])->all() : [];
+                if ($days > 0 && array_sum(array_column($sports, 'days')) < $days) {
+                    Notification::make()->title("قلت إنه يتمرّن {$days} أيام، والرياضات موزّعة على أيام أقل. زِد أيام رياضة أو قلّل أيام التمرين.")->danger()->send();
+
+                    return;
+                }
+                $data['exercises'] = SportAnswers::toRows($sports);
+                $data['training_days'] = $days ?: null;
+                unset($data['sports']);
                 app(ClientWorkspace::class)->updateProfile(auth()->user(), $this->record, $data);
                 Notification::make()->title('حُفظت البيانات، وأُعيد حساب معاييره.')->success()->send();
             });
@@ -290,18 +305,5 @@ class ViewClient extends Page
         abort_unless(array_key_exists($key, config('nutrition_criteria.criteria')), 404);
 
         return $key;
-    }
-
-    /**
-     * The repeater's rows whose days are a number (half-typed rows are skipped).
-     *
-     * @return list<array{type: string, times: int, minutes: int}>
-     */
-    private static function numericRows(mixed $rows): array
-    {
-        return array_values(array_map(
-            fn (array $row) => ['type' => (string) ($row['type'] ?? ''), 'times' => (int) $row['times'], 'minutes' => (int) ($row['minutes'] ?? 0)],
-            array_filter((array) $rows, fn ($row) => is_array($row) && is_numeric($row['times'] ?? null)),
-        ));
     }
 }

@@ -84,22 +84,29 @@ return [
     'max_exercises' => 5,
     'exercise_refs' => ['compendium_2024', 'who_pa_2020'],
     'exercises' => [
-        'walk' => ['label' => 'مشي عادي', 'met' => 3.0, 'code' => '17170'],
-        'brisk_walk' => ['label' => 'مشي سريع', 'met' => 4.8, 'code' => '17200'],
-        'jog' => ['label' => 'هرولة', 'met' => 7.5, 'code' => '12020'],
-        'run' => ['label' => 'جري (نحو 10 كم/س)', 'met' => 9.3, 'code' => '12050'],
-        'weights' => ['label' => 'حديد عادي', 'met' => 3.5, 'code' => '02054'],
-        'gym' => ['label' => 'نادي عام أو كلاسات', 'met' => 5.5, 'code' => '02060'],
-        'weights_hard' => ['label' => 'حديد قوي (بناء أجسام)', 'met' => 6.0, 'code' => '02050'],
-        'cardio' => ['label' => 'كارديو متوسط (أوربيتراك)', 'met' => 5.0, 'code' => '02048'],
-        'cycling' => ['label' => 'دراجة', 'met' => 7.0, 'code' => '01014'],
-        'swim' => ['label' => 'سباحة هادئة', 'met' => 5.8, 'code' => '18240'],
-        'swim_fast' => ['label' => 'سباحة سريعة', 'met' => 9.8, 'code' => '18230'],
-        'football' => ['label' => 'كرة قدم ودّية', 'met' => 7.0, 'code' => '15610'],
-        'football_match' => ['label' => 'كرة قدم (مباراة)', 'met' => 9.5, 'code' => '15605'],
-        'basketball' => ['label' => 'كرة سلة', 'met' => 7.5, 'code' => '15055'],
-        'boxing' => ['label' => 'ملاكمة على الكيس', 'met' => 5.8, 'code' => '15110'],
+        'walk' => ['label' => 'مشي عادي', 'met' => 3.0, 'code' => '17170', 'icon' => 'walk', 'popular' => true],
+        'brisk_walk' => ['label' => 'مشي سريع', 'met' => 4.8, 'code' => '17200', 'icon' => 'walk', 'popular' => true],
+        'jog' => ['label' => 'هرولة', 'met' => 7.5, 'code' => '12020', 'icon' => 'run', 'popular' => true],
+        'run' => ['label' => 'جري (نحو 10 كم/س)', 'met' => 9.3, 'code' => '12050', 'icon' => 'run', 'popular' => true],
+        'weights' => ['label' => 'حديد عادي', 'met' => 3.5, 'code' => '02054', 'icon' => 'dumbbell', 'popular' => true],
+        'gym' => ['label' => 'نادي عام أو كلاسات', 'met' => 5.5, 'code' => '02060', 'icon' => 'gym', 'popular' => true],
+        'weights_hard' => ['label' => 'حديد قوي (بناء أجسام)', 'met' => 6.0, 'code' => '02050', 'icon' => 'dumbbell'],
+        'cardio' => ['label' => 'كارديو متوسط (أوربيتراك)', 'met' => 5.0, 'code' => '02048', 'icon' => 'cardio'],
+        'cycling' => ['label' => 'دراجة', 'met' => 7.0, 'code' => '01014', 'icon' => 'bike', 'popular' => true],
+        'swim' => ['label' => 'سباحة هادئة', 'met' => 5.8, 'code' => '18240', 'icon' => 'swim'],
+        'swim_fast' => ['label' => 'سباحة سريعة', 'met' => 9.8, 'code' => '18230', 'icon' => 'swim'],
+        'football' => ['label' => 'كرة قدم ودّية', 'met' => 7.0, 'code' => '15610', 'icon' => 'ball', 'popular' => true],
+        'football_match' => ['label' => 'كرة قدم (مباراة)', 'met' => 9.5, 'code' => '15605', 'icon' => 'ball'],
+        'basketball' => ['label' => 'كرة سلة', 'met' => 7.5, 'code' => '15055', 'icon' => 'ball'],
+        'boxing' => ['label' => 'ملاكمة على الكيس', 'met' => 5.8, 'code' => '15110', 'icon' => 'boxing'],
     ],
+
+    /*
+    | The sport question (the owner's decisions 1a 2a): the minutes a session offered (90 = "90+"),
+    | how many sports one may choose (max_exercises), and the eight shown first ('popular'; the
+    | rest behind "رياضات تانية").
+    */
+    'exercise_minutes' => [15, 30, 45, 60, 90],
 
     /* TDEE ÷ BMR outside this range (FAO: what adults sustain) asks the person to check their answers. */
     'pal_range' => [1.40, 2.40],

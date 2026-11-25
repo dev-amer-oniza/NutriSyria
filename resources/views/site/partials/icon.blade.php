@@ -22,6 +22,33 @@
         @case('panel')
             <rect x="4" y="4.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M9.5 9.5v10"/>
             @break
+        @case('walk')
+            <circle cx="13" cy="4.5" r="1.8"/><path d="M11 21l2-6-2.5-2.5L12 8l3 3h3"/><path d="M12 8 8.5 9.5 7 13"/><path d="M13 15l2.5 6"/>
+            @break
+        @case('run')
+            <circle cx="15" cy="4.5" r="1.8"/><path d="M5 20l4-1 2-4"/><path d="M8 11l3-3 4 2 1 3h3"/><path d="M11 8l-1 6 4 2-1 5"/>
+            @break
+        @case('dumbbell')
+            <path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12"/>
+            @break
+        @case('gym')
+            <path d="M4 20h16"/><path d="M7 20V9l5-4 5 4v11"/><path d="M10 20v-5h4v5"/>
+            @break
+        @case('cardio')
+            <path d="M3 12h4l2-5 3 10 2-5h7"/>
+            @break
+        @case('bike')
+            <circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l4-7h5l3 7M10 9l2 7h-6M14 6h2"/>
+            @break
+        @case('swim')
+            <path d="M3 17c1.5 1.2 3 1.2 4.5 0s3-1.2 4.5 0 3 1.2 4.5 0 3-1.2 4.5 0"/><path d="M6 13l4-4 3 2 3-3"/><circle cx="17" cy="6" r="1.8"/>
+            @break
+        @case('ball')
+            <circle cx="12" cy="12" r="8.5"/><path d="M12 7.5l3.5 2.5-1.3 4h-4.4l-1.3-4Z"/><path d="M12 3.5v4M15.5 10l4.2-1.5M14.2 14l2.6 3.6M9.8 14l-2.6 3.6M8.5 10 4.3 8.5"/>
+            @break
+        @case('boxing')
+            <path d="M7 11V7a4 4 0 0 1 4-4h3a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4H9"/><path d="M7 11h4v3"/><path d="M8 16v4h8v-4"/>
+            @break
         @case('search')
             <circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4 20 20"/>
             @break

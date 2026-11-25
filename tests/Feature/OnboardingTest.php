@@ -30,8 +30,8 @@ class OnboardingTest extends TestCase
     /** The student: university 3 days a week, weights 3 × 60 min and cardio 3 × 15 min, the same 3 days. */
     private const STUDENT = [
         'daily_life' => 'seated', 'work_days' => '3',
-        'exercises' => [['type' => 'weights', 'times' => '3', 'minutes' => '60'], ['type' => 'cardio', 'times' => '3', 'minutes' => '15']],
-        'training_days' => '3',
+        'training_days' => '3', 'sports' => ['weights', 'cardio'],
+        'sport_days' => ['weights' => '3', 'cardio' => '3'], 'sport_minutes' => ['weights' => '60', 'cardio' => '15'],
     ];
 
     /** The student (CriteriaCalculatorTest): man, 24, 170 cm, 68 kg, losing weight. */
@@ -48,13 +48,13 @@ class OnboardingTest extends TestCase
     {
         // 62 kg at 178 cm: BMI 19.6. The deficit applies, told gently (decision 2a).
         $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => now()->year - 30, 'height_cm' => '178', 'weight_kg' => '62']);
-        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'lose']);
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'lose', 'training_days' => '0']);
         $this->post('/onboarding/health', []);
         $this->get('/onboarding/done')->assertOk()
             ->assertSee('لهدف إنقاص الوزن')
             ->assertSee('وزنك ضمن الطبيعي لطولك');
 
-        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'gain']);
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'gain', 'training_days' => '0']);
         $this->get('/onboarding/done')->assertOk()
             ->assertSee('لهدف زيادة الوزن (رقم اختيار منّا')
             ->assertSee('للمعلومة');                                // the total sugars
@@ -94,71 +94,98 @@ class OnboardingTest extends TestCase
     {
         $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => now()->year - 24, 'height_cm' => '170', 'weight_kg' => '70']);
         $this->get('/onboarding/activity')->assertOk()
-            ->assertSeeInOrder(['نهارك بلا رياضة', 'بالبيت أغلب الوقت', 'شغل جسدي', 'كم يوم بالأسبوع', 'الرياضة والتمرين', 'هدفك'])
-            ->assertSee('مشي عادي')->assertSee('حديد عادي');
+            ->assertSeeInOrder(['نهارك بلا رياضة', 'بالبيت أغلب الوقت', 'شغل جسدي', 'كم يوم بالأسبوع', 'الرياضة والتمرين', 'كم يوم بالأسبوع بتتمرّن؟', 'ولا يوم', 'شو بتعمل بهالأيام؟', 'هدفك'])
+            ->assertSee('مشي عادي')->assertSee('حديد عادي')->assertSee('رياضات تانية')
+            // No table, example or "add a row" any more.
+            ->assertDontSee('شوف مثال')->assertDontSee('أضف رياضة');
 
-        // A job needs its days a week; at home it does not, and a blank exercise row is no exercise.
-        $this->post('/onboarding/activity', ['daily_life' => 'seated', 'goal' => 'maintain'])->assertSessionHasErrors('work_days');
-        $this->post('/onboarding/activity', ['daily_life' => 'home', 'work_days' => '5', 'goal' => 'maintain', 'exercises' => [['type' => '', 'times' => '', 'minutes' => '']]])
+        // A job needs its days a week; at home it does not. "ولا يوم" is no exercise, whatever was ticked.
+        $this->post('/onboarding/activity', ['daily_life' => 'seated', 'training_days' => '0', 'goal' => 'maintain'])->assertSessionHasErrors('work_days');
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain'])->assertSessionHasErrors('training_days');
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'work_days' => '5', 'goal' => 'maintain', 'training_days' => '0', 'sports' => ['walk']])
             ->assertRedirect('/onboarding/health');
         $profile = $this->user->fresh()->profile;
-        $this->assertSame([null, null], [$profile->work_days, $profile->exercises]);
+        $this->assertSame([null, null, null], [$profile->work_days, $profile->exercises, $profile->training_days]);
 
-        // At most five rows, each with its days and minutes, in Arabic digits too.
-        $sport = ['type' => 'walk', 'times' => '٢', 'minutes' => '٦٠'];
-        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain', 'training_days' => '7', 'exercises' => array_fill(0, 6, $sport)])->assertSessionHasErrors('exercises');
-        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain', 'exercises' => [['type' => 'flying', 'times' => '0', 'minutes' => '1']]])
-            ->assertSessionHasErrors(['exercises.0.type', 'exercises.0.times', 'exercises.0.minutes']);
-        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain', 'exercises' => [$sport]])->assertRedirect('/onboarding/health');
+        // Amer: walking two days an hour, in Arabic digits too.
+        $walk = ['daily_life' => 'home', 'goal' => 'maintain', 'training_days' => '٢', 'sports' => ['walk'], 'sport_days' => ['walk' => '٢'], 'sport_minutes' => ['walk' => '٦٠']];
+        $this->post('/onboarding/activity', $walk)->assertRedirect('/onboarding/health');
         $this->assertSame([['type' => 'walk', 'times' => 2, 'minutes' => 60]], $this->user->fresh()->profile->exercises);
 
         // Amer: 2339 kcal (CriteriaCalculatorTest).
         $this->post('/onboarding/health', []);
-        $this->get('/onboarding/done')->assertOk()->assertSee('2,339')->assertDontSee('رياضتك، بمعدّل اليوم</span> <b>+ <span class="ns-num">0', false);
+        $this->get('/onboarding/done')->assertOk()->assertSee('2,339');
     }
 
-    public function test_two_rows_or_more_ask_the_training_days_in_all(): void
+    public function test_each_sport_needs_its_days_and_minutes_within_the_training_days(): void
     {
         $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => now()->year - 24, 'height_cm' => '170', 'weight_kg' => '70']);
-        $this->get('/onboarding/activity')->assertOk()
-            ->assertSee('شوف مثال')->assertSee('بالمجمل، كم يوم بالأسبوع بتتمرّن؟')
-            ->assertSee('كم يوم بالأسبوع؟')->assertSee('كم دقيقة باليوم؟');
+        $base = ['daily_life' => 'home', 'goal' => 'maintain', 'training_days' => '3'];
 
-        // The owner's example: three days of jogging and brisk walking, half an hour each, and a fourth day of an hour's walk.
-        $rows = [
-            ['type' => 'jog', 'times' => '3', 'minutes' => '30'],
-            ['type' => 'brisk_walk', 'times' => '3', 'minutes' => '30'],
-            ['type' => 'brisk_walk', 'times' => '1', 'minutes' => '60'],
-        ];
-        $base = ['daily_life' => 'home', 'goal' => 'maintain', 'exercises' => $rows];
-        $this->post('/onboarding/activity', $base)
-            ->assertSessionHasErrors(['training_days' => 'كتبت أكتر من رياضة: قلّنا كم يوم بالأسبوع بتتمرّن بالمجمل.']);
-        $this->post('/onboarding/activity', $base + ['training_days' => '2'])
-            ->assertSessionHasErrors(['training_days' => 'أيام تمرينك بالمجمل ما بتقل عن أيام أي رياضة كتبتها (3).']);
-        $this->post('/onboarding/activity', $base + ['training_days' => '٤'])->assertRedirect('/onboarding/health');
+        $this->post('/onboarding/activity', $base)->assertSessionHasErrors(['sports' => 'اختار شو بتعمل بأيام تمرينك.']);
+        $this->post('/onboarding/activity', $base + ['sports' => ['flying']])->assertSessionHasErrors('sports.0');
+        $this->post('/onboarding/activity', $base + ['sports' => ['walk']])
+            ->assertSessionHasErrors(['sport_days.walk', 'sport_minutes.walk']);
+        // More days than the training days, or a minute count we do not offer.
+        $this->post('/onboarding/activity', $base + ['sports' => ['walk'], 'sport_days' => ['walk' => '5'], 'sport_minutes' => ['walk' => '37']])
+            ->assertSessionHasErrors(['sport_days.walk', 'sport_minutes.walk']);
+        // At most five sports.
+        $six = ['walk', 'brisk_walk', 'jog', 'run', 'weights', 'gym'];
+        $this->post('/onboarding/activity', $base + ['sports' => $six, 'sport_days' => array_fill_keys($six, '1'), 'sport_minutes' => array_fill_keys($six, '30')])
+            ->assertSessionHasErrors('sports');
+        // Three training days, but the sports cover two.
+        $this->post('/onboarding/activity', $base + ['sports' => ['walk'], 'sport_days' => ['walk' => '2'], 'sport_minutes' => ['walk' => '30']])
+            ->assertSessionHasErrors(['training_days' => 'قلت إنك بتتمرّن 3 أيام، ووزّعت رياضاتك على 2 بس. زيد أيام رياضة، أو قلّل أيام التمرين.']);
+        $this->assertNull($this->user->fresh()->profile->exercises);
+    }
+
+    public function test_the_owners_example_is_two_sports_on_four_days(): void
+    {
+        // Three days of jogging and brisk walking, half an hour each, and a fourth day of an hour's
+        // walk: four training days, jogging 3 × 30, brisk walking 4 days at about 45 minutes.
+        $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => now()->year - 24, 'height_cm' => '170', 'weight_kg' => '70']);
+        $this->post('/onboarding/activity', [
+            'daily_life' => 'home', 'goal' => 'maintain', 'training_days' => '4', 'sports' => ['jog', 'brisk_walk'],
+            'sport_days' => ['jog' => '3', 'brisk_walk' => '4'], 'sport_minutes' => ['jog' => '30', 'brisk_walk' => '45'],
+        ])->assertRedirect('/onboarding/health');
 
         $profile = $this->user->fresh()->profile;
+        $this->assertSame([['type' => 'jog', 'times' => 3, 'minutes' => 30], ['type' => 'brisk_walk', 'times' => 4, 'minutes' => 45]], $profile->exercises);
         $this->assertSame(4, $profile->training_days);
-        $this->assertCount(3, $profile->exercises);
         $this->assertStringContainsString('4 أيام تمرين بالأسبوع', $profile->activitySummary());
 
-        // One row: its own days; a stray answer is not kept.
-        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain', 'training_days' => '6', 'exercises' => [$rows[0]]])
-            ->assertRedirect('/onboarding/health');
-        $this->assertNull($this->user->fresh()->profile->training_days);
+        // Coming back: the cards are chosen, with their days and minutes.
+        $this->get('/onboarding/activity')->assertOk()
+            ->assertSee('\u0022days\u0022:4', false)
+            ->assertSee('\u0022chosen\u0022:[\u0022jog\u0022,\u0022brisk_walk\u0022]', false)
+            ->assertSee('\u0022brisk_walk\u0022:{\u0022days\u0022:4,\u0022minutes\u0022:45}', false);
+    }
+
+    public function test_rows_from_before_open_as_one_card_a_sport(): void
+    {
+        // Saved with the old rows: walking 3 days × 30 and one day × 60, four days in all.
+        $this->user->profile()->create([
+            'sex' => 'male', 'birth_year' => now()->year - 24, 'height_cm' => 170, 'weight_kg' => 70,
+            'daily_life' => 'home', 'goal' => 'maintain', 'training_days' => 4,
+            'exercises' => [['type' => 'jog', 'times' => 3, 'minutes' => 30], ['type' => 'brisk_walk', 'times' => 3, 'minutes' => 30], ['type' => 'brisk_walk', 'times' => 1, 'minutes' => 60]],
+        ]);
+
+        $this->get('/onboarding/activity')->assertOk()
+            ->assertSee('\u0022chosen\u0022:[\u0022jog\u0022,\u0022brisk_walk\u0022]', false)
+            ->assertSee('\u0022brisk_walk\u0022:{\u0022days\u0022:4,\u0022minutes\u0022:45}', false);
     }
 
     public function test_two_sports_on_different_days_bring_the_sport_template(): void
     {
         // Walking two days and the gym two other days: four training days, the sport template.
         $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => now()->year - 24, 'height_cm' => '170', 'weight_kg' => '70']);
-        $rows = [['type' => 'walk', 'times' => '2', 'minutes' => '45'], ['type' => 'gym', 'times' => '2', 'minutes' => '60']];
-        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain', 'exercises' => $rows, 'training_days' => '4']);
+        $sports = ['sports' => ['walk', 'gym'], 'sport_days' => ['walk' => '2', 'gym' => '2'], 'sport_minutes' => ['walk' => '45', 'gym' => '60']];
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain', 'training_days' => '4'] + $sports);
         $this->post('/onboarding/health', []);
         $this->assertSame('sport', app(PersonalCriteria::class)->for($this->user->fresh())->template['key']);
 
         // The same two sports on the same two days: two training days, the goal's template.
-        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain', 'exercises' => $rows, 'training_days' => '2']);
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain', 'training_days' => '2'] + $sports);
         $this->assertSame('balanced', app(PersonalCriteria::class)->for($this->user->fresh())->template['key']);
     }
 
@@ -196,7 +223,7 @@ class OnboardingTest extends TestCase
     public function test_allergies_need_consent_are_encrypted_and_can_be_deleted(): void
     {
         $this->post('/onboarding/body', ['sex' => 'male', 'birth_year' => 1990, 'height_cm' => 178, 'weight_kg' => 80]);
-        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'lose']);
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'lose', 'training_days' => '0']);
 
         $this->post('/onboarding/health', ['allergies' => ['sesame']])->assertSessionHasErrors('consent');
         $this->post('/onboarding/health', ['allergies' => ['sesame'], 'consent' => '1'])->assertRedirect('/onboarding/done');
@@ -217,7 +244,7 @@ class OnboardingTest extends TestCase
     public function test_under_18_gets_no_personal_calculation(): void
     {
         $this->post('/onboarding/body', ['sex' => 'female', 'birth_year' => now()->year - 16, 'height_cm' => 160, 'weight_kg' => 50]);
-        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain']);
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain', 'training_days' => '0']);
         $this->post('/onboarding/health', []);
 
         $this->get('/onboarding/done')->assertOk()->assertSee('للبالغين');
@@ -268,7 +295,7 @@ class OnboardingTest extends TestCase
     public function test_the_health_step_offers_allergies_only_and_says_who_the_platform_is_for(): void
     {
         $this->post('/onboarding/body', ['sex' => 'female', 'birth_year' => 1990, 'height_cm' => 165, 'weight_kg' => 60]);
-        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain']);
+        $this->post('/onboarding/activity', ['daily_life' => 'home', 'goal' => 'maintain', 'training_days' => '0']);
 
         $this->get('/onboarding/health')->assertOk()
             ->assertSee('حساسيات')
