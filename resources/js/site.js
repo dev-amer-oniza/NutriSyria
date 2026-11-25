@@ -48,15 +48,37 @@ Alpine.data('fitDemo', () => ({
  * Onboarding, "your activity": the day's choice shows the work-days question for a job or
  * study, and the exercise rows grow and shrink (up to max). The server checks everything.
  */
-Alpine.data('activityStep', ({ day, rows, max }) => ({
+/**
+ * The activity step: the day, and the sport question as taps (the training days, the sports,
+ * and for each how many of those days and minutes), with the extra it adds a day, worked out
+ * like EnergyCalculator::exercise from each sport's extra an hour (SportAnswers::extraPerHour).
+ */
+Alpine.data('activityStep', ({ day, days, chosen, sports, perHour, max, more }) => ({
     day,
-    rows,
+    days,
+    chosen,
+    sports,
+    perHour,
     max,
-    add() {
-        if (this.rows.length < this.max) this.rows.push({ type: '', times: '', minutes: '' });
+    more,
+    labels: {},
+    init() {
+        this.$el.querySelectorAll('.ns-sportcard input').forEach((input) => {
+            this.labels[input.value] = input.closest('.ns-sportcard').querySelector('.ns-sportcard__name').textContent.trim();
+        });
+        // Fewer training days than a sport's: bring the sport down with them.
+        this.$watch('days', (n) => Object.values(this.sports).forEach((s) => { if (s.days > n) s.days = n; }));
     },
-    remove(i) {
-        this.rows.splice(i, 1);
+    label(key) {
+        return this.labels[key] || key;
+    },
+    extra() {
+        if (!(this.days > 0)) return 0;
+        const kcal = this.chosen.reduce((sum, key) => {
+            const s = this.sports[key];
+            return sum + (this.perHour[key] || 0) * (s?.days || 0) * (s?.minutes || 0) / 60 / 7;
+        }, 0);
+        return Math.round(kcal / 5) * 5;
     },
 }));
 

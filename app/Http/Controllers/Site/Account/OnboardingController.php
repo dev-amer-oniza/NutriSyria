@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Site\Account;
 
 use App\Enums\Allergen;
 use App\Enums\DailyLife;
+use App\Enums\EnergyEquation;
 use App\Enums\Goal;
 use App\Enums\OnboardingStep;
 use App\Enums\Sex;
@@ -13,6 +14,7 @@ use App\Http\Requests\Profile\BodyStepRequest;
 use App\Http\Requests\Profile\HealthStepRequest;
 use App\Services\Consultations\ConsultationService;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
+use App\Services\Nutrition\Criteria\SportAnswers;
 use App\Services\Nutrition\UserProfileService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -35,7 +37,13 @@ class OnboardingController extends Controller
             'profile' => $profile,
             'options' => match ($step) {
                 OnboardingStep::Body => ['sexes' => Sex::cases()],
-                OnboardingStep::Activity => ['days' => DailyLife::cases(), 'exercises' => config('nutrition_criteria.exercises'), 'goals' => Goal::cases()],
+                OnboardingStep::Activity => [
+                    'days' => DailyLife::cases(), 'exercises' => config('nutrition_criteria.exercises'), 'goals' => Goal::cases(),
+                    // For the live "رياضتك بتزيد احتياجك…": each sport's extra an hour on this body.
+                    'perHour' => $profile->hasBody()
+                        ? SportAnswers::extraPerHour((float) EnergyEquation::Mifflin->bmr($profile->sex, $profile->age(), (float) $profile->height_cm, (float) $profile->weight_kg), (float) $profile->weight_kg)
+                        : [],
+                ],
                 OnboardingStep::Health => ['allergens' => Allergen::cases()],
             },
         ]);
@@ -50,7 +58,7 @@ class OnboardingController extends Controller
 
     public function storeActivity(ActivityStepRequest $request, UserProfileService $profiles): RedirectResponse
     {
-        $profiles->saveActivity($request->user(), $request->validated());
+        $profiles->saveActivity($request->user(), $request->activity());
 
         return redirect()->route('site.onboarding.show', OnboardingStep::Health);
     }

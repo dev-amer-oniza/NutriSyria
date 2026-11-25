@@ -131,7 +131,7 @@ class SiteBellAndProfileLockTest extends TestCase
             ->callAction('editProfile', [
                 'sex' => 'female', 'birth_year' => now()->year - 34, 'height_cm' => 165, 'weight_kg' => 72,
                 'daily_life' => 'standing', 'work_days' => 5, 'goal' => 'lose',
-                'exercises' => [['type' => 'swim', 'times' => 2, 'minutes' => 45]],
+                'training_days' => 2, 'sports' => [['type' => 'swim', 'days' => 2, 'minutes' => 45]],
                 'allergies' => ['gluten'],
             ])
             ->assertHasNoActionErrors()
