@@ -28,20 +28,40 @@
                     </p>
                 </div>
 
-                <nav class="ns-week" aria-label="أيام الأسبوع">
-                    @foreach ($day->week as $d)
-                        @php($label = \App\Support\Site\SyrianDate::shortDay($d['date']))
-                        @if ($d['future'])
-                            <span class="ns-week__day is-future" aria-disabled="true">{{ $label }}<b class="ns-num">{{ $d['date']->day }}</b><i></i></span>
-                        @else
-                            <a @class(['ns-week__day', 'is-logged' => $d['logged'], 'is-today' => $d['today'], 'is-current' => $d['date']->equalTo($day->date)])
-                               href="{{ $d['today'] ? route('site.daily') : route('site.daily', ['date' => $d['date']->toDateString()]) }}"
-                               @if ($d['date']->equalTo($day->date)) aria-current="date" @endif>
-                                {{ $label }}<b class="ns-num">{{ $d['date']->day }}</b><i title="{{ $d['logged'] ? 'سجّلت فيه' : '' }}"></i>
+                <div class="ns-weeknav">
+                    <div class="ns-weeknav__bar">
+                        @if ($day->previousWeek)
+                            <a class="ns-btn ns-btn--secondary ns-btn--sm ns-weeknav__go" href="{{ route('site.daily', ['date' => $day->previousWeek->toDateString()]) }}" rel="prev">
+                                @include('site.partials.icon', ['name' => 'back'])<span class="ns-weeknav__word">الأسبوع </span>الماضي
                             </a>
+                        @else
+                            <span class="ns-weeknav__spacer" aria-hidden="true"></span>
                         @endif
-                    @endforeach
-                </nav>
+                        <p class="ns-weeknav__range">
+                            {{ \App\Support\Site\SyrianDate::range($day->week[0]['date'], $day->week[6]['date']) }}
+                        </p>
+                        @if ($day->nextWeek)
+                            <a class="ns-btn ns-btn--secondary ns-btn--sm ns-weeknav__go" href="{{ $day->nextWeek->isSameDay(\App\Services\Daily\DailyLog::now()) ? route('site.daily') : route('site.daily', ['date' => $day->nextWeek->toDateString()]) }}" rel="next">
+                                <span class="ns-weeknav__word">الأسبوع </span>الجاي@include('site.partials.icon', ['name' => 'arrow'])
+                            </a>
+                        @else
+                            <span class="ns-weeknav__spacer" aria-hidden="true"></span>
+                        @endif
+                    </div>
+                    <nav class="ns-week" aria-label="أيام الأسبوع">
+                        @foreach ($day->week as $d)
+                            @if ($d['future'])
+                                <span class="ns-week__day is-future" aria-disabled="true">{{ \App\Support\Site\SyrianDate::shortDay($d['date']) }}<b class="ns-num">{{ $d['date']->day }}</b><i></i></span>
+                            @else
+                                <a @class(['ns-week__day', 'is-logged' => $d['logged'], 'is-today' => $d['today'], 'is-current' => $d['date']->equalTo($day->date)])
+                                   href="{{ $d['today'] ? route('site.daily') : route('site.daily', ['date' => $d['date']->toDateString()]) }}"
+                                   @if ($d['date']->equalTo($day->date)) aria-current="date" @endif>
+                                        {{ \App\Support\Site\SyrianDate::shortDay($d['date']) }}<b class="ns-num">{{ $d['date']->day }}</b><i title="{{ $d['logged'] ? 'سجّلت فيه' : '' }}"></i>
+                                </a>
+                            @endif
+                        @endforeach
+                    </nav>
+                </div>
             </div>
 
             @if ($requested)

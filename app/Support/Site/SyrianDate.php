@@ -18,6 +18,14 @@ final class SyrianDate
         return self::DAYS[$date->dayOfWeek].' '.$date->day.' '.self::MONTHS[$date->month];
     }
 
+    /** "21 – 27 تشرين التاني", or "29 تشرين التاني – 5 كانون الأول" across two months. */
+    public static function range(CarbonInterface $from, CarbonInterface $to): string
+    {
+        return $from->month === $to->month
+            ? $from->day.' – '.$to->day.' '.self::MONTHS[$to->month]
+            : $from->day.' '.self::MONTHS[$from->month].' – '.$to->day.' '.self::MONTHS[$to->month];
+    }
+
     public static function shortDay(CarbonInterface $date): string
     {
         return self::SHORT_DAYS[$date->dayOfWeek];
