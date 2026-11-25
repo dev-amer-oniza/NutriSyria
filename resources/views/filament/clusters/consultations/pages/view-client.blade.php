@@ -46,6 +46,8 @@
         </x-filament::section>
     </div>
 
+    @include('filament.clusters.consultations.pages.client-diary', ['diary' => $this->diary(), 'need' => $sheet ? (int) round($sheet->get('energy_kcal')->value) : null])
+
     @unless ($sheet)
         <x-filament::section>
             <p>لا يمكن حساب معاييره بعد: بياناته ناقصة، أو عمره أقل من {{ config('nutrition_criteria.min_age') }} سنة.</p>

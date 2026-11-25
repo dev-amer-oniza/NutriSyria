@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\Consultations\Resources\Clients\Pages;
 
+use App\Data\Daily\Diary;
 use App\Data\Nutrition\CriteriaSheet;
 use App\Data\Nutrition\NutritionPlanResult;
 use App\Enums\Allergen;
@@ -12,6 +13,7 @@ use App\Enums\Sex;
 use App\Filament\Clusters\Consultations\Resources\Clients\ClientResource;
 use App\Models\ConsultationRequest;
 use App\Services\Consultations\ClientWorkspace;
+use App\Services\Daily\ClientDiary;
 use App\Services\Nutrition\Criteria\EnergyCalculator;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
 use App\Services\Nutrition\Plan\NutritionPlans;
@@ -69,6 +71,12 @@ class ViewClient extends Page
     public function plan(): ?NutritionPlanResult
     {
         return app(NutritionPlans::class)->current($this->record);
+    }
+
+    /** The client's "يومي": the last two weeks of meals and the last weighings (read only). */
+    public function diary(): Diary
+    {
+        return app(ClientDiary::class)->for($this->record->user);
     }
 
     public function sheet(): ?CriteriaSheet
