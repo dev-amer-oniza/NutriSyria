@@ -120,6 +120,8 @@ Route::name('site.')->group(function () {
         Route::post('/meals/{meal}/eaten', [DailyController::class, 'store'])->whereNumber('meal')
             ->middleware('throttle:daily')->name('daily.store');
         Route::delete('/account/daily/{entry}', [DailyController::class, 'destroy'])->whereNumber('entry')->name('daily.destroy');
+        Route::post('/account/daily/weight', [DailyController::class, 'weigh'])
+            ->middleware('throttle:daily')->name('daily.weight');
         Route::post('/account/daily/request', [DailyController::class, 'requestFood'])
             ->middleware('throttle:auth-forms')->name('daily.request');
 

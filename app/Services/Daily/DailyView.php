@@ -3,6 +3,7 @@
 namespace App\Services\Daily;
 
 use App\Data\Daily\DayLog;
+use App\Data\Daily\WeightCard;
 use App\Data\Nutrition\MealFacts;
 use App\Enums\MealType;
 use App\Models\User;
@@ -22,9 +23,10 @@ class DailyView
         private readonly MealCatalog $catalog,
         private readonly MealFitService $fits,
         private readonly MealPeriods $periods,
+        private readonly Weighing $weighing,
     ) {}
 
-    /** @return array{day: DayLog, type: MealType, suggestions: list<array<string, mixed>>} */
+    /** @return array{day: DayLog, type: MealType, suggestions: list<array<string, mixed>>, weight: WeightCard} */
     public function for(User $user, ?CarbonImmutable $date = null): array
     {
         $day = $this->log->day($user, $date);
@@ -39,6 +41,6 @@ class DailyView
             $suggestions = array_map(fn (MealFacts $m) => $m->card($verdicts[$m->id] ?? null), $picked);
         }
 
-        return ['day' => $day, 'type' => $type, 'suggestions' => $suggestions];
+        return ['day' => $day, 'type' => $type, 'suggestions' => $suggestions, 'weight' => $this->weighing->card($user)];
     }
 }

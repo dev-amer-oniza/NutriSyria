@@ -38,8 +38,43 @@
     .ns-requested__text { margin: 0; font-size: 1rem; line-height: 1.625rem; color: var(--ink); }
 
     /* The two cards side by side: what is left, what was eaten. */
-    .ns-daily { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--space-6); align-items: stretch; }
-    @media (max-width: 1080px) { .ns-daily { grid-template-columns: minmax(0, 1fr); } }
+    .ns-daily { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); grid-template-areas: "today eaten" "weight eaten"; gap: var(--space-6); align-items: stretch; }
+    .ns-daily > .ns-today { grid-area: today; }
+    .ns-daily > .ns-eaten { grid-area: eaten; }
+    .ns-daily > .ns-weight { grid-area: weight; }
+    @media (max-width: 1080px) { .ns-daily { grid-template-columns: minmax(0, 1fr); grid-template-areas: "today" "eaten" "weight"; } }
+
+    /* "وزنك". */
+    .ns-weight { position: relative; display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-6); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+    .ns-weight__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+    .ns-weight__title { margin: 0; font-size: 1.375rem; line-height: 2rem; color: var(--pine); }
+    .ns-weight__due { padding: 2px var(--space-3); border-radius: var(--radius-full); background: var(--terracotta-soft); color: var(--terracotta-ink); font-size: 0.875rem; line-height: 1.5rem; font-weight: 700; }
+    .ns-weight__now { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+    .ns-weight__value { margin: 0; display: flex; align-items: baseline; gap: var(--space-2); }
+    .ns-weight__value .ns-num { font-size: 2.75rem; line-height: 1; font-weight: 800; color: var(--pine); }
+    .ns-weight__value small { font-size: 1.125rem; color: var(--ink-muted); }
+    .ns-weight__meta { text-align: end; }
+    .ns-weight__change { margin: 0; font-size: 1.0625rem; line-height: 1.5rem; font-weight: 700; color: var(--ink); }
+    .ns-weight__change.is-down { color: var(--pine); }
+    .ns-weight__change.is-up { color: var(--terracotta-ink); }
+    .ns-weight__when { margin: 0; font-size: 0.9375rem; line-height: 1.375rem; color: var(--ink-muted); }
+    .ns-weight__line { width: 100%; height: 60px; overflow: visible; }
+    .ns-weight__line polyline { fill: none; stroke: var(--pine); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+    .ns-weight__line line { stroke: var(--terracotta); stroke-width: 11; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+    .ns-weight__go { width: 100%; justify-content: center; margin-top: auto; }
+    @media (max-width: 480px) { .ns-weight { padding: var(--space-5) var(--space-4); } }
+
+    /* The weight sheet's stepper. */
+    .ns-stepper { display: flex; align-items: center; justify-content: center; gap: var(--space-5); }
+    .ns-stepper__btn { width: 56px; height: 56px; flex: none; border-radius: var(--radius-full); border: 2px solid var(--pine); background: var(--surface-raised); color: var(--pine); font-size: 1.75rem; line-height: 1; cursor: pointer; transition: background-color .15s ease, transform .15s var(--ease-out); }
+    .ns-stepper__btn:hover { background: var(--pine-soft); }
+    .ns-stepper__btn:active { transform: scale(.94); }
+    .ns-stepper__btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    .ns-stepper__value { display: flex; align-items: baseline; gap: var(--space-2); color: var(--ink-muted); font-size: 1.125rem; }
+    .ns-stepper__input { width: 5ch; border: 0; border-bottom: 2px solid var(--line); background: none; text-align: center; font-size: 2.75rem; line-height: 1.2; font-weight: 800; color: var(--pine); -moz-appearance: textfield; }
+    .ns-stepper__input::-webkit-outer-spin-button, .ns-stepper__input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .ns-stepper__input:focus { outline: none; border-bottom-color: var(--pine); }
+    .ns-weigh-note { margin: 0; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--sage-soft); font-size: 1rem; line-height: 1.5rem; color: var(--pine); text-align: center; }
 
     .ns-today, .ns-eaten { position: relative; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: var(--space-6); }
 

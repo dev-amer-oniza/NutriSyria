@@ -10,6 +10,7 @@
 --}}
 @php
     $openSheet = ($errors->has('food_name') || $errors->has('ingredients') || request('sheet') === 'request') && $day->isToday ? 'request' : null;
+    $openSheet ??= $errors->has('weight_kg') || request('sheet') === 'weight' ? 'weight' : null;
     $requested = session('requested');
 @endphp
 
@@ -89,6 +90,7 @@
                 @endif
 
                 @include('site.components.daily.eaten-list', ['day' => $day])
+                @include('site.components.daily.weight-card', ['weight' => $weight])
             </div>
 
             @if ($day->isToday && $day->needs !== null)
@@ -127,5 +129,6 @@
         @if ($day->isToday)
             @include('site.components.daily.request-sheet', ['type' => $type])
         @endif
+        @include('site.components.daily.weight-sheet', ['weight' => $weight, 'managed' => $managed])
     </section>
 @endsection
