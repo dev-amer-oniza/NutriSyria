@@ -12,6 +12,7 @@ use App\Enums\Sex;
 use App\Filament\Clusters\Consultations\Resources\Clients\ClientResource;
 use App\Models\ConsultationRequest;
 use App\Services\Consultations\ClientWorkspace;
+use App\Services\Nutrition\Criteria\EnergyCalculator;
 use App\Services\Nutrition\Criteria\PersonalCriteria;
 use App\Services\Nutrition\Plan\NutritionPlans;
 use Filament\Actions\Action;
@@ -118,7 +119,7 @@ class ViewClient extends Page
             ->modalHeading(fn () => 'بيانات '.$this->record->user->name)
             ->modalDescription('لا يستطيع المراجع تعديلها ما دام الارتباط قائماً. يصله إشعار بالتحديث.')
             ->fillForm(fn () => Arr::only($this->record->user->profile?->attributesToArray() ?? [], [
-                'sex', 'birth_year', 'height_cm', 'weight_kg', 'daily_life', 'work_days', 'exercises', 'goal', 'allergies',
+                'sex', 'birth_year', 'height_cm', 'weight_kg', 'daily_life', 'work_days', 'exercises', 'training_days', 'goal', 'allergies',
             ]))
             ->schema([
                 Grid::make(2)->schema([
@@ -134,13 +135,20 @@ class ViewClient extends Page
                     Select::make('goal')->label('الهدف')->options($options(Goal::cases()))->required(),
                 ]),
                 Repeater::make('exercises')->label('الرياضة')->defaultItems(0)->maxItems((int) config('nutrition_criteria.max_exercises'))
-                    ->addActionLabel('أضف رياضة')->columns(3)
+                    ->helperText('كل رياضة بسطر، حتى لو بنفس اليوم. نفس الرياضة بمدة مختلفة بسطر تاني.')
+                    ->addActionLabel('أضف رياضة')->columns(3)->live()
                     ->schema([
                         Select::make('type')->label('النوع')->required()
                             ->options(collect(config('nutrition_criteria.exercises'))->map(fn (array $e) => $e['label'].' ('.$e['met'].' MET)')->all()),
-                        TextInput::make('times')->label('مرات بالأسبوع')->integer()->required()->minValue(1)->maxValue(14),
-                        TextInput::make('minutes')->label('دقائق المرة')->integer()->required()->minValue(5)->maxValue(300),
+                        TextInput::make('times')->label('كم يوم بالأسبوع')->integer()->required()->minValue(1)->maxValue(14),
+                        TextInput::make('minutes')->label('كم دقيقة باليوم')->integer()->required()->minValue(5)->maxValue(300),
                     ]),
+                // Two rows or more cannot tell whether two sports share a day: the days in all.
+                TextInput::make('training_days')->label('بالمجمل، كم يوم بالأسبوع يتمرّن؟')->integer()->maxValue(7)
+                    ->helperText('اليوم الذي فيه رياضتان يُحسب يوماً واحداً. يحدّد قالب النشاط الرياضي، لا السعرات.')
+                    ->minValue(fn (Get $get) => max(1, EnergyCalculator::fewestDays(self::numericRows($get('exercises')))))
+                    ->visible(fn (Get $get) => count((array) $get('exercises')) > 1)
+                    ->required(fn (Get $get) => count((array) $get('exercises')) > 1),
                 CheckboxList::make('allergies')->label('الحساسيات')->options($options(Allergen::cases()))->columns(4),
             ])
             ->action(function (array $data) {
@@ -274,5 +282,18 @@ class ViewClient extends Page
         abort_unless(array_key_exists($key, config('nutrition_criteria.criteria')), 404);
 
         return $key;
+    }
+
+    /**
+     * The repeater's rows whose days are a number (half-typed rows are skipped).
+     *
+     * @return list<array{type: string, times: int, minutes: int}>
+     */
+    private static function numericRows(mixed $rows): array
+    {
+        return array_values(array_map(
+            fn (array $row) => ['type' => (string) ($row['type'] ?? ''), 'times' => (int) $row['times'], 'minutes' => (int) ($row['minutes'] ?? 0)],
+            array_filter((array) $rows, fn ($row) => is_array($row) && is_numeric($row['times'] ?? null)),
+        ));
     }
 }

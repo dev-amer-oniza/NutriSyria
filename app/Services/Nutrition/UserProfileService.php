@@ -30,9 +30,10 @@ class UserProfileService
 
     /**
      * The day, the exercise and the goal (any of them; the nutritionist edits the first two).
-     * Work days only for a job or study; an empty list of exercise is "none".
+     * Work days only for a job or study; an empty list of exercise is "none"; the training
+     * days in all only with two exercise rows or more.
      *
-     * @param  array{daily_life?: string, work_days?: ?int, exercises?: array<array{type: string, times: int|string, minutes: int|string}>, goal?: string}  $activity
+     * @param  array{daily_life?: string, work_days?: ?int, exercises?: array<array{type: string, times: int|string, minutes: int|string}>, training_days?: int|string|null, goal?: string}  $activity
      */
     public function saveActivity(User $user, array $activity): UserProfile
     {
@@ -43,6 +44,11 @@ class UserProfileService
             $activity['exercises'] = array_map(fn (array $e) => [
                 'type' => (string) $e['type'], 'times' => (int) $e['times'], 'minutes' => (int) $e['minutes'],
             ], array_values($activity['exercises'])) ?: null;
+            // The days in all only mean something for two rows or more.
+            $activity['training_days'] = count($activity['exercises'] ?? []) > 1 && filled($activity['training_days'] ?? null)
+                ? (int) $activity['training_days'] : null;
+        } else {
+            unset($activity['training_days']);
         }
         $profile = $this->profileOf($user)->fill($activity);
         $profile->save();

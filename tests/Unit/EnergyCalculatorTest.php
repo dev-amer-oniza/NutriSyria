@@ -52,5 +52,38 @@ class EnergyCalculatorTest extends TestCase
         $this->assertSame(0, EnergyCalculator::trainingDays([]));
         $this->assertSame(3, EnergyCalculator::trainingDays([['type' => 'weights', 'times' => 3, 'minutes' => 60], ['type' => 'cardio', 'times' => 3, 'minutes' => 15]]));
         $this->assertSame(4, EnergyCalculator::trainingDays([['type' => 'weights', 'times' => 4, 'minutes' => 60], ['type' => 'walk', 'times' => 2, 'minutes' => 30]]));
+        $this->assertSame(7, EnergyCalculator::trainingDays([['type' => 'walk', 'times' => 14, 'minutes' => 20]]), 'twice a day is still seven days');
+    }
+
+    public function test_the_stated_days_count_for_two_rows_or_more_never_below_the_busiest_row(): void
+    {
+        $two = [['type' => 'walk', 'times' => 2, 'minutes' => 45], ['type' => 'gym', 'times' => 2, 'minutes' => 60]];
+        $this->assertSame(4, EnergyCalculator::trainingDays($two, 4), 'two sports on different days');
+        $this->assertSame(2, EnergyCalculator::trainingDays($two, 2), 'the same two days');
+        $this->assertSame(2, EnergyCalculator::trainingDays($two), 'no answer (older profiles): the busiest row');
+        $this->assertSame(2, EnergyCalculator::trainingDays($two, 1), 'never below the busiest row');
+        $this->assertSame(7, EnergyCalculator::trainingDays($two, 9), 'never above seven');
+        $this->assertSame(3, EnergyCalculator::trainingDays([['type' => 'jog', 'times' => 3, 'minutes' => 30]], 6), 'one row: its own days');
+
+        $this->assertSame(0, EnergyCalculator::fewestDays([]));
+        $this->assertSame(3, EnergyCalculator::fewestDays([['type' => 'jog', 'times' => 3, 'minutes' => 30], ['type' => 'brisk_walk', 'times' => 1, 'minutes' => 60]]));
+    }
+
+    public function test_the_same_minutes_burn_the_same_however_they_are_written(): void
+    {
+        // The owner's example, 70 kg, BMR 1647.5: jogging 3 × 30, brisk walking 3 × 30 and 1 × 60.
+        $rows = [
+            ['type' => 'jog', 'times' => 3, 'minutes' => 30],
+            ['type' => 'brisk_walk', 'times' => 3, 'minutes' => 30],
+            ['type' => 'brisk_walk', 'times' => 1, 'minutes' => 60],
+        ];
+        $sitting = 1.4 * 1647.5 / 24;
+        $byHand = ((7.5 * 70 - $sitting) * 1.5 + (4.8 * 70 - $sitting) * 2.5) / 7;   // about 178 kcal a day
+        $this->assertEqualsWithDelta($byHand, $this->energy()->exercise(1647.5, 70, $rows), 1e-9);
+        $this->assertEqualsWithDelta(177.6, $byHand, 0.1);
+
+        // The same week's minutes in one row each give the same calories.
+        $merged = [['type' => 'jog', 'times' => 1, 'minutes' => 90], ['type' => 'brisk_walk', 'times' => 1, 'minutes' => 150]];
+        $this->assertEqualsWithDelta($byHand, $this->energy()->exercise(1647.5, 70, $merged), 1e-9);
     }
 }

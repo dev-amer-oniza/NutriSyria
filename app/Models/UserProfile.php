@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class UserProfile extends Model
 {
     protected $fillable = [
-        'sex', 'birth_year', 'height_cm', 'weight_kg', 'daily_life', 'work_days', 'exercises', 'goal',
+        'sex', 'birth_year', 'height_cm', 'weight_kg', 'daily_life', 'work_days', 'exercises', 'training_days', 'goal',
         'allergies', 'health_consent_at', 'completed_at',
     ];
 
@@ -37,6 +37,7 @@ class UserProfile extends Model
             'daily_life' => DailyLife::class,
             'work_days' => 'integer',
             'exercises' => 'array',
+            'training_days' => 'integer',
             'goal' => Goal::class,
             // Health data: encrypted at rest.
             'allergies' => 'encrypted:array',
@@ -77,13 +78,16 @@ class UserProfile extends Model
             $this->exercises ?? [],
         );
 
-        return $day.' · '.($sports ? implode('، ', $sports) : 'بلا رياضة');
+        $days = count($sports) > 1 && $this->training_days ? '، '.$this->training_days.' أيام تمرين بالأسبوع' : '';
+
+        return $day.' · '.($sports ? implode('، ', $sports).$days : 'بلا رياضة');
     }
 
     /**
-     * What the energy calculators read: the day, its work days and the exercise.
+     * What the energy calculators read: the day, its work days, the exercise and, for two rows
+     * or more, the training days in all.
      *
-     * @return array{daily_life: string, work_days: ?int, exercises: list<array{type: string, times: int, minutes: int}>}
+     * @return array{daily_life: string, work_days: ?int, exercises: list<array{type: string, times: int, minutes: int}>, training_days: ?int}
      */
     public function activity(): array
     {
@@ -91,6 +95,7 @@ class UserProfile extends Model
             'daily_life' => $this->daily_life->value,
             'work_days' => $this->daily_life->hasWorkDays() ? $this->work_days : null,
             'exercises' => $this->exercises ?? [],
+            'training_days' => count($this->exercises ?? []) > 1 ? $this->training_days : null,
         ];
     }
 

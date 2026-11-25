@@ -92,7 +92,7 @@ class ClientWorkspace
      * The person's body, activity, goal and allergies, as the nutritionist updates them
      * (validated by the panel form).
      *
-     * @param  array{sex: string, birth_year: int, height_cm: float, weight_kg: float, daily_life: string, work_days: ?int, exercises?: list<array{type: string, times: int, minutes: int}>, goal: string, allergies?: list<string>}  $data
+     * @param  array{sex: string, birth_year: int, height_cm: float, weight_kg: float, daily_life: string, work_days: ?int, exercises?: list<array{type: string, times: int, minutes: int}>, training_days?: ?int, goal: string, allergies?: list<string>}  $data
      */
     public function updateProfile(User $nutritionist, ConsultationRequest $link, array $data): void
     {
@@ -101,7 +101,7 @@ class ClientWorkspace
         $client = $link->user;
 
         $this->profiles->saveBody($client, Arr::only($data, ['sex', 'birth_year', 'height_cm', 'weight_kg']));
-        $this->profiles->saveActivity($client, ['exercises' => $data['exercises'] ?? []] + Arr::only($data, ['daily_life', 'work_days', 'goal']));
+        $this->profiles->saveActivity($client, ['exercises' => $data['exercises'] ?? []] + Arr::only($data, ['daily_life', 'work_days', 'training_days', 'goal']));
         $this->profiles->saveHealth($client, array_map(fn (string $a) => Allergen::from($a), $data['allergies'] ?? []));
 
         // A new weight or activity changes the plan's numbers: keep the client's values in step.
