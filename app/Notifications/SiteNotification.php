@@ -21,6 +21,8 @@ class SiteNotification extends Notification
         public readonly ?string $body,
         /** A path inside the site ("/account/criteria"), so it works on any domain. */
         public readonly string $url,
+        /** What it is about, when something checks for it later ("weight": the weekly reminder). */
+        public readonly ?string $topic = null,
     ) {}
 
     public static function accepted(ConsultationRequest $request): self
@@ -61,6 +63,13 @@ class SiteNotification extends Notification
             $note ?: 'شكراً إنك بعتلنا ياها. منضل نشتغل على أكلات أكتر.', route('site.daily', absolute: false));
     }
 
+    /** A week since the last weighing (Weighing::remindIfDue, once a week at most). */
+    public static function weighReminder(): self
+    {
+        return new self('info', 'صار وقت توزن',
+            'سجّل وزنك بـ«يومي»، لنحدّث احتياجك على وزنك الجديد.', route('site.daily', ['sheet' => 'weight'], absolute: false), 'weight');
+    }
+
     private static function nutritionistName(ConsultationRequest $request): string
     {
         return $request->nutritionist->nutritionistProfile?->display_name ?? $request->nutritionist->name;
@@ -81,6 +90,6 @@ class SiteNotification extends Notification
             'title' => $this->title,
             'body' => $this->body,
             'url' => $this->url,
-        ];
+        ] + ($this->topic ? ['topic' => $this->topic] : []);
     }
 }

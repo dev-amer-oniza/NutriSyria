@@ -6,9 +6,12 @@ use App\Enums\MealType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Daily\FoodRequestForm;
 use App\Http\Requests\Daily\LogMealRequest;
+use App\Http\Requests\Daily\WeightRequest;
+use App\Services\Consultations\ConsultationService;
 use App\Services\Daily\DailyLog;
 use App\Services\Daily\DailyView;
 use App\Services\Daily\FoodRequests;
+use App\Services\Daily\Weighing;
 use App\Services\Site\MealCatalog;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
@@ -19,7 +22,7 @@ use InvalidArgumentException;
 /** "يومي": the day's meals and what is left, "أكلتها" from a meal's page, and "ما لقيتها؟". */
 class DailyController extends Controller
 {
-    public function show(Request $request, DailyView $view): View
+    public function show(Request $request, DailyView $view, ConsultationService $consultations): View
     {
         // ?date=2026-11-24 for a past day of the week; anything odd is today.
         $date = null;
@@ -30,6 +33,8 @@ class DailyController extends Controller
         return view('site.pages.account.daily', [
             ...$view->for($request->user(), $date ?: null),
             'profileReady' => (bool) $request->user()->profile?->hasActivity(),
+            // A nutritionist manages the profile: a weighing goes to them (Weighing::record).
+            'managed' => $consultations->isManaged($request->user()),
         ]);
     }
 
@@ -52,6 +57,16 @@ class DailyController extends Controller
         $log->remove($request->user(), $entry);
 
         return back()->with('status', 'شلناها من يومك.');
+    }
+
+    public function weigh(WeightRequest $request, Weighing $weighing): RedirectResponse
+    {
+        $kg = $request->kilograms();
+        $updated = $weighing->record($request->user(), $kg);
+
+        return redirect()->route('site.daily')->with('status', $updated
+            ? 'سجّلنا وزنك: '.round($kg, 1).' كغ، وحدّثنا احتياجك عليه.'
+            : 'سجّلنا وزنك: '.round($kg, 1).' كغ، ووصل لأخصائيّك ليحدّث ملفك.');
     }
 
     public function requestFood(FoodRequestForm $request, FoodRequests $requests): RedirectResponse

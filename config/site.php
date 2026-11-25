@@ -17,6 +17,11 @@ return [
         'plates' => [0.25, 0.5, 0.75, 1.0, 1.5, 2.0],
         'per_100g' => [1.0, 1.5, 2.0, 3.0, 4.0],
         'suggestions' => 4,
+        // The weight: asked for again after this many days (a bell reminder, once), and how many
+        // weighings the little line on the day shows.
+        'weigh_every_days' => 7,
+        'weight_points' => 8,
+        'weight_kg' => ['min' => 30, 'max' => 300],
     ],
 
     'nav' => [
