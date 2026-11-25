@@ -119,6 +119,8 @@ Route::name('site.')->group(function () {
         Route::get('/account/daily', [DailyController::class, 'show'])->name('daily');
         Route::post('/meals/{meal}/eaten', [DailyController::class, 'store'])->whereNumber('meal')
             ->middleware('throttle:daily')->name('daily.store');
+        Route::post('/syrian-kitchen/{dish}/my-recipe/eaten', [DailyController::class, 'storeCustom'])->whereNumber('dish')
+            ->middleware('throttle:daily')->name('daily.custom');
         Route::delete('/account/daily/{entry}', [DailyController::class, 'destroy'])->whereNumber('entry')->name('daily.destroy');
         Route::post('/account/daily/weight', [DailyController::class, 'weigh'])
             ->middleware('throttle:daily')->name('daily.weight');
