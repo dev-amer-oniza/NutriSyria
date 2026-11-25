@@ -72,6 +72,10 @@
         @elseif ($signedIn)
             <p class="t-body">أكمل بياناتك (العمر والطول والوزن والنشاط والهدف) لنقيّم طبختك على جسمك وهدفك.</p>
             <a class="ns-btn ns-btn--primary" href="{{ route('site.criteria') }}">أكمل ملفك</a>
+        @endif
+        @if ($signedIn)
+            {{-- "أكلتها": the person's own plate of this recipe, logged with values worked out again on the server. --}}
+            @include('site.components.daily.eaten-sheet', ['meal' => $result->meal, 'custom' => true])
         @else
             <p class="t-body">سجّل الدخول، وأخبرنا عن جسمك وهدفك وحالتك، لنقول لك إن كانت طبختك تناسبك وما الحصة المناسبة لك.</p>
             <div class="ns-book__actions">

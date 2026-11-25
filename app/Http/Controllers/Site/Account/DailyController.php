@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Site\Account;
 
 use App\Enums\MealType;
+use App\Exceptions\RecipeRejected;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Daily\CustomEatenRequest;
 use App\Http\Requests\Daily\FoodRequestForm;
 use App\Http\Requests\Daily\LogMealRequest;
 use App\Http\Requests\Daily\WeightRequest;
@@ -12,9 +14,11 @@ use App\Services\Daily\DailyLog;
 use App\Services\Daily\DailyView;
 use App\Services\Daily\FoodRequests;
 use App\Services\Daily\Weighing;
+use App\Services\Site\Kitchen\CustomRecipeAnalyzer;
 use App\Services\Site\MealCatalog;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
@@ -50,6 +54,26 @@ class DailyController extends Controller
 
         return redirect()->route('site.daily')
             ->with('status', "سجّلنا {$facts->name} ({$entry->meal_type->label()}).");
+    }
+
+    /**
+     * "أكلتها" under "نتيجة طبختك": the recipe is analysed again here, from approved ingredients,
+     * and the person's own plate is logged with those values (the owner's decision a).
+     */
+    public function storeCustom(int $dish, CustomEatenRequest $request, CustomRecipeAnalyzer $analyzer, DailyLog $log): JsonResponse
+    {
+        try {
+            $result = $analyzer->analyze($dish, $request->draft(), $request->user());
+            $entry = $log->log($request->user(), $result->meal, $request->eaten(), $request->mealType(), $result->meal->name.' (طبختك)');
+        } catch (RecipeRejected $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        } catch (InvalidArgumentException) {
+            return response()->json(['message' => 'اختار قديش أكلت من صحنك.'], 422);
+        }
+
+        session()->flash('status', "سجّلنا {$entry->name} ({$entry->meal_type->label()}).");
+
+        return response()->json(['redirect' => route('site.daily')]);
     }
 
     public function destroy(Request $request, int $entry, DailyLog $log): RedirectResponse

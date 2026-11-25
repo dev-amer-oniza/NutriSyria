@@ -50,7 +50,8 @@ class DailyLog
         };
     }
 
-    public function log(User $user, MealFacts $meal, float $amount, MealType $type): MealLog
+    /** @param  ?string  $name  shown on the day instead of the meal's name ("مجدرة (طبختك)") */
+    public function log(User $user, MealFacts $meal, float $amount, MealType $type, ?string $name = null): MealLog
     {
         if (! in_array($amount, self::amountsFor($meal), true)) {
             throw new InvalidArgumentException('Not an amount one may log of this meal.');
@@ -69,7 +70,7 @@ class DailyLog
             'eaten_at' => now(),
             'meal_type' => $type,
             'product_id' => $meal->id,
-            'name' => $meal->name,
+            'name' => $name ?? $meal->name,
             'amount' => $amount,
             'per_100g' => $meal->servingGrams === null,
             ...$values,

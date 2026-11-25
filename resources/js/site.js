@@ -199,6 +199,8 @@ Alpine.data('customRecipe', (config) => ({
     error: '',
     resultHtml: '',
     nextKey: 1,
+    eating: false,
+    eatError: '',
     applied: config.applied ?? null,
 
     async init() {
@@ -366,6 +368,44 @@ Alpine.data('customRecipe', (config) => ({
         this.lines.splice(i, 1);
     },
 
+    /** The recipe as the server reads it (the numbers shown are never sent). */
+    payload() {
+        return {
+            lines: this.lines.map(({ record_id, unit_id, amount, portion_id, after }) => ({ record_id, unit_id, amount, portion_id, after })),
+            servings: this.servings,
+            weight_after: this.weightAfter || null,
+        };
+    },
+
+    /** "أكلتها" under "نتيجة طبختك": the recipe goes again, with the plate and the meal; the server analyses it once more. */
+    async logEaten(form) {
+        const data = new FormData(form);
+        this.eatError = '';
+        this.eating = true;
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': data.get('_token'),
+                },
+                body: JSON.stringify({ ...this.payload(), eaten: data.get('eaten'), meal_type: data.get('meal_type') }),
+            });
+            const body = await response.json().catch(() => ({}));
+            if (!response.ok || !body.redirect) {
+                const first = body.errors ? Object.values(body.errors)[0]?.[0] : null;
+                this.eatError = first || body.message || 'تعذّر التسجيل. حاول مرة أخرى.';
+                return;
+            }
+            window.location.href = body.redirect;
+        } catch {
+            this.eatError = 'لا اتصال الآن. حاول بعد قليل.';
+        } finally {
+            this.eating = false;
+        }
+    },
+
     async analyze() {
         this.error = '';
         this.busy = true;
@@ -377,11 +417,7 @@ Alpine.data('customRecipe', (config) => ({
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': this.$root.querySelector('input[name=_token]')?.value,
                 },
-                body: JSON.stringify({
-                    lines: this.lines.map(({ record_id, unit_id, amount, portion_id, after }) => ({ record_id, unit_id, amount, portion_id, after })),
-                    servings: this.servings,
-                    weight_after: this.weightAfter || null,
-                }),
+                body: JSON.stringify(this.payload()),
             });
             const data = await response.json().catch(() => ({}));
             if (!response.ok) {
