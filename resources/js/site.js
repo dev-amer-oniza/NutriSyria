@@ -449,8 +449,32 @@ function bringToLife() {
     main.querySelectorAll('[data-count]').forEach((el) => seen.observe(el));
 }
 
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bringToLife);
-else bringToLife();
+/*
+ * A form sent back with a missing or wrong answer: take the person straight to the first
+ * one and put the cursor in it, so they do not hunt for the red line on a long page.
+ */
+function goToFirstError() {
+    const error = [...document.querySelectorAll('form .ns-field__error')].find((el) => el.offsetParent !== null);
+    if (!error) return;
+    const field = error.closest('.ns-field, .ns-sport-days, fieldset') ?? error;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    field.scrollIntoView({ block: 'center', behavior: still ? 'auto' : 'smooth' });
+    // The first empty answer in that field (a blank box, or a choice with nothing picked), else its first control.
+    const controls = [...field.querySelectorAll('input:not([type=hidden]):not([disabled]), select, textarea')].filter((el) => el.offsetParent !== null);
+    const empty = controls.find((el) => (el.type === 'radio' || el.type === 'checkbox')
+        ? !field.querySelector(`input[name="${CSS.escape(el.name)}"]:checked`)
+        : el.value.trim() === '');
+    (empty ?? controls[0])?.focus({ preventScroll: true });
+}
+
+function onReady() {
+    bringToLife();
+    // After Alpine has drawn the repeater rows, so an error under them is in place.
+    setTimeout(goToFirstError, 150);
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', onReady);
+else onReady();
 
 window.Alpine = Alpine;
 Alpine.start();
