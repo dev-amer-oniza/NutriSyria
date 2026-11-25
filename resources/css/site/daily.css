@@ -1,0 +1,171 @@
+/*
+ * "يومي" (pages/account/daily) and the sheets that log to it: "أكلتها" on a meal's page and
+ * "أكلت شي مو موجود". The site identity only: pine, terracotta for the origin arc and the
+ * meal of the day, sage and sand washes, each nutrient in its own colour (ns-key-*).
+ */
+@layer components {
+    /* Head: the title beside the week. */
+    .ns-daily__head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-5) var(--space-8); flex-wrap: wrap; margin-bottom: var(--space-6); }
+    .ns-daily__head h1 { margin: 0; }
+    .ns-daily__head .t-lead { margin: var(--space-1) 0 0; }
+
+    .ns-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--space-2); flex: 1 1 520px; max-width: 720px; }
+    .ns-week__day { min-width: 0; overflow: hidden; white-space: nowrap; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: var(--space-2) 0; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-raised); color: var(--ink-muted); font-size: 0.875rem; line-height: 1.25rem; text-decoration: none; transition: border-color .15s ease, transform .2s var(--ease-out), box-shadow .2s ease; }
+    .ns-week__day b { font-size: 1.25rem; line-height: 1.75rem; color: var(--ink); }
+    .ns-week__day i { width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--line); }
+    .ns-week__day.is-logged i { background: var(--pine); }
+    .ns-week__day.is-today i { box-shadow: 0 0 0 3px var(--terracotta-soft); }
+    .ns-week__day.is-current { border: 2px solid var(--pine); background: var(--pine-soft); color: var(--pine); font-weight: 600; }
+    .ns-week__day.is-future { opacity: .5; }
+    a.ns-week__day:hover { border-color: var(--terracotta); }
+    @media (max-width: 400px) { .ns-week { gap: 4px; } .ns-week__day { font-size: 0.8125rem; letter-spacing: -0.02em; } .ns-week__day b { font-size: 1.125rem; } }
+    a.ns-week__day:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    @media (hover: hover) { a.ns-week__day:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); } }
+
+    /* "وصلنا طلبك". */
+    .ns-requested { display: flex; align-items: flex-start; gap: var(--space-4); margin-bottom: var(--space-6); padding: var(--space-4) var(--space-5); border-radius: var(--radius-lg); background: var(--pine-soft); border: 1px solid color-mix(in srgb, var(--pine) 25%, transparent); }
+    .ns-requested__mark { flex: none; width: 48px; height: 48px; border-radius: var(--radius-full); background: var(--pine); color: var(--on-pine); display: grid; place-items: center; }
+    .ns-requested__title { margin: 0 0 var(--space-1); font-size: 1.125rem; line-height: 1.625rem; font-weight: 700; color: var(--pine); }
+    .ns-requested__text { margin: 0; font-size: 1rem; line-height: 1.625rem; color: var(--ink); }
+
+    /* The two cards side by side: what is left, what was eaten. */
+    .ns-daily { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--space-6); align-items: stretch; }
+    @media (max-width: 1080px) { .ns-daily { grid-template-columns: minmax(0, 1fr); } }
+
+    .ns-today, .ns-eaten { position: relative; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: var(--space-6); }
+
+    /* "باقيلك اليوم". */
+    .ns-today { display: grid; grid-template-columns: auto minmax(0, 1fr); align-content: center; gap: var(--space-5) var(--space-6); align-items: center; overflow: hidden; }
+    .ns-today::before { content: ""; position: absolute; inset-block-end: -60px; inset-inline-end: -60px; width: 200px; height: 200px; border-radius: var(--radius-full); background: var(--sage-soft); z-index: 0; pointer-events: none; }
+    .ns-today > * { position: relative; z-index: 2; }
+    .ns-today__ring { --ring: var(--pine); width: 168px; height: 168px; border-radius: var(--radius-full); --fill: var(--p); background: conic-gradient(var(--ring) 0 var(--fill), var(--sage-soft) 0); display: grid; place-items: center; }
+    .ns-today.is-over .ns-today__ring { --ring: var(--terracotta); }
+    .ns-today__ring-in { width: 134px; height: 134px; border-radius: var(--radius-full); background: var(--surface-raised); display: grid; place-content: center; text-align: center; color: var(--ink-muted); font-size: 0.9375rem; line-height: 1.375rem; box-shadow: inset 0 0 0 1px var(--line); }
+    .ns-today__ring-in b { display: block; font-size: 1.875rem; line-height: 2.25rem; color: var(--pine); }
+    .ns-today.is-over .ns-today__ring-in b { color: var(--terracotta-ink); }
+    .ns-today__label { margin: 0; font-size: 1.125rem; line-height: 1.625rem; font-weight: 600; color: var(--ink-muted); }
+    .ns-today__value { margin: var(--space-1) 0; display: flex; align-items: baseline; gap: var(--space-2); flex-wrap: wrap; }
+    .ns-today__value .ns-num { font-size: clamp(2.75rem, 5vw, 4rem); line-height: 1; font-weight: 800; color: var(--pine); letter-spacing: -0.02em; }
+    .ns-today.is-over .ns-today__value .ns-num { color: var(--terracotta-ink); }
+    .ns-today__value small { font-size: 1.125rem; color: var(--ink-muted); }
+    .ns-today__sub { margin: 0; font-size: 1rem; line-height: 1.625rem; color: var(--ink-muted); }
+    .ns-today__wait { color: var(--terracotta-ink); font-weight: 600; }
+    .ns-today__bars { grid-column: 1 / -1; list-style: none; margin: 0; padding: var(--space-5) 0 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
+    .ns-today__bar-head { display: flex; align-items: center; gap: var(--space-2); font-size: 1rem; line-height: 1.5rem; font-weight: 600; color: var(--ink); }
+    .ns-today__bar-num { display: block; margin-top: var(--space-1); font-size: 0.9375rem; line-height: 1.375rem; color: var(--ink-muted); }
+    .ns-today__bar-num .ns-num:first-child { font-size: 1.0625rem; font-weight: 700; color: var(--ink); }
+    .ns-today__dot { width: 12px; height: 12px; border-radius: 4px; flex: none; }
+    .ns-today__track { display: block; height: 10px; margin-top: var(--space-2); border-radius: var(--radius-full); background: var(--sand); overflow: hidden; }
+    .ns-today__track b { display: block; height: 100%; width: var(--w); border-radius: var(--radius-full); transition: width .9s var(--ease-out) .15s; }
+    .ns-today.ns-fill:not(.is-filled) .ns-today__track b { width: 0; }
+    .ns-today.ns-fill:not(.is-filled) .ns-today__ring { --fill: 0%; }
+    .ns-today__ring { transition: --fill .9s var(--ease-out) .15s; }
+    @media (max-width: 640px) {
+        .ns-today { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; padding: var(--space-5); }
+        .ns-today__value { justify-content: center; }
+        .ns-today__bars { grid-template-columns: minmax(0, 1fr); width: 100%; text-align: start; gap: var(--space-4); }
+    }
+
+    /* Before the profile is complete. */
+    .ns-today--setup { grid-template-columns: auto minmax(0, 1fr); }
+    .ns-today--setup .ns-today__sub { margin: var(--space-2) 0 var(--space-4); }
+    .ns-today__setup-mark { width: 88px; height: 88px; border-radius: var(--radius-full); background: var(--pine-soft); color: var(--pine); display: grid; place-items: center; }
+    .ns-today__setup-mark .ns-icon { width: 40px; height: 40px; }
+
+    /* "أكلت اليوم". */
+    .ns-eaten { display: flex; flex-direction: column; }
+    .ns-eaten__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-2); }
+    .ns-eaten__title { margin: 0; font-size: 1.375rem; line-height: 2rem; color: var(--pine); }
+    .ns-eaten__count { padding: 2px var(--space-3); border-radius: var(--radius-full); background: var(--sand); font-size: 0.875rem; line-height: 1.5rem; color: var(--ink); }
+    .ns-eaten__list { list-style: none; margin: 0; padding: 0; }
+    .ns-eaten__item { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto 36px; gap: var(--space-3); align-items: center; padding: var(--space-3) 0; border-bottom: 1px solid var(--line); }
+    .ns-eaten__item:last-child { border-bottom: 0; }
+    .ns-eaten__type { justify-self: start; padding: 2px var(--space-2); border-radius: var(--radius-sm); font-size: 0.875rem; line-height: 1.5rem; font-weight: 700; color: var(--terracotta-ink); background: var(--terracotta-soft); }
+    .ns-eaten__type--lunch { color: var(--pine); background: var(--pine-soft); }
+    .ns-eaten__type--dinner { color: var(--charcoal); background: var(--sand); }
+    .ns-eaten__type--snack { color: var(--pine); background: var(--sage-soft); }
+    .ns-eaten__what { min-width: 0; font-size: 1.0625rem; line-height: 1.5rem; font-weight: 600; }
+    .ns-eaten__what a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 4px; }
+    .ns-eaten__what a:hover { text-decoration-color: var(--terracotta); }
+    .ns-eaten__what small { display: block; font-size: 0.875rem; line-height: 1.375rem; font-weight: 400; color: var(--ink-muted); }
+    .ns-eaten__asked { color: var(--terracotta-ink); font-weight: 600; }
+    .ns-eaten__kcal { text-align: end; line-height: 1.25rem; }
+    .ns-eaten__kcal b { display: block; font-size: 1.25rem; line-height: 1.75rem; color: var(--pine); }
+    .ns-eaten__kcal small { font-size: 0.8125rem; color: var(--ink-muted); }
+    .ns-eaten__item.is-waiting .ns-eaten__kcal b { color: var(--line-strong); }
+    .ns-eaten__remove button { width: 36px; height: 36px; border-radius: var(--radius-full); border: 0; background: none; color: var(--ink-muted); display: grid; place-items: center; cursor: pointer; transition: background-color .15s ease, color .15s ease; }
+    .ns-eaten__remove button:hover { background: var(--terracotta-soft); color: var(--terracotta-ink); }
+    .ns-eaten__remove button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    .ns-eaten__empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-6) var(--space-4); text-align: center; border-radius: var(--radius-md); background: var(--sage-soft); }
+    .ns-eaten__empty p { margin: 0; font-size: 1.125rem; line-height: 1.625rem; font-weight: 600; color: var(--pine); }
+    .ns-eaten__empty small { font-size: 1rem; line-height: 1.5rem; color: var(--ink-muted); max-width: 360px; }
+    .ns-eaten__empty-mark { width: 64px; height: 64px; border-radius: var(--radius-full); background: var(--surface-raised); color: var(--terracotta); display: grid; place-items: center; box-shadow: var(--shadow-sm); }
+    .ns-eaten__empty-mark .ns-icon { width: 32px; height: 32px; }
+    .ns-eaten__actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-top: auto; padding-top: var(--space-4); }
+    .ns-eaten__actions .ns-btn { justify-content: center; }
+    .ns-eaten__add { border-style: dashed; }
+    @media (max-width: 480px) {
+        .ns-eaten { padding: var(--space-5) var(--space-4); }
+        .ns-eaten__item { grid-template-columns: 52px minmax(0, 1fr) auto 32px; gap: var(--space-2); }
+        .ns-eaten__actions { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 360px) {
+        .ns-eaten__item { grid-template-columns: minmax(0, 1fr) auto 32px; }
+        .ns-eaten__type { grid-column: 1 / -1; }
+    }
+
+    /* "شو بيناسبك على …؟": a sage wash under the four dishes. */
+    .ns-daily__suggest { margin-top: var(--space-8); padding: var(--space-6); border-radius: var(--radius-lg); }
+    .ns-daily__suggest-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-5); }
+    .ns-daily__suggest-head h2 { margin: 0 0 var(--space-1); }
+    .ns-daily__suggest-head p { margin: 0; font-size: 1.0625rem; line-height: 1.625rem; }
+    .ns-daily__none { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); border-radius: var(--radius-md); background: var(--surface-raised); }
+    .ns-daily__none p { margin: 0; font-size: 1.0625rem; line-height: 1.625rem; }
+    @media (max-width: 640px) { .ns-daily__suggest { padding: var(--space-5) var(--space-4); margin-inline: calc(var(--space-4) * -1); border-radius: 0; } }
+
+    /* "أكلتها" on a meal's page. */
+    .ns-ate { margin: var(--space-4) 0; }
+    .ns-ate__go { width: 100%; justify-content: center; min-height: 52px; font-size: 1.125rem; }
+    .ns-ate__hint { margin: var(--space-2) 0 0; text-align: center; font-size: 0.9375rem; line-height: 1.375rem; color: var(--ink-muted); }
+
+    /* Bottom sheet on a phone, a centred card on a wider screen. */
+    .ns-sheet-wrap { position: fixed; inset: 0; z-index: 90; display: flex; align-items: flex-end; justify-content: center; }
+    .ns-sheet-dim { position: absolute; inset: 0; background: color-mix(in srgb, var(--pine-strong) 55%, transparent); }
+    .ns-sheet { position: relative; width: 100%; max-width: 560px; max-height: 92vh; overflow: auto; background: var(--surface-raised); border-radius: var(--radius-xl) var(--radius-xl) 0 0; border-start-start-radius: var(--radius-origin); padding: var(--space-3) var(--space-5) var(--space-6); box-shadow: var(--shadow-lift); animation: ns-sheet-up .35s var(--ease-out); }
+    @media (min-width: 720px) {
+        .ns-sheet-wrap { align-items: center; padding: var(--space-6); }
+        .ns-sheet { border-radius: var(--radius-xl); border-start-start-radius: var(--radius-origin); padding: var(--space-6); }
+        .ns-sheet__grab { display: none !important; }
+    }
+    @keyframes ns-sheet-up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .ns-sheet { animation: none; } }
+    .ns-sheet__grab { display: block; width: 48px; height: 5px; margin: 0 auto var(--space-4); border-radius: var(--radius-full); background: var(--line-strong); }
+    .ns-sheet__head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-3); align-items: start; margin-bottom: var(--space-5); }
+    .ns-sheet__mark { width: 48px; height: 48px; border-radius: var(--radius-full); background: var(--terracotta-soft); color: var(--terracotta-ink); display: grid; place-items: center; }
+    .ns-sheet__title { margin: 0; font-size: 1.375rem; line-height: 2rem; color: var(--pine); }
+    .ns-sheet__lead { margin: var(--space-1) 0 0; font-size: 1rem; line-height: 1.625rem; color: var(--ink-muted); }
+    .ns-sheet__close { width: 40px; height: 40px; border-radius: var(--radius-full); border: 0; background: var(--sand); color: var(--ink); display: grid; place-items: center; cursor: pointer; }
+    .ns-sheet__close:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    .ns-sheet__form { display: flex; flex-direction: column; gap: var(--space-5); }
+    .ns-sheet__form fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+    .ns-sheet__submit { width: 100%; justify-content: center; min-height: 52px; font-size: 1.125rem; }
+
+    /* How much: pies of the plate, or weights. */
+    .ns-amounts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+    .ns-amount input, .ns-choice-chip input { position: absolute; opacity: 0; pointer-events: none; }
+    .ns-amount__box { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); height: 100%; padding: var(--space-3) var(--space-2); border: 1.5px solid var(--line); border-radius: var(--radius-md); background: #fff; text-align: center; cursor: pointer; transition: border-color .15s ease, background-color .15s ease, transform .2s var(--ease-out); }
+    .ns-amount__box:hover { border-color: var(--pine); }
+    .ns-amount input:checked + .ns-amount__box { border: 2px solid var(--pine); background: var(--pine-soft); }
+    .ns-amount input:focus-visible + .ns-amount__box { box-shadow: var(--focus-ring); }
+    .ns-amount__pie { width: 40px; height: 40px; border-radius: var(--radius-full); border: 2px solid var(--pine); background: conic-gradient(var(--pine) 0 var(--fill), var(--sand) 0); }
+    .ns-amount__pie.is-more { box-shadow: 6px 0 0 -2px var(--surface-raised), 8px 0 0 0 var(--terracotta); }
+    .ns-amount__name { font-size: 0.9375rem; line-height: 1.375rem; font-weight: 600; color: var(--ink); }
+    .ns-amount__kcal { font-size: 0.875rem; line-height: 1.25rem; color: var(--ink-muted); }
+
+    /* Which meal. */
+    .ns-choice-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .ns-choice-chip span { display: inline-flex; align-items: center; height: 44px; padding: 0 var(--space-5); border: 1.5px solid var(--line); border-radius: var(--radius-full); background: #fff; font-size: 1rem; font-weight: 600; color: var(--ink); cursor: pointer; transition: border-color .15s ease, background-color .15s ease; }
+    .ns-choice-chip span:hover { border-color: var(--pine); }
+    .ns-choice-chip input:checked + span { background: var(--pine); border-color: var(--pine); color: var(--on-pine); }
+    .ns-choice-chip input:focus-visible + span { box-shadow: var(--focus-ring); }
+}

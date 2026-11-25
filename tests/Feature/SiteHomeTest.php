@@ -61,11 +61,14 @@ class SiteHomeTest extends TestCase
         $this->assertMatchesRegularExpression('/^dish-[1-4]$/', ChainPatterns::dishCover(42));
     }
 
-    public function test_the_phone_menu_carries_the_account_links(): void
+    public function test_the_phone_menu_carries_the_guest_buttons_and_the_account_icon_the_rest(): void
     {
         $this->get('/')->assertOk()->assertSeeInOrder(['ns-drawer__account', 'تسجيل الدخول', 'أنشئ حسابك']);
 
+        // Signed in, everything about the person is in the account icon, on every width.
         $this->actingAs(User::factory()->create(['name' => 'سارة']));
-        $this->get('/')->assertOk()->assertSeeInOrder(['ns-drawer__account', 'معاييري (سارة)', 'خروج']);
+        $this->get('/')->assertOk()
+            ->assertDontSee('ns-drawer__account')
+            ->assertSeeInOrder(['حسابي: سارة', 'يومي', 'معاييري', 'أخصائيّي', 'تسجيل الخروج']);
     }
 }

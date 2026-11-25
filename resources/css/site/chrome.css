@@ -81,9 +81,36 @@
     }
 }
 
+/* The signed-in person's menu (partials/account-menu): one round button, on every width. */
 @layer components {
-    .ns-header__user { font-size: 1rem; line-height: 1.5rem; font-weight: 600; color: var(--ink); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    @media (max-width: 640px) { .ns-header__user { display: none; } }
+    .ns-acct { position: relative; }
+    .ns-acct__button { width: 44px; height: 44px; flex: none; border-radius: var(--radius-full); border: 2px solid var(--pine); background: var(--pine-soft); color: var(--pine); display: grid; place-items: center; cursor: pointer; transition: background-color .2s ease, transform .2s var(--ease-out); }
+    .ns-acct__button .ns-icon { width: 24px; height: 24px; }
+    .ns-acct__button:hover, .ns-acct__button[aria-expanded="true"] { background: var(--pine); color: var(--on-pine); }
+    .ns-acct__button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    .ns-acct__menu { position: absolute; top: calc(100% + 10px); inset-inline-end: 0; z-index: 60; width: min(300px, calc(100vw - 24px)); padding: var(--space-2); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); border-start-start-radius: var(--radius-xl); box-shadow: var(--shadow-lift); }
+    .ns-acct__who { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); margin-bottom: var(--space-1); border-radius: var(--radius-md); background: var(--sage-soft); }
+    .ns-acct__avatar { width: 44px; height: 44px; flex: none; border-radius: var(--radius-full); background: var(--pine); color: var(--on-pine); display: grid; place-items: center; font-size: 1.25rem; font-weight: 700; }
+    .ns-acct__name { min-width: 0; }
+    .ns-acct__name b { display: block; font-size: 1.0625rem; line-height: 1.5rem; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ns-acct__name small { display: block; font-size: 0.875rem; line-height: 1.25rem; color: var(--ink-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: end; }
+    .ns-acct__links { display: flex; flex-direction: column; }
+    .ns-acct__links a, .ns-acct__out button { display: flex; align-items: center; gap: var(--space-3); width: 100%; min-height: 48px; padding: 0 var(--space-3); border: 0; border-radius: var(--radius-md); background: none; font: inherit; font-size: 1.0625rem; line-height: 1.5rem; color: var(--ink); text-decoration: none; text-align: start; cursor: pointer; transition: background-color .15s ease; }
+    .ns-acct__links a:hover, .ns-acct__out button:hover { background: var(--sage-soft); }
+    .ns-acct__links a:focus-visible, .ns-acct__out button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    .ns-acct__links a[aria-current="page"] { color: var(--pine); font-weight: 600; background: var(--pine-soft); }
+    .ns-acct__links .ns-icon, .ns-acct__out .ns-icon { width: 22px; height: 22px; color: var(--pine); }
+    .ns-acct__out { margin-top: var(--space-1); padding-top: var(--space-1); border-top: 1px solid var(--line); }
+    .ns-acct__out button { color: var(--terracotta-ink); font-weight: 600; }
+    .ns-acct__out button .ns-icon { color: var(--terracotta-ink); }
+    @media (max-width: 480px) { .ns-acct__button { width: 40px; height: 40px; } }
+    /* The smallest phones (320–360px): logo and four round buttons still fit on one line. */
+    @media (max-width: 360px) {
+        .ns-header__actions { gap: 0; }
+        .ns-header__actions .ns-btn--icon { width: 36px; }
+        .ns-acct__button { width: 36px; height: 36px; margin-inline: 2px; }
+        .ns-header__in .ns-logo { font-size: 1.1875rem; }
+    }
 }
 
 /* The notification bell (partials/bell). */

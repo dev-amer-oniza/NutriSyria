@@ -69,10 +69,12 @@
                             'meal' => $meal, 'causes' => $fit->causes, 'fitSuggestions' => $suggestions,
                         ])
                     </div>
+                    @include('site.components.daily.eaten-sheet', ['meal' => $meal])
                     <a class="ns-link" href="{{ route('site.criteria') }}">معاييري</a>
                 @elseif (auth()->check())
                     <p class="t-body">أكمل بياناتك (العمر والطول والوزن والنشاط والهدف) لنقيّم كل وجبة على جسمك وهدفك.</p>
                     <a class="ns-btn ns-btn--primary" href="{{ route('site.criteria') }}">أكمل ملفك</a>
+                    @include('site.components.daily.eaten-sheet', ['meal' => $meal])
                 @else
                     <p class="t-body">سجّل الدخول، وأخبرنا عن جسمك وهدفك وحالتك، لنقول لك إن كانت تناسبك وما الحصة المناسبة لك.</p>
                     <div class="ns-book__actions">

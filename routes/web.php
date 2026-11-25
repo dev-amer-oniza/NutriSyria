@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Site\Account\ConsultationController;
 use App\Http\Controllers\Site\Account\CriteriaController;
+use App\Http\Controllers\Site\Account\DailyController;
 use App\Http\Controllers\Site\Account\NotificationController;
 use App\Http\Controllers\Site\Account\OnboardingController;
 use App\Http\Controllers\Site\Auth\EmailVerificationController;
@@ -112,6 +113,15 @@ Route::name('site.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::get('/onboarding/done', [OnboardingController::class, 'done'])->name('onboarding.done');
         Route::get('/account/criteria', [CriteriaController::class, 'index'])->name('criteria');
+
+        // "يومي": what the person ate today and what is left (DailyLog), "أكلتها" from a meal's page,
+        // and a dish they could not find, sent to the team (FoodRequests).
+        Route::get('/account/daily', [DailyController::class, 'show'])->name('daily');
+        Route::post('/meals/{meal}/eaten', [DailyController::class, 'store'])->whereNumber('meal')
+            ->middleware('throttle:daily')->name('daily.store');
+        Route::delete('/account/daily/{entry}', [DailyController::class, 'destroy'])->whereNumber('entry')->name('daily.destroy');
+        Route::post('/account/daily/request', [DailyController::class, 'requestFood'])
+            ->middleware('throttle:auth-forms')->name('daily.request');
 
         // Everything that changes the profile or criteria is locked while a nutritionist is linked.
         Route::middleware('profile.unlocked')->group(function () {

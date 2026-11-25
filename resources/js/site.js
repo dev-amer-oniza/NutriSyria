@@ -382,7 +382,7 @@ Alpine.data('customRecipe', (config) => ({
  * another, numbers count up and bars fill once they are seen. Only content that is already
  * on the page when it loads; nothing moves for people who ask for less motion.
  */
-const GRIDS = '.ns-dishes, .ns-rests, .ns-nutris, .ns-explore__strip, .ns-how__steps, .ns-steps, .ns-goals, .ns-levels, .ns-method__levels, .ns-partners__benefits, .ns-join__points';
+const GRIDS = '.ns-dishes, .ns-rests, .ns-nutris, .ns-explore__strip, .ns-how__steps, .ns-steps, .ns-goals, .ns-levels, .ns-method__levels, .ns-partners__benefits, .ns-join__points, .ns-daily';
 const STAGGER_MS = 70;
 const STAGGER_MAX = 6;
 const COUNT_MS = 900;
