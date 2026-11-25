@@ -48,6 +48,19 @@ class SiteNotification extends Notification
             $request->end_reason ?: 'عادت معاييرك إلى قيمك أنت، ويمكنك تعديل بياناتك من جديد.', route('site.my-nutritionist', absolute: false));
     }
 
+    /** A dish the person asked for is on the platform now ("يومي", FoodRequests). */
+    public static function foodAdded(string $asked, string $meal, string $url): self
+    {
+        return new self('success', "صارت «{$meal}» موجودة",
+            "طلبت «{$asked}»، وأضفناها. من المرة الجاية بتنحسب من يومك.", $url);
+    }
+
+    public static function foodDismissed(string $asked, ?string $note): self
+    {
+        return new self('info', "ما قدرنا نضيف «{$asked}» هلق",
+            $note ?: 'شكراً إنك بعتلنا ياها. منضل نشتغل على أكلات أكتر.', route('site.daily', absolute: false));
+    }
+
     private static function nutritionistName(ConsultationRequest $request): string
     {
         return $request->nutritionist->nutritionistProfile?->display_name ?? $request->nutritionist->name;

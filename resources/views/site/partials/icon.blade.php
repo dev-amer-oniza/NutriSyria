@@ -7,6 +7,21 @@
         @case('pot')
             <path d="M4 10h16v7a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3Z"/><path d="M2.5 10h19"/><path d="M9 6.5c0-1 .8-1 .8-2M12 6.5c0-1 .8-1 .8-2M15 6.5c0-1 .8-1 .8-2"/>
             @break
+        @case('user')
+            <circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c.9-3.6 4-5.6 7.5-5.6s6.6 2 7.5 5.6"/>
+            @break
+        @case('plus')
+            <path d="M12 5v14M5 12h14"/>
+            @break
+        @case('close')
+            <path d="M6 6l12 12M18 6 6 18"/>
+            @break
+        @case('logout')
+            <path d="M10 4.5H6.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2H10"/><path d="M14 8l-4 4 4 4M10 12h10"/>
+            @break
+        @case('panel')
+            <rect x="4" y="4.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M9.5 9.5v10"/>
+            @break
         @case('search')
             <circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4 20 20"/>
             @break

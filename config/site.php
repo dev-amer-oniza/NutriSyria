@@ -8,6 +8,17 @@ return [
 
     'description' => 'القيم الغذائية لوجبات المطاعم السورية، موثّقة المصدر، مع مدى مناسبة كل وجبة لك.',
 
+    /*
+    | "يومي": the person's day. Hours and dates are in this zone (the server keeps UTC), and
+    | the amounts one may log of a meal: plates, or 100 g steps for a meal with no plate weight.
+    */
+    'daily' => [
+        'timezone' => 'Asia/Damascus',
+        'plates' => [0.25, 0.5, 0.75, 1.0, 1.5, 2.0],
+        'per_100g' => [1.0, 1.5, 2.0, 3.0, 4.0],
+        'suggestions' => 4,
+    ],
+
     'nav' => [
         ['label' => 'الرئيسية', 'route' => 'home'],
         ['label' => 'الوجبات', 'route' => 'site.meals'],
