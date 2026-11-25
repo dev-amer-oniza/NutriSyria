@@ -148,7 +148,7 @@ class ViewClient extends Page
                 ]),
                 // The site's three questions: the training days, the sports, and each one's days and minutes.
                 Select::make('training_days')->label('كم يوم بالأسبوع يتمرّن؟')->required()->live()
-                    ->options([0 => 'ولا يوم'] + array_combine(range(1, 7), range(1, 7)))
+                    ->options([0 => 'ولا يوم'] + array_combine(range(1, 7), array_map('strval', range(1, 7))))
                     ->helperText('يحدّد قالب النشاط الرياضي (3 أيام فأكثر)، لا السعرات.'),
                 Repeater::make('sports')->label('شو بيعمل بهالأيام؟')->defaultItems(0)->maxItems((int) config('nutrition_criteria.max_exercises'))
                     ->addActionLabel('أضف رياضة')->columns(3)->live()
@@ -158,7 +158,7 @@ class ViewClient extends Page
                         Select::make('type')->label('الرياضة')->required()->distinct()
                             ->options(collect(config('nutrition_criteria.exercises'))->map(fn (array $e) => $e['label'].' ('.$e['met'].' MET)')->all()),
                         Select::make('days')->label('كم يوم منها')->required()
-                            ->options(fn (Get $get) => array_combine(range(1, max(1, (int) $get('../../training_days'))), range(1, max(1, (int) $get('../../training_days'))))),
+                            ->options(fn (Get $get) => array_combine(range(1, max(1, (int) $get('../../training_days'))), array_map('strval', range(1, max(1, (int) $get('../../training_days')))))),
                         Select::make('minutes')->label('كم دقيقة تقريباً')->required()
                             ->options(collect(SportAnswers::minuteOptions())->mapWithKeys(fn (int $m, int $i) => [$m => $m.($i === count(SportAnswers::minuteOptions()) - 1 ? '+' : '')])->all()),
                     ]),

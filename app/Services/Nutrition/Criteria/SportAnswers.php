@@ -34,7 +34,7 @@ final class SportAnswers
      * before are joined: their days added up to seven, the minutes their weighted mean rounded to
      * an offered value), and the days in all (never fewer than the busiest sport).
      *
-     * @param  list<array{type: string, times: int|string, minutes: int|string}>|null  $rows
+     * @param  list<array<string, mixed>>|null  $rows  as stored (rows from before may lack a field)
      * @return array{days: int, sports: array<string, array{days: int, minutes: int}>}
      */
     public static function fromRows(?array $rows, ?int $stated = null): array
