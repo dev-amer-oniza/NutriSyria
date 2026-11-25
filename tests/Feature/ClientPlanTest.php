@@ -136,6 +136,15 @@ class ClientPlanTest extends TestCase
         // (5.8 × 70 − 1.4 × 1400.25 ÷ 24) × 2 h ÷ 7 = 92.7: 2142.4 + 92.7 − 750 = 1485 → 1490.
         $this->assertSame(1490.0, $this->value('energy_kcal'));
 
+        // Two sports on different days, set by the nutritionist: the days in all are kept.
+        $workspace->updateProfile($nutritionist, $this->link, [
+            'sex' => 'female', 'birth_year' => $profile->birth_year, 'height_cm' => 165, 'weight_kg' => 70,
+            'daily_life' => 'seated', 'work_days' => 7, 'training_days' => 4,
+            'exercises' => [['type' => 'swim', 'times' => 2, 'minutes' => 60], ['type' => 'walk', 'times' => 2, 'minutes' => 30]],
+            'goal' => 'lose', 'allergies' => [],
+        ]);
+        $this->assertSame(4, $this->link->user->profile->fresh()->training_days);
+
         $workspace->removePlan($nutritionist, $this->link);
         $this->assertSame(0, NutritionPlan::count());
         $this->assertSame(CriterionSource::Default, app(PersonalCriteria::class)->for($this->link->user->fresh())->get('energy_kcal')->source);

@@ -76,11 +76,12 @@ return [
     | have been sitting, PAR 1.4 in FAO Table 5.1, already in the day's factor), averaged over
     | the week. "1 MET = 1 kcal/kg/hr" (compendium_2024). Values and codes from the 2024 Adult
     | Compendium of Physical Activities. 'sport_days': training on this many days a week or
-    | more brings the sport template.
+    | more brings the sport template. 'max_exercises': rows a person may write (the same sport
+    | twice when its minutes differ from day to day).
     */
     'replaced_par' => 1.4,
     'sport_days' => 3,
-    'max_exercises' => 3,
+    'max_exercises' => 5,
     'exercise_refs' => ['compendium_2024', 'who_pa_2020'],
     'exercises' => [
         'walk' => ['label' => 'مشي عادي', 'met' => 3.0, 'code' => '17170'],

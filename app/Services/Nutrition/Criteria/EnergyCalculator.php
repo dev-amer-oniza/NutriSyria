@@ -75,14 +75,26 @@ final class EnergyCalculator
     }
 
     /**
-     * The days a week the person trains: the most of any one sport (two sports on the same
-     * day are one training day; we cannot tell, so we never count more than we know).
+     * The days a week the person trains. One row: its days. Two rows or more cannot tell whether
+     * they share a day, so the person says how many days in all ($stated); never fewer than the
+     * busiest row nor more than seven. Without an answer (older profiles): the busiest row.
      *
      * @param  list<array{type: string, times: int, minutes: int}>  $exercises
      */
-    public static function trainingDays(array $exercises): int
+    public static function trainingDays(array $exercises, ?int $stated = null): int
     {
-        return $exercises === [] ? 0 : max(array_map(fn (array $e) => (int) $e['times'], $exercises));
+        if ($exercises === []) {
+            return 0;
+        }
+        $busiest = min(7, max(array_map(fn (array $e) => (int) $e['times'], $exercises)));
+
+        return count($exercises) > 1 && $stated !== null ? max($busiest, min(7, $stated)) : $busiest;
+    }
+
+    /** The least a stated total may be: the busiest row's days (at most seven). */
+    public static function fewestDays(array $exercises): int
+    {
+        return $exercises === [] ? 0 : min(7, max(array_map(fn (array $e) => (int) $e['times'], $exercises)));
     }
 
     /**

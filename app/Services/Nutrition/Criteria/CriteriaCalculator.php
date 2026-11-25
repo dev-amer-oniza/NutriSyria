@@ -79,7 +79,7 @@ final class CriteriaCalculator
         if ($chosen && isset($this->rules['templates'][$chosen])) {
             return [$chosen, $profile['template_source'] ?? CriterionSource::Nutritionist];
         }
-        if (EnergyCalculator::trainingDays($profile['exercises'] ?? []) >= (int) $this->rules['sport_days']) {
+        if (EnergyCalculator::trainingDays($profile['exercises'] ?? [], $profile['training_days'] ?? null) >= (int) $this->rules['sport_days']) {
             return ['sport', CriterionSource::Default];
         }
 
