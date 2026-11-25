@@ -75,7 +75,7 @@ class Weighing
         $daysSince = $weighedOn ? (int) $weighedOn->diffInDays($today) : null;
 
         return new WeightCard(
-            current: $latest?->weight_kg ?? ($user->profile?->weight_kg !== null ? (float) $user->profile->weight_kg : null),
+            current: $latest !== null ? $latest->weight_kg : ($user->profile?->weight_kg !== null ? (float) $user->profile->weight_kg : null),
             weighedOn: $weighedOn,
             points: $logs->pluck('weight_kg')->map(fn ($kg) => (float) $kg)->all(),
             change: $logs->count() > 1 ? round($latest->weight_kg - $first->weight_kg, 1) : null,
