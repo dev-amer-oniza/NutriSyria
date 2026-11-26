@@ -1,4 +1,4 @@
-{{-- A restaurant in a list. Param $restaurant (App\Data\Site\RestaurantFacts). The logo, or the one cover every restaurant without a logo shares. --}}
+{{-- A restaurant or brand in a list (its kind as the first tag). Param $restaurant (App\Data\Site\RestaurantFacts). The logo, or the one cover every restaurant without a logo shares. --}}
 <a class="ns-rest" href="{{ route('site.brands.show', $restaurant->id) }}">
     <span class="ns-rest__logo">
         @if ($restaurant->logo)
@@ -11,6 +11,7 @@
         <span class="ns-rest__name">{{ $restaurant->name }}</span>
         @if ($restaurant->city)<span class="ns-rest__meta">{{ $restaurant->city }}</span>@endif
         <span class="ns-rest__tags">
+            @include('site.components.kind-tag', ['kind' => $restaurant->kind])
             <span class="ns-rest__tag"><span class="ns-num">{{ $restaurant->mealCount }}</span> وجبة بقيم معتمدة</span>
             @if ($restaurant->hasDelivery)<span class="ns-rest__tag ns-rest__tag--delivery">توصيل</span>@endif
         </span>

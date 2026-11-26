@@ -10,6 +10,9 @@
     <form class="ns-form" method="post" action="{{ route('site.google.whatsapp') }}" novalidate>
         @csrf
         @include('site.components.form.honeypot')
+        @if ($type === \App\Enums\AccountType::BrandOwner)
+            @include('site.components.form.brand-kind')
+        @endif
         @include('site.components.form.field', [
             'name' => 'whatsapp', 'label' => 'رقم واتساب', 'type' => 'tel', 'autocomplete' => 'tel', 'inputmode' => 'tel',
             'dir' => 'ltr', 'placeholder' => '0912 345 678', 'autofocus' => true,

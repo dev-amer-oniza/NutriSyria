@@ -4,6 +4,7 @@ namespace App\Services\Site;
 
 use App\Data\Nutrition\MealFacts;
 use App\Data\Site\RestaurantFacts;
+use App\Enums\BrandKind;
 use App\Http\Requests\Auth\AuthFormRequest;
 use App\Models\Brand;
 use App\Models\Product;
@@ -13,8 +14,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * The restaurants (active brands) on the public site: the list with its search and
- * "delivers" filter, one restaurant's details, and its products. Built once per catalog
+ * The restaurants and brands (active, BrandKind) on the public site: the list with its search,
+ * kind and "delivers" filters, one restaurant's details, and its products. Built once per catalog
  * version (PublicCatalogCache) in a fixed number of queries, whatever the number of brands.
  */
 class RestaurantDirectory
@@ -29,13 +30,16 @@ class RestaurantDirectory
      *
      * @return list<RestaurantFacts>
      */
-    public function all(?string $search = null, bool $deliveryOnly = false, ?int $limit = null): array
+    public function all(?string $search = null, bool $deliveryOnly = false, ?int $limit = null, ?BrandKind $kind = null): array
     {
         $restaurants = $this->cache->remember('restaurants', fn () => $this->build());
 
         if (filled($search)) {
             $term = ArabicNormalizer::normalize($search);
             $restaurants = array_filter($restaurants, fn (RestaurantFacts $r) => str_contains(ArabicNormalizer::normalize($r->name), $term));
+        }
+        if ($kind) {
+            $restaurants = array_filter($restaurants, fn (RestaurantFacts $r) => $r->kind === $kind);
         }
         if ($deliveryOnly) {
             $restaurants = array_filter($restaurants, fn (RestaurantFacts $r) => $r->hasDelivery);
@@ -167,6 +171,7 @@ class RestaurantDirectory
             hasDelivery: $brand->has_delivery,
             deliveryNote: $brand->has_delivery ? $brand->delivery_note : null,
             productCount: (int) $brand->products_count,
+            kind: $brand->kind,
         );
     }
 }

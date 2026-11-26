@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Auth\Access;
+use App\Enums\BrandKind;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\EditBrand;
 use App\Models\Brand;
 use App\Models\Product;
@@ -113,7 +114,7 @@ class RestaurantPagesTest extends TestCase
         $this->approvedMeal('منسف كبير', per100g: ['energy_kcal' => 500, 'protein_g' => 12, 'carbohydrate_g' => 30, 'fat_g' => 25]);
 
         $this->get('/')->assertOk()
-            ->assertSee('مطاعم معنا')
+            ->assertSee('مطاعم وبراندات معنا')
             ->assertSee('بيت المجدرة')
             ->assertSee('وجبات تناسبك')
             ->assertSee('أنشئ حسابك وأخبرنا عن جسمك');
@@ -173,5 +174,56 @@ class RestaurantPagesTest extends TestCase
 
         $this->assertSame('حمص، الحمرا', $this->brand->fresh()->address);
         $this->assertSame('حمص', $this->brand->fresh()->city->label());
+    }
+
+    public function test_restaurants_and_brands_are_told_apart_and_filtered(): void
+    {
+        $this->approvedMeal('مجدرة');
+        $brand = Brand::create(['name' => 'بوكس صحي', 'has_delivery' => true]);
+        $brand->forceFill(['kind' => BrandKind::Brand])->save();
+        $this->approvedMeal('سلطة كينوا')->forceFill(['brand_id' => $brand->id])->saveQuietly();
+
+        $this->get(route('site.brands'))->assertOk()
+            ->assertSee('بيت المجدرة')->assertSee('بوكس صحي')
+            ->assertSee('ns-kind--restaurant', false)->assertSee('ns-kind--brand', false);
+
+        $this->get(route('site.brands', ['kind' => 'brand']))->assertSee('بوكس صحي')->assertDontSee('بيت المجدرة');
+        $this->get(route('site.brands', ['kind' => 'restaurant']))->assertSee('بيت المجدرة')->assertDontSee('بوكس صحي');
+        // The filters combine; an odd kind is ignored.
+        $this->get(route('site.brands', ['kind' => 'restaurant', 'delivery' => 1]))->assertDontSee('بيت المجدرة')->assertDontSee('بوكس صحي');
+        $this->get(route('site.brands', ['kind' => 'shop']))->assertSee('بيت المجدرة')->assertSee('بوكس صحي');
+
+        $this->get(route('site.brands.show', $brand))->assertOk()->assertSee('<p class="ns-eyebrow">براند</p>', false);
+        // A meal names its place and its kind.
+        $this->get(route('site.meals'))->assertSee('· براند')->assertSee('· مطعم');
+        $this->get(route('home'))->assertSee('مطاعم وبراندات معنا');
+    }
+
+    public function test_only_the_admin_sets_the_kind(): void
+    {
+        $owner = $this->signInAs(Access::BRAND_OWNER);
+        $this->brand->managers()->attach($owner);
+        Livewire::test(EditBrand::class, ['record' => $this->brand->id])
+            ->assertFormFieldIsDisabled('kind')
+            ->fillForm(['kind' => 'brand'])
+            ->call('save');
+        $this->assertSame(BrandKind::Restaurant, $this->brand->fresh()->kind);
+    }
+
+    public function test_the_admin_sets_the_kind_and_sees_what_the_owner_chose(): void
+    {
+        $owner = User::forceCreate(['name' => 'أبو عبدو', 'email' => 'abdo@example.com', 'password' => 'x-secret-1', 'is_active' => true]);
+        $owner->forceFill(['brand_kind' => BrandKind::Brand])->save();
+        $owner->assignRole(Access::BRAND_OWNER);
+        $this->brand->managers()->attach($owner);
+
+        $this->signInAs(Access::SUPER_ADMIN);
+        Livewire::test(EditBrand::class, ['record' => $this->brand->id])
+            ->assertSee('اختيار صاحبه بالتسجيل: أبو عبدو: براند')
+            ->fillForm(['kind' => 'brand'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame(BrandKind::Brand, $this->brand->fresh()->kind);
     }
 }

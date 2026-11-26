@@ -16,6 +16,10 @@
         @include('site.components.form.field', ['name' => 'email', 'label' => 'البريد الإلكتروني', 'type' => 'email', 'autocomplete' => 'email', 'inputmode' => 'email', 'dir' => 'ltr', 'placeholder' => 'name@example.com'])
         @include('site.components.form.password', ['label' => 'كلمة المرور', 'autocomplete' => 'new-password', 'hint' => '8 أحرف أو أكثر.'])
 
+        <div x-show="type === 'brand-owner'" x-cloak>
+            @include('site.components.form.brand-kind')
+        </div>
+
         <div x-show="type !== 'member'" x-cloak>
             @include('site.components.form.field', [
                 'name' => 'whatsapp', 'label' => 'رقم واتساب', 'type' => 'tel', 'autocomplete' => 'tel', 'inputmode' => 'tel',

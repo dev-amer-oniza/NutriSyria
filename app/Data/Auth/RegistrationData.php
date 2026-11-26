@@ -3,6 +3,7 @@
 namespace App\Data\Auth;
 
 use App\Enums\AccountType;
+use App\Enums\BrandKind;
 
 /** A validated sign-up, passed from RegisterRequest to RegistrationService. */
 final readonly class RegistrationData
@@ -13,5 +14,6 @@ final readonly class RegistrationData
         #[\SensitiveParameter] public string $password,
         public AccountType $accountType,
         public ?string $whatsapp,
+        public ?BrandKind $brandKind = null,
     ) {}
 }

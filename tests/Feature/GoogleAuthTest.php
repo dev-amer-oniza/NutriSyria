@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Auth\Access;
+use App\Enums\BrandKind;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Socialite\Facades\Socialite;
@@ -146,14 +147,16 @@ class GoogleAuthTest extends TestCase
         $this->assertGuest();
         $this->assertSame(0, User::count(), 'no account before the number');
 
-        $this->get('/auth/google/whatsapp')->assertOk()->assertSee('ليلى حداد');
-        $this->post('/auth/google/whatsapp', ['whatsapp' => 'abc'])->assertSessionHasErrors('whatsapp');
-        $this->post('/auth/google/whatsapp', ['whatsapp' => '٠٩٤٤ ١٢٣ ٤٥٦'])->assertRedirect('/onboarding/body');
+        $this->get('/auth/google/whatsapp')->assertOk()->assertSee('ليلى حداد')->assertSee('شو عندك؟');
+        $this->post('/auth/google/whatsapp', ['whatsapp' => 'abc', 'brand_kind' => 'brand'])->assertSessionHasErrors('whatsapp');
+        $this->post('/auth/google/whatsapp', ['whatsapp' => '0944123456'])->assertSessionHasErrors('brand_kind');
+        $this->post('/auth/google/whatsapp', ['whatsapp' => '٠٩٤٤ ١٢٣ ٤٥٦', 'brand_kind' => 'brand'])->assertRedirect('/onboarding/body');
 
         $user = User::sole();
         $this->assertAuthenticatedAs($user);
         $this->assertSame('+963944123456', $user->phone);
         $this->assertSame(Access::BRAND_OWNER, $user->requested_role);
+        $this->assertSame(BrandKind::Brand, $user->brand_kind);
         $this->assertCount(0, $user->roles);
         $this->get('/auth/google/whatsapp')->assertRedirect('/');
     }

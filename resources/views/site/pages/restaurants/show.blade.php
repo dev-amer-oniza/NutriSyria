@@ -14,7 +14,7 @@
 
     <section class="ns-section">
         <div class="ns-wrap ns-restaurant">
-            @include('site.partials.back', ['href' => route('site.brands'), 'label' => 'كل المطاعم'])
+            @include('site.partials.back', ['href' => route('site.brands'), 'label' => 'كل المطاعم والبراندات'])
 
             <header class="ns-restaurant__head">
                 <span class="ns-restaurant__logo">
@@ -25,9 +25,10 @@
                     @endif
                 </span>
                 <div>
-                    <p class="ns-eyebrow">مطعم</p>
+                    <p class="ns-eyebrow">{{ $restaurant->kind->getLabel() }}</p>
                     <h1 class="t-title">{{ $restaurant->name }}</h1>
                     <p class="ns-rest__tags">
+                        @include('site.components.kind-tag', ['kind' => $restaurant->kind])
                         <span class="ns-rest__tag"><span class="ns-num">{{ $restaurant->mealCount }}</span> وجبة بقيم معتمدة</span>
                         @if ($restaurant->hasDelivery)<span class="ns-rest__tag ns-rest__tag--delivery">توصيل</span>@endif
                     </p>

@@ -51,6 +51,8 @@ class UsersTable
                     ->color('warning')
                     ->icon(Heroicon::OutlinedClock)
                     ->formatStateUsing(fn (string $state) => 'ينتظر: '.(Access::roles()[$state] ?? $state))
+                    // A brand owner said what they run: restaurant or brand.
+                    ->description(fn (User $record) => $record->brand_kind ? 'سجّل كـ: '.$record->brand_kind->getLabel() : null)
                     ->placeholder('—'),
                 TextColumn::make('phone')
                     ->label('واتساب')

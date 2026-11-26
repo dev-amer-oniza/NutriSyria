@@ -64,7 +64,7 @@ class RoleRequestService
 
         Notification::make()
             ->title("طلب حساب جديد: {$user->name}")
-            ->body('يطلب دور «'.Access::roles()[$role].'». '.($user->phone ? "واتساب: {$user->phone}" : ''))
+            ->body('يطلب دور «'.Access::roles()[$role].'»'.($user->brand_kind ? ' ('.$user->brand_kind->getLabel().')' : '').'. '.($user->phone ? "واتساب: {$user->phone}" : ''))
             ->icon('heroicon-o-user-plus')
             ->warning()
             ->actions([Action::make('open')->label('طلبات الأدوار')->url(UserResource::getUrl())->markAsRead()])
