@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Http\Middleware\UseArabicInPanel;
 use App\Support\ArabicSearch;
 use Closure;
+use Filament\Actions\Action;
 use Filament\FontProviders\GoogleFontProvider;
 use Filament\Forms\Components\Select;
 use Filament\Http\Middleware\Authenticate;
@@ -131,6 +132,13 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(fn () => view('filament.admin.brand'))
             ->brandLogoHeight('2rem')
             ->favicon(asset('images/site/mark.svg'))
+            // The account menu, for every role: a way back to the public site (the owner's request).
+            ->userMenuItems([
+                'site' => Action::make('site')
+                    ->label('الذهاب للموقع')
+                    ->icon(Heroicon::OutlinedGlobeAlt)
+                    ->url(fn (): string => route('home')),
+            ])
             ->navigationGroups(['البيانات الغذائية', 'المطاعم والبراندات', 'الاستشارات', 'الإعدادات'])
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
