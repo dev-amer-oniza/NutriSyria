@@ -54,6 +54,12 @@ class Brand extends Model
     }
 
     /** The sections of this brand's menu, in the owner's order. */
+    /** Its own preparations (كريمة تمر), used as ingredients in its products. */
+    public function preparations(): HasMany
+    {
+        return $this->hasMany(Preparation::class)->orderBy('name');
+    }
+
     public function categories(): HasMany
     {
         return $this->hasMany(ProductCategory::class)->menuOrder();

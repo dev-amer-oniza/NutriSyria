@@ -6,10 +6,13 @@ use App\Auth\BrandScope;
 use App\Enums\NutritionApprovalStatus;
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
 use App\Filament\Clusters\Brands\Resources\Categories\ProductCategoryResource;
+use App\Filament\Clusters\Brands\Resources\Preparations\PreparationResource;
 use App\Livewire\ReviewNotesPanel;
+use App\Models\Preparation;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Services\Nutrition\RecipePreview;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -24,6 +27,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Validation\Rule;
 
 class ProductForm
@@ -145,6 +149,18 @@ class ProductForm
             Group::make([
                 Section::make('٢. شو فيه؟')
                     ->description('كل مكوّن بكميته متل ما بتطبخه. الوزن بيطلع لحاله.')
+                    // A preparation the dish needs (كريمة تمر) is made once on its own page and
+                    // then picked here like a food ("· تحضيري"); opened in a new tab, so the
+                    // product being written stays as it is. Restaurants and brands only.
+                    ->headerActions([
+                        Action::make('newPreparation')
+                            ->label('تحضير جديد')
+                            ->icon(Heroicon::OutlinedPlus)
+                            ->link()
+                            ->url(fn () => PreparationResource::getUrl('create'))
+                            ->openUrlInNewTab()
+                            ->visible(fn () => (bool) auth()->user()?->can('create', Preparation::class)),
+                    ])
                     ->components([IngredientRows::repeater()]),
                 Section::make('٣. الطبخة')
                     ->columns(2)

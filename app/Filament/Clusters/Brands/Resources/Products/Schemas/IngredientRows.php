@@ -2,9 +2,13 @@
 
 namespace App\Filament\Clusters\Brands\Resources\Products\Schemas;
 
+use App\Auth\Access;
 use App\Enums\FoodSourceStatus;
 use App\Models\FoodSourceRecord;
 use App\Models\MeasureUnit;
+use App\Models\Preparation;
+use App\Models\Product;
+use App\Services\Import\ArabicNormalizer;
 use App\Services\Nutrition\GramsConversion;
 use App\Services\Nutrition\GramsConverter;
 use App\Support\ArabicSearch;
@@ -53,7 +57,12 @@ class IngredientRows
             // A new dish opens on its first row. A row left completely empty is not saved, so a
             // dish can be kept before its recipe is written; a started row asks for the rest.
             ->defaultItems(1)
-            ->mutateRelationshipDataBeforeCreateUsing(fn (array $data): ?array => self::isBlank($data) ? null : $data)
+            ->mutateRelationshipDataBeforeCreateUsing(fn (array $data): ?array => self::isBlank($data) ? null : self::toColumns($data))
+            ->mutateRelationshipDataBeforeSaveUsing(fn (array $data): array => self::toColumns($data))
+            // A preparation line shows in the same field as a food: "p12" (كريمة تمر · تحضيري).
+            ->mutateRelationshipDataBeforeFillUsing(fn (array $data): array => $data['preparation_id'] ?? null
+                ? [...$data, 'food_source_record_id' => self::PREPARATION.$data['preparation_id']]
+                : $data)
             ->addActionLabel('أضف مكوّناً')
             // Narrow screens (a phone): a compact two-column card per row (theme.css).
             ->extraAttributes(['class' => 'ns-recipe-rows'])
@@ -61,23 +70,76 @@ class IngredientRows
             ->live();
     }
 
+    /**
+     * A preparation's own foods (تحضيراتي): the same rows, without "على الوجه" and without other
+     * preparations in them (one level only, the owner's decision).
+     */
+    public static function preparationRepeater(): Repeater
+    {
+        return Repeater::make('ingredients')
+            ->hiddenLabel()
+            ->relationship('ingredients')
+            ->orderColumn('sort_order')
+            ->table([
+                TableColumn::make('المكوّن')->markAsRequired()->width('40%'),
+                TableColumn::make('الكمية')->markAsRequired()->width('14%'),
+                TableColumn::make('الوحدة')->markAsRequired()->width('18%'),
+                TableColumn::make('أي حجم؟')->width('16%'),
+                TableColumn::make('الوزن')->width('12%'),
+            ])
+            ->schema(array_slice(self::fields(withPreparations: false), 0, 5))
+            ->defaultItems(1)
+            ->minItems(1)
+            ->addActionLabel('أضف مكوّناً')
+            ->extraAttributes(['class' => 'ns-recipe-rows'])
+            ->reorderable()
+            ->live();
+    }
+
+    /** A preparation's value in the ingredient field: "p12". */
+    public const PREPARATION = 'p';
+
+    /** The preparation id behind a field value ("p12" → 12), or null for a food record. */
+    public static function preparationId(mixed $value): ?int
+    {
+        return is_string($value) && str_starts_with($value, self::PREPARATION) && ctype_digit(substr($value, 1))
+            ? (int) substr($value, 1) : null;
+    }
+
+    /** @param  array<string, mixed>  $data  the row as typed → the columns it is saved in */
+    private static function toColumns(array $data): array
+    {
+        $preparation = self::preparationId($data['food_source_record_id'] ?? null);
+
+        return [...$data,
+            'preparation_id' => $preparation,
+            'food_source_record_id' => $preparation ? null : $data['food_source_record_id'],
+            'food_portion_id' => $preparation ? null : ($data['food_portion_id'] ?? null),
+        ];
+    }
+
     /** @return list<Component|Field> */
-    public static function fields(): array
+    public static function fields(bool $withPreparations = true): array
     {
         return [
             Select::make('food_source_record_id')
                 ->label('المكوّن')
                 ->placeholder('اكتب اسمه: عدس، بصل، زيت زيتون…')
-                // Approved records only: pending or rejected data never reaches a recipe.
+                // Approved records only: pending or rejected data never reaches a recipe. The
+                // brand's own preparations first (كريمة تمر · تحضيري).
                 // The same list for every row: built once per request, not once per row.
-                ->options(fn () => self::memo('ingredient_options', fn () => self::options()))
-                ->getSearchResultsUsing(fn (string $search) => self::options($search))
-                ->getOptionLabelUsing(fn ($value) => self::memo('ingredient_options', fn () => self::options())[(int) $value]
+                ->options(fn ($livewire) => ($withPreparations ? self::preparationOptions($livewire) : [])
+                    + self::memo('ingredient_options', fn () => self::options()))
+                ->getSearchResultsUsing(fn (string $search, $livewire) => ($withPreparations ? self::preparationOptions($livewire, $search) : [])
+                    + self::options($search))
+                ->getOptionLabelUsing(fn ($value, $livewire) => self::preparationId($value) !== null
+                    ? (self::preparationOptions($livewire)[$value] ?? null)
+                    : (self::memo('ingredient_options', fn () => self::options())[(int) $value]
                     ?? self::memo("ingredient_label.{$value}", function () use ($value) {
                         $r = FoodSourceRecord::with(['food', 'foodForm', 'dataSource'])->find($value);
 
                         return $r ? self::labelFor($r) : null;
-                    }))
+                    })))
                 ->searchable()
                 // Always open below the field: flipping above it on a phone moved the search box,
                 // and the page jumped when the keyboard came up (the owner's report).
@@ -85,7 +147,15 @@ class IngredientRows
                 ->live()
                 ->afterStateUpdated(fn (Get $get, Set $set) => self::presetPortion($get, $set))
                 // A searchable select accepts any id the browser sends: check it on the server.
-                ->rules([Rule::exists('food_source_records', 'id')->where('status', FoodSourceStatus::Active->value)])
+                ->rules(fn ($livewire) => [function (string $attribute, mixed $value, \Closure $fail) use ($livewire, $withPreparations): void {
+                    $preparation = self::preparationId($value);
+                    $ok = $preparation !== null
+                        ? $withPreparations && array_key_exists(self::PREPARATION.$preparation, self::preparationOptions($livewire))
+                        : FoodSourceRecord::query()->whereKey((int) $value)->where('status', FoodSourceStatus::Active)->exists();
+                    if (! $ok) {
+                        $fail('اختار مكوّناً من القائمة.');
+                    }
+                }])
                 ->required(fn (Get $get) => self::started($get))
                 ->columnSpan(['default' => 12, 'md' => 5]),
 
@@ -143,6 +213,41 @@ class IngredientRows
         ];
     }
 
+    /** @return array<int, float> grams per unit, for the weight units only (g, kg…) */
+    private static function massFactors(): array
+    {
+        return self::memo('ingredient_mass_units', fn () => MeasureUnit::query()->where('dimension', 'mass')
+            ->whereNotNull('base_factor')->pluck('base_factor', 'id')->map(fn ($f) => (float) $f)->all());
+    }
+
+    /**
+     * The brand's own preparations, "كريمة تمر · تحضيري" by "p12", for the product being
+     * written (its brand field, or the product itself). Only those the user may write with.
+     *
+     * @return array<string, string>
+     */
+    public static function preparationOptions(mixed $livewire, ?string $search = null): array
+    {
+        $brandId = (int) (data_get($livewire, 'data.brand_id')
+            ?: (method_exists($livewire, 'getRecord') && $livewire->getRecord() instanceof Product ? $livewire->getRecord()->brand_id : 0));
+        if (! $brandId) {
+            return [];
+        }
+
+        $all = self::memo("ingredient_preparations.{$brandId}", function () use ($brandId) {
+            $user = auth()->user();
+            if (! $user || ! $user->can('create', Preparation::class)
+                || ! ($user->allows(Access::BRANDS_MANAGE_ALL) || $user->managesBrand($brandId))) {
+                return [];
+            }
+
+            return Preparation::query()->where('brand_id', $brandId)->orderBy('name')->pluck('name', 'id')
+                ->mapWithKeys(fn (string $name, int $id) => [self::PREPARATION.$id => $name.' · تحضيري'])->all();
+        });
+
+        return blank($search) ? $all : array_filter($all, fn (string $label) => str_contains(ArabicNormalizer::normalize($label), ArabicNormalizer::normalize($search)));
+    }
+
     /** @return array<int, string> every unit by its Arabic name, once per request */
     private static function units(): array
     {
@@ -190,6 +295,14 @@ class IngredientRows
         if (! $get('food_source_record_id') || ! $get('measure_unit_id') || (float) $get('amount') <= 0) {
             return null;
         }
+        // A preparation is weighed in grams or kilos only (the owner's decision 3a).
+        if (self::preparationId($get('food_source_record_id')) !== null) {
+            $factor = self::massFactors()[(int) $get('measure_unit_id')] ?? null;
+
+            return $factor !== null
+                ? GramsConversion::converted((float) $get('amount') * $factor, GramsConversion::METHOD_MASS)
+                : GramsConversion::failed(GramsConversion::UNKNOWN_UNIT, 'التحضير بينكتب بالغرام أو الكيلو.');
+        }
         // Asked for the weight, its colour and its tooltip: worked out once per row and request.
         $args = [(int) $get('food_source_record_id'), (int) $get('measure_unit_id'), (float) $get('amount'),
             $get('food_portion_id') ? (int) $get('food_portion_id') : null];
@@ -201,7 +314,7 @@ class IngredientRows
     private static function choicesFor(Get $get): array
     {
         [$recordId, $unitId] = [(int) $get('food_source_record_id'), (int) $get('measure_unit_id')];
-        if (! $recordId || ! $unitId) {
+        if (! $recordId || ! $unitId || self::preparationId($get('food_source_record_id')) !== null) {
             return [];
         }
 
@@ -231,7 +344,7 @@ class IngredientRows
     /** What the usual rules give without a chosen size (null until record and unit are set). */
     private static function autoConversion(Get $get): ?GramsConversion
     {
-        if (! $get('food_source_record_id') || ! $get('measure_unit_id')) {
+        if (! $get('food_source_record_id') || ! $get('measure_unit_id') || self::preparationId($get('food_source_record_id')) !== null) {
             return null;
         }
 

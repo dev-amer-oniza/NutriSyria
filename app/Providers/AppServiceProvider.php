@@ -6,6 +6,8 @@ use App\Models\Brand;
 use App\Models\Food;
 use App\Models\FoodNutrientValue;
 use App\Models\FoodSourceRecord;
+use App\Models\Preparation;
+use App\Models\PreparationIngredient;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductRecipe;
@@ -43,13 +45,25 @@ class AppServiceProvider extends ServiceProvider
             ProductRecipe::$event(fn (ProductRecipe $recipe) => $notices($recipe->product_id));
             ProductRecipeIngredient::$event(fn (ProductRecipeIngredient $line) => $notices(
                 ProductRecipe::query()->whereKey($line->product_recipe_id)->value('product_id')));
+
+            // A preparation changed: every product line using it is touched, so those products
+            // read "تغيّرت الوصفة بعد الاعتماد" and go back to the nutritionist (the owner's request).
+            Preparation::$event(fn (Preparation $prep) => self::touchLinesOf($prep->getKey()));
+            PreparationIngredient::$event(fn (PreparationIngredient $line) => self::touchLinesOf($line->preparation_id));
+        }
+    }
+
+    private static function touchLinesOf(?int $preparationId): void
+    {
+        if ($preparationId) {
+            ProductRecipeIngredient::query()->where('preparation_id', $preparationId)->get()->each->touch();
         }
     }
 
     private function watchPublicCatalog(): void
     {
         $models = [Brand::class, Product::class, ProductRecipe::class, ProductRecipeIngredient::class,
-            FoodNutrientValue::class, Food::class, FoodSourceRecord::class, ProductCategory::class];
+            FoodNutrientValue::class, Food::class, FoodSourceRecord::class, ProductCategory::class, Preparation::class, PreparationIngredient::class];
 
         foreach ($models as $model) {
             foreach (['saved', 'deleted'] as $event) {
