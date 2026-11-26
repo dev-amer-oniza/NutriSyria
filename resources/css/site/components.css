@@ -5,8 +5,8 @@
        0.32em below the baseline, 0.24em from the name; Nutri 800 + Syria 400, both pine. */
     .ns-logo { display: inline-block; direction: ltr; white-space: nowrap; font-family: var(--font-latin); font-size: 1.5rem; line-height: 1.2; color: var(--pine); text-decoration: none; border-radius: var(--radius-sm); }
     .ns-logo .ns-mark { display: inline-block; width: 1.2em; height: 1.2em; vertical-align: -0.32em; margin-right: 0.24em; }
-    .ns-logo__word { font-weight: 400; letter-spacing: -0.01em; }
-    .ns-logo__word b { font-weight: 800; }
+    /* The wordmark (partials/wordmark): the owner's artwork as a mask in currentColor. */
+    .ns-wordmark { display: inline-block; height: 1em; aspect-ratio: 1011 / 226; vertical-align: -0.14em; background-color: currentColor; -webkit-mask: var(--wordmark) center / contain no-repeat; mask: var(--wordmark) center / contain no-repeat; }
     .ns-logo--on-pine { color: var(--on-pine); }
     .ns-mark .part { fill: var(--pine); }
     .ns-mark .origin { fill: var(--terracotta); }
