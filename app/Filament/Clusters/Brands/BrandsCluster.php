@@ -3,6 +3,8 @@
 namespace App\Filament\Clusters\Brands;
 
 use App\Auth\Access;
+use App\Enums\BrandKind;
+use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
 use BackedEnum;
 use Filament\Clusters\Cluster;
 use Filament\Support\Icons\Heroicon;
@@ -31,7 +33,11 @@ class BrandsCluster extends Cluster
         $user = auth()->user();
 
         return match (true) {
-            self::forOwner() => 'مطعمي ومنتجاته',
+            self::forOwner() => match (BrandResource::ownerKind()) {
+                BrandKind::Brand => 'براندي ومنتجاتي',
+                BrandKind::Restaurant => 'مطعمي ومنتجاتي',
+                null => 'مطاعمي ومنتجاتي',
+            },
             (bool) $user?->isSuperAdmin() => 'العملاء',
             $user !== null && ! $user->allows(Access::BRANDS_MANAGE_ALL) && ! $user->allows(Access::BRANDS_MANAGE_OWN) => 'منتجات المطاعم',
             default => static::$navigationLabel,

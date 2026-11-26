@@ -4,7 +4,6 @@ namespace App\Filament\Clusters\Kitchen\Resources\Dishes;
 
 use App\Enums\NutritionApprovalStatus;
 use App\Filament\Clusters\Brands\Resources\Categories\ProductCategoryResource;
-use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
 use App\Filament\Clusters\Brands\Resources\Products\Schemas\ProductForm;
 use App\Filament\Clusters\Kitchen\Concerns\KitchenAccess;
 use App\Filament\Clusters\Kitchen\KitchenCluster;
@@ -140,7 +139,8 @@ class KitchenDishResource extends Resource
 
     public static function getRelations(): array
     {
-        return [RecipeIngredientsRelationManager::class];
+        // The ingredients are typed on the page itself ("٢. شو فيه؟", IngredientRows).
+        return [];
     }
 
     public static function getPages(): array

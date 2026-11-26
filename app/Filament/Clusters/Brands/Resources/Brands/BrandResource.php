@@ -4,6 +4,7 @@ namespace App\Filament\Clusters\Brands\Resources\Brands;
 
 use App\Auth\Access;
 use App\Auth\BrandScope;
+use App\Enums\BrandKind;
 use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\CreateBrand;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\EditBrand;
@@ -62,14 +63,41 @@ class BrandResource extends Resource
     public static function getNavigationLabel(): string
     {
         $ids = static::ownedBrandIds();
+        if ($ids === null) {
+            return 'العملاء';
+        }
 
-        return $ids === null ? 'العملاء' : (count($ids) > 1 ? 'مطاعمي' : 'مطعمي');
+        return match (static::ownerKind()) {
+            BrandKind::Brand => count($ids) > 1 ? 'البراندات تبعي' : 'براندي',
+            BrandKind::Restaurant => count($ids) > 1 ? 'مطاعمي' : 'مطعمي',
+            null => 'مطاعمي وبراندي',
+        };
+    }
+
+    /**
+     * What the owner runs, to name their pages after it ("مطعمي" or "براندي", the owner's
+     * request): the kind all their clients share; null when they run both (or none yet).
+     */
+    public static function ownerKind(): ?BrandKind
+    {
+        $ids = static::ownedBrandIds();
+        if (! $ids) {
+            return $ids === [] ? BrandKind::Restaurant : null;
+        }
+
+        $kind = once(function () use ($ids) {
+            $kinds = Brand::query()->whereKey($ids)->distinct()->pluck('kind');
+
+            return $kinds->count() === 1 ? $kinds->first() : null;
+        });
+
+        return $kind instanceof BrandKind ? $kind : BrandKind::tryFrom((string) $kind);
     }
 
     /** For the admin each one is a client, a restaurant or a brand (the owner's decision). */
     public static function getModelLabel(): string
     {
-        return static::ownedBrandIds() === null ? 'عميل' : 'مطعم';
+        return static::ownedBrandIds() === null ? 'عميل' : (static::ownerKind()?->getLabel() ?? 'مطعم');
     }
 
     public static function getPluralModelLabel(): string

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Auth\Access;
+use App\Enums\BrandKind;
 use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\ListBrands;
@@ -31,8 +32,18 @@ class MyRestaurantTest extends TestCase
         $this->assertSame($edit, BrandResource::getNavigationUrl());
         Livewire::test(ListBrands::class)->assertRedirect($edit);
 
-        $this->assertSame('مطعمي ومنتجاته', BrandsCluster::getNavigationLabel());
+        $this->assertSame('مطعمي ومنتجاتي', BrandsCluster::getNavigationLabel());
         $this->get($edit)->assertOk()->assertSee('مطعمي')->assertSee('التصنيفات')->assertSee('المنتجات');
+    }
+
+    public function test_a_brand_owner_sees_their_pages_named_after_a_brand(): void
+    {
+        $brand = Brand::create(['name' => 'بوكس صحي']);
+        $brand->forceFill(['kind' => BrandKind::Brand])->save();
+        $this->signInAs(Access::BRAND_OWNER)->brands()->attach($brand->id);
+
+        $this->assertSame('براندي', BrandResource::getNavigationLabel());
+        $this->assertSame('براندي ومنتجاتي', BrandsCluster::getNavigationLabel());
     }
 
     public function test_an_owner_not_yet_linked_is_told_why_the_page_is_empty(): void

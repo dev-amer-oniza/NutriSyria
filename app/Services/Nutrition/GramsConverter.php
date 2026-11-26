@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Turns a recipe line ("2 cups of boiled chickpeas") into grams. Shared by the live preview in
- * RecipeIngredientsRelationManager and by the calculation engine, so the two can never drift
+ * the recipe rows (IngredientRows) and by the calculation engine, so the two can never drift
  * apart into two different answers for the same input.
  *
  * This class only loads data; the selection rules live in the pure PortionResolver.

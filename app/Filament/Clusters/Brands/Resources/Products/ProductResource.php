@@ -8,7 +8,6 @@ use App\Filament\Clusters\Brands\Resources\Products\Pages\CreateProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\ListProducts;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\ViewProduct;
-use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
 use App\Filament\Clusters\Brands\Resources\Products\Schemas\ProductForm;
 use App\Filament\Clusters\Brands\Resources\Products\Tables\ProductsTable;
 use App\Filament\Support\ArabicGlobalSearch;
@@ -72,9 +71,8 @@ class ProductResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            RecipeIngredientsRelationManager::class,
-        ];
+        // The ingredients are typed on the page itself ("٢. شو فيه؟", IngredientRows).
+        return [];
     }
 
     public static function getPages(): array

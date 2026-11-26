@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\FoodSourceStatus;
-use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
+use App\Filament\Clusters\Brands\Resources\Products\Schemas\IngredientRows;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\FoodResource;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Pages\ListFood;
 use App\Models\DataSource;
@@ -15,7 +15,6 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-use ReflectionMethod;
 use Tests\TestCase;
 
 /** "ارز" finds "أرز", "جبنه" finds "جبنة": brand owners type without hamza or ta marbuta. */
@@ -68,11 +67,9 @@ class ArabicSearchTest extends TestCase
         $cheese = $record($this->cheese, FoodSourceStatus::Active);
         FoodAlias::create(['food_id' => $this->cheese->id, 'name_ar' => 'جبنة عكاوي', 'search_normalized' => 'جبنه عكاوي']);
 
-        $options = new ReflectionMethod(RecipeIngredientsRelationManager::class, 'ingredientOptions');
-
-        $this->assertSame([$rice->id], array_keys($options->invoke(null, 'ارز')), 'approved only');
-        $this->assertSame([$cheese->id], array_keys($options->invoke(null, 'عكاوى')), 'through an alias');
-        $this->assertSame([$rice->id, $cheese->id], array_keys($options->invoke(null)), 'preloaded list, by name');
+        $this->assertSame([$rice->id], array_keys(IngredientRows::options('ارز')), 'approved only');
+        $this->assertSame([$cheese->id], array_keys(IngredientRows::options('عكاوى')), 'through an alias');
+        $this->assertSame([$rice->id, $cheese->id], array_keys(IngredientRows::options()), 'preloaded list, by name');
     }
 
     public function test_the_food_table_and_the_top_search_bar_ignore_spelling(): void
