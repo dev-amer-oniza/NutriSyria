@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * One line of a product recipe. The ingredient itself always comes from the CENTRAL
- * database (a FoodSourceRecord) — a product never carries its own raw ingredient data.
+ * One line of a product recipe: a food record from the central database, or one of the
+ * brand's own preparations (made of such records) — never raw numbers of its own.
  * Same shape as RecipeIngredient; see that class for the amount/food_form_id notes.
  */
 class ProductRecipeIngredient extends Model
 {
     protected $fillable = [
-        'product_recipe_id', 'food_source_record_id', 'food_form_id', 'measure_unit_id',
+        'product_recipe_id', 'food_source_record_id', 'preparation_id', 'food_form_id', 'measure_unit_id',
         'food_portion_id', 'amount', 'is_added_after_cooking', 'sort_order',
     ];
 
@@ -34,6 +34,12 @@ class ProductRecipeIngredient extends Model
     public function ingredientRecord(): BelongsTo
     {
         return $this->belongsTo(FoodSourceRecord::class, 'food_source_record_id');
+    }
+
+    /** The brand's own preparation on this line, instead of a food record (كريمة تمر). */
+    public function preparation(): BelongsTo
+    {
+        return $this->belongsTo(Preparation::class);
     }
 
     public function foodForm(): BelongsTo

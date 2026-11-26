@@ -127,9 +127,12 @@ class MealCatalog
                 'nutrientValues' => fn ($q) => $q->with('nutrient:id,code')
                     ->whereHas('nutrient', fn ($n) => $n->whereIn('code', self::NUTRIENTS)),
                 'recipeIngredients.ingredientRecord.food:id,name_ar,allergens,allergens_checked',
+                'recipeIngredients.preparation.ingredients.ingredientRecord.food:id,name_ar,allergens,allergens_checked',
             ])
             ->withExists(['recipeIngredients as uses_proxy' => fn (Builder $q) => $q
-                ->whereHas('ingredientRecord', fn (Builder $r) => $r->where('notes', 'like', self::PROXY_NOTE_PREFIX.'%'))])
+                ->where(fn (Builder $line) => $line
+                    ->whereHas('ingredientRecord', fn (Builder $r) => $r->where('notes', 'like', self::PROXY_NOTE_PREFIX.'%'))
+                    ->orWhereHas('preparation.ingredients.ingredientRecord', fn (Builder $r) => $r->where('notes', 'like', self::PROXY_NOTE_PREFIX.'%')))])
             ->get()
             // "Changed after approval" values no longer describe the recipe: keep them off the site.
             ->filter(fn (Product $product) => NutritionApprovalStatus::of($product) === NutritionApprovalStatus::Approved)
@@ -147,10 +150,20 @@ class MealCatalog
     {
         $serving = $this->servingGrams($product);
         $factor = ($serving ?? 100) / 100;
+        // A preparation's foods count for its allergens; the site names the preparation itself
+        // ("كريمة تمر"), not its foods (the owner's decision 1a).
         $foods = $product->recipeIngredients
-            ->map(fn (ProductRecipeIngredient $line) => $line->ingredientRecord?->food)
+            ->flatMap(fn (ProductRecipeIngredient $line) => $line->preparation
+                ? $line->preparation->ingredients->map(fn ($i) => $i->ingredientRecord?->food)
+                : [$line->ingredientRecord?->food])
             ->filter()
             ->unique('id');
+        $names = $product->recipeIngredients
+            ->map(fn (ProductRecipeIngredient $line) => $line->preparation?->name ?? $line->ingredientRecord?->food?->name_ar)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
 
         return new MealFacts(
             id: $product->id,
@@ -165,7 +178,7 @@ class MealCatalog
             image: $product->img ? Storage::disk('public')->url($product->img) : null,
             allergens: $foods->flatMap(fn ($food) => $food->allergens ?? [])->unique()->values()->all(),
             allergensChecked: $foods->isNotEmpty() && $foods->every(fn ($food) => $food->allergens_checked),
-            ingredients: $foods->pluck('name_ar')->values()->all(),
+            ingredients: $names,
             brandId: $product->brand_id,
             categoryId: $product->category_id,
             platform: (bool) $product->brand->is_platform,

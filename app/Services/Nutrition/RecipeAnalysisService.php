@@ -10,10 +10,14 @@ use App\Enums\NutrientValueMethod;
 use App\Models\DataSource;
 use App\Models\FoodNutrientValue;
 use App\Models\FoodSourceRecord;
+use App\Models\MeasureUnit;
 use App\Models\Nutrient;
+use App\Models\Preparation;
+use App\Models\PreparationIngredient;
 use App\Models\Product;
 use App\Models\ProductRecipeIngredient;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -57,6 +61,7 @@ final class RecipeAnalysisService
                     amount: (float) $i->amount,
                     portionId: $i->food_portion_id !== null ? (int) $i->food_portion_id : null,
                     addedAfterCooking: (bool) $i->is_added_after_cooking,
+                    preparationId: $i->preparation_id !== null ? (int) $i->preparation_id : null,
                 ))->all(),
             servings: (int) $recipe->servings,
             weightBeforeCookingG: $recipe->weight_before_cooking_g !== null ? (float) $recipe->weight_before_cooking_g : null,
@@ -75,8 +80,16 @@ final class RecipeAnalysisService
             throw new RuntimeException('الوصفة لا تحتوي أي مكوّنات بعد.');
         }
 
+        // A brand's preparation (كريمة تمر) is opened into its own foods: they are weighed,
+        // gap-filled and counted like any line, scaled to the grams the product uses of it.
+        $preparations = $this->preparationsOf($draft);
+        $recordLines = array_values(array_filter($draft->lines, fn (RecipeLine $l) => ! $l->isPreparation()));
+        foreach ($preparations as $prep) {
+            array_push($recordLines, ...$prep['lines']);
+        }
+
         $records = FoodSourceRecord::with('food:id,name_ar')
-            ->whereKey(array_unique(array_map(fn (RecipeLine $l) => $l->recordId, $draft->lines)))
+            ->whereKey(array_unique(array_map(fn (RecipeLine $l) => $l->recordId, $recordLines)))
             ->get()
             ->keyBy('id');
         $donorsByRecord = $this->donorsFor($records->values());
@@ -92,30 +105,39 @@ final class RecipeAnalysisService
 
         $nutrientDefs = $this->nutrientDefs();
         $idByCode = array_column($nutrientDefs, 'id', 'code');
-        $conversions = $this->gramsConverter->resolveMany(array_map(fn (RecipeLine $l) => $l->toConversion(), $draft->lines));
+        $resolved = $this->gramsConverter->resolveMany(array_map(fn (RecipeLine $l) => $l->toConversion(), $recordLines));
+        $conversionOf = new \SplObjectStorage;
+        foreach ($recordLines as $i => $line) {
+            $conversionOf[$line] = $resolved[$i];
+        }
+        // The chosen record's own values; what it does not report is filled from the same
+        // food and form in the other approved sources (see NutrientGapFiller).
+        $nutrientsOf = fn (RecipeLine $line) => $this->gapFiller->fill(
+            $valuesOf($line->recordId),
+            $donorsByRecord->get($line->recordId, collect())
+                ->map(fn (array $d) => ['source' => $d['source'], 'values' => $valuesOf($d['id'])])
+                ->all(),
+            $idByCode,
+        );
+        $labelOf = fn (RecipeLine $line) => $records->get($line->recordId)?->food?->name_ar ?? "سجل #{$line->recordId}";
 
         $lines = [];
-        foreach ($draft->lines as $i => $line) {
-            $conversion = $conversions[$i];
+        foreach ($draft->lines as $line) {
+            if ($line->isPreparation()) {
+                array_push($lines, ...$this->openPreparation($line, $preparations[$line->preparationId] ?? null, $conversionOf, $nutrientsOf, $labelOf));
 
-            // The chosen record's own values; what it does not report is filled from the same
-            // food and form in the other approved sources (see NutrientGapFiller).
-            $nutrientValues = $this->gapFiller->fill(
-                $valuesOf($line->recordId),
-                $donorsByRecord->get($line->recordId, collect())
-                    ->map(fn (array $d) => ['source' => $d['source'], 'values' => $valuesOf($d['id'])])
-                    ->all(),
-                $idByCode,
-            );
+                continue;
+            }
+            $conversion = $conversionOf[$line];
 
             $lines[] = [
-                'label' => $records->get($line->recordId)?->food?->name_ar ?? "سجل #{$line->recordId}",
+                'label' => $labelOf($line),
                 // null = not convertible: the calculator reports the line and blocks approval
                 // instead of counting it as zero grams.
                 'grams' => $conversion->grams,
                 'problem' => $conversion->message,
                 'is_added_after_cooking' => $line->addedAfterCooking,
-                'nutrients' => $nutrientValues,
+                'nutrients' => $nutrientsOf($line),
             ];
         }
 
@@ -126,6 +148,84 @@ final class RecipeAnalysisService
             weightAfterCookingG: $draft->weightAfterCookingG,
             servings: $draft->servings,
         );
+    }
+
+    /**
+     * The draft's preparations with their foods, two queries whatever their number.
+     *
+     * @return array<int, array{name: string, weight: ?float, lines: list<RecipeLine>, units: Collection<int, MeasureUnit>}>
+     */
+    private function preparationsOf(RecipeDraft $draft): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map(fn (RecipeLine $l) => $l->preparationId, $draft->lines))));
+        if ($ids === []) {
+            return [];
+        }
+        $units = MeasureUnit::query()->whereKey(array_map(fn (RecipeLine $l) => $l->unitId, $draft->lines))->get(['id', 'dimension', 'base_factor'])->keyBy('id');
+
+        $out = [];
+        foreach (Preparation::with('ingredients')->whereKey($ids)->get() as $prep) {
+            $out[$prep->id] = [
+                'name' => $prep->name,
+                'weight' => $prep->weight_after_g !== null && (float) $prep->weight_after_g > 0 ? (float) $prep->weight_after_g : null,
+                'lines' => $prep->ingredients->map(fn (PreparationIngredient $i) => new RecipeLine(
+                    recordId: (int) $i->food_source_record_id,
+                    unitId: (int) $i->measure_unit_id,
+                    amount: (float) $i->amount,
+                    portionId: $i->food_portion_id !== null ? (int) $i->food_portion_id : null,
+                ))->all(),
+                'units' => $units,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * A preparation line as the calculator reads it: each of its foods, under the
+     * preparation's name ("من أين السكريات؟ كريمة تمر"), scaled to the grams used. Weighed in
+     * grams only (the owner's decision 3a); a food in it that cannot be weighed blocks the line.
+     *
+     * @return list<array{label: string, grams: ?float, problem?: ?string, is_added_after_cooking: bool, nutrients: array}>
+     */
+    private function openPreparation(RecipeLine $line, ?array $prep, \SplObjectStorage $conversionOf, \Closure $nutrientsOf, \Closure $labelOf): array
+    {
+        $blocked = fn (string $label, string $problem) => [['label' => $label, 'grams' => null, 'problem' => $problem,
+            'is_added_after_cooking' => $line->addedAfterCooking, 'nutrients' => []]];
+
+        if ($prep === null) {
+            return $blocked('تحضير محذوف', 'هذا التحضير لم يعد موجوداً.');
+        }
+        $unit = $prep['units']->get($line->unitId);
+        if ($unit === null || $unit->dimension !== 'mass' || (float) $unit->base_factor <= 0) {
+            return $blocked($prep['name'], 'اكتب كمية التحضير بالغرام أو الكيلو.');
+        }
+        if ($prep['lines'] === []) {
+            return $blocked($prep['name'], 'التحضير بلا مكوّنات بعد.');
+        }
+
+        $parts = [];
+        foreach ($prep['lines'] as $sub) {
+            $conversion = $conversionOf[$sub];
+            if ($conversion->grams === null) {
+                return $blocked($prep['name'], $labelOf($sub).': '.$conversion->message);
+            }
+            $parts[] = [$sub, (float) $conversion->grams];
+        }
+        $batch = $prep['weight'] ?? array_sum(array_column($parts, 1));
+        if ($batch <= 0) {
+            return $blocked($prep['name'], 'وزن التحضير صفر.');
+        }
+
+        $scale = ($line->amount * (float) $prep['units']->get($line->unitId)->base_factor) / $batch;
+
+        return array_map(fn (array $part) => [
+            'label' => $prep['name'],
+            'grams' => $part[1] * $scale,
+            'problem' => null,
+            'is_added_after_cooking' => $line->addedAfterCooking,
+            'nutrients' => $nutrientsOf($part[0]),
+        ], $parts);
     }
 
     /**
