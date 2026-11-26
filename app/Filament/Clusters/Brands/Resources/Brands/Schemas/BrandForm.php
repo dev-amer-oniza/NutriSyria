@@ -3,12 +3,16 @@
 namespace App\Filament\Clusters\Brands\Resources\Brands\Schemas;
 
 use App\Auth\Access;
+use App\Enums\BrandKind;
 use App\Enums\SyrianGovernorate;
+use App\Models\Brand;
+use App\Models\User;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -26,6 +30,16 @@ class BrandForm
                             ->label('الاسم')
                             ->required()
                             ->maxLength(255)
+                            ->columnSpanFull(),
+                        // Restaurant or brand: the admin's call (decision 1a), shown to the owner.
+                        ToggleButtons::make('kind')
+                            ->label('النوع')
+                            ->options(BrandKind::class)
+                            ->default(BrandKind::Restaurant->value)
+                            ->inline()
+                            ->required()
+                            ->disabled(fn () => ! auth()->user()?->isSuperAdmin())
+                            ->helperText(fn (?Brand $record) => self::kindHint($record))
                             ->columnSpanFull(),
                         TextInput::make('phone_1')
                             ->label('رقم الهاتف الأول')
@@ -109,5 +123,23 @@ class BrandForm
                             ->searchable(),
                     ]),
             ]);
+    }
+
+    /** For the admin: what the owners said at sign-up. For the owner: who decides. */
+    private static function kindHint(?Brand $record): string
+    {
+        if (! auth()->user()?->isSuperAdmin()) {
+            return 'تحدّده إدارة NutriSyria. ويظهر للناس بالموقع.';
+        }
+
+        $answers = [];
+        foreach ($record?->managers()->whereNotNull('brand_kind')->get(['users.name', 'users.brand_kind']) ?? [] as $owner) {
+            if ($owner instanceof User && $owner->brand_kind) {
+                $answers[] = "{$owner->name}: {$owner->brand_kind->getLabel()}";
+            }
+        }
+        $said = implode('، ', $answers);
+
+        return 'يظهر للناس بالموقع: «مطعم» أو «براند».'.($said !== '' ? " اختيار صاحبه بالتسجيل: {$said}." : '');
     }
 }

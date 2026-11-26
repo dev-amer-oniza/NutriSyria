@@ -31,6 +31,7 @@
                 @else
                     {{ $dish['brand'] }}
                 @endif
+                @if ($dish['brandKind'] ?? null)<span class="ns-dish__kind">· {{ $dish['brandKind'] }}</span>@endif
             </p>
         @endif
         @if ($dish['fit'] ?? null)

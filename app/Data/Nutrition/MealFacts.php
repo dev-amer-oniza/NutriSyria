@@ -50,6 +50,8 @@ final readonly class MealFacts
          * @var list<array{label: string, after: bool, grams: ?float, nutrients: array<string, float>}>
          */
         public array $lines = [],
+        /** «مطعم» or «براند» (App\Enums\BrandKind), next to its name; null for the platform's kitchen. */
+        public ?string $brandKind = null,
     ) {}
 
     /**
@@ -129,6 +131,7 @@ final readonly class MealFacts
             'image' => $this->image,
             'url' => route('site.meals.show', $this->id),
             'brandUrl' => $this->brandUrl(),
+            'brandKind' => $this->brandKind,
             'fit' => $fit?->level,
         ];
     }

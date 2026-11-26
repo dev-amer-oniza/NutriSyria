@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Site\Auth;
 
 use App\Data\Auth\SocialProfile;
 use App\Enums\AccountType;
+use App\Enums\BrandKind;
 use App\Enums\GoogleSignIn;
 use App\Enums\OnboardingStep;
 use App\Http\Controllers\Controller;
@@ -23,7 +24,7 @@ class GoogleAuthController extends Controller
     private const SESSION_TYPE = 'auth.google_type';
 
     /** A new brand owner or nutritionist back from Google, waiting to give a WhatsApp number. */
-    private const SESSION_PENDING = 'auth.google_pending';
+    public const SESSION_PENDING = 'auth.google_pending';
 
     public function redirect(GoogleRedirectRequest $request, GoogleAuthService $google): SymfonyRedirect
     {
@@ -87,6 +88,7 @@ class GoogleAuthController extends Controller
             SocialProfile::fromArray($pending['profile']),
             AccountType::from($pending['type']),
             $request->validated('whatsapp'),
+            BrandKind::tryFrom((string) $request->validated('brand_kind')),
         );
 
         $request->session()->forget(self::SESSION_PENDING);

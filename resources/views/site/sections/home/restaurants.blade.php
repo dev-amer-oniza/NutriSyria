@@ -3,11 +3,11 @@
     <div class="ns-wrap">
         <div class="ns-section__head">
             <div>
-                <p class="ns-eyebrow">المطاعم</p>
-                <h2 class="t-title" id="restaurants-title">مطاعم معنا</h2>
-                <p class="t-lead ns-muted">مطاعم تشارك وصفاتها، فنحسب قيم وجباتها ويعتمدها أخصائي التغذية.</p>
+                <p class="ns-eyebrow">المطاعم والبراندات</p>
+                <h2 class="t-title" id="restaurants-title">مطاعم وبراندات معنا</h2>
+                <p class="t-lead ns-muted">مطاعم وبراندات أكل صحي تشارك وصفاتها، فنحسب قيم وجباتها ويعتمدها أخصائي التغذية.</p>
             </div>
-            <a class="ns-btn ns-btn--secondary ns-btn--sm ns-more-btn" href="{{ route('site.brands') }}">كل المطاعم@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
+            <a class="ns-btn ns-btn--secondary ns-btn--sm ns-more-btn" href="{{ route('site.brands') }}">كل المطاعم والبراندات@include('site.partials.icon', ['name' => 'arrow', 'size' => 'sm'])</a>
         </div>
 
         @if ($restaurants)

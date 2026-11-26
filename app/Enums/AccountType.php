@@ -18,7 +18,7 @@ enum AccountType: string
     {
         return match ($this) {
             self::Member => 'مستخدم',
-            self::BrandOwner => 'صاحب مطعم',
+            self::BrandOwner => 'صاحب مطعم / براند',
             self::Nutritionist => 'أخصائي تغذية',
         };
     }

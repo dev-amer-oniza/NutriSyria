@@ -5,6 +5,7 @@ namespace App\Services\Site;
 use App\Data\Nutrition\MealFacts;
 use App\Enums\NutrientValueMethod;
 use App\Enums\NutritionApprovalStatus;
+use App\Models\Brand;
 use App\Models\Product;
 use App\Models\ProductRecipe;
 use App\Models\ProductRecipeIngredient;
@@ -122,7 +123,7 @@ class MealCatalog
     {
         return NutritionApprovalStatus::withApprovalData($this->publicProducts())
             ->with([
-                'brand:id,name,is_platform',
+                'brand:id,name,kind,is_platform',
                 'nutrientValues' => fn ($q) => $q->with('nutrient:id,code')
                     ->whereHas('nutrient', fn ($n) => $n->whereIn('code', self::NUTRIENTS)),
                 'recipeIngredients.ingredientRecord.food:id,name_ar,allergens,allergens_checked',
@@ -171,7 +172,16 @@ class MealCatalog
             withBread: (bool) $product->eaten_with_bread,
             contributions: $this->contributions($product, $serving),
             lines: $this->lines($product, $serving),
+            brandKind: $this->kindOf($product),
         );
+    }
+
+    /** «مطعم» or «براند» next to the place's name; none for the platform's kitchen. */
+    private function kindOf(Product $product): ?string
+    {
+        $brand = $product->brand;
+
+        return $brand instanceof Brand && ! $brand->is_platform ? $brand->kind->getLabel() : null;
     }
 
     /**

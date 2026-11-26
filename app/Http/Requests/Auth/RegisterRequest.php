@@ -4,6 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use App\Data\Auth\RegistrationData;
 use App\Enums\AccountType;
+use App\Enums\BrandKind;
 use App\Models\User;
 use Illuminate\Validation\Rule;
 
@@ -19,6 +20,8 @@ class RegisterRequest extends AuthFormRequest
             'name' => preg_replace('/\s+/u', ' ', trim((string) $this->input('name'))),
             // Only brand owners and nutritionists give a number; anything else sent is dropped.
             'whatsapp' => $type?->needsWhatsapp() ? self::normalizeWhatsapp($this->input('whatsapp')) : null,
+            // Only a brand owner says what they run.
+            'brand_kind' => $type === AccountType::BrandOwner ? $this->input('brand_kind') : null,
         ]);
     }
 
@@ -33,6 +36,10 @@ class RegisterRequest extends AuthFormRequest
                 Rule::requiredIf(fn () => AccountType::tryFrom((string) $this->input('account_type'))?->needsWhatsapp() ?? false),
                 'nullable', ...$this->whatsappRules(),
             ],
+            'brand_kind' => [
+                Rule::requiredIf(fn () => $this->input('account_type') === AccountType::BrandOwner->value),
+                'nullable', Rule::enum(BrandKind::class),
+            ],
             ...$this->honeypotRules(),
         ];
     }
@@ -41,6 +48,7 @@ class RegisterRequest extends AuthFormRequest
     {
         return parent::messages() + [
             'name.regex' => 'اكتب الاسم بالحروف فقط.',
+            'brand_kind.required' => 'اختار: مطعم ولا براند؟',
             'email.unique' => 'هذا البريد مسجّل لدينا. سجّل الدخول، أو استعد كلمة المرور إن نسيتها.',
         ];
     }
@@ -53,6 +61,7 @@ class RegisterRequest extends AuthFormRequest
             password: $this->validated('password'),
             accountType: AccountType::from($this->validated('account_type')),
             whatsapp: $this->validated('whatsapp'),
+            brandKind: BrandKind::tryFrom((string) $this->validated('brand_kind')),
         );
     }
 }

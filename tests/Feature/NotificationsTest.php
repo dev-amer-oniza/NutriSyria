@@ -62,7 +62,7 @@ class NotificationsTest extends TestCase
         $admin = $this->user(Access::SUPER_ADMIN);
 
         $this->post('/register', ['account_type' => 'brand-owner', 'name' => 'أبو عبدو', 'email' => 'abdo@example.com',
-            'password' => 'zaatar-2026', 'whatsapp' => '+963944000111'])->assertRedirect('/verify-email');
+            'password' => 'zaatar-2026', 'whatsapp' => '+963944000111', 'brand_kind' => 'brand'])->assertRedirect('/verify-email');
         // Not yet: an unconfirmed email may never come back.
         Notification::assertNotSentTo($admin, DatabaseNotification::class);
 
@@ -76,7 +76,7 @@ class NotificationsTest extends TestCase
         $this->post('/verify-email', ['code' => $code]);
 
         Notification::assertSentTo($admin, DatabaseNotification::class,
-            fn (DatabaseNotification $n) => str_contains($n->data['title'], 'طلب حساب جديد: أبو عبدو'));
+            fn (DatabaseNotification $n) => str_contains($n->data['title'], 'طلب حساب جديد: أبو عبدو') && str_contains($n->data['body'], '(براند)'));
     }
 
     public function test_the_person_hears_the_answer_in_the_site_bell(): void

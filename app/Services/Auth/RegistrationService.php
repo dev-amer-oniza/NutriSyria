@@ -37,6 +37,7 @@ class RegistrationService
         $user->forceFill([
             'requested_role' => $role,
             'role_requested_at' => $role ? now() : null,
+            'brand_kind' => $data->brandKind,
         ])->save();
 
         $this->codes->send($user, AuthCodePurpose::VerifyEmail);

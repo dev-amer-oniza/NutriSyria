@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\Brands\Resources\Brands\Tables;
 
+use App\Enums\BrandKind;
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
 use App\Filament\Support\Placeholders;
 use App\Support\ArabicSearch;
@@ -11,6 +12,7 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
@@ -36,6 +38,9 @@ class BrandsTable
                     ->searchable(query: ArabicSearch::column('name'))
                     ->sortable()
                     ->weight('bold'),
+                TextColumn::make('kind')
+                    ->label('النوع')
+                    ->badge(),
                 TextColumn::make('products_count')
                     ->label('عدد المنتجات')
                     // Products are not the admin's (the owner's decision 2a).
@@ -55,6 +60,9 @@ class BrandsTable
             ])
             ->defaultSort('name')
             ->filters([
+                SelectFilter::make('kind')
+                    ->label('النوع')
+                    ->options(BrandKind::class),
                 TernaryFilter::make('is_active')
                     ->label('الحالة')
                     ->placeholder('الكل')

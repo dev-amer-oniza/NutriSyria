@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\BrandKind;
 use App\Enums\SyrianGovernorate;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -12,13 +13,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property string $name
  * @property bool $is_platform
+ * @property BrandKind $kind restaurant or brand; set by the admin only
  */
 class Brand extends Model
 {
     protected $fillable = [
-        'name', 'description', 'logo', 'phone_1', 'phone_2', 'has_delivery', 'is_active',
+        'name', 'kind', 'description', 'logo', 'phone_1', 'phone_2', 'has_delivery', 'is_active',
         'city', 'address', 'opening_hours', 'whatsapp', 'instagram_url', 'facebook_url', 'delivery_note',
     ];
+
+    /** @var array<string, mixed> */
+    protected $attributes = ['kind' => 'restaurant'];
 
     protected function casts(): array
     {
@@ -27,6 +32,7 @@ class Brand extends Model
             'is_active' => 'boolean',
             'is_platform' => 'boolean',
             'city' => SyrianGovernorate::class,
+            'kind' => BrandKind::class,
         ];
     }
 

@@ -4,6 +4,7 @@ namespace App\Services\Auth;
 
 use App\Data\Auth\SocialProfile;
 use App\Enums\AccountType;
+use App\Enums\BrandKind;
 use App\Enums\GoogleSignIn;
 use App\Http\Requests\Auth\AuthFormRequest;
 use App\Models\User;
@@ -80,14 +81,14 @@ class GoogleAuthService
     }
 
     /** The last step for a new brand owner or nutritionist coming from Google. */
-    public function completeWithWhatsapp(SocialProfile $profile, AccountType $type, string $whatsapp): GoogleSignIn
+    public function completeWithWhatsapp(SocialProfile $profile, AccountType $type, string $whatsapp, ?BrandKind $kind = null): GoogleSignIn
     {
         // Someone may have signed up with this email in the meantime.
         if (User::where('email', $profile->email)->orWhere('google_id', $profile->providerId)->exists()) {
             return $this->signIn($profile, $type);
         }
 
-        Auth::login($this->create($profile, $type, $whatsapp));
+        Auth::login($this->create($profile, $type, $whatsapp, $kind));
 
         return GoogleSignIn::Created;
     }
@@ -113,7 +114,7 @@ class GoogleAuthService
         return GoogleSignIn::SignedIn;
     }
 
-    private function create(SocialProfile $profile, AccountType $type, ?string $whatsapp): User
+    private function create(SocialProfile $profile, AccountType $type, ?string $whatsapp, ?BrandKind $kind = null): User
     {
         $role = $type->requestedRole();
 
@@ -128,6 +129,7 @@ class GoogleAuthService
             'email_verified_at' => now(),
             'requested_role' => $role,
             'role_requested_at' => $role ? now() : null,
+            'brand_kind' => $type === AccountType::BrandOwner ? $kind : null,
         ])->save();
 
         // Google confirmed the email: a role request reaches the admins at once.

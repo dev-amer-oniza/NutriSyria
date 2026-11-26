@@ -2,7 +2,9 @@
 
 namespace App\Data\Site;
 
-/** One active restaurant (brand) as the public site shows it; empty details are null. */
+use App\Enums\BrandKind;
+
+/** One active restaurant or brand as the public site shows it; empty details are null. */
 final readonly class RestaurantFacts
 {
     /** @param  list<array{label: string, href: string}>  $phones */
@@ -24,6 +26,7 @@ final readonly class RestaurantFacts
         public int $productCount,
         /** Approved meals (with official values) shown on the site. */
         public int $mealCount = 0,
+        public BrandKind $kind = BrandKind::Restaurant,
     ) {}
 
     public function withMealCount(int $count): self

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Auth\Access;
 use App\Enums\AuthCodePurpose;
+use App\Enums\BrandKind;
 use App\Filament\Clusters\AccessControl\Resources\Users\Pages\ListUsers;
 use App\Http\Controllers\Site\Auth\EmailVerificationController;
 use App\Http\Controllers\Site\Auth\PasswordResetController;
@@ -109,9 +110,13 @@ class SiteAuthTest extends TestCase
     {
         $this->register(['account_type' => 'brand-owner'])->assertSessionHasErrors('whatsapp');
 
-        $this->register(['account_type' => 'brand-owner', 'whatsapp' => '0912 345 678'])->assertRedirect('/verify-email');
+        // Restaurant or brand: the owner says which.
+        $this->register(['account_type' => 'brand-owner', 'whatsapp' => '0912 345 678'])->assertSessionHasErrors('brand_kind');
+        $this->register(['account_type' => 'brand-owner', 'whatsapp' => '0912 345 678', 'brand_kind' => 'shop'])->assertSessionHasErrors('brand_kind');
+        $this->register(['account_type' => 'brand-owner', 'whatsapp' => '0912 345 678', 'brand_kind' => 'restaurant'])->assertRedirect('/verify-email');
 
         $user = User::sole();
+        $this->assertSame(BrandKind::Restaurant, $user->brand_kind);
         $this->assertSame('+963912345678', $user->phone);
         $this->assertSame(Access::BRAND_OWNER, $user->requested_role);
         $this->assertCount(0, $user->roles, 'no role before the admin says yes');
@@ -122,6 +127,13 @@ class SiteAuthTest extends TestCase
         $this->assertTrue($user->hasRole(Access::BRAND_OWNER));
         $this->assertNull($user->requested_role);
         $this->assertTrue($user->canAccessPanel(Filament::getPanel('admin')));
+    }
+
+    public function test_only_a_brand_owner_keeps_a_kind(): void
+    {
+        $this->register(['account_type' => 'member', 'brand_kind' => 'brand'])->assertRedirect('/verify-email');
+
+        $this->assertNull(User::sole()->brand_kind);
     }
 
     public function test_a_member_cannot_slip_in_a_number_or_a_role(): void
