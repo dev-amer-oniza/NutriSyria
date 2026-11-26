@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Auth\Access;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
+use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
 use App\Models\Brand;
 use App\Models\DataSource;
 use App\Models\Food;
@@ -15,6 +16,7 @@ use App\Models\Product;
 use App\Models\ProductRecipe;
 use App\Models\ProductRecipeIngredient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -69,5 +71,37 @@ class RecipePortionFormTest extends TestCase
             ->call('save')
             ->assertHasNoFormErrors();
         $this->assertSame(1, ProductRecipeIngredient::count());
+    }
+
+    public function test_the_ingredient_and_unit_lists_load_once_however_many_rows(): void
+    {
+        $brand = Brand::create(['name' => 'مطعم']);
+        $this->signInAs(Access::BRAND_OWNER)->brands()->attach($brand->id);
+        $source = DataSource::create(['code' => 'usda_fdc_sr_legacy', 'name' => 'USDA SR Legacy', 'type' => 'usda_fdc']);
+        $gram = MeasureUnit::create(['code' => 'g', 'name_ar' => 'غرام', 'dimension' => 'mass', 'base_factor' => 1]);
+        $product = Product::create(['brand_id' => $brand->id, 'name' => 'سلطة']);
+        $recipe = ProductRecipe::create(['product_id' => $product->id, 'servings' => 1]);
+        foreach (['بصل', 'بندورة', 'خيار', 'بقدونس', 'زيت', 'ليمون'] as $i => $name) {
+            $record = FoodSourceRecord::create([
+                'food_id' => Food::create(['name_ar' => $name])->id, 'data_source_id' => $source->id,
+                'external_ref' => (string) (180000 + $i), 'status' => 'active',
+            ]);
+            ProductRecipeIngredient::create([
+                'product_recipe_id' => $recipe->id, 'food_source_record_id' => $record->id,
+                'measure_unit_id' => $gram->id, 'amount' => 50, 'sort_order' => $i,
+            ]);
+        }
+
+        $sql = [];
+        DB::listen(function ($query) use (&$sql) {
+            $sql[] = $query->sql;
+        });
+        $this->get(ProductResource::getUrl('edit', ['record' => $product]))->assertOk();
+
+        $count = fn (string $needle) => count(array_filter($sql, fn (string $q) => str_contains($q, $needle)));
+        // Six rows, one list each: built once for the page, not once per row (the owner's
+        // report that the page had become slow).
+        $this->assertSame(1, $count('from "measure_units" order by "name_ar"'), 'units list');
+        $this->assertSame(1, $count('select "food_source_records".* from "food_source_records" inner join "foods"'), 'ingredient list');
     }
 }
