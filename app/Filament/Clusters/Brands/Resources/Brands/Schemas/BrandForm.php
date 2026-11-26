@@ -71,8 +71,9 @@ class BrandForm
                             ->label('يقدّم توصيلاً')
                             ->default(false),
                         Toggle::make('is_active')
-                            // Activating a brand is the admin's call, not the owner's.
-                            ->disabled(fn () => ! auth()->user()?->allows(Access::BRANDS_MANAGE_ALL))
+                            // Activating a brand is the admin's call: the owner does not see it at all
+                            // (the owner's request). A hidden field is not sent, so it cannot change.
+                            ->visible(fn () => (bool) auth()->user()?->allows(Access::BRANDS_MANAGE_ALL))
                             ->label('نشط')
                             ->default(true)
                             ->helperText('غير النشط لا يظهر للناس بالموقع'),

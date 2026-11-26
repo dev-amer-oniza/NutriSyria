@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\Brands\Resources\Brands\Tables;
 
+use App\Auth\Access;
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
 use App\Filament\Support\Placeholders;
 use App\Support\ArabicSearch;
@@ -54,11 +55,14 @@ class BrandsTable
                     ->boolean(),
                 IconColumn::make('is_active')
                     ->label('نشط')
-                    ->boolean(),
+                    ->boolean()
+                    // The admin's switch: an owner with several restaurants does not see it.
+                    ->visible(fn () => (bool) auth()->user()?->allows(Access::BRANDS_MANAGE_ALL)),
             ])
             ->defaultSort('name')
             ->filters([
                 TernaryFilter::make('is_active')
+                    ->visible(fn () => (bool) auth()->user()?->allows(Access::BRANDS_MANAGE_ALL))
                     ->label('الحالة')
                     ->placeholder('الكل')
                     ->trueLabel('نشط فقط')
