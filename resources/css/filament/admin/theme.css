@@ -229,3 +229,21 @@ html.dark {
         & > td:nth-child(7) { order: 7; align-self: center; }
     }
 }
+
+/*
+ * Typing on a phone (the owner's report: the page jumped when a field was tapped).
+ * - 16px text in fields: below that, iPhone zooms the page in on every tap.
+ * - The top bar stays on screen, so a field the browser scrolls to must land below it.
+ */
+@media (max-width: 640px) {
+    .fi-input,
+    .fi-select-input-btn,
+    .fi-select-input-search-ctn input,
+    textarea {
+        font-size: 1rem;
+    }
+}
+
+html {
+    scroll-padding-top: 5rem;
+}

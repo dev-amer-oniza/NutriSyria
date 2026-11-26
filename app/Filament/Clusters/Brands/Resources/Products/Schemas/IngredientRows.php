@@ -76,6 +76,9 @@ class IngredientRows
                     return $r ? self::labelFor($r) : null;
                 })
                 ->searchable()
+                // Always open below the field: flipping above it on a phone moved the search box,
+                // and the page jumped when the keyboard came up (the owner's report).
+                ->position('bottom')
                 ->live()
                 ->afterStateUpdated(fn (Get $get, Set $set) => self::presetPortion($get, $set))
                 // A searchable select accepts any id the browser sends: check it on the server.
@@ -87,6 +90,8 @@ class IngredientRows
                 ->label('الكمية')
                 ->numeric()
                 ->minValue(0)
+                // The number keypad with a decimal point on phones (½ كوب = 0.5).
+                ->inputMode('decimal')
                 ->live(onBlur: true)
                 ->required(fn (Get $get) => self::started($get))
                 ->columnSpan(['default' => 6, 'md' => 2]),
@@ -261,11 +266,19 @@ class IngredientRows
     {
         $label = $r->foodForm ? "{$r->food?->name_ar} — {$r->foodForm->name_ar}" : (string) $r->food?->name_ar;
         if ($withSource) {
-            $label .= " ({$r->dataSource?->name})";
+            $label .= ' ('.self::shortSource((string) $r->dataSource?->name).')';
         }
         $missing = self::missingCore($r);
 
         return $missing ? $label.' · ناقص: '.implode('، ', $missing) : $label;
+    }
+
+    /** "USDA Foundation Foods" → "Foundation": the label fits one line on a phone. */
+    private static function shortSource(string $name): string
+    {
+        $short = trim((string) preg_replace('/^USDA\s+|\s+Foods$/u', '', $name));
+
+        return $short !== '' ? $short : $name;
     }
 
     /**

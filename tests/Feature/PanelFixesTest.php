@@ -125,8 +125,8 @@ class PanelFixesTest extends TestCase
         $options = IngredientRows::options();
 
         $this->assertSame([$modern->id, $legacy->id], array_keys($options), 'Foundation before SR Legacy');
-        $this->assertSame('حمص — نيء (USDA Foundation)', $options[$modern->id]);
-        $this->assertSame('حمص — نيء (USDA SR Legacy) · ناقص: البروتين', $options[$legacy->id]);
+        $this->assertSame('حمص — نيء (Foundation)', $options[$modern->id], 'the source named short, to fit a phone');
+        $this->assertSame('حمص — نيء (SR Legacy) · ناقص: البروتين', $options[$legacy->id]);
     }
 
     /** A bundle folder with the given sheets (file name => content). */
