@@ -61,7 +61,7 @@ class PreparationResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $ids = BrandScope::brandIds(auth()->user());
-        $query = parent::getEloquentQuery()->whereHas('brand', fn (Builder $b) => $b->restaurants());
+        $query = parent::getEloquentQuery()->whereHas('brand', fn (Builder $b) => $b->where('is_platform', false));
 
         return $ids === null ? $query : $query->whereIn('brand_id', $ids);
     }
@@ -80,7 +80,7 @@ class PreparationResource extends Resource
                 ->components([
                     Select::make('brand_id')
                         ->label('المطعم أو البراند')
-                        ->options(fn () => BrandScope::brands(Brand::query())->restaurants()->orderBy('name')->pluck('name', 'id'))
+                        ->options(fn () => BrandScope::brands(Brand::query())->where('is_platform', false)->orderBy('name')->pluck('name', 'id'))
                         ->rules(fn () => ($ids = BrandScope::brandIds(auth()->user())) === null ? [] : [Rule::in($ids)])
                         ->default(fn () => ProductCategoryResource::onlyBrandId())
                         ->hidden(fn () => ProductCategoryResource::onlyBrandId() !== null)
@@ -94,7 +94,7 @@ class PreparationResource extends Resource
                         ->required()
                         ->maxLength(120)
                         ->unique('preparations', 'name', ignoreRecord: true, modifyRuleUsing: fn (Unique $rule, Get $get, ?Preparation $record) => $rule
-                            ->where('brand_id', $record?->brand_id ?? $get('brand_id') ?? ProductCategoryResource::onlyBrandId()))
+                            ->where('brand_id', $record->brand_id ?? $get('brand_id') ?? ProductCategoryResource::onlyBrandId()))
                         ->validationMessages(['unique' => 'عندك تحضير بهذا الاسم.']),
                     TextInput::make('note')
                         ->label('ملاحظة (إلك بس)')

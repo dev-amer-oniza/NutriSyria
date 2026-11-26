@@ -20,17 +20,23 @@ class Preparation extends Model
         return ['weight_after_g' => 'decimal:3'];
     }
 
+    /** @return BelongsTo<Brand, $this> */
     public function brand(): BelongsTo
     {
         return $this->belongsTo(Brand::class);
     }
 
+    /** @return HasMany<PreparationIngredient, $this> */
     public function ingredients(): HasMany
     {
         return $this->hasMany(PreparationIngredient::class)->orderBy('sort_order');
     }
 
-    /** The product lines that use it. */
+    /**
+     * The product lines that use it.
+     *
+     * @return HasMany<ProductRecipeIngredient, $this>
+     */
     public function productLines(): HasMany
     {
         return $this->hasMany(ProductRecipeIngredient::class);

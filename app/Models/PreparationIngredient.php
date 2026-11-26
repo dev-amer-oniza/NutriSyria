@@ -15,16 +15,19 @@ class PreparationIngredient extends Model
         return ['amount' => 'decimal:4', 'sort_order' => 'integer'];
     }
 
+    /** @return BelongsTo<Preparation, $this> */
     public function preparation(): BelongsTo
     {
         return $this->belongsTo(Preparation::class);
     }
 
+    /** @return BelongsTo<FoodSourceRecord, $this> */
     public function ingredientRecord(): BelongsTo
     {
         return $this->belongsTo(FoodSourceRecord::class, 'food_source_record_id');
     }
 
+    /** @return BelongsTo<MeasureUnit, $this> */
     public function measureUnit(): BelongsTo
     {
         return $this->belongsTo(MeasureUnit::class);

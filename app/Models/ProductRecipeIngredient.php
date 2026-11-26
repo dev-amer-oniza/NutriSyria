@@ -31,12 +31,17 @@ class ProductRecipeIngredient extends Model
         return $this->belongsTo(ProductRecipe::class);
     }
 
+    /** @return BelongsTo<FoodSourceRecord, $this> */
     public function ingredientRecord(): BelongsTo
     {
         return $this->belongsTo(FoodSourceRecord::class, 'food_source_record_id');
     }
 
-    /** The brand's own preparation on this line, instead of a food record (كريمة تمر). */
+    /**
+     * The brand's own preparation on this line, instead of a food record (كريمة تمر).
+     *
+     * @return BelongsTo<Preparation, $this>
+     */
     public function preparation(): BelongsTo
     {
         return $this->belongsTo(Preparation::class);

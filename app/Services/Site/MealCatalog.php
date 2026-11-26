@@ -152,18 +152,26 @@ class MealCatalog
         $factor = ($serving ?? 100) / 100;
         // A preparation's foods count for its allergens; the site names the preparation itself
         // ("كريمة تمر"), not its foods (the owner's decision 1a).
-        $foods = $product->recipeIngredients
-            ->flatMap(fn (ProductRecipeIngredient $line) => $line->preparation
-                ? $line->preparation->ingredients->map(fn ($i) => $i->ingredientRecord?->food)
-                : [$line->ingredientRecord?->food])
-            ->filter()
-            ->unique('id');
-        $names = $product->recipeIngredients
-            ->map(fn (ProductRecipeIngredient $line) => $line->preparation?->name ?? $line->ingredientRecord?->food?->name_ar)
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
+        $foods = collect();
+        $names = [];
+        foreach ($product->recipeIngredients as $line) {
+            if (! $line instanceof ProductRecipeIngredient) {
+                continue;
+            }
+            $preparation = $line->preparation;
+            if ($preparation !== null) {
+                $names[] = $preparation->name;
+                foreach ($preparation->ingredients as $part) {
+                    $foods->push($part->ingredientRecord?->food);
+                }
+            } else {
+                $food = $line->ingredientRecord?->food;
+                $names[] = $food?->name_ar;
+                $foods->push($food);
+            }
+        }
+        $foods = $foods->filter()->unique('id');
+        $names = array_values(array_unique(array_filter($names)));
 
         return new MealFacts(
             id: $product->id,
