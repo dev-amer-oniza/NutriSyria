@@ -1,12 +1,14 @@
 /* Shared components. One block per Blade partial in resources/views/site/components. */
 @layer components {
     /* ---------- Logo lockup (partials/logo) ---------- */
-    /* Logo lockup (identity: Logo), all in em so it scales with font-size: the mark a 1.2em box
-       0.32em below the baseline, 0.24em from the name; Nutri 800 + Syria 400, both pine. */
-    .ns-logo { display: inline-block; direction: ltr; white-space: nowrap; font-family: var(--font-latin); font-size: 1.5rem; line-height: 1.2; color: var(--pine); text-decoration: none; border-radius: var(--radius-sm); }
-    .ns-logo .ns-mark { display: inline-block; width: 1.2em; height: 1.2em; vertical-align: -0.32em; margin-right: 0.24em; }
+    /* Logo lockup, all in em so it scales with font-size. Measured on the artwork: its capitals
+       fill 13..172 of its 226px height (0.70), centred at 0.41. The wordmark is 1.15em tall, so
+       the capitals are 0.81em; the mark is a 1.05em box (its drawing 0.91em, a little taller than
+       the capitals), lifted so its centre sits on theirs: 0.41 x 1.15 - 1.05 / 2 = -0.055em. */
+    .ns-logo { display: inline-flex; align-items: flex-start; gap: 0.28em; direction: ltr; white-space: nowrap; font-family: var(--font-latin); font-size: 1.5rem; line-height: 1.2; color: var(--pine); text-decoration: none; border-radius: var(--radius-sm); }
+    .ns-logo .ns-mark { flex: none; width: 1.05em; height: 1.05em; margin-top: -0.055em; }
     /* The wordmark (partials/wordmark): the owner's artwork as a mask in currentColor. */
-    .ns-wordmark { display: inline-block; height: 1em; aspect-ratio: 1011 / 226; vertical-align: -0.14em; background-color: currentColor; -webkit-mask: var(--wordmark) center / contain no-repeat; mask: var(--wordmark) center / contain no-repeat; }
+    .ns-wordmark { display: inline-block; flex: none; height: 1.15em; aspect-ratio: 1011 / 226; background-color: currentColor; -webkit-mask: var(--wordmark) center / contain no-repeat; mask: var(--wordmark) center / contain no-repeat; }
     .ns-logo--on-pine { color: var(--on-pine); }
     .ns-mark .part { fill: var(--pine); }
     .ns-mark .origin { fill: var(--terracotta); }
