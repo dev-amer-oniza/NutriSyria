@@ -122,6 +122,15 @@ class AdminPanelProvider extends PanelProvider
                     document.addEventListener('visibilitychange', () => {
                         if (! document.hidden) window.Livewire?.dispatch('databaseNotificationsSent')
                     })
+
+                    // On a phone, an ingredient list opened in the recipe rows moves to the top of
+                    // the screen once, so its options sit between the field and the keyboard
+                    // instead of the page jumping around them (the owner's report).
+                    document.addEventListener('click', (event) => {
+                        const button = event.target.closest?.('.ns-recipe-rows .fi-select-input-btn')
+                        if (! button || ! matchMedia('(max-width: 640px)').matches) return
+                        setTimeout(() => button.scrollIntoView({ block: 'start', behavior: 'smooth' }), 300)
+                    })
                 </script>
                 HTML)
             // Deny by default: a model without a policy, or a policy without the asked ability,
