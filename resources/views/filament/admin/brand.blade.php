@@ -1,15 +1,15 @@
 {{--
-    Panel logo, from the NutriSyria brand logo (public/images/brand/nutrisyria-logo.jpg): the
-    smile-and-dot mark on its green-black tile, then the wordmark with "Syria" in the brand lime.
-    On a light background the lime is too faint to read, so "Syria" takes the panel's olive there.
+    Panel logo: the site's lockup from the business card (site/partials/logo), the six-piece
+    diamond with its terracotta origin piece, then **Nutri** (Sora 800) and Syria (Sora 400).
+    Pine on light, the site's light ink on dark. Always left-to-right.
 --}}
-<span class="flex items-center gap-2.5" dir="ltr">
-    <svg class="size-8 shrink-0 rounded-[7px] dark:ring-1 dark:ring-white/15" viewBox="0 0 64 64" aria-hidden="true">
-        <rect width="64" height="64" rx="14" fill="#0a1310"/>
-        <path d="M18.8 30.3a13.2 13.2 0 0 0 26.4 0" fill="none" stroke="#f2f4ef" stroke-width="5.3" stroke-linecap="round"/>
-        <circle cx="32" cy="21.2" r="3.7" fill="#c8f164"/>
-    </svg>
-    <span class="text-xl font-bold tracking-tight">
-        <span class="text-gray-950 dark:text-[#f2f4ef]">Nutri</span><span class="text-primary-600 dark:text-[#c8f164]">Syria</span>
-    </span>
+<span class="ns-panel-logo" dir="ltr">
+    <svg viewBox="-31 -31 62 62" aria-hidden="true">
+        <path class="part" d="M-0.88 -25.33L-0.88 -11.68A2.4 2.4 0 0 1 -1.51 -10.06A8.8 8.8 0 0 1 -15.41 -11.25A4.8 4.8 0 0 1 -14.76 -17.24L-4.98 -27.02A2.4 2.4 0 0 1 -0.88 -25.33Z"/>
+        <path class="origin" d="M4.98 -27.02L14.76 -17.24A4.8 4.8 0 0 1 15.41 -11.25A8.8 8.8 0 0 1 1.51 -10.06A2.4 2.4 0 0 1 0.88 -11.68L0.88 -25.33A2.4 2.4 0 0 1 4.98 -27.02Z"/>
+        <path class="part" d="M-14.96 -8.06A10.56 10.56 0 0 0 -3.92 -6.26A0.8 0.8 0 0 1 -3.04 -4.96L-15.76 7.76A6 6 0 0 1 -24.24 7.76L-29.45 2.55A3.6 3.6 0 0 1 -29.45 -2.55L-24.25 -7.75A6.8 6.8 0 0 1 -14.96 -8.06Z"/>
+        <path class="part" d="M14.96 8.06A10.56 10.56 0 0 0 3.92 6.26A0.8 0.8 0 0 1 3.04 4.96L15.76 -7.76A6 6 0 0 1 24.24 -7.76L29.45 -2.55A3.6 3.6 0 0 1 29.45 2.55L24.25 7.75A6.8 6.8 0 0 1 14.96 8.06Z"/>
+        <path class="part" d="M-4.98 27.02L-14.76 17.24A4.8 4.8 0 0 1 -15.41 11.25A8.8 8.8 0 0 1 -1.51 10.06A2.4 2.4 0 0 1 -0.88 11.68L-0.88 25.33A2.4 2.4 0 0 1 -4.98 27.02Z"/>
+        <path class="part" d="M0.88 25.33L0.88 11.68A2.4 2.4 0 0 1 1.51 10.06A8.8 8.8 0 0 1 15.41 11.25A4.8 4.8 0 0 1 14.76 17.24L4.98 27.02A2.4 2.4 0 0 1 0.88 25.33Z"/>
+    </svg><span><b>Nutri</b>Syria</span>
 </span>
