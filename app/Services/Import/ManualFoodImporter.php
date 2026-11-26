@@ -61,8 +61,8 @@ class ManualFoodImporter
     /**
      * @param  array{food_id?: ?int, food_name_ar?: ?string, food_name_en?: ?string, food_form_code: string}  $choice
      * @param  array<string, mixed>  $values  by nutrient code, per 100 g; empty ones are left out
-     * @param  list<array{measure_unit_id: int|string, amount: mixed, gram_weight: mixed}>  $portions
-     * @param  ?list<string>  $allergens  for a new food: its allergens (null = not checked)
+     * @param  list<array<string, mixed>>  $portions
+     * @param  ?array<int, string>  $allergens  for a new food: its allergens (null = not checked)
      * @return array{batch: int, record: FoodSourceRecord}
      *
      * @throws ImportFileRejected when a value is missing, a warning has no reason, or the checks block it
