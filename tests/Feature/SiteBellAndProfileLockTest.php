@@ -10,6 +10,7 @@ use App\Services\Consultations\ConsultationService;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\Concerns\ConsultationFixtures;
 use Tests\TestCase;
@@ -71,6 +72,34 @@ class SiteBellAndProfileLockTest extends TestCase
         $this->actingAs($client)->getJson(route('site.notifications'))->assertJson(['unread' => 2]);
         $this->postJson(route('site.notifications.read'))->assertJson(['unread' => 0]);
         $this->getJson(route('site.notifications'))->assertJson(['unread' => 0]);
+    }
+
+    public function test_a_notice_is_deleted_and_the_rest_are_cleared(): void
+    {
+        $reem = $this->nutritionist();
+        $link = $this->linked($client = $this->client(), $reem);
+        app(ClientWorkspace::class)->setCriterion($reem->user, $link, 'sodium_mg', 1500);
+        $other = $this->client('lina@example.com');
+        $other->notify(SiteNotification::roleDeclined('nutritionist'));
+
+        $items = $this->actingAs($client)->getJson(route('site.notifications'))->json('items');
+        $this->assertCount(2, $items);
+
+        // Someone else's notice cannot be deleted.
+        $theirs = $other->notifications()->first()->id;
+        $this->deleteJson(route('site.notifications.destroy', $theirs))->assertNotFound();
+        $this->assertSame(1, $other->notifications()->count());
+
+        // Deleting one answers with what is left.
+        $this->deleteJson($items[0]['delete'])->assertOk()->assertJsonCount(1, 'items')->assertJson(['unread' => 1]);
+
+        // "مسح الكل" takes the site notices only; the panel's stay (the nutritionist's own are elsewhere).
+        $client->notifications()->create(['id' => (string) Str::uuid(), 'type' => 'panel', 'data' => ['format' => 'filament', 'title' => 'x']]);
+        $this->deleteJson(route('site.notifications.clear'))->assertOk()->assertJson(['unread' => 0, 'items' => []]);
+        $this->assertSame(1, $client->notifications()->count());
+        $this->assertSame(1, $other->notifications()->count());
+
+        $this->actingAs($client)->get(route('home'))->assertOk()->assertSee('مسح الكل');
     }
 
     public function test_a_guest_has_no_bell(): void

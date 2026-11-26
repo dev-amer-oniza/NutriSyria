@@ -8,6 +8,7 @@ use App\Models\FoodRequest;
 use App\Services\Daily\FoodRequests;
 use App\Services\Site\MealCatalog;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -16,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use InvalidArgumentException;
 
 class FoodRequestsTable
@@ -63,6 +65,23 @@ class FoodRequestsTable
             ->recordActions([
                 self::addedAction(),
                 self::dismissAction(),
+                self::deleteAction(),
+            ])
+            ->toolbarActions([
+                BulkAction::make('delete')
+                    ->label('حذف المحدد')
+                    ->icon(Heroicon::OutlinedTrash)
+                    ->color('danger')
+                    ->authorize('deleteAny')
+                    ->requiresConfirmation()
+                    ->modalHeading('حذف الطلبات المحددة')
+                    ->modalDescription(self::DELETE_NOTE)
+                    ->modalSubmitActionLabel('احذف')
+                    ->deselectRecordsAfterCompletion()
+                    ->action(function (Collection $records) {
+                        $count = app(FoodRequests::class)->delete($records);
+                        Notification::make()->title("حُذف {$count} من الطلبات.")->success()->send();
+                    }),
             ])
             ->emptyStateIcon(Heroicon::OutlinedInboxArrowDown)
             ->emptyStateHeading('لا أكلات مطلوبة')
@@ -114,6 +133,25 @@ class FoodRequestsTable
                 fn () => app(FoodRequests::class)->dismiss($record, auth()->user(), $data['note'] ?? null),
                 'أُرسل الرد لكل من طلبها.',
             ));
+    }
+
+    private const DELETE_NOTE = 'يختفي من القائمة فقط، بلا إشعار لأحد. ما سجّله الشخص بيومه يبقى كما هو (غير محسوب).';
+
+    private static function deleteAction(): Action
+    {
+        return Action::make('delete')
+            ->label('حذف')
+            ->icon(Heroicon::OutlinedTrash)
+            ->color('danger')
+            ->authorize('delete')
+            ->requiresConfirmation()
+            ->modalHeading(fn (FoodRequest $record) => "حذف طلب «{$record->name}»")
+            ->modalDescription(self::DELETE_NOTE)
+            ->modalSubmitActionLabel('احذف')
+            ->action(function (FoodRequest $record) {
+                app(FoodRequests::class)->delete([$record]);
+                Notification::make()->title('حُذف الطلب.')->success()->send();
+            });
     }
 
     private static function run(callable $step, string $done): void

@@ -262,6 +262,31 @@ class DailyLogTest extends TestCase
         $this->assertSame(FoodRequestStatus::Dismissed, FoodRequest::where('name', 'فلافل')->value('status'));
     }
 
+    public function test_the_admin_deletes_a_request_and_the_persons_day_keeps_its_line(): void
+    {
+        $user = $this->person();
+        $this->actingAs($user)->post(route('site.daily.request'), ['food_name' => 'شاورما', 'ingredients' => 'خبز ودجاج', 'meal_type' => 'dinner']);
+        $this->actingAs($user)->post(route('site.daily.request'), ['food_name' => 'فلافل', 'ingredients' => 'حمص وكزبرة', 'meal_type' => 'dinner']);
+        $this->actingAs($user)->post(route('site.daily.request'), ['food_name' => 'كبة', 'ingredients' => 'برغل ولحمة', 'meal_type' => 'lunch']);
+
+        $this->signInAs();
+        $component = Livewire::test(ListFoodRequests::class)
+            ->callAction(TestAction::make('delete')->table(FoodRequest::where('name', 'شاورما')->first()))
+            ->assertHasNoActionErrors();
+
+        $this->assertNull(FoodRequest::where('name', 'شاورما')->first());
+        // Still on the day, not counted, and nobody was told.
+        $this->assertSame(3, MealLog::count());
+        $this->assertNull(MealLog::where('name', 'شاورما')->value('food_request_id'));
+        $this->assertSame(0, $user->notifications()->count());
+
+        $component->callTableBulkAction('delete', FoodRequest::all())->assertHasNoTableBulkActionErrors();
+        $this->assertSame(0, FoodRequest::count());
+        $this->assertSame(3, MealLog::whereNull('energy_kcal')->count());
+
+        $this->actingAs($user)->get(route('site.daily'))->assertOk()->assertSee('فلافل');
+    }
+
     public function test_only_the_admin_sees_the_requested_foods(): void
     {
         $this->signInAs(Access::NUTRITIONIST);
