@@ -108,6 +108,10 @@ return [
             'label' => 'USDA FNDDS',
             'text' => 'أطباق جاهزة كما تؤكل في المسوح الغذائية. لا نستعمله للمكوّنات.',
         ],
+        'manual_entry' => [
+            'label' => 'مصادر أخرى',
+            'text' => 'أغذية لا توجد في USDA (مثل حبة البركة)، أدخلنا قيمها من ملصق المنتج أو جدول تركيب منشور، ومصدر كل غذاء مكتوب معه. إن وُجد الغذاء نفسه في USDA تُستعمل أرقامها أولاً.',
+        ],
     ],
 
     /* How well a meal fits one person: four calm levels, always shown with the reasons. */
