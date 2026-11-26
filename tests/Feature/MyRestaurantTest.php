@@ -6,6 +6,7 @@ use App\Auth\Access;
 use App\Enums\BrandKind;
 use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
+use App\Filament\Clusters\Brands\Resources\Brands\Pages\EditBrand;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\ListBrands;
 use App\Filament\Clusters\Brands\Resources\Categories\Pages\ManageProductCategories;
 use App\Filament\Clusters\Brands\Resources\Categories\ProductCategoryResource;
@@ -34,6 +35,32 @@ class MyRestaurantTest extends TestCase
 
         $this->assertSame('مطعمي ومنتجاتي', BrandsCluster::getNavigationLabel());
         $this->get($edit)->assertOk()->assertSee('مطعمي')->assertSee('التصنيفات')->assertSee('المنتجات');
+    }
+
+    public function test_the_owner_does_not_see_or_change_the_active_switch(): void
+    {
+        $brand = Brand::create(['name' => 'بيت المجدرة']);
+        $brand->forceFill(['is_active' => false])->save();
+        $this->signInAs(Access::BRAND_OWNER)->brands()->attach($brand->id);
+
+        $this->get(BrandResource::getUrl('edit', ['record' => $brand]))->assertOk()
+            ->assertDontSee('غير النشط لا يظهر للناس بالموقع');
+
+        // Even a crafted request cannot turn it on: the hidden field is not saved.
+        Livewire::test(EditBrand::class, ['record' => $brand->getKey()])
+            ->fillForm(['is_active' => true])
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $this->assertFalse((bool) $brand->fresh()->is_active);
+    }
+
+    public function test_the_admin_keeps_the_active_switch(): void
+    {
+        $brand = Brand::create(['name' => 'بيت المجدرة']);
+        $this->signInAs();
+
+        $this->get(BrandResource::getUrl('edit', ['record' => $brand]))->assertOk()
+            ->assertSee('غير النشط لا يظهر للناس بالموقع');
     }
 
     public function test_a_brand_owner_sees_their_pages_named_after_a_brand(): void
