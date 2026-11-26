@@ -31,22 +31,23 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 class AdminPanelProvider extends PanelProvider
 {
     /**
-     * Olive, set shade by shade: Color::hex('#5b7a29') generates a much brighter, lime-like
-     * scale. 500 and 600 are dark enough for white text, so Filament gives buttons the solid
-     * olive (600, contrast 5.8:1) instead of a pale 400 with dark text.
+     * Pine, the site's main colour (#0f3d32 at 600, the shade Filament gives buttons and links),
+     * set shade by shade from the site's own pine, pine-soft and pine-strong, in OKLCH. The
+     * panel wears the site identity (the owner's decision 1a): pine, terracotta as the accent
+     * (theme.css), warm sand greys, Sora for numbers.
      */
-    private const OLIVE = [
-        50 => 'oklch(0.975 0.014 126)',
-        100 => 'oklch(0.948 0.028 126)',
-        200 => 'oklch(0.89 0.052 126)',
-        300 => 'oklch(0.8 0.08 126)',
-        400 => 'oklch(0.68 0.104 126)',
-        500 => 'oklch(0.565 0.11 126)',
-        600 => 'oklch(0.5 0.102 126)',
-        700 => 'oklch(0.44 0.09 126)',
-        800 => 'oklch(0.38 0.075 126)',
-        900 => 'oklch(0.33 0.06 126)',
-        950 => 'oklch(0.24 0.044 126)',
+    private const PINE = [
+        50 => 'oklch(0.963 0.006 154)',
+        100 => 'oklch(0.917 0.015 136)',
+        200 => 'oklch(0.837 0.026 160)',
+        300 => 'oklch(0.702 0.043 168)',
+        400 => 'oklch(0.552 0.056 172)',
+        500 => 'oklch(0.429 0.058 172)',
+        600 => 'oklch(0.326 0.053 174)',
+        700 => 'oklch(0.291 0.047 173)',
+        800 => 'oklch(0.262 0.041 174)',
+        900 => 'oklch(0.233 0.036 173)',
+        950 => 'oklch(0.183 0.026 173)',
     ];
 
     public function boot(): void
@@ -93,10 +94,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            // Olive (Syrian kitchen: olive oil, za'atar) on warm stone greys. Status colors stay
+            // The site identity: pine on warm greys (sand surfaces in theme.css). Status colors stay
             // the usual green / amber / red so approved, to-review and rejected read at a glance.
             ->colors([
-                'primary' => self::OLIVE,
+                'primary' => self::PINE,
                 'gray' => Color::Stone,
                 'success' => Color::Green,
                 'warning' => Color::Amber,
@@ -111,6 +112,10 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotificationsPolling('60s')
             // Livewire nearly stops polling in a background tab, so a note sent meanwhile would wait
             // minutes. Check again the moment the user comes back to the tab.
+            // Sora for numbers and the logo's wordmark, as on the site.
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => <<<'HTML'
+                <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&display=swap">
+                HTML)
             ->renderHook(PanelsRenderHook::BODY_END, fn (): string => <<<'HTML'
                 <script>
                     document.addEventListener('visibilitychange', () => {
@@ -125,7 +130,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('NutriSyria')
             ->brandLogo(fn () => view('filament.admin.brand'))
             ->brandLogoHeight('2rem')
-            ->favicon(asset('images/brand/nutrisyria-mark.svg'))
+            ->favicon(asset('images/site/mark.svg'))
             ->navigationGroups(['البيانات الغذائية', 'المطاعم والبراندات', 'الاستشارات', 'الإعدادات'])
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
