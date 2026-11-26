@@ -237,10 +237,8 @@ class IngredientRows
             $shared[$key] = ($shared[$key] ?? 0) + 1;
         }
         foreach ($records as $record) {
-            if ($record instanceof FoodSourceRecord) {
-                $key = $record->getAttribute('food_id').'|'.$record->getAttribute('food_form_id');
-                $options[(int) $record->getKey()] = self::labelFor($record, $shared[$key] > 1);
-            }
+            $key = $record->getAttribute('food_id').'|'.$record->getAttribute('food_form_id');
+            $options[(int) $record->getKey()] = self::labelFor($record, $shared[$key] > 1);
         }
 
         return $options;
