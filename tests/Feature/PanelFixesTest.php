@@ -6,7 +6,7 @@ use App\Auth\Access;
 use App\Enums\FoodSourceStatus;
 use App\Exceptions\ImportFileRejected;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
-use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
+use App\Filament\Clusters\Brands\Resources\Products\Schemas\IngredientRows;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Resources\FoodSourceRecords\FoodSourceRecordResource;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\Resources\FoodSourceRecords\Pages\CreateFoodSourceRecord;
 use App\Filament\Clusters\ImportReview\Pages\UploadImportBatch;
@@ -32,7 +32,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
-use ReflectionMethod;
 use Tests\TestCase;
 
 /** The panel's known errors, each now a clear message (or simply working). */
@@ -123,7 +122,7 @@ class PanelFixesTest extends TestCase
         $legacy = $record($this->source, ['energy_kcal', 'fat_g', 'carbohydrate_g']);   // no protein
         $modern = $record($foundation, ['protein_g', 'fat_g', 'carbohydrate_g']);       // no calories: calculated, fine
 
-        $options = (new ReflectionMethod(RecipeIngredientsRelationManager::class, 'ingredientOptions'))->invoke(null);
+        $options = IngredientRows::options();
 
         $this->assertSame([$modern->id, $legacy->id], array_keys($options), 'Foundation before SR Legacy');
         $this->assertSame('حمص — نيء (USDA Foundation)', $options[$modern->id]);
@@ -200,22 +199,23 @@ class PanelFixesTest extends TestCase
         $this->assertSame(0, DB::table('import_batches')->count());
     }
 
-    public function test_the_reason_a_line_is_not_converted_shows_on_hover(): void
+    public function test_the_reason_a_line_is_not_converted_shows_on_the_row(): void
     {
-        $this->signInAs(Access::SUPER_ADMIN);
+        $owner = $this->signInAs(Access::BRAND_OWNER);
         $tomato = FoodSourceRecord::create(['food_id' => Food::create(['name_ar' => 'بندورة'])->id, 'food_form_id' => $this->raw->id,
             'data_source_id' => $this->source->id, 'external_ref' => '170457', 'status' => FoodSourceStatus::Active]);
         $cup = MeasureUnit::create(['code' => 'cup', 'name_ar' => 'كوب', 'dimension' => 'count']);
-        $product = Product::create(['brand_id' => Brand::create(['name' => 'مطعم'])->id, 'name' => 'سلطة']);
+        $brand = Brand::create(['name' => 'مطعم']);
+        $owner->brands()->attach($brand->id);
+        $product = Product::create(['brand_id' => $brand->id, 'name' => 'سلطة']);
         $recipe = ProductRecipe::create(['product_id' => $product->id, 'servings' => 1]);
         ProductRecipeIngredient::create(['product_recipe_id' => $recipe->id, 'food_source_record_id' => $tomato->id, 'measure_unit_id' => $cup->id, 'amount' => 1, 'sort_order' => 1]);
 
         $reason = app(GramsConverter::class)->resolve($tomato->id, $cup->id, 1)->message;
         $this->assertNotEmpty($reason);
 
-        Livewire::test(RecipeIngredientsRelationManager::class, ['ownerRecord' => $product, 'pageClass' => EditProduct::class])
-            ->assertSee('⚠ غير متوفر')
-            // The tooltip carries the reason, escaped for JavaScript (\u0644…).
-            ->assertSee(trim(json_encode(mb_substr($reason, 0, 12)), '"'), false);
+        // The reason shows on the row itself, next to the amount.
+        Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
+            ->assertSee('⚠ '.$reason);
     }
 }

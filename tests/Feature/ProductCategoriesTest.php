@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Auth\Access;
 use App\Filament\Clusters\Brands\Resources\Categories\Pages\ManageProductCategories;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
-use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -158,8 +157,8 @@ class ProductCategoriesTest extends TestCase
         $this->owner();
         $product = $this->approvedMeal('مجدرة', [], [$this->lentils, $this->ingredient('برغل')]);
 
-        Livewire::test(RecipeIngredientsRelationManager::class, ['ownerRecord' => $product, 'pageClass' => EditProduct::class])
-            ->assertOk()
-            ->assertCanSeeTableRecords(ProductRecipeIngredient::all());
+        $page = Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])->assertOk();
+        $this->assertCount(2, $page->get('data.recipe.ingredients'));
+        $this->assertSame(ProductRecipeIngredient::count(), 2);
     }
 }

@@ -12,7 +12,6 @@ use App\Filament\Clusters\Brands\Resources\Products\Pages\CreateProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\ListProducts;
 use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
-use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
 use App\Filament\Clusters\FoodDatabase\Pages\CompareFoodSources;
 use App\Filament\Clusters\FoodDatabase\Resources\Food\FoodResource;
 use App\Filament\Clusters\ImportReview\Pages\SourceMatchingTools;
@@ -32,7 +31,6 @@ use App\Models\ProductRecipe;
 use App\Models\Role;
 use App\Models\User;
 use App\Policies\UserPolicy;
-use Filament\Actions\CreateAction;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -226,11 +224,11 @@ class AccessControlTest extends TestCase
         $pending = $this->pendingRecord();
         $gram = MeasureUnit::create(['code' => 'g', 'name_ar' => 'غرام', 'dimension' => 'mass', 'base_factor' => 1]);
 
-        Livewire::test(RecipeIngredientsRelationManager::class, ['ownerRecord' => $this->myProduct, 'pageClass' => EditProduct::class])
-            ->mountAction(TestAction::make(CreateAction::class)->table())
-            ->fillForm(['food_source_record_id' => $pending->id, 'measure_unit_id' => $gram->id, 'amount' => 100])
-            ->callMountedAction()
-            ->assertHasFormErrors(['food_source_record_id']);
+        Livewire::test(EditProduct::class, ['record' => $this->myProduct->getRouteKey()])
+            ->set('data.recipe.ingredients', ['row' => ['food_source_record_id' => $pending->id, 'measure_unit_id' => $gram->id, 'amount' => 100]])
+            ->call('save')
+            ->assertHasFormErrors(['recipe.ingredients.row.food_source_record_id']);
+        $this->assertSame(0, $this->myProduct->recipe->ingredients()->count());
     }
 
     public function test_a_brand_owner_cannot_approve_official_nutrition_values(): void

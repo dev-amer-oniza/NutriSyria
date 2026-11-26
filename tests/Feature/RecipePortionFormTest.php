@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Auth\Access;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
-use App\Filament\Clusters\Brands\Resources\Products\RelationManagers\RecipeIngredientsRelationManager;
 use App\Models\Brand;
 use App\Models\DataSource;
 use App\Models\Food;
@@ -15,8 +14,6 @@ use App\Models\MeasureUnit;
 use App\Models\Product;
 use App\Models\ProductRecipe;
 use App\Models\ProductRecipeIngredient;
-use Filament\Actions\CreateAction;
-use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -48,28 +45,29 @@ class RecipePortionFormTest extends TestCase
         $product = Product::create(['brand_id' => $brand->id, 'name' => 'بصل مشوي']);
         ProductRecipe::create(['product_id' => $product->id, 'servings' => 1]);
 
-        $component = Livewire::test(RecipeIngredientsRelationManager::class, ['ownerRecord' => $product, 'pageClass' => EditProduct::class])
-            ->mountAction(TestAction::make(CreateAction::class)->table())
-            ->fillForm(['food_source_record_id' => $onion->id, 'measure_unit_id' => $gram->id])
-            ->assertFormFieldHidden('food_portion_id')
-            ->fillForm(['measure_unit_id' => $piece->id])
-            ->assertFormFieldVisible('food_portion_id')
-            ->fillForm(['amount' => 2])
-            ->callMountedAction()
-            ->assertHasFormErrors(['food_portion_id' => 'required']);
+        $row = fn (array $values) => ['data.recipe.ingredients' => ['row' => $values + ['food_source_record_id' => $onion->id, 'amount' => 2]]];
+        $field = 'recipe.ingredients.row.food_portion_id';
 
-        $component->fillForm(['food_portion_id' => $sizes[150]->id])
-            ->callMountedAction()
+        $page = Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
+            ->set($row(['measure_unit_id' => $gram->id]))
+            ->assertFormFieldHidden($field)
+            ->set($row(['measure_unit_id' => $piece->id]))
+            ->assertFormFieldVisible($field)
+            ->call('save')
+            ->assertHasFormErrors([$field => 'required']);
+
+        $page->set('data.recipe.ingredients.row.food_portion_id', $sizes[150]->id)
+            ->call('save')
             ->assertHasNoFormErrors();
-
         $this->assertSame($sizes[150]->id, ProductRecipeIngredient::sole()->food_portion_id);
 
-        // A default size is preselected, and the field is then optional.
+        // A default size settles it: the field is then optional, and the row still saves.
+        ProductRecipeIngredient::query()->delete();
         $sizes[70]->update(['is_default' => true]);
-        Livewire::test(RecipeIngredientsRelationManager::class, ['ownerRecord' => $product, 'pageClass' => EditProduct::class])
-            ->mountAction(TestAction::make(CreateAction::class)->table())
-            ->fillForm(['food_source_record_id' => $onion->id, 'measure_unit_id' => $piece->id])
-            ->assertSchemaStateSet(['food_portion_id' => $sizes[70]->id])
-            ->assertSee('(كبيرة)');
+        Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
+            ->set($row(['measure_unit_id' => $piece->id]))
+            ->call('save')
+            ->assertHasNoFormErrors();
+        $this->assertSame(1, ProductRecipeIngredient::count());
     }
 }
