@@ -8,6 +8,7 @@ use App\Filament\Clusters\Brands\Pages\RecipeAnalysis;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
 use App\Models\Brand;
 use App\Models\Product;
+use App\Models\ProductRecipe;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -29,7 +30,14 @@ class ProductNotices
     {
         /** @var Product|null $product */
         $product = NutritionApprovalStatus::withApprovalData(Product::query()->with('brand'))->find($productId);
-        if (! $product || $product->brand?->is_platform || ! $product->recipe || $product->recipe->review_requested_at) {
+        if (! $product) {
+            return;
+        }
+        /** @var Brand|null $brand */
+        $brand = $product->brand;
+        /** @var ProductRecipe|null $recipe */
+        $recipe = $product->recipe;
+        if (! $brand || $brand->is_platform || ! $recipe || $recipe->review_requested_at) {
             return;
         }
         if (! NutritionApprovalStatus::of($product)->needsReview()) {
@@ -39,7 +47,7 @@ class ProductNotices
         $nutritionists = $this->nutritionists();
         if ($nutritionists->isNotEmpty()) {
             Notification::make()
-                ->title("«{$product->name}» من {$product->brand->name} ينتظر اعتمادك")
+                ->title("«{$product->name}» من {$brand->name} ينتظر اعتمادك")
                 ->body('أضاف صاحب المطعم الوصفة أو عدّلها. راجع التحليل واعتمد القيم.')
                 ->icon('heroicon-o-clipboard-document-check')
                 ->warning()
@@ -47,7 +55,7 @@ class ProductNotices
                 ->sendToDatabase($nutritionists);
         }
 
-        DB::table('product_recipes')->where('id', $product->recipe->id)->update(['review_requested_at' => now()]);
+        DB::table('product_recipes')->where('id', $recipe->id)->update(['review_requested_at' => now()]);
     }
 
     /** The values became official: the restaurant hears, and a later change asks for review again. */
