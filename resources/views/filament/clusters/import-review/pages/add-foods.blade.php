@@ -1,7 +1,7 @@
 <x-filament-panels::page>
     @include('filament.clusters.import-review.components.import-steps', ['current' => 1])
 
-    <div class="grid gap-6 md:grid-cols-3">
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         @foreach ($this->getWays() as $way)
             <x-filament::section>
                 <div class="flex h-full flex-col gap-4">

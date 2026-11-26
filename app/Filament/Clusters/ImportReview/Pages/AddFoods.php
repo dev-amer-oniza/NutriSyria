@@ -8,7 +8,7 @@ use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 
 /**
- * "إضافة أغذية": one entry point for the three ways food data comes in. Every way ends the same:
+ * "إضافة أغذية": one entry point for the four ways food data comes in. Every way ends the same:
  * a batch waiting in the review queue. Each card shows only to who may open its page.
  */
 class AddFoods extends Page
@@ -31,13 +31,13 @@ class AddFoods extends Page
 
     public static function canAccess(): bool
     {
-        return UploadImportBatch::canAccess() || SourceMatchingTools::canAccess() || UsdaSearch::canAccess();
+        return UploadImportBatch::canAccess() || SourceMatchingTools::canAccess() || UsdaSearch::canAccess() || ManualFood::canAccess();
     }
 
     /** The matching and upload pages are steps of this one, so it stays highlighted on them. */
     public static function getNavigationItemActiveRoutePattern(): string|array
     {
-        return [static::getRouteName(), SourceMatchingTools::getRouteName(), UploadImportBatch::getRouteName()];
+        return [static::getRouteName(), SourceMatchingTools::getRouteName(), UploadImportBatch::getRouteName(), ManualFood::getRouteName()];
     }
 
     public function getSubheading(): ?string
@@ -59,6 +59,17 @@ class AddFoods extends Page
                 'url' => UsdaSearch::getUrl(),
                 'action' => 'ابحث في USDA',
                 'icon' => 'heroicon-o-magnifying-glass',
+            ];
+        }
+        if (ManualFood::canAccess()) {
+            $ways[] = [
+                'key' => 'manual',
+                'title' => 'من مصدر آخر',
+                'when' => 'غذاء غير موجود في USDA (حبة البركة، منتج جاهز).',
+                'how' => ['اكتب السعرات والبروتين والدهون والكربوهيدرات لكل 100 غ', 'اكتب من أين الأرقام', 'احفظ'],
+                'url' => ManualFood::getUrl(),
+                'action' => 'أدخل القيم',
+                'icon' => 'heroicon-o-pencil-square',
             ];
         }
         if (SourceMatchingTools::canAccess()) {
