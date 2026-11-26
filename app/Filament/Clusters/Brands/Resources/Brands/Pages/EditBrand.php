@@ -3,6 +3,8 @@
 namespace App\Filament\Clusters\Brands\Resources\Brands\Pages;
 
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
+use App\Models\Brand;
+use App\Services\Brands\BrandLinks;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -31,5 +33,21 @@ class EditBrand extends EditRecord
         return [
             DeleteAction::make(),
         ];
+    }
+
+    /** @var list<int> the brand's managers before the save: only new links are told (BrandLinks) */
+    protected array $managersBefore = [];
+
+    protected function beforeSave(): void
+    {
+        $brand = $this->record;
+        $this->managersBefore = $brand instanceof Brand ? $brand->managers()->pluck('users.id')->all() : [];
+    }
+
+    protected function afterSave(): void
+    {
+        if ($this->record instanceof Brand) {
+            app(BrandLinks::class)->brandSaved($this->record, $this->managersBefore);
+        }
     }
 }

@@ -259,5 +259,7 @@ final class RecipeAnalysisService
                 'contributions' => $result->contributions(),
             ])->save();
         });
+
+        app(ProductNotices::class)->approved($product);
     }
 }

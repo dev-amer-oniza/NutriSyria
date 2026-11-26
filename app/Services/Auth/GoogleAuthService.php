@@ -130,6 +130,9 @@ class GoogleAuthService
             'role_requested_at' => $role ? now() : null,
         ])->save();
 
+        // Google confirmed the email: a role request reaches the admins at once.
+        app(RoleRequestService::class)->announce($user);
+
         return $user;
     }
 
