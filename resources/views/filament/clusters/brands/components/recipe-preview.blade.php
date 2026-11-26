@@ -8,7 +8,7 @@
     $todo = array_values(array_filter([
         $preview['complete'] === 0 ? 'أضف المكوّنات بكمياتها' : null,
         $preview['complete'] > 0 && $preview['complete'] < $preview['rows'] ? 'كمّل الأسطر الناقصة' : null,
-        $preview['unconverted'] !== [] ? 'غيّر وحدة: '.implode('، ', $preview['unconverted']) : null,
+        $preview['unconverted'] !== [] ? 'كمّل سطر: '.implode('، ', $preview['unconverted']).' (اختار الحجم، أو اكتبه بالغرام)' : null,
         ! $preview['hasWeight'] ? 'اكتب وزن الطبخة بعد الطبخ' : null,
     ]));
 @endphp

@@ -214,8 +214,8 @@ class PanelFixesTest extends TestCase
         $reason = app(GramsConverter::class)->resolve($tomato->id, $cup->id, 1)->message;
         $this->assertNotEmpty($reason);
 
-        // The reason shows on the row itself, next to the amount.
+        // The row says what to do in a few words; the full reason is its tooltip.
         Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
-            ->assertSee('⚠ '.$reason);
+            ->assertSee('⚠ ما منعرف وزنها، اكتبه بالغرام');
     }
 }

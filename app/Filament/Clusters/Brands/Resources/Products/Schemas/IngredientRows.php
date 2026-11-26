@@ -54,6 +54,8 @@ class IngredientRows
             ->defaultItems(1)
             ->mutateRelationshipDataBeforeCreateUsing(fn (array $data): ?array => self::isBlank($data) ? null : $data)
             ->addActionLabel('أضف مكوّناً')
+            // Narrow screens (a phone): a compact two-column card per row (theme.css).
+            ->extraAttributes(['class' => 'ns-recipe-rows'])
             ->reorderable()
             ->live();
     }
@@ -103,6 +105,7 @@ class IngredientRows
             // Shown only when the food has several sizes of this unit (small / medium / large).
             Select::make('food_portion_id')
                 ->label('أي حجم؟')
+                ->placeholder('اختار الحجم')
                 ->options(fn (Get $get) => collect(self::choicesFor($get))->pluck('label', 'id')->all())
                 ->visible(fn (Get $get) => self::choicesFor($get) !== [])
                 // Required only when the food has no default size that settles it.
@@ -116,7 +119,9 @@ class IngredientRows
             TextEntry::make('grams_preview')
                 ->label('الوزن')
                 ->state(fn (Get $get) => self::gramsText($get))
-                ->color(fn (Get $get) => str_starts_with(self::gramsText($get), '⚠') ? 'warning' : 'success')
+                ->color(fn (Get $get) => str_starts_with(self::gramsText($get), '=') ? 'success' : 'warning')
+                // The engine's full reason, for whoever wants it; the row keeps a short line.
+                ->tooltip(fn (Get $get) => ($c = self::conversion($get)) && ! $c->ok() ? $c->message : null)
                 ->weight('bold')
                 ->columnSpan(['default' => 12, 'md' => 3]),
 
@@ -150,9 +155,16 @@ class IngredientRows
             return '—';
         }
 
-        return $conversion->ok()
-            ? '= '.number_format((float) $conversion->grams, $conversion->grams < 10 ? 1 : 0).' غ'
-            : '⚠ '.$conversion->message;
+        if ($conversion->ok()) {
+            return '= '.number_format((float) $conversion->grams, $conversion->grams < 10 ? 1 : 0).' غ';
+        }
+
+        // One short line the owner can act on; the full reason is the tooltip.
+        return match ($conversion->status) {
+            GramsConversion::AMBIGUOUS_PORTION => self::choicesFor($get) !== [] ? '→ اختار الحجم' : '⚠ اكتبه بالغرام',
+            GramsConversion::INVALID_AMOUNT => '⚠ اكتب كمية أكبر من صفر',
+            default => '⚠ ما منعرف وزنها، اكتبه بالغرام',
+        };
     }
 
     private static function conversion(Get $get): ?GramsConversion
