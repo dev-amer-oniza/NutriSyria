@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Auth\Access;
 use App\Models\ConsultationRequest;
 use Illuminate\Notifications\Notification;
 
@@ -68,6 +69,23 @@ class SiteNotification extends Notification
     {
         return new self('info', 'صار وقت توزن',
             'سجّل وزنك بـ«يومي»، لنحدّث احتياجك على وزنك الجديد.', route('site.daily', ['sheet' => 'weight'], absolute: false), 'weight');
+    }
+
+    /** The admin granted the role asked for at sign-up: the panel opens to them now. */
+    public static function roleApproved(string $role): self
+    {
+        $owner = $role === Access::BRAND_OWNER;
+
+        return new self('success', $owner ? 'انقبل حسابك كصاحب مطعم' : 'انقبل حسابك كأخصائي تغذية',
+            $owner ? 'صار فيك تدخل للوحة التحكم. لما نربطك بمطعمك بيوصلك إشعار، وبتبلّش تضيف منتجاتك.'
+                : 'صار فيك تدخل للوحة التحكم وتكمّل ملفك العام لتظهر للناس.',
+            (string) parse_url(filament()->getPanel('admin')->getUrl(), PHP_URL_PATH) ?: '/admin');
+    }
+
+    public static function roleDeclined(string $role): self
+    {
+        return new self('info', $role === Access::BRAND_OWNER ? 'ما انقبل طلب حساب صاحب المطعم' : 'ما انقبل طلب حساب الأخصائي',
+            'حسابك بيضل حساب عادي بالموقع. لأي سؤال تواصل معنا.', route('home', absolute: false));
     }
 
     private static function nutritionistName(ConsultationRequest $request): string

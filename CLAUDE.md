@@ -327,6 +327,16 @@
 - **خطة «يومي» اكتملت** (سؤال الرياضة الجديد: انظر «سؤال الرياضة بالكبسات» في «التبسيط والحساب الجديد»).
 - اختبارات: `tests/Feature/DailyLogTest.php` (منها عدد الاستعلامات الثابت).
 
+## الإشعارات (قرارات صاحب المشروع: 1أ، المستخدم العادي أ، الاقتراحات 1 2 3)
+- **بلا queue** (1أ): `QUEUE_CONNECTION=sync` باقٍ. الإشعار يُكتب فوراً بقاعدة البيانات، والجرس (الموقع واللوحة) يسأل كل دقيقة والصفحة مفتوحة. رمز الدخول بالإيميل يبقى فورياً. الطابور يُضاف مع شيء بطيء (واتساب تلقائي، إيميلات كثيرة)، وعلى cPanel يكون بمهمة Cron كل دقيقة (`queue:work --stop-when-empty`) لا عملية دائمة.
+- **طلب دور (صاحب مطعم/أخصائي):** المديرون الفعّالون (جرس اللوحة، «طلب حساب جديد: …» مع رابط المستخدمين) **بعد تأكيد البريد** فقط (`RegistrationService::verifyEmail`)، أو فوراً بحساب Google (`GoogleAuthService::create`)؛ `RoleRequestService::announce`. الجواب للشخص بجرس الموقع: `SiteNotification::roleApproved` (رابط `/admin`) و`roleDeclined`.
+- **المستخدم العادي** (أ): بلا إشعار؛ ودجة `App\Filament\Widgets\AccountsStats` للمدير فقط: «حسابات جديدة هالأسبوع» و«طلبات أدوار تنتظر» باستعلام واحد.
+- **منتج ينتظر الاعتماد** (2): `App\Services\Nutrition\ProductNotices::recipeChanged` من مراقبة `ProductRecipe`/`ProductRecipeIngredient` (`AppServiceProvider::watchRecipes`): إن صارت حالته «ينتظر» أو «تغيّر بعد الاعتماد» يصل الأخصائيين (`User::permission(NUTRITION_APPROVE)`) إشعار **مرة واحدة لكل مراجعة** (`product_recipes.review_requested_at`، migration `2026_11_28_000000`، يُكتب بـ `DB::table` كي لا يلمس `updated_at`).
+- **اعتُمدت القيم** (1): `ProductNotices::approved` من `RecipeAnalysisService::approve`: مسؤولو البراند (رابط المنتج وصفحته بالموقع)، ويُمسح `review_requested_at`. المطبخ السوري لا يُشعر أحداً.
+- **ربط صاحب مطعم بمطعم** (3): `App\Services\Brands\BrandLinks` من صفحات المستخدم (`SavesRole`: المطاعم قبل الحفظ) والبراند (`EditBrand::beforeSave/afterSave`، `CreateBrand`): الروابط الجديدة فقط.
+- **كانت موجودة:** طلب أكلة (للمدير)، الاستشارات، ملاحظات المراجعة، الوزن الأسبوعي، تحديث الأخصائي للملف.
+- اختبارات: `tests/Feature/NotificationsTest.php`.
+
 ## المطاعم والكاش (بعد المراحل الثلاث)
 - **القرارات** (صاحب المشروع 1أ 2أ 3أ 4أ).
 - **معلومات المطعم** (1أ): أعمدة جديدة في `brands`: `city` (`SyrianGovernorate`)، `address`، `opening_hours`، `whatsapp`، `instagram_url`، `facebook_url` (روابط http/https فقط)، `delivery_note` (تظهر فقط إن `has_delivery`). قسم "التواصل والموقع" في نموذج البراند؛ الفارغ لا يظهر في الموقع.

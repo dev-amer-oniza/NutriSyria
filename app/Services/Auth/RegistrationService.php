@@ -11,7 +11,10 @@ use App\Models\User;
 /** Sign-up on the public site: create the account, then confirm the email with a code. */
 class RegistrationService
 {
-    public function __construct(private readonly AuthCodeService $codes) {}
+    public function __construct(
+        private readonly AuthCodeService $codes,
+        private readonly RoleRequestService $roles,
+    ) {}
 
     /**
      * The account starts unverified. A brand owner or nutritionist gets no role yet: the
@@ -47,6 +50,8 @@ class RegistrationService
 
         if ($result === AuthCodeCheck::Valid) {
             $user->markEmailAsVerified();
+            // Confirmed: a role request is now worth the admins' time.
+            $this->roles->announce($user);
         }
 
         return $result;

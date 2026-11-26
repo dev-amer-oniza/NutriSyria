@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductRecipe;
 use App\Models\ProductRecipeIngredient;
+use App\Services\Nutrition\ProductNotices;
 use App\Services\Site\PublicCatalogCache;
 use App\View\Composers\NotificationBellComposer;
 use App\View\Composers\ProfileReminderComposer;
@@ -33,6 +34,18 @@ class AppServiceProvider extends ServiceProvider
      * What the public site shows is cached (PublicCatalogCache): any change to it clears the
      * cache, so the next visitor sees it at once.
      */
+    /** A restaurant's recipe that now waits for approval tells the nutritionists (ProductNotices, once per review). */
+    private function watchRecipes(): void
+    {
+        $notices = fn (?int $productId) => $productId && app(ProductNotices::class)->recipeChanged($productId);
+
+        foreach (['saved', 'deleted'] as $event) {
+            ProductRecipe::$event(fn (ProductRecipe $recipe) => $notices($recipe->product_id));
+            ProductRecipeIngredient::$event(fn (ProductRecipeIngredient $line) => $notices(
+                ProductRecipe::query()->whereKey($line->product_recipe_id)->value('product_id')));
+        }
+    }
+
     private function watchPublicCatalog(): void
     {
         $models = [Brand::class, Product::class, ProductRecipe::class, ProductRecipeIngredient::class,
@@ -51,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('site.layouts.app', ProfileReminderComposer::class);
         View::composer('site.partials.header', NotificationBellComposer::class);
         $this->watchPublicCatalog();
+        $this->watchRecipes();
 
         // N+1 guard (the owner's decision 4a): outside production, a relation loaded one row
         // at a time inside a list is an error, so a slow page is caught before it ships.
