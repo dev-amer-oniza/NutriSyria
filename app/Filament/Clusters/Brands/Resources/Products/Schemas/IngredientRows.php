@@ -4,6 +4,7 @@ namespace App\Filament\Clusters\Brands\Resources\Products\Schemas;
 
 use App\Enums\FoodSourceStatus;
 use App\Models\FoodSourceRecord;
+use App\Models\MeasureUnit;
 use App\Services\Nutrition\GramsConversion;
 use App\Services\Nutrition\GramsConverter;
 use App\Support\ArabicSearch;
@@ -68,13 +69,15 @@ class IngredientRows
                 ->label('المكوّن')
                 ->placeholder('اكتب اسمه: عدس، بصل، زيت زيتون…')
                 // Approved records only: pending or rejected data never reaches a recipe.
-                ->options(fn () => self::options())
+                // The same list for every row: built once per request, not once per row.
+                ->options(fn () => self::memo('ingredient_options', fn () => self::options()))
                 ->getSearchResultsUsing(fn (string $search) => self::options($search))
-                ->getOptionLabelUsing(function ($value) {
-                    $r = FoodSourceRecord::with(['food', 'foodForm', 'dataSource'])->find($value);
+                ->getOptionLabelUsing(fn ($value) => self::memo('ingredient_options', fn () => self::options())[(int) $value]
+                    ?? self::memo("ingredient_label.{$value}", function () use ($value) {
+                        $r = FoodSourceRecord::with(['food', 'foodForm', 'dataSource'])->find($value);
 
-                    return $r ? self::labelFor($r) : null;
-                })
+                        return $r ? self::labelFor($r) : null;
+                    }))
                 ->searchable()
                 // Always open below the field: flipping above it on a phone moved the search box,
                 // and the page jumped when the keyboard came up (the owner's report).
@@ -98,8 +101,12 @@ class IngredientRows
 
             Select::make('measure_unit_id')
                 ->label('الوحدة')
-                ->relationship('measureUnit', 'name_ar')
-                ->arabicSearch()
+                // The units, loaded once for all rows (a relationship select reloaded them per row).
+                ->options(fn () => self::units())
+                ->getSearchResultsUsing(fn (string $search) => ArabicSearch::constrain(MeasureUnit::query(), ['name_ar'], $search)
+                    ->orderBy('name_ar')->limit(50)->pluck('name_ar', 'id')->all())
+                ->getOptionLabelUsing(fn ($value) => self::units()[(int) $value] ?? null)
+                ->rules([Rule::exists('measure_units', 'id')])
                 ->required(fn (Get $get) => self::started($get))
                 ->searchable()
                 ->live()
@@ -134,6 +141,12 @@ class IngredientRows
                 ->label('على الوجه')
                 ->columnSpan(['default' => 12, 'md' => 7]),
         ];
+    }
+
+    /** @return array<int, string> every unit by its Arabic name, once per request */
+    private static function units(): array
+    {
+        return self::memo('ingredient_units', fn () => MeasureUnit::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all());
     }
 
     /** A row the owner began: its ingredient, amount or unit is filled. */
@@ -177,11 +190,11 @@ class IngredientRows
         if (! $get('food_source_record_id') || ! $get('measure_unit_id') || (float) $get('amount') <= 0) {
             return null;
         }
+        // Asked for the weight, its colour and its tooltip: worked out once per row and request.
+        $args = [(int) $get('food_source_record_id'), (int) $get('measure_unit_id'), (float) $get('amount'),
+            $get('food_portion_id') ? (int) $get('food_portion_id') : null];
 
-        return app(GramsConverter::class)->resolve(
-            (int) $get('food_source_record_id'), (int) $get('measure_unit_id'), (float) $get('amount'),
-            $get('food_portion_id') ? (int) $get('food_portion_id') : null,
-        );
+        return self::memo('ingredient_grams.'.implode('|', $args), fn () => app(GramsConverter::class)->resolve(...$args));
     }
 
     /** @return list<array{id:int, label:string, grams:float}> */
@@ -192,11 +205,24 @@ class IngredientRows
             return [];
         }
 
-        // Kept for one request only (on the request itself), never across requests or tests.
+        return self::memo("ingredient_choices.{$recordId}|{$unitId}", fn () => app(GramsConverter::class)->choices($recordId, $unitId));
+    }
+
+    /**
+     * A value worked out once per request: a form asks for the same list or weight many times
+     * while it renders (every row, every field of a row). Kept on the request itself, so never
+     * across requests or tests.
+     *
+     * @template T
+     *
+     * @param  \Closure(): T  $make
+     * @return T
+     */
+    private static function memo(string $key, \Closure $make): mixed
+    {
         $memo = request()->attributes;
-        $key = "ingredient_choices.{$recordId}|{$unitId}";
         if (! $memo->has($key)) {
-            $memo->set($key, app(GramsConverter::class)->choices($recordId, $unitId));
+            $memo->set($key, $make());
         }
 
         return $memo->get($key);
@@ -209,7 +235,9 @@ class IngredientRows
             return null;
         }
 
-        return app(GramsConverter::class)->resolve((int) $get('food_source_record_id'), (int) $get('measure_unit_id'), 1);
+        [$recordId, $unitId] = [(int) $get('food_source_record_id'), (int) $get('measure_unit_id')];
+
+        return self::memo("ingredient_auto.{$recordId}|{$unitId}", fn () => app(GramsConverter::class)->resolve($recordId, $unitId, 1));
     }
 
     /** A new ingredient or unit starts on the size the usual rules pick (the default), or empty. */

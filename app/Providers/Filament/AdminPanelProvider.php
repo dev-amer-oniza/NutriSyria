@@ -113,9 +113,11 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotificationsPolling('60s')
             // Livewire nearly stops polling in a background tab, so a note sent meanwhile would wait
             // minutes. Check again the moment the user comes back to the tab.
-            // Sora for numbers and the logo's wordmark, as on the site.
+            // Sora for the big numbers, as on the site. Loaded without holding the page back (the
+            // logo is an image now): the numbers show in the Arabic font until Sora arrives.
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => <<<'HTML'
-                <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&display=swap">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600&display=swap" media="print" onload="this.media='all'">
                 HTML)
             ->renderHook(PanelsRenderHook::BODY_END, fn (): string => <<<'HTML'
                 <script>
