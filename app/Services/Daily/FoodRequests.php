@@ -96,6 +96,21 @@ class FoodRequests
         return $same->count();
     }
 
+    /**
+     * The admin removes requests from the list. What people logged stays on their day
+     * ("غير محسوبة"): only its link to the request goes, so their diary is never changed.
+     *
+     * @param  list<int>  $ids
+     */
+    public function delete(array $ids): int
+    {
+        return DB::transaction(function () use ($ids) {
+            MealLog::query()->whereIn('food_request_id', $ids)->update(['food_request_id' => null]);
+
+            return FoodRequest::query()->whereKey($ids)->delete();
+        });
+    }
+
     public function pendingCount(): int
     {
         return FoodRequest::query()->where('status', FoodRequestStatus::Pending)->count();

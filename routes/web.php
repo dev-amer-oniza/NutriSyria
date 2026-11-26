@@ -142,6 +142,9 @@ Route::name('site.')->group(function () {
         Route::get('/account/notifications/{notification}', [NotificationController::class, 'open'])
             ->whereUuid('notification')->name('notifications.open');
         Route::post('/account/notifications/read', [NotificationController::class, 'readAll'])->name('notifications.read');
+        Route::delete('/account/notifications/{notification}', [NotificationController::class, 'destroy'])
+            ->whereUuid('notification')->name('notifications.destroy');
+        Route::delete('/account/notifications', [NotificationController::class, 'clear'])->name('notifications.clear');
 
         // Booking a nutritionist (ConsultationService): one request or link at a time.
         Route::get('/nutritionists/{profile}/request', [ConsultationController::class, 'create'])

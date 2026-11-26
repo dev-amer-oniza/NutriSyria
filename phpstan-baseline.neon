@@ -1201,12 +1201,6 @@ parameters:
 			path: app/Services/Site/SiteNotifications.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: string, kind\: mixed, title\: mixed, body\: mixed, time\: string, read\: bool, open\: string\}, Closure\(Illuminate\\Notifications\\DatabaseNotification\)\: array\{id\: string, kind\: mixed, title\: mixed, body\: mixed, time\: string, read\: bool, open\: string\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/Site/SiteNotifications.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 1

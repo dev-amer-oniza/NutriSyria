@@ -120,10 +120,12 @@ Alpine.data('flash', (timeout) => ({
 
 /**
  * The notification bell: opens a list of the latest notices, refreshes every minute while
- * the tab is visible (and when it comes back into view), and marks all as read.
+ * the tab is visible (and when it comes back into view), marks all as read, deletes one
+ * notice, or clears them all (after a second click to confirm).
  */
 Alpine.data('bell', (initial, urls) => ({
     open: false,
+    confirming: false,
     unread: initial.unread,
     items: initial.items,
     timer: null,
@@ -155,15 +157,41 @@ Alpine.data('bell', (initial, urls) => ({
         }
     },
 
-    async readAll() {
+    send(url, method) {
         const token = this.$root.querySelector('input[name=_token]')?.value;
-        const response = await fetch(urls.read, {
-            method: 'POST',
-            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': token },
-        });
+        return fetch(url, { method, headers: { Accept: 'application/json', 'X-CSRF-TOKEN': token } });
+    },
+
+    async readAll() {
+        const response = await this.send(urls.read, 'POST');
         if (response.ok) {
             this.unread = 0;
             this.items = this.items.map((item) => ({ ...item, read: true }));
+        }
+    },
+
+    /** Removed at once; the server's answer (the next ten) refills the list. */
+    async remove(item) {
+        this.items = this.items.filter((one) => one.id !== item.id);
+        if (!item.read) this.unread = Math.max(0, this.unread - 1);
+        try {
+            const response = await this.send(item.delete, 'DELETE');
+            if (response.ok) {
+                const data = await response.json();
+                this.unread = data.unread;
+                this.items = data.items;
+            }
+        } catch {
+            this.refresh();
+        }
+    },
+
+    async clearAll() {
+        const response = await this.send(urls.clear, 'DELETE');
+        this.confirming = false;
+        if (response.ok) {
+            this.unread = 0;
+            this.items = [];
         }
     },
 }));
