@@ -19,7 +19,7 @@ trait SavesRole
 
     protected function takeRole(array $data): array
     {
-        $this->brandsBefore = $this->record?->exists ? $this->record->brands()->pluck('brands.id')->all() : [];
+        $this->brandsBefore = $this->record instanceof User && $this->record->exists ? $this->record->brands()->pluck('brands.id')->all() : [];
 
         $this->role = $data['role'] ?? null;
         unset($data['role']);

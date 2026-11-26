@@ -20,6 +20,7 @@ class BrandLinks
     {
         $new = $user->brands()->whereNotIn('brands.id', $before)->get();
         foreach ($new as $brand) {
+            /** @var Brand $brand */
             $this->tell($user, $brand);
         }
     }
@@ -28,6 +29,7 @@ class BrandLinks
     public function brandSaved(Brand $brand, array $before): void
     {
         foreach ($brand->managers()->whereNotIn('users.id', $before)->get() as $user) {
+            /** @var User $user */
             $this->tell($user, $brand);
         }
     }

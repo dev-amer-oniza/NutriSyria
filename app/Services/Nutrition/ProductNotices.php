@@ -6,6 +6,7 @@ use App\Auth\Access;
 use App\Enums\NutritionApprovalStatus;
 use App\Filament\Clusters\Brands\Pages\RecipeAnalysis;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
+use App\Models\Brand;
 use App\Models\Product;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -26,6 +27,7 @@ class ProductNotices
     /** Called when a recipe or one of its lines is saved or deleted. */
     public function recipeChanged(int $productId): void
     {
+        /** @var Product|null $product */
         $product = NutritionApprovalStatus::withApprovalData(Product::query()->with('brand'))->find($productId);
         if (! $product || $product->brand?->is_platform || ! $product->recipe || $product->recipe->review_requested_at) {
             return;
@@ -54,11 +56,13 @@ class ProductNotices
         DB::table('product_recipes')->where('product_id', $product->id)->update(['review_requested_at' => null]);
 
         $product->loadMissing('brand');
-        if (! $product->brand || $product->brand->is_platform) {
+        /** @var Brand|null $brand */
+        $brand = $product->brand;
+        if (! $brand || $brand->is_platform) {
             return;
         }
 
-        $managers = $product->brand->managers()->where('is_active', true)->get();
+        $managers = $brand->managers()->where('is_active', true)->get();
         if ($managers->isEmpty()) {
             return;
         }
