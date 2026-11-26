@@ -100,8 +100,6 @@ Route::name('site.')->group(function () {
             ->middleware('throttle:auth-forms')->name('google.redirect');
         Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
             ->middleware('throttle:auth-forms')->name('google.callback');
-        Route::get('/auth/google/whatsapp', [GoogleAuthController::class, 'whatsapp'])->name('google.whatsapp');
-        Route::post('/auth/google/whatsapp', [GoogleAuthController::class, 'storeWhatsapp'])->middleware('throttle:auth-forms');
     });
 
     Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');

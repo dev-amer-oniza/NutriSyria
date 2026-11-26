@@ -9,8 +9,8 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 /**
- * "انربط حسابك بمطعم كذا" (the owner's choice 3): a brand owner hears in the panel bell when
- * the admin links them to a restaurant, from the user's page or the brand's. Pages pass what
+ * "صرت المسؤول عن المطعم كذا" (the owner's choice 3): a brand owner hears in the panel bell when
+ * the admin links them to a restaurant or brand, from the user's page or the client's. Pages pass what
  * was linked before the save, and only new links are told.
  */
 class BrandLinks
@@ -41,7 +41,7 @@ class BrandLinks
         }
 
         Notification::make()
-            ->title("انربط حسابك بمطعم «{$brand->name}»")
+            ->title('صرت المسؤول عن ال'.$brand->kind->getLabel()." «{$brand->name}»")
             ->body('صار فيك تعدّل معلوماته، وتضيف تصنيفاته ومنتجاته ووصفاتها.')
             ->icon('heroicon-o-building-storefront')
             ->success()

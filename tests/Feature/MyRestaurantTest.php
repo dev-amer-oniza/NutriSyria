@@ -67,7 +67,7 @@ class MyRestaurantTest extends TestCase
         Brand::create(['name' => 'بيت المجدرة']);
         $this->signInAs();
 
-        $this->assertSame('البراندات', BrandResource::getNavigationLabel());
+        $this->assertSame('العملاء', BrandResource::getNavigationLabel());
         $this->assertSame(BrandResource::getUrl('index'), BrandResource::getNavigationUrl());
         Livewire::test(ListBrands::class)->assertNoRedirect();
     }
@@ -121,7 +121,7 @@ class MyRestaurantTest extends TestCase
         $this->signInAs();
 
         $this->assertSame([], BrandResource::getRelations());
-        $this->assertSame('البراندات', BrandsCluster::getNavigationLabel());
+        $this->assertSame('العملاء', BrandsCluster::getNavigationLabel());
         $this->get(ProductCategoryResource::getUrl())->assertNotFound();
     }
 }

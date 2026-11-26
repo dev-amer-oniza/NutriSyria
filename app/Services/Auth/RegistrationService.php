@@ -13,32 +13,22 @@ class RegistrationService
 {
     public function __construct(
         private readonly AuthCodeService $codes,
-        private readonly RoleRequestService $roles,
     ) {}
 
     /**
-     * The account starts unverified. A brand owner or nutritionist gets no role yet: the
-     * request waits for the super-admin (RoleRequestService).
+     * The account starts unverified, as a plain site account.
      *
      * @throws CodeDeliveryFailed the account exists; the user can ask again
      */
     public function register(RegistrationData $data): User
     {
-        $role = $data->accountType->requestedRole();
-
         $user = new User([
             'name' => $data->name,
             'email' => $data->email,
             'password' => $data->password,
-            'phone' => $data->whatsapp,
             'is_active' => true,
         ]);
-        // Not fillable: only set here and by the admin's decision.
-        $user->forceFill([
-            'requested_role' => $role,
-            'role_requested_at' => $role ? now() : null,
-            'brand_kind' => $data->brandKind,
-        ])->save();
+        $user->save();
 
         $this->codes->send($user, AuthCodePurpose::VerifyEmail);
 
@@ -51,18 +41,14 @@ class RegistrationService
 
         if ($result === AuthCodeCheck::Valid) {
             $user->markEmailAsVerified();
-            // Confirmed: a role request is now worth the admins' time.
-            $this->roles->announce($user);
         }
 
         return $result;
     }
 
     /** What a new account sees once it is ready, whichever way it signed up. */
-    public static function welcomeMessage(User $user): string
+    public static function welcomeMessage(): string
     {
-        return $user->requested_role
-            ? 'أصبح حسابك جاهزاً. طلبك قيد المراجعة، وسنتواصل معك عبر واتساب قبل تفعيل لوحة التحكم.'
-            : 'أصبح حسابك جاهزاً. عرّفنا عليك في دقيقة لنحسب احتياجك.';
+        return 'أصبح حسابك جاهزاً. عرّفنا عليك في دقيقة لنحسب احتياجك.';
     }
 }

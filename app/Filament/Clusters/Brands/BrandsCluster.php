@@ -18,13 +18,13 @@ class BrandsCluster extends Cluster
 
     protected static ?string $clusterBreadcrumb = 'البراندات والمنتجات';
 
-    protected static string|UnitEnum|null $navigationGroup = 'المطاعم';
+    protected static string|UnitEnum|null $navigationGroup = 'المطاعم والبراندات';
 
     protected static ?int $navigationSort = 1;
 
     /**
      * Named after what each role finds in it: a brand owner their restaurant and its products,
-     * the admin the brands only (products are not theirs), the nutritionist the products to review.
+     * the admin the clients only (restaurants and brands; products are not theirs), the nutritionist the products to review.
      */
     public static function getNavigationLabel(): string
     {
@@ -32,7 +32,7 @@ class BrandsCluster extends Cluster
 
         return match (true) {
             self::forOwner() => 'مطعمي ومنتجاته',
-            (bool) $user?->isSuperAdmin() => 'البراندات',
+            (bool) $user?->isSuperAdmin() => 'العملاء',
             $user !== null && ! $user->allows(Access::BRANDS_MANAGE_ALL) && ! $user->allows(Access::BRANDS_MANAGE_OWN) => 'منتجات المطاعم',
             default => static::$navigationLabel,
         };

@@ -56,16 +56,13 @@ class NotificationsTest extends TestCase
         return $user->notifications()->where('data->format', 'filament')->where('data->title', 'like', "%{$text}%")->count();
     }
 
-    public function test_a_role_request_reaches_the_admins_once_the_email_is_confirmed(): void
+    public function test_a_new_sign_up_asks_for_no_role_and_tells_no_admin(): void
     {
         Notification::fake();
         $admin = $this->user(Access::SUPER_ADMIN);
 
-        $this->post('/register', ['account_type' => 'brand-owner', 'name' => 'أبو عبدو', 'email' => 'abdo@example.com',
-            'password' => 'zaatar-2026', 'whatsapp' => '+963944000111', 'brand_kind' => 'brand'])->assertRedirect('/verify-email');
-        // Not yet: an unconfirmed email may never come back.
-        Notification::assertNotSentTo($admin, DatabaseNotification::class);
-
+        $this->post('/register', ['name' => 'أبو عبدو', 'email' => 'abdo@example.com', 'password' => 'zaatar-2026'])
+            ->assertRedirect('/verify-email');
         $applicant = User::where('email', 'abdo@example.com')->sole();
         $code = null;
         Notification::assertSentTo($applicant, AuthCodeNotification::class, function (AuthCodeNotification $n) use (&$code) {
@@ -75,8 +72,8 @@ class NotificationsTest extends TestCase
         });
         $this->post('/verify-email', ['code' => $code]);
 
-        Notification::assertSentTo($admin, DatabaseNotification::class,
-            fn (DatabaseNotification $n) => str_contains($n->data['title'], 'طلب حساب جديد: أبو عبدو') && str_contains($n->data['body'], '(براند)'));
+        Notification::assertNotSentTo($admin, DatabaseNotification::class);
+        $this->assertNull($applicant->fresh()->requested_role);
     }
 
     public function test_the_person_hears_the_answer_in_the_site_bell(): void
@@ -91,7 +88,7 @@ class NotificationsTest extends TestCase
         app(RoleRequestService::class)->decline($nutritionist);
 
         $yes = $owner->notifications()->where('data->format', 'site')->sole();
-        $this->assertSame('انقبل حسابك كصاحب مطعم', $yes->data['title']);
+        $this->assertSame('صرت صاحب مطعم أو براند على NutriSyria', $yes->data['title']);
         $this->assertSame('/admin', $yes->data['url']);
         $this->assertSame('ما انقبل طلب حساب الأخصائي', $nutritionist->notifications()->where('data->format', 'site')->sole()->data['title']);
     }
@@ -162,12 +159,12 @@ class NotificationsTest extends TestCase
         Filament::setCurrentPanel('admin');
 
         Livewire::test(EditBrand::class, ['record' => $this->brand->id])
-            ->fillForm(['managers' => [$owner->id]])
+            ->fillForm(['owner_id' => $owner->id])
             ->call('save')
             ->assertHasNoFormErrors();
-        // Saved again with the same people: no second notice.
+        // Saved again with the same owner: no second notice.
         Livewire::test(EditBrand::class, ['record' => $this->brand->id])->call('save');
 
-        $this->assertSame(1, $this->panelNotices($owner, 'انربط حسابك بمطعم «بيت المجدرة»'));
+        $this->assertSame(1, $this->panelNotices($owner, 'صرت المسؤول عن المطعم «بيت المجدرة»'));
     }
 }

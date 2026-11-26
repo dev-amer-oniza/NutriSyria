@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Auth\Access;
 use App\Enums\BrandKind;
+use App\Filament\Clusters\Brands\Resources\Brands\Pages\CreateBrand;
 use App\Filament\Clusters\Brands\Resources\Brands\Pages\EditBrand;
+use App\Filament\Clusters\Brands\Resources\Brands\Pages\ListBrands;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\User;
@@ -210,20 +212,48 @@ class RestaurantPagesTest extends TestCase
         $this->assertSame(BrandKind::Restaurant, $this->brand->fresh()->kind);
     }
 
-    public function test_the_admin_sets_the_kind_and_sees_what_the_owner_chose(): void
+    public function test_the_admin_adds_a_client_from_a_signed_up_email(): void
     {
-        $owner = User::forceCreate(['name' => 'أبو عبدو', 'email' => 'abdo@example.com', 'password' => 'x-secret-1', 'is_active' => true]);
-        $owner->forceFill(['brand_kind' => BrandKind::Brand])->save();
-        $owner->assignRole(Access::BRAND_OWNER);
-        $this->brand->managers()->attach($owner);
+        $person = User::forceCreate(['name' => 'أبو عبدو', 'email' => 'abdo@example.com', 'password' => 'x-secret-1', 'is_active' => true]);
+        $nutritionist = User::forceCreate(['name' => 'ريم', 'email' => 'reem@example.com', 'password' => 'x-secret-1', 'is_active' => true]);
+        $nutritionist->assignRole(Access::NUTRITIONIST);
 
         $this->signInAs(Access::SUPER_ADMIN);
-        Livewire::test(EditBrand::class, ['record' => $this->brand->id])
-            ->assertSee('اختيار صاحبه بالتسجيل: أبو عبدو: براند')
-            ->fillForm(['kind' => 'brand'])
-            ->call('save')
-            ->assertHasNoFormErrors();
+        $form = Livewire::test(CreateBrand::class);
+        // Only plain accounts and brand owners can run a client.
+        $options = $form->instance()->getSchema('form')->getComponent('owner_id')->getOptions();
+        $this->assertArrayHasKey($person->id, $options);
+        $this->assertArrayNotHasKey($nutritionist->id, $options);
+        $this->assertSame('abdo@example.com · أبو عبدو', $options[$person->id]);
 
-        $this->assertSame(BrandKind::Brand, $this->brand->fresh()->kind);
+        $form->fillForm(['name' => 'بوكس صحي'])->call('create')->assertHasFormErrors(['owner_id' => 'required']);
+        $form->fillForm(['owner_id' => $person->id, 'kind' => 'brand', 'name' => 'بوكس صحي'])
+            ->call('create')->assertHasNoFormErrors();
+
+        $client = Brand::where('name', 'بوكس صحي')->sole();
+        $this->assertSame(BrandKind::Brand, $client->kind);
+        $this->assertSame([$person->id], $client->managers()->pluck('users.id')->map(fn ($id) => (int) $id)->all());
+        // The plain account now runs it: the role, the panel, and a word in each bell.
+        $person->refresh();
+        $this->assertTrue($person->hasRole(Access::BRAND_OWNER));
+        $this->assertTrue($person->notifications()->where('data->format', 'site')->exists());
+        $this->assertTrue($person->notifications()->where('data->title', 'صرت المسؤول عن البراند «بوكس صحي»')->exists());
+    }
+
+    public function test_the_clients_list_has_tabs_by_kind_with_their_counts(): void
+    {
+        $brand = Brand::create(['name' => 'بوكس صحي']);
+        $brand->forceFill(['kind' => BrandKind::Brand])->save();
+        Brand::create(['name' => 'مطعم الشام']);
+
+        $this->signInAs(Access::SUPER_ADMIN);
+        $list = Livewire::test(ListBrands::class);
+        $tabs = $list->instance()->getTabs();
+        $this->assertSame(['all', 'restaurant', 'brand'], array_keys($tabs));
+        $this->assertSame('3', (string) $tabs['all']->getBadge());           // with the fixture's restaurant
+        $this->assertSame('2', (string) $tabs['restaurant']->getBadge());
+        $this->assertSame('1', (string) $tabs['brand']->getBadge());
+
+        $list->set('activeTab', 'brand')->assertCanSeeTableRecords([$brand])->assertCanNotSeeTableRecords([$this->brand]);
     }
 }

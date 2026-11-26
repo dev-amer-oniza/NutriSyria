@@ -55,7 +55,7 @@ class EmailVerificationController extends Controller
         $request->session()->regenerate();
 
         return redirect()->route('site.onboarding.show', OnboardingStep::Body)
-            ->with('status', RegistrationService::welcomeMessage($user));
+            ->with('status', RegistrationService::welcomeMessage());
     }
 
     public function resend(Request $request, AuthCodeService $codes): RedirectResponse

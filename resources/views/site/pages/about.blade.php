@@ -128,9 +128,10 @@
                 <p>تعرّف على الخدمات المتاحة لك، واختر ما يناسب احتياجاتك.</p>
                 <div class="ns-book__actions">
                     <a class="ns-btn ns-btn--primary" href="{{ route('site.register') }}">للأفراد</a>
-                    <a class="ns-btn ns-btn--secondary" href="{{ route('site.register', ['type' => 'nutritionist']) }}">لاختصاصيي التغذية</a>
+                    <a class="ns-btn ns-btn--secondary" href="{{ route('site.register') }}">لاختصاصيي التغذية</a>
                     <a class="ns-btn ns-btn--secondary" href="{{ route('site.partners') }}">للمطاعم والعلامات التجارية</a>
                 </div>
+                <p class="ns-join-note">للاختصاصيين والمطاعم والبراندات: أنشئ حسابك، وبعدها <a class="ns-link" href="{{ route('site.contact') }}">تواصل معنا</a> لنفعّله.</p>
             </div>
         </div>
     </section>

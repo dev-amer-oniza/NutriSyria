@@ -21,7 +21,7 @@ class KitchenCluster extends Cluster
 
     protected static ?string $clusterBreadcrumb = 'المطبخ السوري';
 
-    protected static string|UnitEnum|null $navigationGroup = 'المطاعم';
+    protected static string|UnitEnum|null $navigationGroup = 'المطاعم والبراندات';
 
     protected static ?int $navigationSort = 2;
 
