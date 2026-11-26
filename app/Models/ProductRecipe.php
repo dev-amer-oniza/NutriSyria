@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $weight_before_cooking_g
  * @property string|null $weight_after_cooking_g
  * @property Carbon|null $nutrition_approved_at
+ * @property string|null $review_requested_at when the nutritionists were last told it waits for them
  * @property array<string, list<array{label: string, amount: float, after: bool}>>|null $contributions what each ingredient brings to the whole recipe (step 4)
  *
  * A brand's product recipe. Mirrors Recipe, but belongs to a Product instead of a
