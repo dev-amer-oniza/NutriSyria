@@ -71,7 +71,7 @@ final class Access
     {
         return [
             self::SUPER_ADMIN => 'مدير النظام',
-            self::BRAND_OWNER => 'صاحب براند',
+            self::BRAND_OWNER => 'صاحب مطعم أو براند',
             self::NUTRITIONIST => 'أخصائي تغذية',
         ];
     }

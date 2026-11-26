@@ -6,7 +6,7 @@ use App\Auth\Access;
 use App\Enums\BrandKind;
 use App\Enums\SyrianGovernorate;
 use App\Models\Brand;
-use App\Models\User;
+use App\Services\Brands\ClientOwner;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -23,13 +23,23 @@ class BrandForm
         return $schema
             ->columns(1)
             ->components([
-                Section::make('بيانات البراند')
+                Section::make('بيانات العميل')
                     ->columns(2)
                     ->components([
-                        TextInput::make('name')
-                            ->label('الاسم')
-                            ->required()
-                            ->maxLength(255)
+                        // "إضافة عميل" starts from a signed-up account (the owner's decision): the
+                        // pages hand it to ClientOwner, which also gives a plain account its role.
+                        Select::make('owner_id')
+                            ->label('صاحب الحساب')
+                            ->helperText(fn (?Brand $record) => $record
+                                ? 'المسؤول عن هذا العميل. إذا غيّرته، بينتقل له وبينفك الربط عن القديم.'
+                                : 'اختار إيميل شخص مسجّل بالموقع. بيصير هو المسؤول، وبتنفتحله لوحة التحكم.')
+                            ->options(fn () => app(ClientOwner::class)->options())
+                            ->searchable()
+                            // A new client needs one; an older one without an owner can be saved as it is.
+                            ->required(fn (?Brand $record) => $record === null)
+                            ->dehydrated(false)
+                            ->visible(fn () => (bool) auth()->user()?->isSuperAdmin())
+                            ->extraInputAttributes(['dir' => 'ltr'])
                             ->columnSpanFull(),
                         // Restaurant or brand: the admin's call (decision 1a), shown to the owner.
                         ToggleButtons::make('kind')
@@ -39,7 +49,15 @@ class BrandForm
                             ->inline()
                             ->required()
                             ->disabled(fn () => ! auth()->user()?->isSuperAdmin())
-                            ->helperText(fn (?Brand $record) => self::kindHint($record))
+                            ->helperText(fn () => auth()->user()?->isSuperAdmin()
+                                ? 'يظهر للناس بالموقع: «مطعم» أو «براند».'
+                                : 'تحدّده إدارة NutriSyria. ويظهر للناس بالموقع.')
+                            ->columnSpanFull(),
+                        TextInput::make('name')
+                            ->label('اسم المطعم أو البراند')
+                            ->helperText('هذا ما يراه الناس بالموقع.')
+                            ->required()
+                            ->maxLength(255)
                             ->columnSpanFull(),
                         TextInput::make('phone_1')
                             ->label('رقم الهاتف الأول')
@@ -57,7 +75,7 @@ class BrandForm
                             ->disabled(fn () => ! auth()->user()?->allows(Access::BRANDS_MANAGE_ALL))
                             ->label('نشط')
                             ->default(true)
-                            ->helperText('البراند غير النشط لا يظهر للمستخدمين'),
+                            ->helperText('غير النشط لا يظهر للناس بالموقع'),
                         Textarea::make('description')
                             ->label('الوصف')
                             ->columnSpanFull(),
@@ -96,50 +114,20 @@ class BrandForm
                         TextInput::make('delivery_note')
                             ->label('ملاحظة التوصيل')
                             ->placeholder('توصيل لكل دمشق، أو عبر تطبيق طلبات')
-                            ->helperText('تظهر فقط إن كان البراند يقدّم توصيلاً.')
+                            ->helperText('تظهر فقط إن كان يقدّم توصيلاً.')
                             ->maxLength(200)
                             ->columnSpanFull(),
                     ]),
                 Section::make('الشعار')
                     ->components([
                         FileUpload::make('logo')
-                            ->label('شعار البراند')
+                            ->label('الشعار')
                             ->image()
                             ->disk('public')
                             ->directory('brands')
                             ->imageEditor()
                             ->avatar(),
                     ]),
-                // Who manages this brand: set by the admin only, never by the brand owner.
-                Section::make('المسؤولون عن البراند')
-                    ->description('أصحاب البراند الذين يرون هذا البراند ويعدّلونه.')
-                    ->visible(fn () => auth()->user()?->allows(Access::BRANDS_MANAGE_ALL) ?? false)
-                    ->components([
-                        Select::make('managers')
-                            ->hiddenLabel()
-                            ->relationship('managers', 'name', modifyQueryUsing: fn ($query) => $query->role(Access::BRAND_OWNER))
-                            ->multiple()
-                            ->preload()
-                            ->searchable(),
-                    ]),
             ]);
-    }
-
-    /** For the admin: what the owners said at sign-up. For the owner: who decides. */
-    private static function kindHint(?Brand $record): string
-    {
-        if (! auth()->user()?->isSuperAdmin()) {
-            return 'تحدّده إدارة NutriSyria. ويظهر للناس بالموقع.';
-        }
-
-        $answers = [];
-        foreach ($record?->managers()->whereNotNull('brand_kind')->get(['users.name', 'users.brand_kind']) ?? [] as $owner) {
-            if ($owner instanceof User && $owner->brand_kind) {
-                $answers[] = "{$owner->name}: {$owner->brand_kind->getLabel()}";
-            }
-        }
-        $said = implode('، ', $answers);
-
-        return 'يظهر للناس بالموقع: «مطعم» أو «براند».'.($said !== '' ? " اختيار صاحبه بالتسجيل: {$said}." : '');
     }
 }

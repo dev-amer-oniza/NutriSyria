@@ -141,7 +141,7 @@ class UserManagementTest extends TestCase
         $this->get(RoleResource::getUrl('index'))->assertForbidden();
     }
 
-    public function test_a_brand_owner_cannot_add_managers_to_their_brand(): void
+    public function test_a_brand_owner_cannot_change_who_runs_their_brand(): void
     {
         $owner = $this->signInAs(Access::BRAND_OWNER);
         $brand = Brand::create(['name' => 'فلافل']);
@@ -150,8 +150,8 @@ class UserManagementTest extends TestCase
         $intruder->assignRole(Access::BRAND_OWNER);
 
         Livewire::test(EditBrand::class, ['record' => $brand->getRouteKey()])
-            ->assertFormFieldHidden('managers')
-            ->set('data.managers', [$owner->id, $intruder->id])
+            ->assertFormFieldHidden('owner_id')
+            ->set('data.owner_id', $intruder->id)
             ->call('save');
 
         $this->assertSame([$owner->id], $brand->managers()->pluck('users.id')->map(fn ($id) => (int) $id)->all());

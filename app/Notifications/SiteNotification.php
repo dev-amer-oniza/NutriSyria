@@ -76,7 +76,7 @@ class SiteNotification extends Notification
     {
         $owner = $role === Access::BRAND_OWNER;
 
-        return new self('success', $owner ? 'انقبل حسابك كصاحب مطعم' : 'انقبل حسابك كأخصائي تغذية',
+        return new self('success', $owner ? 'صرت صاحب مطعم أو براند على NutriSyria' : 'انقبل حسابك كأخصائي تغذية',
             $owner ? 'صار فيك تدخل للوحة التحكم. لما نربطك بمطعمك بيوصلك إشعار، وبتبلّش تضيف منتجاتك.'
                 : 'صار فيك تدخل للوحة التحكم وتكمّل ملفك العام لتظهر للناس.',
             (string) parse_url(filament()->getPanel('admin')->getUrl(), PHP_URL_PATH) ?: '/admin');

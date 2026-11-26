@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Auth\Access;
-use App\Enums\BrandKind;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Socialite\Facades\Socialite;
@@ -46,22 +44,19 @@ class GoogleAuthTest extends TestCase
     public function test_the_button_shows_only_when_google_is_set_up(): void
     {
         $this->get('/login')->assertSee('المتابعة مع Google');
-        $this->get('/register')->assertSee('?type=', false);
+        $this->get('/register')->assertSee('المتابعة مع Google');
 
         config(['services.google.client_id' => null]);
         $this->get('/login')->assertDontSee('المتابعة مع Google');
         $this->get('/auth/google/redirect')->assertRedirect('/login')->assertSessionHas('error');
     }
 
-    public function test_the_redirect_goes_to_google_and_remembers_the_account_type(): void
+    public function test_the_redirect_goes_to_google(): void
     {
-        $response = $this->get('/auth/google/redirect?type=brand-owner');
+        $response = $this->get('/auth/google/redirect');
 
         $this->assertStringStartsWith('https://accounts.google.com/o/oauth2/auth', $response->headers->get('Location'));
         $this->assertStringContainsString('state=', $response->headers->get('Location'));
-        $this->assertSame('brand-owner', session('auth.google_type'));
-
-        $this->get('/auth/google/redirect?type=super-admin')->assertSessionHasErrors('type');
     }
 
     public function test_a_new_person_gets_a_confirmed_account(): void
@@ -138,33 +133,17 @@ class GoogleAuthTest extends TestCase
         $this->assertSame(0, User::count());
     }
 
-    public function test_a_new_brand_owner_gives_a_whatsapp_number_first(): void
+    public function test_a_new_account_from_google_is_a_plain_one_whatever_the_link_says(): void
     {
+        // An old link from the restaurants page: no role is asked for any more.
         $this->get('/auth/google/redirect?type=brand-owner');
         $this->googleReturns();
 
-        $this->get('/auth/google/callback')->assertRedirect('/auth/google/whatsapp');
-        $this->assertGuest();
-        $this->assertSame(0, User::count(), 'no account before the number');
-
-        $this->get('/auth/google/whatsapp')->assertOk()->assertSee('ليلى حداد')->assertSee('شو عندك؟');
-        $this->post('/auth/google/whatsapp', ['whatsapp' => 'abc', 'brand_kind' => 'brand'])->assertSessionHasErrors('whatsapp');
-        $this->post('/auth/google/whatsapp', ['whatsapp' => '0944123456'])->assertSessionHasErrors('brand_kind');
-        $this->post('/auth/google/whatsapp', ['whatsapp' => '٠٩٤٤ ١٢٣ ٤٥٦', 'brand_kind' => 'brand'])->assertRedirect('/onboarding/body');
+        $this->get('/auth/google/callback')->assertRedirect('/onboarding/body');
 
         $user = User::sole();
-        $this->assertAuthenticatedAs($user);
-        $this->assertSame('+963944123456', $user->phone);
-        $this->assertSame(Access::BRAND_OWNER, $user->requested_role);
-        $this->assertSame(BrandKind::Brand, $user->brand_kind);
+        $this->assertNull($user->requested_role);
         $this->assertCount(0, $user->roles);
-        $this->get('/auth/google/whatsapp')->assertRedirect('/');
-    }
-
-    public function test_the_whatsapp_page_needs_a_google_answer(): void
-    {
-        $this->get('/auth/google/whatsapp')->assertRedirect('/login');
-        $this->post('/auth/google/whatsapp', ['whatsapp' => '0944123456'])->assertRedirect('/login');
-        $this->assertSame(0, User::count());
+        $this->get('/auth/google/whatsapp')->assertNotFound();
     }
 }

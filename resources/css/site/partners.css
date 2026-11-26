@@ -27,6 +27,8 @@
 
     .ns-partners__cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); }
     .ns-partners__cta .t-title { margin: 0; }
+    /* A plain account first, then we activate it (the owner's decision 4b). */
+    .ns-join-note { margin: var(--space-3) 0 0; font-size: 1rem; line-height: 1.625rem; color: var(--ink-muted); }
 
     @media (max-width: 1080px) {
         .ns-partners__hero, .ns-partners__split { grid-template-columns: minmax(0, 1fr); }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Site;
 
-use App\Enums\AccountType;
 use App\Http\Controllers\Controller;
 use App\Services\Site\MealCatalog;
 use App\Services\Site\RestaurantDirectory;
@@ -19,7 +18,8 @@ class PartnersController extends Controller
         $all = $restaurants->all();
 
         return view('site.pages.partners', [
-            'joinUrl' => route('site.register', ['type' => AccountType::BrandOwner->value]),
+            // A plain account first; we then make it a client from the panel (decision 4b).
+            'joinUrl' => route('site.register'),
             // A real restaurant page to show, the one with the most approved meals.
             'example' => ($all[0] ?? null)?->mealCount ? $all[0] : null,
             'stats' => count($all) >= self::STATS_FROM_RESTAURANTS

@@ -3,8 +3,6 @@
 namespace App\Services\Auth;
 
 use App\Data\Auth\SocialProfile;
-use App\Enums\AccountType;
-use App\Enums\BrandKind;
 use App\Enums\GoogleSignIn;
 use App\Http\Requests\Auth\AuthFormRequest;
 use App\Models\User;
@@ -54,11 +52,8 @@ class GoogleAuthService
         );
     }
 
-    /**
-     * Sign in, link or create. $type is what the person chose on the sign-up page before
-     * pressing the button; it only matters for a new account.
-     */
-    public function signIn(SocialProfile $profile, AccountType $type): GoogleSignIn
+    /** Sign in, link, or create a plain site account (the site signs up plain users only). */
+    public function signIn(SocialProfile $profile): GoogleSignIn
     {
         if (! $profile->emailVerified || $profile->email === '') {
             return GoogleSignIn::Refused;
@@ -71,24 +66,7 @@ class GoogleAuthService
             return $this->signInExisting($user, $profile);
         }
 
-        if ($type->needsWhatsapp()) {
-            return GoogleSignIn::NeedsWhatsapp;
-        }
-
-        Auth::login($this->create($profile, $type, null));
-
-        return GoogleSignIn::Created;
-    }
-
-    /** The last step for a new brand owner or nutritionist coming from Google. */
-    public function completeWithWhatsapp(SocialProfile $profile, AccountType $type, string $whatsapp, ?BrandKind $kind = null): GoogleSignIn
-    {
-        // Someone may have signed up with this email in the meantime.
-        if (User::where('email', $profile->email)->orWhere('google_id', $profile->providerId)->exists()) {
-            return $this->signIn($profile, $type);
-        }
-
-        Auth::login($this->create($profile, $type, $whatsapp, $kind));
+        Auth::login($this->create($profile));
 
         return GoogleSignIn::Created;
     }
@@ -114,26 +92,17 @@ class GoogleAuthService
         return GoogleSignIn::SignedIn;
     }
 
-    private function create(SocialProfile $profile, AccountType $type, ?string $whatsapp, ?BrandKind $kind = null): User
+    private function create(SocialProfile $profile): User
     {
-        $role = $type->requestedRole();
-
         $user = new User([
             'name' => $profile->name,
             'email' => $profile->email,
-            'phone' => $whatsapp,
             'is_active' => true,
         ]);
         $user->forceFill([
             'google_id' => $profile->providerId,
             'email_verified_at' => now(),
-            'requested_role' => $role,
-            'role_requested_at' => $role ? now() : null,
-            'brand_kind' => $type === AccountType::BrandOwner ? $kind : null,
         ])->save();
-
-        // Google confirmed the email: a role request reaches the admins at once.
-        app(RoleRequestService::class)->announce($user);
 
         return $user;
     }

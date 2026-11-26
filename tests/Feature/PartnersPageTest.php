@@ -24,8 +24,9 @@ class PartnersPageTest extends TestCase
     {
         $this->get(route('site.partners'))->assertOk()
             ->assertSee('قيم غذائية موثّقة لوجباتك، يراجعها أخصائي تغذية')
-            ->assertSee(route('site.register', ['type' => 'brand-owner']), false)
-            ->assertSeeInOrder(['سجّل مطعمك', 'أضف وصفاتك', 'يراجعها الأخصائي', 'تظهر وجباتك'])
+            ->assertSee('href="'.route('site.register').'"', false)
+            ->assertSee('لنفعّله كمطعم أو براند')
+            ->assertSeeInOrder(['أنشئ حسابك', 'أضف وصفاتك', 'يراجعها الأخصائي', 'تظهر وجباتك'])
             ->assertSee('الكميات لا تظهر على الموقع أبداً')
             ->assertSee('هل تظهر وصفتي للناس؟')
             ->assertDontSee('مجاني')                    // no price until the owner decides (3b)
@@ -44,14 +45,5 @@ class PartnersPageTest extends TestCase
         }
 
         $this->get(route('site.partners'))->assertSee('مطعماً')->assertSee('وجبة بقيم معتمدة');
-    }
-
-    public function test_the_sign_up_page_preselects_a_restaurant_account(): void
-    {
-        $this->get(route('site.register', ['type' => 'brand-owner']))->assertOk()
-            ->assertSee('value="brand-owner"', false)
-            ->assertSee("type: 'brand-owner'", false);
-
-        $this->get(route('site.register', ['type' => 'admin']))->assertOk()->assertSee("type: 'member'", false);
     }
 }

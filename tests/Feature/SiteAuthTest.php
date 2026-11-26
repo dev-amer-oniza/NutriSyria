@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Auth\Access;
 use App\Enums\AuthCodePurpose;
-use App\Enums\BrandKind;
 use App\Filament\Clusters\AccessControl\Resources\Users\Pages\ListUsers;
 use App\Http\Controllers\Site\Auth\EmailVerificationController;
 use App\Http\Controllers\Site\Auth\PasswordResetController;
@@ -34,7 +33,6 @@ class SiteAuthTest extends TestCase
     private function register(array $overrides = []): TestResponse
     {
         return $this->post('/register', $overrides + [
-            'account_type' => 'member',
             'name' => 'سارة الأحمد',
             'email' => 'Sara@Example.com ',
             'password' => 'zaatar-2026',
@@ -106,34 +104,19 @@ class SiteAuthTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    public function test_a_brand_owner_leaves_a_whatsapp_number_and_waits_for_approval(): void
+    public function test_the_site_signs_up_plain_users_only(): void
     {
-        $this->register(['account_type' => 'brand-owner'])->assertSessionHasErrors('whatsapp');
-
-        // Restaurant or brand: the owner says which.
-        $this->register(['account_type' => 'brand-owner', 'whatsapp' => '0912 345 678'])->assertSessionHasErrors('brand_kind');
-        $this->register(['account_type' => 'brand-owner', 'whatsapp' => '0912 345 678', 'brand_kind' => 'shop'])->assertSessionHasErrors('brand_kind');
-        $this->register(['account_type' => 'brand-owner', 'whatsapp' => '0912 345 678', 'brand_kind' => 'restaurant'])->assertRedirect('/verify-email');
+        // An old link or a crafted form asking for a role or a kind is ignored.
+        $this->register(['account_type' => 'brand-owner', 'whatsapp' => '0912 345 678', 'brand_kind' => 'brand'])->assertRedirect('/verify-email');
 
         $user = User::sole();
-        $this->assertSame(BrandKind::Restaurant, $user->brand_kind);
-        $this->assertSame('+963912345678', $user->phone);
-        $this->assertSame(Access::BRAND_OWNER, $user->requested_role);
-        $this->assertCount(0, $user->roles, 'no role before the admin says yes');
-
-        app(RoleRequestService::class)->approve($user);
-
-        $user->refresh();
-        $this->assertTrue($user->hasRole(Access::BRAND_OWNER));
         $this->assertNull($user->requested_role);
-        $this->assertTrue($user->canAccessPanel(Filament::getPanel('admin')));
-    }
+        $this->assertNull($user->phone);
+        $this->assertCount(0, $user->roles);
+        $this->assertFalse($user->canAccessPanel(Filament::getPanel('admin')));
 
-    public function test_only_a_brand_owner_keeps_a_kind(): void
-    {
-        $this->register(['account_type' => 'member', 'brand_kind' => 'brand'])->assertRedirect('/verify-email');
-
-        $this->assertNull(User::sole()->brand_kind);
+        $this->get('/register?type=brand-owner')->assertOk()
+            ->assertDontSee('name="account_type"', false)->assertDontSee('name="whatsapp"', false)->assertDontSee('name="brand_kind"', false);
     }
 
     public function test_a_member_cannot_slip_in_a_number_or_a_role(): void
@@ -167,7 +150,6 @@ class SiteAuthTest extends TestCase
             'email' => ['email' => 'taken@example.com'],
             'email ' => ['email' => 'not-an-email'],
             'name' => ['name' => '<script>'],
-            'account_type' => ['account_type' => 'super-admin'],
             'website' => ['website' => 'http://spam.example'],
         ];
 
@@ -280,10 +262,11 @@ class SiteAuthTest extends TestCase
         $this->get('/')->assertSee('خروج');
     }
 
-    public function test_the_admin_sees_and_answers_role_requests(): void
+    public function test_the_admin_still_answers_a_request_left_from_before(): void
     {
-        $this->register(['account_type' => 'nutritionist', 'whatsapp' => '+963944000111']);
+        $this->register();
         $applicant = User::where('email', 'sara@example.com')->sole();
+        $applicant->forceFill(['requested_role' => Access::NUTRITIONIST, 'role_requested_at' => now()])->save();
 
         $this->signInAs(Access::SUPER_ADMIN);
 
@@ -292,6 +275,7 @@ class SiteAuthTest extends TestCase
             ->callTableAction('approveRole', $applicant);
 
         $this->assertTrue($applicant->fresh()->hasRole(Access::NUTRITIONIST));
+        $this->assertNull($applicant->fresh()->requested_role);
     }
 
     public function test_only_the_admin_can_answer_role_requests(): void

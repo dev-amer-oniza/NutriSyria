@@ -35,11 +35,7 @@ class BrandResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?string $navigationLabel = 'البراندات';
-
-    protected static ?string $modelLabel = 'براند';
-
-    protected static ?string $pluralModelLabel = 'البراندات';
+    protected static ?string $navigationLabel = 'العملاء';
 
     /**
      * A brand owner manages their own restaurant, not a list of brands (the owner's decisions
@@ -67,7 +63,18 @@ class BrandResource extends Resource
     {
         $ids = static::ownedBrandIds();
 
-        return $ids === null ? 'البراندات' : (count($ids) > 1 ? 'مطاعمي' : 'مطعمي');
+        return $ids === null ? 'العملاء' : (count($ids) > 1 ? 'مطاعمي' : 'مطعمي');
+    }
+
+    /** For the admin each one is a client, a restaurant or a brand (the owner's decision). */
+    public static function getModelLabel(): string
+    {
+        return static::ownedBrandIds() === null ? 'عميل' : 'مطعم';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return static::ownedBrandIds() === null ? 'العملاء' : 'مطاعمي';
     }
 
     public static function getBreadcrumb(): string

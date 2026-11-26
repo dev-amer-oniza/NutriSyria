@@ -32,11 +32,12 @@
                 <h1 class="t-display">قيم غذائية موثّقة لوجباتك، يراجعها أخصائي تغذية</h1>
                 <p class="t-lead ns-muted">أرسل وصفاتك، ونحسب قيمة كل حصة من مصادر موثّقة، ويعتمدها أخصائي التغذية، فتظهر وجباتك لمن يبحث عن طعام يناسبه.</p>
                 <div class="ns-book__actions">
-                    <a class="ns-btn ns-btn--primary" href="{{ $joinUrl }}">سجّل مطعمك</a>
+                    <a class="ns-btn ns-btn--primary" href="{{ $joinUrl }}">أنشئ حسابك</a>
                     @if ($example)
                         <a class="ns-btn ns-btn--ghost" href="{{ route('site.brands.show', $example->id) }}">شاهد صفحة مطعم</a>
                     @endif
                 </div>
+                <p class="ns-join-note">أنشئ حسابك، وبعدها <a class="ns-link" href="{{ route('site.contact') }}">تواصل معنا</a> لنفعّله كمطعم أو براند.</p>
             </div>
             <img class="ns-partners__art ns-figure" src="{{ asset('images/site/partners-figure.svg') }}" alt="" width="400" height="360" loading="lazy">
         </div>
@@ -77,7 +78,7 @@
         'title' => 'من مطبخك إلى صفحتك، في أربع خطوات',
         'lead' => 'أنت تعرف وصفتك، ونحن نحسب. أخصائي التغذية يراجع ويعتمد قبل أن يظهر أي رقم.',
         'steps' => [
-            ['icon' => 'document', 'title' => 'سجّل مطعمك', 'text' => 'أنشئ حسابك بصفتك صاحب مطعم، فنتواصل معك على واتساب ونفعّل لوحتك.'],
+            ['icon' => 'document', 'title' => 'أنشئ حسابك', 'text' => 'أنشئ حسابك على NutriSyria، ثم تواصل معنا، فنفعّله كمطعم أو براند وتُفتح لك لوحتك.'],
             ['icon' => 'bowl', 'title' => 'أضف وصفاتك', 'text' => 'من لوحتك: المكوّنات وكمياتها، ووزن الطبخة بعد الطبخ، وعدد الحصص.'],
             ['icon' => 'heart', 'title' => 'يراجعها الأخصائي', 'text' => 'يراجع أخصائي التغذية الحساب، وقد يرسل لك ملاحظة لتعدّل، ثم يعتمد القيم.'],
             ['icon' => 'chart', 'title' => 'تظهر وجباتك', 'text' => 'في صفحة مطعمك وفي الموقع، ومع كل وجبة مدى مناسبتها لكل زبون.'],
@@ -123,8 +124,11 @@
 
     <section class="ns-section">
         <div class="ns-wrap ns-partners__cta">
-            <h2 class="t-title">جاهز تعرض وجباتك بأرقامها؟</h2>
-            <a class="ns-btn ns-btn--primary" href="{{ $joinUrl }}">سجّل مطعمك</a>
+            <div>
+                <h2 class="t-title">جاهز تعرض وجباتك بأرقامها؟</h2>
+                <p class="ns-join-note">أنشئ حسابك، وبعدها <a class="ns-link" href="{{ route('site.contact') }}">تواصل معنا</a> لنفعّله كمطعم أو براند.</p>
+            </div>
+            <a class="ns-btn ns-btn--primary" href="{{ $joinUrl }}">أنشئ حسابك</a>
         </div>
     </section>
 @endsection
