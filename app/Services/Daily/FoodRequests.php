@@ -100,12 +100,10 @@ class FoodRequests
      * The admin removes requests from the list. What people logged stays on their day
      * ("غير محسوبة"): only its link to the request goes, so their diary is never changed.
      *
-     * @param  iterable<FoodRequest>  $requests
+     * @param  list<int>  $ids
      */
-    public function delete(iterable $requests): int
+    public function delete(array $ids): int
     {
-        $ids = collect($requests)->map(fn (FoodRequest $r) => $r->getKey())->all();
-
         return DB::transaction(function () use ($ids) {
             MealLog::query()->whereIn('food_request_id', $ids)->update(['food_request_id' => null]);
 

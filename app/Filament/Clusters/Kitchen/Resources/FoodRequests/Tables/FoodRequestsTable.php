@@ -79,7 +79,7 @@ class FoodRequestsTable
                     ->modalSubmitActionLabel('احذف')
                     ->deselectRecordsAfterCompletion()
                     ->action(function (Collection $records) {
-                        $count = app(FoodRequests::class)->delete($records);
+                        $count = app(FoodRequests::class)->delete(array_values(array_map('intval', $records->modelKeys())));
                         Notification::make()->title("حُذف {$count} من الطلبات.")->success()->send();
                     }),
             ])
@@ -149,7 +149,7 @@ class FoodRequestsTable
             ->modalDescription(self::DELETE_NOTE)
             ->modalSubmitActionLabel('احذف')
             ->action(function (FoodRequest $record) {
-                app(FoodRequests::class)->delete([$record]);
+                app(FoodRequests::class)->delete([(int) $record->getKey()]);
                 Notification::make()->title('حُذف الطلب.')->success()->send();
             });
     }
