@@ -139,6 +139,7 @@
   - **اللوغو:** نفس لوغو الموقع (المعيّن بست قطع، القطعة العلوية تيراكوتا، وكتابة NutriSyria من `site/partials/wordmark`) في `resources/views/filament/admin/brand.blade.php` (`.ns-panel-logo`)، والـ favicon `images/site/mark.svg`.
   - **الوضع الليلي:** رماديات خضراء-سوداء، والأساسي مريمي فاتح مع نص داكن على الأزرار الأساسية وعلامة الصح، عبر `html.dark { --gray-*; --primary-* }` في `theme.css`.
   - كل المتغيرات في `:root` أول `resources/css/filament/admin/theme.css`؛ لا ألوان ثابتة خارجها.
+- **قائمة الحساب** (أيقونة الحساب فوق، لكل الأدوار، طلب صاحب المشروع): «الذهاب للموقع» (`userMenuItems` في `AdminPanelProvider`، إلى `route('home')`) قبل «تسجيل الخروج». اختبار: `tests/Feature/PanelSiteLinkTest.php`.
 - **اللغة والاتجاه:** اللوحة عربية RTL دائماً عبر `App\Http\Middleware\UseArabicInPanel` (persistent)، أياً كان `APP_LOCALE`.
 - **المراحل القديمة (باقية):** أيقونات Heroicons (outline، والمعبّأة للقسم الحالي)، مجموعات القائمة، شارة السجلات المعلّقة، ألوان وأيقونات الحالات في الـ enums (`FoodSourceStatus`، `ImportBatchStatus`)، صور بديلة `App\Filament\Support\Placeholders`، إعدادات الجداول العامة في `AdminPanelProvider::boot`، رسائل التحقق العربية `lang/ar/validation.php`.
 
