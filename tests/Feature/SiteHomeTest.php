@@ -21,6 +21,14 @@ class SiteHomeTest extends TestCase
             ->assertSee(config('site.verification.estimated.label'));
     }
 
+    public function test_the_example_meal_shows_its_photo(): void
+    {
+        $this->assertFileExists(public_path('images/site/example-fatteh.webp'));
+        $this->withoutVite()->get('/')->assertOk()
+            ->assertSee(asset('images/site/example-fatteh.webp'), false)
+            ->assertSee('alt="فتة باذنجان"', false);
+    }
+
     public function test_the_identity_tiles_are_addressed_from_the_sites_root(): void
     {
         $page = $this->withoutVite()->get('/')->assertOk();

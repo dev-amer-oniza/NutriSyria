@@ -15,6 +15,7 @@ class FitExample
         return [
             'name' => 'فتة باذنجان',
             'brand' => 'مثال توضيحي',
+            'image' => asset('images/site/example-fatteh.webp'),
             'portion' => 350,
             'kcal' => 433,
             'macros' => ['protein' => 15, 'carbs' => 46, 'fat' => 21],
