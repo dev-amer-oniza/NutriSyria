@@ -119,8 +119,8 @@ class RecipeAnalysis extends Page
                 return [
                     'name' => $prep->name,
                     'note' => $prep->note,
-                    'ingredients' => $prep->ingredients->map(fn ($line) => trim(($line->ingredientRecord?->food?->name_ar ?? '—').' '
-                        .Amount::short($line->amount).' '.($line->measureUnit?->name_ar ?? '')))->all(),
+                    'ingredients' => $prep->ingredients->map(fn ($line) => trim(data_get($line, 'ingredientRecord.food.name_ar', '—').' '
+                        .Amount::short($line->amount).' '.data_get($line, 'measureUnit.name_ar', '')))->all(),
                     'weight' => $values['grams'],
                     'per100g' => $values['per100g'],
                     'unconverted' => $values['unconverted'],
