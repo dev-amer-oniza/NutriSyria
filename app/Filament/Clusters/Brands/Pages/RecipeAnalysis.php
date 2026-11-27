@@ -10,7 +10,6 @@ use App\Models\Product;
 use App\Services\Nutrition\RecipeAnalysisService;
 use App\Services\Nutrition\RecipePreview;
 use App\Support\Amount;
-use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Gate;
@@ -77,16 +76,10 @@ class RecipeAnalysis extends Page
         return ProductResource::pageUrlFor($this->product);
     }
 
-    /** «رجوع للمنتج»: every page with a way back (the owners' report). */
-    protected function getHeaderActions(): array
+    /** «رجوع للمنتج» (App\Filament\Support\BackLink). */
+    public function backLink(): ?array
     {
-        return [
-            Action::make('back')
-                ->label('رجوع للمنتج')
-                ->icon('heroicon-o-arrow-right')
-                ->color('gray')
-                ->url(fn () => $this->productUrl()),
-        ];
+        return $this->product ? ['url' => $this->productUrl(), 'label' => 'رجوع للمنتج'] : null;
     }
 
     /**

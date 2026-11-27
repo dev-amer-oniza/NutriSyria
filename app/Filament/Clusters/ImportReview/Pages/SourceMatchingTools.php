@@ -30,6 +30,12 @@ class SourceMatchingTools extends Page implements HasForms
     use InteractsWithForms;
 
     /** Matching runs tools on the server and builds import files: upload rights only. */
+    /** «رجوع إلى إضافة أغذية» (App\Filament\Support\BackLink). */
+    public function backLink(): array
+    {
+        return ['url' => AddFoods::getUrl(), 'label' => 'رجوع إلى إضافة أغذية'];
+    }
+
     public static function canAccess(): bool
     {
         return (bool) auth()->user()?->allows(Access::IMPORTS_UPLOAD);

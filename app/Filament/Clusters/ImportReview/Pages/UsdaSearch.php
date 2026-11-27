@@ -77,6 +77,12 @@ class UsdaSearch extends Page
 
     public ?string $errorMessage = null;
 
+    /** «رجوع إلى إضافة أغذية» (App\Filament\Support\BackLink). */
+    public function backLink(): array
+    {
+        return ['url' => AddFoods::getUrl(), 'label' => 'رجوع إلى إضافة أغذية'];
+    }
+
     public static function canAccess(): bool
     {
         return (bool) auth()->user()?->isSuperAdmin();
