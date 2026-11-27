@@ -289,7 +289,7 @@ class SiteAuthTest extends TestCase
         $this->assertNull($applicant->fresh()->roles->first());
     }
 
-    public function test_messages_slide_in_at_the_top_and_close_by_themselves(): void
+    public function test_messages_slide_in_at_the_side_and_close_by_themselves(): void
     {
         $this->verifiedUser();
 
@@ -298,11 +298,11 @@ class SiteAuthTest extends TestCase
 
         $this->get('/')
             ->assertSee('class="ns-toasts"', false)
-            ->assertSee('x-data="flash(4000)"', false)
+            ->assertSee('x-data="flash(2500)"', false)
             ->assertSee('aria-label="إغلاق الرسالة"', false);
 
         $this->withSession(['error' => 'تعذّر الإرسال.'])->get('/')
-            ->assertSee('x-data="flash(7000)"', false);
+            ->assertSee('x-data="flash(5000)"', false);
 
         // Account pages show it the same way, at the top.
         auth()->logout();
