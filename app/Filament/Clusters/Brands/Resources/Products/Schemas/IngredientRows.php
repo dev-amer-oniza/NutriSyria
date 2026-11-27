@@ -133,7 +133,7 @@ class IngredientRows
                 ->getSearchResultsUsing(fn (string $search, $livewire) => ($withPreparations ? self::preparationOptions($livewire, $search) : [])
                     + self::options($search))
                 ->getOptionLabelUsing(fn ($value, $livewire) => self::preparationId($value) !== null
-                    ? (self::preparationOptions($livewire)[$value] ?? null)
+                    ? (self::preparationOptions($livewire)[$value] ?? self::preparationLabel((int) self::preparationId($value)))
                     : (self::memo('ingredient_options', fn () => self::options())[(int) $value]
                     ?? self::memo("ingredient_label.{$value}", function () use ($value) {
                         $r = FoodSourceRecord::with(['food', 'foodForm', 'dataSource'])->find($value);
@@ -173,8 +173,8 @@ class IngredientRows
                 ->label('الوحدة')
                 // The units, loaded once for all rows (a relationship select reloaded them per row).
                 ->options(fn () => self::units())
-                ->getSearchResultsUsing(fn (string $search) => ArabicSearch::constrain(MeasureUnit::query(), ['name_ar'], $search)
-                    ->orderBy('name_ar')->limit(50)->pluck('name_ar', 'id')->all())
+                // A short list (about twenty): searched in the browser, with no trip to the server
+                // per letter typed (the owner's report: the field was slow).
                 ->getOptionLabelUsing(fn ($value) => self::units()[(int) $value] ?? null)
                 ->rules([Rule::exists('measure_units', 'id')])
                 ->required(fn (Get $get) => self::started($get))
@@ -248,10 +248,26 @@ class IngredientRows
         return blank($search) ? $all : array_filter($all, fn (string $label) => str_contains(ArabicNormalizer::normalize($label), ArabicNormalizer::normalize($search)));
     }
 
+    /**
+     * A preparation's name for one who reads the recipe but may not write with it (the reviewer):
+     * «كريمة تمر (تحضير خاص)», never its id (the owner's report: the reviewer saw "p1").
+     */
+    public static function preparationLabel(int $id): ?string
+    {
+        return self::memo("preparation_label.{$id}", function () use ($id) {
+            $prep = Preparation::query()->find($id);
+
+            return $prep && auth()->user()?->can('view', $prep) ? $prep->name.' (تحضير خاص)' : null;
+        });
+    }
+
     /** @return array<int, string> every unit by its Arabic name, once per request */
     private static function units(): array
     {
-        return self::memo('ingredient_units', fn () => MeasureUnit::query()->orderBy('name_ar')->pluck('name_ar', 'id')->all());
+        // غرام and كيلو first, then the household units by name, then the rare weights (ملغ، أونصة).
+        return self::memo('ingredient_units', fn () => MeasureUnit::query()
+            ->orderByRaw("case when code = 'g' then 0 when code = 'kg' then 1 when dimension = 'mass' then 3 else 2 end")->orderBy('name_ar')
+            ->pluck('name_ar', 'id')->all());
     }
 
     /** A row the owner began: its ingredient, amount or unit is filled. */

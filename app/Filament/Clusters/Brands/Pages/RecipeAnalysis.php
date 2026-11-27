@@ -5,8 +5,12 @@ namespace App\Filament\Clusters\Brands\Pages;
 use App\Filament\Clusters\Brands\BrandsCluster;
 use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
 use App\Filament\Support\Concerns\HiddenFromAdmin;
+use App\Models\Preparation;
 use App\Models\Product;
 use App\Services\Nutrition\RecipeAnalysisService;
+use App\Services\Nutrition\RecipePreview;
+use App\Support\Amount;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Gate;
@@ -71,6 +75,57 @@ class RecipeAnalysis extends Page
     protected function productUrl(): string
     {
         return ProductResource::pageUrlFor($this->product);
+    }
+
+    /** «رجوع للمنتج»: every page with a way back (the owners' report). */
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('back')
+                ->label('رجوع للمنتج')
+                ->icon('heroicon-o-arrow-right')
+                ->color('gray')
+                ->url(fn () => $this->productUrl()),
+        ];
+    }
+
+    /**
+     * The brand's own preparations in this recipe (كريمة تمر): what is in each, and per 100 g
+     * of it, so the reviewer sees what the line holds, not an id.
+     *
+     * @return list<array{name: string, note: ?string, ingredients: list<string>, weight: ?float, per100g: array<string, ?float>, unconverted: list<string>}>
+     */
+    public function preparations(): array
+    {
+        if (! $this->product) {
+            return [];
+        }
+        $ids = $this->product->recipeIngredients()->whereNotNull('preparation_id')->distinct()->pluck('preparation_id');
+        if ($ids->isEmpty()) {
+            return [];
+        }
+
+        $preview = app(RecipePreview::class);
+
+        return Preparation::query()->whereKey($ids)->orderBy('name')
+            ->with(['ingredients.ingredientRecord.food', 'ingredients.measureUnit'])
+            ->get()
+            ->map(function (Preparation $prep) use ($preview) {
+                $values = $preview->per100g([
+                    'ingredients' => $prep->ingredients->map->only(['food_source_record_id', 'measure_unit_id', 'amount', 'food_portion_id'])->all(),
+                    'weight_after_g' => $prep->weight_after_g,
+                ]);
+
+                return [
+                    'name' => $prep->name,
+                    'note' => $prep->note,
+                    'ingredients' => $prep->ingredients->map(fn ($line) => trim(($line->ingredientRecord?->food?->name_ar ?? '—').' '
+                        .Amount::short($line->amount).' '.($line->measureUnit?->name_ar ?? '')))->all(),
+                    'weight' => $values['grams'],
+                    'per100g' => $values['per100g'],
+                    'unconverted' => $values['unconverted'],
+                ];
+            })->all();
     }
 
     public function runAnalysis(): void

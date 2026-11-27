@@ -101,7 +101,7 @@ class RecipePortionFormTest extends TestCase
         $count = fn (string $needle) => count(array_filter($sql, fn (string $q) => str_contains($q, $needle)));
         // Six rows, one list each: built once for the page, not once per row (the owner's
         // report that the page had become slow).
-        $this->assertSame(1, $count('from "measure_units" order by "name_ar"'), 'units list');
+        $this->assertSame(1, $count('from "measure_units" order by case when code'), 'units list');
         $this->assertSame(1, $count('select "food_source_records".* from "food_source_records" inner join "foods"'), 'ingredient list');
     }
 }

@@ -4,11 +4,13 @@ namespace Tests\Feature;
 
 use App\Auth\Access;
 use App\Enums\NutritionApprovalStatus;
+use App\Filament\Clusters\Brands\Pages\RecipeAnalysis;
 use App\Filament\Clusters\Brands\Resources\Preparations\Pages\CreatePreparation;
 use App\Filament\Clusters\Brands\Resources\Preparations\Pages\EditPreparation;
 use App\Filament\Clusters\Brands\Resources\Preparations\Pages\ListPreparations;
 use App\Filament\Clusters\Brands\Resources\Preparations\PreparationResource;
 use App\Filament\Clusters\Brands\Resources\Products\Pages\EditProduct;
+use App\Filament\Clusters\Brands\Resources\Products\ProductResource;
 use App\Models\Brand;
 use App\Models\FoodNutrientValue;
 use App\Models\FoodSourceRecord;
@@ -211,6 +213,34 @@ class PreparationsTest extends TestCase
         $meal = app(MealCatalog::class)->find($product->id);
         $this->assertEqualsCanonicalizing(['عدس', 'كريمة تمر'], $meal->ingredients);
         $this->assertContains('milk', $meal->allergens);
+    }
+
+    public function test_the_reviewer_sees_the_preparation_by_name_and_per_100_g(): void
+    {
+        $this->signInAs(Access::REVIEWER);
+        $product = $this->product([[null, 200, $this->cream()]]);
+
+        // The product page names it, never "p1".
+        // (The select's label is written into the page as JSON.)
+        $this->get(ProductResource::getUrl('view', ['record' => $product]))->assertOk()
+            ->assertSee(trim(json_encode('كريمة تمر (تحضير خاص)'), '"'), false)
+            ->assertSee('رجوع إلى');
+
+        // The analysis lists it with what is in it and its values per 100 g: 840 kcal in 400 g.
+        $this->get(RecipeAnalysis::getUrl().'?product='.$product->id)->assertOk()
+            ->assertSee('تحضيرات خاصة بالعميل')
+            ->assertSee('تمر 300 غرام')
+            ->assertSee('210.0')
+            ->assertSee('رجوع للمنتج');
+    }
+
+    public function test_the_owner_has_a_way_back_to_the_products(): void
+    {
+        $this->signInAs(Access::BRAND_OWNER)->brands()->attach($this->brand->id);
+        $product = $this->product([[$this->lentils, 100]]);
+        $this->get(ProductResource::getUrl('edit', ['record' => $product]))->assertOk()
+            ->assertSee('رجوع إلى المنتجات')
+            ->assertSee(ProductResource::getUrl('index'), false);
     }
 
     public function test_the_admin_has_no_preparations_page(): void
