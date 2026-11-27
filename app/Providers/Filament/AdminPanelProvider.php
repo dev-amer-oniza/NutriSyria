@@ -119,6 +119,8 @@ class AdminPanelProvider extends PanelProvider
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600&display=swap" media="print" onload="this.media='all'">
                 HTML)
+            // «رجوع إلى …» above the title of every add, edit and view page (the owners' report).
+            ->renderHook(PanelsRenderHook::PAGE_HEADER_HEADING_BEFORE, fn (array $scopes): string => view('filament.admin.back-link', ['scopes' => $scopes])->render())
             ->renderHook(PanelsRenderHook::BODY_END, fn (): string => <<<'HTML'
                 <script>
                     document.addEventListener('visibilitychange', () => {
@@ -128,6 +130,16 @@ class AdminPanelProvider extends PanelProvider
                     // On a phone, an ingredient list opened in the recipe rows moves to the top of
                     // the screen once, so its options sit between the field and the keyboard
                     // instead of the page jumping around them (the owner's report).
+                    // Pictures leave the browser as WebP (transparency kept), shrunk with the
+                    // 1600 px resize: a 2–3 MB PNG logo arrives as a few hundred KB, under any
+                    // server's upload limit (the owner's report). Import files are left alone.
+                    document.addEventListener('FilePond:init', (event) => {
+                        const pond = event.detail?.pond
+                        const accept = (event.target.querySelector?.('input[type=file]')?.accept ?? '').split(',').filter(Boolean)
+                        if (! pond?.setOptions || ! accept.length || ! accept.every((type) => type.trim().startsWith('image/'))) return
+                        pond.setOptions({ imageTransformOutputMimeType: 'image/webp', imageTransformOutputQuality: 82 })
+                    })
+
                     document.addEventListener('click', (event) => {
                         const button = event.target.closest?.('.ns-recipe-rows .fi-select-input-btn')
                         if (! button || ! matchMedia('(max-width: 640px)').matches) return

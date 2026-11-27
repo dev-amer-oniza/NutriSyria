@@ -121,6 +121,34 @@
         </x-filament::section>
     @endif
 
+    {{-- The brand's preparations used here (كريمة تمر): what is in each, per 100 g. --}}
+    @php($preparations = $result ? $this->preparations() : [])
+    @if ($preparations)
+        <x-filament::section heading="تحضيرات خاصة بالعميل" icon="heroicon-o-beaker" class="mt-6"
+            description="مكوّن حضّره العميل بنفسه، ويُحسب من مكوّناته. القيم لكل 100 غ منه.">
+            <div class="flex flex-col gap-4">
+                @foreach ($preparations as $prep)
+                    <div class="rounded-xl border border-gray-200 dark:border-white/10 p-4">
+                        <div class="font-bold text-gray-950 dark:text-white">{{ $prep['name'] }} <span class="text-sm font-normal text-gray-500">(تحضير خاص)</span></div>
+                        <div class="mt-1 text-sm text-gray-600 dark:text-gray-300">فيه: {{ implode('، ', $prep['ingredients']) }}@if ($prep['weight']) · وزنه بعد التحضير {{ \App\Support\Amount::short($prep['weight'], 0) }} غ@endif</div>
+                        @if ($prep['note'])<div class="mt-1 text-sm text-gray-500">{{ $prep['note'] }}</div>@endif
+                        <dl class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                            @foreach (['energy_kcal' => ['الطاقة', 'سعرة'], 'protein_g' => ['البروتين', 'غ'], 'fat_g' => ['الدهون', 'غ'], 'carbohydrate_g' => ['الكربوهيدرات', 'غ']] as $code => [$label, $unit])
+                                <div class="rounded-lg bg-gray-50 dark:bg-white/5 px-3 py-2">
+                                    <dt class="text-xs text-gray-500">{{ $label }}</dt>
+                                    <dd class="font-bold tabular-nums text-gray-950 dark:text-white">{{ $prep['per100g'][$code] !== null ? number_format($prep['per100g'][$code], 1) : '—' }} <span class="text-xs font-normal text-gray-500">{{ $unit }}</span></dd>
+                                </div>
+                            @endforeach
+                        </dl>
+                        @if ($prep['unconverted'])
+                            <p class="mt-2 text-sm text-danger-600">⚠ لم يُحسب: {{ implode('، ', $prep['unconverted']) }}</p>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </x-filament::section>
+    @endif
+
     {{-- The platform kitchen is approved by the admin with no review (the owner's decisions). --}}
     @if ($product && ! $product->isPlatform())
         <x-filament::section heading="ملاحظات المراجعة" icon="heroicon-o-chat-bubble-left-right">
