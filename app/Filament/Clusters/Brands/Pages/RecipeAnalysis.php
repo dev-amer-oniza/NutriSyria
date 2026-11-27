@@ -9,7 +9,6 @@ use App\Models\Preparation;
 use App\Models\Product;
 use App\Services\Nutrition\RecipeAnalysisService;
 use App\Services\Nutrition\RecipePreview;
-use App\Support\Amount;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Gate;
@@ -84,9 +83,9 @@ class RecipeAnalysis extends Page
 
     /**
      * The brand's own preparations in this recipe (كريمة تمر): what is in each, and per 100 g
-     * of it, so the reviewer sees what the line holds, not an id.
+     * of it (energy, protein, fat, carbohydrate only: the owner's request).
      *
-     * @return list<array{name: string, note: ?string, ingredients: list<string>, weight: ?float, per100g: array<string, ?float>, unconverted: list<string>}>
+     * @return list<array{name: string, per100g: array<string, ?float>, unconverted: list<string>}>
      */
     public function preparations(): array
     {
@@ -101,7 +100,7 @@ class RecipeAnalysis extends Page
         $preview = app(RecipePreview::class);
 
         return Preparation::query()->whereKey($ids)->orderBy('name')
-            ->with(['ingredients.ingredientRecord.food', 'ingredients.measureUnit'])
+            ->with('ingredients')
             ->get()
             ->map(function (Preparation $prep) use ($preview) {
                 $values = $preview->per100g([
@@ -109,15 +108,7 @@ class RecipeAnalysis extends Page
                     'weight_after_g' => $prep->weight_after_g,
                 ]);
 
-                return [
-                    'name' => $prep->name,
-                    'note' => $prep->note,
-                    'ingredients' => $prep->ingredients->map(fn ($line) => trim(data_get($line, 'ingredientRecord.food.name_ar', '—').' '
-                        .Amount::short($line->amount).' '.data_get($line, 'measureUnit.name_ar', '')))->all(),
-                    'weight' => $values['grams'],
-                    'per100g' => $values['per100g'],
-                    'unconverted' => $values['unconverted'],
-                ];
+                return ['name' => $prep->name, 'per100g' => $values['per100g'], 'unconverted' => $values['unconverted']];
             })->all();
     }
 
