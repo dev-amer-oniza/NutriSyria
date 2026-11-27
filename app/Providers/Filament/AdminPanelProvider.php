@@ -119,8 +119,8 @@ class AdminPanelProvider extends PanelProvider
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600&display=swap" media="print" onload="this.media='all'">
                 HTML)
-            // «رجوع إلى …» above the title of every add, edit and view page (the owners' report).
-            ->renderHook(PanelsRenderHook::PAGE_HEADER_HEADING_BEFORE, fn (array $scopes): string => view('filament.admin.back-link', ['scopes' => $scopes])->render())
+            // «رجوع إلى …», a coloured button above the title of every inner page (the owners' report).
+            ->renderHook(PanelsRenderHook::PAGE_HEADER_HEADING_BEFORE, fn (): string => view('filament.admin.back-link')->render())
             ->renderHook(PanelsRenderHook::BODY_END, fn (): string => <<<'HTML'
                 <script>
                     document.addEventListener('visibilitychange', () => {

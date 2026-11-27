@@ -58,6 +58,12 @@ class ClientPlan extends Page implements HasForms
 
     public ?array $data = [];
 
+    /** «رجوع لملف المراجع» (App\Filament\Support\BackLink). */
+    public function backLink(): array
+    {
+        return ['url' => ViewClient::getUrl(['record' => $this->record]), 'label' => 'رجوع لملف المراجع'];
+    }
+
     public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);

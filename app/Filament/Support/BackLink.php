@@ -3,33 +3,33 @@
 namespace App\Filament\Support;
 
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
-use Filament\Resources\Pages\CreateRecord;
-use Filament\Resources\Pages\EditRecord;
-use Filament\Resources\Pages\ViewRecord;
-use Filament\Resources\Resource;
+use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\Page as ResourcePage;
+use Livewire\Component;
 use Throwable;
 
 /**
- * «رجوع إلى المنتجات» above the title of every add, edit and view page (the owners' report:
- * after writing a recipe there was no clear way back to the list). Drawn by a render hook from
- * the page's scopes, so no page needs its own button.
+ * «رجوع إلى المنتجات»: a coloured button above the title of every page that is a step inside
+ * a section (add, edit, view, a client's plan, the recipe analysis, the ways to add foods),
+ * the owners' report: clients could not find their way back. Drawn by a render hook, so no
+ * page needs its own button. A page says where "back" is with backLink(); a resource page
+ * that is not its list goes back to the list.
  */
 final class BackLink
 {
-    /**
-     * @param  array<int, string>  $scopes  the page class, then its resource
-     * @return array{url: string, label: string}|null
-     */
-    public static function for(array $scopes): ?array
+    /** @return array{url: string, label: string}|null */
+    public static function for(?Component $page): ?array
     {
-        $page = $scopes[0] ?? null;
-        $resource = $scopes[1] ?? null;
-        if (! is_string($page) || ! is_string($resource) || ! is_subclass_of($resource, Resource::class)) {
+        if ($page === null) {
             return null;
         }
-        if (! is_subclass_of($page, CreateRecord::class) && ! is_subclass_of($page, EditRecord::class) && ! is_subclass_of($page, ViewRecord::class)) {
+        if (method_exists($page, 'backLink')) {
+            return $page->backLink();
+        }
+        if (! $page instanceof ResourcePage || $page instanceof ListRecords) {
             return null;
         }
+        $resource = $page::getResource();
         // An owner of one restaurant: its list opens this very page, so there is nowhere to go back to.
         if ($resource === BrandResource::class && BrandResource::ownBrandId() !== null) {
             return null;

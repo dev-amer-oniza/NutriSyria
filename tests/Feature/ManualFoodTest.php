@@ -57,7 +57,7 @@ class ManualFoodTest extends TestCase
     public function test_the_admin_opens_the_page_and_finds_it_among_the_ways(): void
     {
         $this->signInAs(Access::SUPER_ADMIN);
-        $this->get(ManualFood::getUrl())->assertOk()->assertSee('من وين جبت الأرقام؟');
+        $this->get(ManualFood::getUrl())->assertOk()->assertSee('من وين جبت الأرقام؟')->assertSee('رجوع إلى إضافة أغذية');
         $this->get(AddFoods::getUrl())->assertOk()->assertSee('من مصدر آخر');
     }
 

@@ -1,6 +1,8 @@
-@php($back = \App\Filament\Support\BackLink::for($scopes ?? []))
+@php($back = \App\Filament\Support\BackLink::for(\Livewire\Livewire::current()))
 @if ($back)
-    <x-filament::link :href="$back['url']" icon="heroicon-m-arrow-right" color="gray" size="sm" class="ns-back-link mb-1">
-        {{ $back['label'] }}
-    </x-filament::link>
+    <div class="ns-back mb-3">
+        <x-filament::button tag="a" :href="$back['url']" icon="heroicon-m-arrow-right" color="primary" size="sm">
+            {{ $back['label'] }}
+        </x-filament::button>
+    </div>
 @endif

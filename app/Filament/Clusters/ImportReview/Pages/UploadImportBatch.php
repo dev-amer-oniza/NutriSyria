@@ -28,6 +28,12 @@ class UploadImportBatch extends Page implements HasForms
     use InteractsWithForms;
 
     /** Uploading and saving batches: upload rights only. */
+    /** «رجوع إلى إضافة أغذية» (App\Filament\Support\BackLink). */
+    public function backLink(): array
+    {
+        return ['url' => AddFoods::getUrl(), 'label' => 'رجوع إلى إضافة أغذية'];
+    }
+
     public static function canAccess(): bool
     {
         return (bool) auth()->user()?->allows(Access::IMPORTS_UPLOAD);
