@@ -23,7 +23,7 @@ final readonly class RecipeAnalysisResult
         public float $gramsTotal,
         public ?float $weightBeforeCookingG,
         public ?float $weightAfterCookingG,
-        public int $servings,
+        public float $servings,
         public ?string $weightWarning,
         /** @var list<array{label: string, problem: ?string}> lines with unknown grams, left out of every total */
         public array $unconvertedIngredients = [],

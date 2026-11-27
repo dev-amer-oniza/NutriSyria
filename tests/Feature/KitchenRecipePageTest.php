@@ -44,7 +44,7 @@ class KitchenRecipePageTest extends TestCase
             ->viewData('recipe');
         $this->assertSame([$this->lentils->id, $this->oil->id], array_column($recipe['lines'], 'record_id'));
         $this->assertSame([false, true], array_column($recipe['lines'], 'after'));
-        $this->assertSame([2, 240.0], [$recipe['servings'], $recipe['weight_after']]);
+        $this->assertSame([2.0, 240.0], [$recipe['servings'], $recipe['weight_after']]);
     }
 
     public function test_a_suggestion_opens_the_recipe_with_the_change_applied(): void

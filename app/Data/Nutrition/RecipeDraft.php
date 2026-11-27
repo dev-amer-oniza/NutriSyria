@@ -12,7 +12,7 @@ final readonly class RecipeDraft
     /** @param  list<RecipeLine>  $lines */
     public function __construct(
         public array $lines,
-        public int $servings = 1,
+        public float $servings = 1,
         public ?float $weightBeforeCookingG = null,
         public ?float $weightAfterCookingG = null,
     ) {}

@@ -28,7 +28,7 @@ final class RecipeCalculator
         array $nutrientDefs,
         ?float $weightBeforeCookingG,
         ?float $weightAfterCookingG,
-        int $servings = 1,
+        float $servings = 1,
     ): RecipeAnalysisResult {
         $gramsBeforeCooking = 0.0;   // ingredients present before cooking starts
         $gramsTotal = 0.0;           // every ingredient, including those added after cooking
@@ -116,7 +116,7 @@ final class RecipeCalculator
             gramsTotal: $gramsTotal,
             weightBeforeCookingG: $weightBeforeCookingG,
             weightAfterCookingG: $weightAfterCookingG,
-            servings: max(1, $servings),
+            servings: $servings > 0 ? $servings : 1.0,
             weightWarning: $weightWarning,
             unconvertedIngredients: $unconverted,
             lineGrams: array_values($lineGrams),

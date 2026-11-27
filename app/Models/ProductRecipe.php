@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 
 /**
  * @property int $product_id
- * @property int|null $servings
+ * @property float|null $servings
  * @property string|null $weight_before_cooking_g
  * @property string|null $weight_after_cooking_g
  * @property Carbon|null $nutrition_approved_at
@@ -30,7 +30,7 @@ class ProductRecipe extends Model
     protected function casts(): array
     {
         return [
-            'servings' => 'integer',
+            'servings' => 'float',
             'weight_before_cooking_g' => 'decimal:2',
             'weight_after_cooking_g' => 'decimal:2',
             'status' => RecipeStatus::class,

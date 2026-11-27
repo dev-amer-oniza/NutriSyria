@@ -110,7 +110,7 @@
                 <div class="ns-form__cols ns-mine-form__totals">
                     <div class="ns-field">
                         <label class="ns-field__label" for="servings">عدد الحصص</label>
-                        <input class="ns-input" id="servings" type="number" min="1" max="50" inputmode="numeric" dir="ltr" x-model.number="servings">
+                        <input class="ns-input" id="servings" type="number" min="0.5" max="50" step="any" inputmode="decimal" dir="ltr" x-model.number="servings">
                     </div>
                     <div class="ns-field">
                         <label class="ns-field__label" for="weight-after">الوزن بعد الطبخ (غ)، اختياري</label>

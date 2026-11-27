@@ -13,6 +13,7 @@ use App\Models\Preparation;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Services\Nutrition\RecipePreview;
+use App\Support\Amount;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
@@ -55,7 +56,7 @@ class ProductForm
                     ->components(self::dishFields()),
                 ...self::recipeSteps(),
                 // The result, filling in while the owner types: what one plate holds, and what is missing.
-                Section::make('الصحن الواحد')
+                Section::make('الحصة الواحدة')
                     ->icon('heroicon-o-calculator')
                     ->components([
                         View::make('filament.clusters.brands.components.recipe-preview')
@@ -167,13 +168,16 @@ class ProductForm
                     ->columns(2)
                     ->components([
                         TextInput::make('servings')
-                            ->label('كم صحن بتطلع؟')
+                            ->label('كم حصة بتطلع الطبخة؟')
                             ->numeric()
-                            ->inputMode('numeric')
+                            ->inputMode('decimal')
+                            ->step('any')
                             ->default(1)
-                            ->minValue(1)
+                            ->minValue(0.5)
+                            ->maxValue(9999)
                             ->live(onBlur: true)
-                            ->required(),
+                            ->required()
+                            ->helperText(fn (Get $get) => self::servingHint($get('servings'), $get('weight_after_cooking_g'))),
                         TextInput::make('weight_after_cooking_g')
                             ->label('كم بتوزن الطبخة كلها بعد الطبخ؟')
                             ->numeric()
@@ -199,6 +203,17 @@ class ProductForm
             Section::make('الصورة')->components([self::imageField()]),
             self::officialAnalysis(),
         ];
+    }
+
+    /** "الحصة = اللي بتبيعه…", and the portion's weight once both numbers are written. */
+    public static function servingHint(mixed $servings, mixed $weight): string
+    {
+        $hint = 'الحصة = اللي بتبيعه للزبون: صحن، كيس، علبة. الكسور مقبولة (8.5).';
+        if (is_numeric($servings) && is_numeric($weight) && (float) $servings > 0 && (float) $weight > 0) {
+            $hint .= ' الحصة الواحدة = '.Amount::short((float) $weight / (float) $servings, 0).' غ.';
+        }
+
+        return $hint;
     }
 
     private static function imageField(): FileUpload
