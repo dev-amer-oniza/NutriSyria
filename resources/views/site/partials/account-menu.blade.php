@@ -1,6 +1,6 @@
 {{--
     The signed-in person's menu (the owner's request): a round account button in the header
-    that opens everything about them, "يومي", "معاييري", "أخصائيّي", the panel for staff, and
+    that opens everything about them, "يومي", "معاييري", "أخصائيّي" (not for a nutritionist), the panel for staff, and
     signing out. It stays in the header on every screen width.
 --}}
 @php($user = auth()->user())
@@ -16,7 +16,9 @@
             <span class="ns-acct__name"><b>{{ $user->name }}</b><small dir="ltr">{{ $user->email }}</small></span>
         </div>
         <nav class="ns-acct__links" aria-label="حسابي">
-            @foreach ([['site.daily', 'chart', 'يومي'], ['site.criteria', 'target', 'معاييري'], ['site.my-nutritionist', 'heart', 'أخصائيّي']] as [$route, $icon, $label])
+            {{-- A nutritionist gives consultations, so has no "أخصائيّي" of their own. --}}
+            @foreach (array_filter([['site.daily', 'chart', 'يومي'], ['site.criteria', 'target', 'معاييري'],
+                $user->allows(\App\Auth\Access::CONSULTATIONS_PROVIDE) ? null : ['site.my-nutritionist', 'heart', 'أخصائيّي']]) as [$route, $icon, $label])
                 <a href="{{ route($route) }}" @if (request()->routeIs($route)) aria-current="page" @endif>
                     @include('site.partials.icon', ['name' => $icon]){{ $label }}
                 </a>

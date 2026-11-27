@@ -32,10 +32,7 @@
         @include('site.partials.profile-reminder', ['nextStep' => $profileNextStep])
     @endif
     <main id="main">
-        {{-- Account pages show their messages inside the form instead. --}}
-        @unless (View::hasSection('form'))
-            @include('site.partials.flash', ['toast' => true])
-        @endunless
+        @include('site.partials.flash')
         @yield('content')
     </main>
 

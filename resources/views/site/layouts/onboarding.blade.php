@@ -20,7 +20,6 @@
             <h1 class="t-title ns-auth__heading">@yield('heading')</h1>
             <p class="t-body ns-muted ns-auth__lead">@yield('lead')</p>
 
-            @include('site.partials.flash')
 
             @yield('form')
 

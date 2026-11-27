@@ -289,7 +289,7 @@ class SiteAuthTest extends TestCase
         $this->assertNull($applicant->fresh()->roles->first());
     }
 
-    public function test_messages_close_by_themselves_unless_they_are_errors(): void
+    public function test_messages_slide_in_at_the_top_and_close_by_themselves(): void
     {
         $this->verifiedUser();
 
@@ -298,10 +298,28 @@ class SiteAuthTest extends TestCase
 
         $this->get('/')
             ->assertSee('class="ns-toasts"', false)
-            ->assertSee('x-data="flash(6000)"', false)
+            ->assertSee('x-data="flash(4000)"', false)
             ->assertSee('aria-label="إغلاق الرسالة"', false);
 
         $this->withSession(['error' => 'تعذّر الإرسال.'])->get('/')
-            ->assertSee('x-data="flash(0)"', false);
+            ->assertSee('x-data="flash(7000)"', false);
+
+        // Account pages show it the same way, at the top.
+        auth()->logout();
+        $this->withSession(['status' => 'أرسلنا رمزاً جديداً إلى بريدك.'])->get(route('site.password.request'))
+            ->assertSee('class="ns-toasts"', false);
+    }
+
+    public function test_a_nutritionist_has_no_my_nutritionist_in_the_account_menu(): void
+    {
+        $this->signInAs(Access::NUTRITIONIST);
+        $this->get('/')->assertOk()->assertSee(route('site.daily'), false)->assertDontSee(route('site.my-nutritionist'), false);
+    }
+
+    public function test_a_plain_user_finds_my_nutritionist_in_the_account_menu(): void
+    {
+        $this->verifiedUser();
+        $this->actingAs(User::where('email', 'rami@example.com')->sole());
+        $this->get('/')->assertOk()->assertSee(route('site.my-nutritionist'), false);
     }
 }
