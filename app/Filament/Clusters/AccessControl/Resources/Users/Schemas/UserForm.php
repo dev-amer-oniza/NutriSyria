@@ -95,7 +95,7 @@ class UserForm
     }
 
     /** A role made in the panel: what it may do, from its permissions. */
-    private static function permissionsOf(?string $role): ?string
+    private static function permissionsOf(?string $role): string
     {
         $names = Role::query()->where('name', (string) $role)->first()?->permissions->pluck('name')->all() ?? [];
 
