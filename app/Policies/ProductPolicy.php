@@ -12,8 +12,9 @@ use App\Policies\Concerns\DeniesByDefault;
  * nutritionist sees every product (to review it) but changes none, and is the one who
  * approves the official nutrition values. The admin manages restaurants, not their recipes:
  * no product is theirs to see (the owner's decisions 1a 2a). The one exception is the
- * platform's own kitchen ("المطبخ السوري"): its dishes are the admin's alone, approved with no
- * review, and no one else's (its pages are the kitchen cluster's).
+ * platform's own kitchen ("المطبخ السوري"): its dishes belong to whoever runs the kitchen (the
+ * admin, or a role given «إدارة المطبخ السوري»), approved with no review (its pages are the
+ * kitchen cluster's).
  */
 class ProductPolicy
 {
@@ -32,8 +33,11 @@ class ProductPolicy
 
     public function view(User $user, Product $product): bool
     {
-        if ($user->isSuperAdmin() || $product->isPlatform()) {
-            return $user->isSuperAdmin() && $product->isPlatform();
+        if ($product->isPlatform()) {
+            return $user->managesKitchen();
+        }
+        if ($user->isSuperAdmin()) {
+            return false;
         }
 
         return $user->allows(Access::PRODUCTS_VIEW_ALL) || $this->update($user, $product);
@@ -51,8 +55,11 @@ class ProductPolicy
 
     public function update(User $user, Product $product): bool
     {
-        if ($user->isSuperAdmin() || $product->isPlatform()) {
-            return $user->isSuperAdmin() && $product->isPlatform();
+        if ($product->isPlatform()) {
+            return $user->managesKitchen();
+        }
+        if ($user->isSuperAdmin()) {
+            return false;
         }
 
         return $user->allows(Access::BRANDS_MANAGE_ALL)
@@ -73,6 +80,11 @@ class ProductPolicy
     /** Save the analysis as the product's official nutrition values. */
     public function approveNutrition(User $user, Product $product): bool
     {
+        // The kitchen's dishes are approved by whoever runs the kitchen, with no review.
+        if ($product->isPlatform()) {
+            return $user->managesKitchen();
+        }
+
         return $user->allows(Access::NUTRITION_APPROVE) && $this->view($user, $product);
     }
 

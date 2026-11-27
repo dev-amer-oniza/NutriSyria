@@ -131,7 +131,10 @@ class FoodRequests
 
     private function tellAdmins(FoodRequest $request): void
     {
-        $admins = User::role(Access::SUPER_ADMIN)->where('is_active', true)->get();
+        // The admins and whoever runs the Syrian kitchen (its permission, through a role).
+        $admins = User::query()->where('is_active', true)
+            ->where(fn ($q) => $q->role(Access::SUPER_ADMIN)->orWhere(fn ($q) => $q->permission(Access::KITCHEN_MANAGE)))
+            ->get();
         if ($admins->isEmpty()) {
             return;
         }

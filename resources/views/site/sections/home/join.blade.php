@@ -1,6 +1,6 @@
 {{-- The pine band: join, and the platform's three promises. --}}
 @php($points = [
-    ['icon' => 'document', 'title' => 'معلومات موثوقة', 'text' => 'كل رقم بمصدره، ويراجعه أخصائي تغذية', 'route' => 'site.method'],
+    ['icon' => 'document', 'title' => 'معلومات موثوقة', 'text' => 'كل رقم بمصدره، ويراجعه مراجع الوصفات', 'route' => 'site.method'],
     ['icon' => 'chart', 'title' => 'تحليل دقيق', 'text' => 'القيم الغذائية لكل حصة من كل وجبة', 'route' => 'site.meals'],
     ['icon' => 'leaf', 'title' => 'مناسب لك', 'text' => 'حكم حسب جسمك ونشاطك وهدفك', 'route' => 'site.goals'],
 ])

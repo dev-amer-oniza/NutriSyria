@@ -29,6 +29,6 @@ class KitchenCluster extends Cluster
 
     public static function canAccess(): bool
     {
-        return (bool) auth()->user()?->isSuperAdmin();
+        return (bool) auth()->user()?->managesKitchen();
     }
 }

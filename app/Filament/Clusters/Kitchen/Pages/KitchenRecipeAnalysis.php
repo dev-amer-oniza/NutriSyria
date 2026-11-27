@@ -21,7 +21,7 @@ class KitchenRecipeAnalysis extends RecipeAnalysis
 
     public static function canAccess(): bool
     {
-        return (bool) auth()->user()?->isSuperAdmin();
+        return (bool) auth()->user()?->managesKitchen();
     }
 
     protected static function visibleToAdmin(): bool

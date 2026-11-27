@@ -23,10 +23,10 @@ class PartnersPageTest extends TestCase
     public function test_the_page_explains_how_to_join_and_keeps_recipes_private(): void
     {
         $this->get(route('site.partners'))->assertOk()
-            ->assertSee('قيم غذائية موثّقة لوجباتك، يراجعها أخصائي تغذية')
+            ->assertSee('قيم غذائية موثّقة لوجباتك، يراجعها مراجع الوصفات')
             ->assertSee('href="'.route('site.register').'"', false)
             ->assertSee('لنفعّله كمطعم أو براند')
-            ->assertSeeInOrder(['أنشئ حسابك', 'أضف وصفاتك', 'يراجعها الأخصائي', 'تظهر وجباتك'])
+            ->assertSeeInOrder(['أنشئ حسابك', 'أضف وصفاتك', 'يراجعها المراجع', 'تظهر وجباتك'])
             ->assertSee('الكميات لا تظهر على الموقع أبداً')
             ->assertSee('هل تظهر وصفتي للناس؟')
             ->assertDontSee('مجاني')                    // no price until the owner decides (3b)
