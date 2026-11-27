@@ -106,7 +106,7 @@ class AccessControlTest extends TestCase
     public function test_the_old_roles_are_gone_and_the_password_reset_hole_is_closed(): void
     {
         $this->assertSame(
-            [Access::BRAND_OWNER, Access::NUTRITIONIST, Access::SUPER_ADMIN],
+            [Access::BRAND_OWNER, Access::NUTRITIONIST, Access::REVIEWER, Access::SUPER_ADMIN],
             Role::query()->orderBy('name')->pluck('name')->all(),
         );
         $this->postJson('/api/set-password', ['email' => 'a@b.c', 'new_password' => 'x'])->assertNotFound();
@@ -244,9 +244,9 @@ class AccessControlTest extends TestCase
 
     // ------------------------------------------------------------------ nutritionist
 
-    public function test_a_nutritionist_reviews_batches_and_nothing_else(): void
+    public function test_a_reviewer_reviews_batches_and_nothing_else(): void
     {
-        $this->signInAs(Access::NUTRITIONIST);
+        $this->signInAs(Access::REVIEWER);
 
         $this->get(ImportBatchResource::getUrl('index'))->assertOk();
         $this->get(UploadImportBatch::getUrl())->assertForbidden();
@@ -260,7 +260,7 @@ class AccessControlTest extends TestCase
 
     public function test_review_actions_record_who_and_a_rejection_needs_a_reason(): void
     {
-        $nutritionist = $this->signInAs(Access::NUTRITIONIST);
+        $nutritionist = $this->signInAs(Access::REVIEWER);
         $record = $this->pendingRecord();
         $other = $this->pendingRecord();
         $page = ['ownerRecord' => $record->importBatch, 'pageClass' => EditImportBatch::class];

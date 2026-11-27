@@ -3,7 +3,9 @@
 namespace App\Filament\Clusters\AccessControl\Resources\Roles\Schemas;
 
 use App\Auth\Access;
+use App\Models\Role;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,8 +28,21 @@ class RoleForm
         return $schema
             ->columns(1)
             ->components([
+                Section::make('الدور')
+                    ->components([
+                        TextInput::make('label')
+                            ->label('اسم الدور')
+                            ->placeholder('مثلاً: مدخل بيانات')
+                            ->required()
+                            ->maxLength(80)
+                            ->unique('roles', 'label', ignoreRecord: true)
+                            ->validationMessages(['unique' => 'في دور بهذا الاسم.'])
+                            ->helperText(fn (?Role $record) => $record?->isBuiltIn()
+                                ? 'دور أساسي بالنظام: فيك تغيّر اسمه وصلاحياته، بس ما بينحذف.'
+                                : null),
+                    ]),
                 Section::make('الصلاحيات')
-                    ->description('ما يحق لهذا الدور فعله. حصر صاحب البراند ببراندات حسابه ثابت في النظام ولا يتغير من هنا.')
+                    ->description('شو بيقدر يعمل هالدور. حصر صاحب البراند ببراندات حسابه ثابت بالنظام وما بيتغيّر من هون.')
                     ->components([
                         CheckboxList::make('permissions')
                             ->hiddenLabel()
@@ -36,7 +51,10 @@ class RoleForm
                                 'name',
                                 modifyQueryUsing: fn (Builder $query) => $query->whereIn('name', self::grantable()),
                             )
-                            ->getOptionLabelFromRecordUsing(fn ($record) => Access::permissions()[$record->name] ?? $record->name)
+                            ->getOptionLabelFromRecordUsing(fn ($record) => Access::permissionLabels()[$record->name] ?? $record->name)
+                            ->descriptions(fn () => collect(self::grantable())
+                                ->mapWithKeys(fn (string $name) => [$name => Access::permissionDescription($name)])
+                                ->all())
                             ->columns(2)
                             ->bulkToggleable(),
                     ]),

@@ -4,7 +4,7 @@
             @if ($this->notes->isEmpty())
                 لا توجد ملاحظات على هذا المنتج.
             @else
-                ملاحظات أخصائي التغذية على التحليل، الأحدث أولاً.
+                ملاحظات مراجع الوصفات على التحليل، الأحدث أولاً.
             @endif
         </p>
         {{-- Filament draws an action even when visible() says no, so each button checks itself. --}}

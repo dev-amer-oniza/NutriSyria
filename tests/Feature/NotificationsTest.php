@@ -109,9 +109,10 @@ class NotificationsTest extends TestCase
             ->assertSeeInOrder(['حسابات جديدة هالأسبوع', '2', 'طلبات أدوار تنتظر', '1']);
     }
 
-    public function test_a_recipe_waiting_tells_the_nutritionists_once_and_approval_tells_the_restaurant(): void
+    public function test_a_recipe_waiting_tells_the_reviewers_once_and_approval_tells_the_restaurant(): void
     {
-        $nutritionist = $this->user(Access::NUTRITIONIST, 'ريم');
+        $nutritionist = $this->user(Access::REVIEWER, 'ريم');
+        $consultant = $this->user(Access::NUTRITIONIST, 'كاتيا');
         $manager = $this->user(Access::BRAND_OWNER, 'أبو عبدو');
         $this->brand->managers()->attach($manager->id);
         DataSource::create(['code' => 'internal_product_recipes', 'name' => 'recipes', 'type' => 'recipe', 'priority' => 0]);
@@ -129,6 +130,8 @@ class NotificationsTest extends TestCase
         }
         $this->assertSame(1, $this->panelNotices($nutritionist, '«مجدرة» من بيت المجدرة ينتظر اعتمادك'));
         $this->assertSame(0, $this->panelNotices($manager, 'ينتظر'));
+        // The nutritionist no longer reviews recipes: the reviewer does (the owner's decision).
+        $this->assertSame(0, $this->panelNotices($consultant, 'ينتظر'));
 
         // Approved: the restaurant hears; a later change asks again.
         $service = app(RecipeAnalysisService::class);

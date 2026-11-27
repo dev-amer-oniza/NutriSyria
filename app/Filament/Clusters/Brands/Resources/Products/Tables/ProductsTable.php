@@ -68,7 +68,7 @@ class ProductsTable
                         ->with('brand:id,name')->menuOrder())
                     ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} · {$record->brand->name}"),
                 Filter::make('awaiting')
-                    ->label('تنتظر اعتماد الأخصائي')
+                    ->label('تنتظر اعتماد المراجع')
                     ->query(fn (Builder $query) => $query->has('recipeIngredients')->doesntHave('nutrientValues')),
             ])
             ->recordActions([

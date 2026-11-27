@@ -108,7 +108,7 @@ class ReviewNotesPanel extends Component implements HasActions, HasSchemas
             ->action(function (array $data, array $arguments) {
                 abort_unless($this->canResolve(), 403);
                 app(ProductReviewNotes::class)->resolve($this->openNote($arguments), auth()->user(), $data['reply'] ?? null);
-                Notification::make()->title('أُبلغ أخصائي التغذية')->success()->send();
+                Notification::make()->title('أُبلغ مراجع الوصفات')->success()->send();
                 $this->changed();
             });
     }

@@ -63,14 +63,15 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Only active accounts with one of the three panel roles get in. Filament asks on every
-     * request, so deactivating a user or removing their role locks them out immediately.
+     * Only active accounts with a role get in: the built-in ones or one made from the panel.
+     * Filament asks on every request, so deactivating a user or removing their role locks them
+     * out immediately.
      */
     public function canAccessPanel(Panel $panel): bool
     {
         return $panel->getId() === 'admin'
             && $this->is_active !== false
-            && $this->hasAnyRole(Access::PANEL_ROLES);
+            && $this->roles->isNotEmpty();
     }
 
     public function isSuperAdmin(): bool

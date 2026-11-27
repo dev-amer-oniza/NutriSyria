@@ -181,9 +181,9 @@ class BatchReviewTest extends TestCase
         $this->assertSame(['مقاربة'], array_map(fn ($f) => $f->label, (new BatchReview)->flagsFor($labneh)));
     }
 
-    public function test_the_nutritionist_reviews_the_queue_without_the_portions_tab(): void
+    public function test_the_reviewer_reviews_the_queue_without_the_portions_tab(): void
     {
-        $this->signInAs(Access::NUTRITIONIST);
+        $this->signInAs(Access::REVIEWER);
 
         $this->queue()->callAction(TestAction::make('approveClean')->table());
 

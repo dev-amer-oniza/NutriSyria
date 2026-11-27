@@ -3,6 +3,7 @@
 namespace App\Filament\Clusters\AccessControl\Resources\Users\Pages\Concerns;
 
 use App\Auth\Access;
+use App\Filament\Clusters\AccessControl\Resources\Users\Schemas\UserForm;
 use App\Models\User;
 use App\Services\Brands\BrandLinks;
 
@@ -34,7 +35,7 @@ trait SavesRole
         }
 
         $user->syncRoles([$this->role]);
-        if ($this->role !== Access::BRAND_OWNER) {
+        if (! UserForm::managesOwnBrands($this->role)) {
             $user->brands()->detach();
 
             return;

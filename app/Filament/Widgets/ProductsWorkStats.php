@@ -59,7 +59,7 @@ class ProductsWorkStats extends StatsOverviewWidget
         // Products with an open review note: the brand owner's move.
         if ($requested = $count(NutritionApprovalStatus::ChangesRequested)) {
             $stats[] = Stat::make($user->can('create', Product::class) ? 'مطلوب منك تعديل' : 'تنتظر تعديل صاحب البراند', number_format($requested))
-                ->description('ملاحظات أخصائي التغذية مفتوحة')
+                ->description('ملاحظات مراجع الوصفات مفتوحة')
                 ->icon('heroicon-o-chat-bubble-left-ellipsis')
                 ->color('danger')
                 ->url($productsUrl);

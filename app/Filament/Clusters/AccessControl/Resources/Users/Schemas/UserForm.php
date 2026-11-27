@@ -4,6 +4,7 @@ namespace App\Filament\Clusters\AccessControl\Resources\Users\Schemas;
 
 use App\Auth\Access;
 use App\Auth\AccountRules;
+use App\Models\Role;
 use App\Models\User;
 use Closure;
 use Filament\Forms\Components\Select;
@@ -67,10 +68,12 @@ class UserForm
                             ->live()
                             ->native(false)
                             ->helperText(fn (Get $get) => match ($get('role')) {
+                                null, '' => null,
                                 Access::SUPER_ADMIN => 'كل الصلاحيات، ومنها إدارة المستخدمين.',
                                 Access::BRAND_OWNER => 'يرى ويعدّل البراندات المختارة هنا فقط، ومنتجاتها ووصفاتها.',
-                                Access::NUTRITIONIST => 'يراجع دفعات الاستيراد ويعتمد القيم الغذائية الرسمية.',
-                                default => null,
+                                Access::NUTRITIONIST => 'بروفايل أخصائي بالموقع، ويستقبل طلبات الاستشارة ومراجعيه.',
+                                Access::REVIEWER => 'يراجع وصفات المنتجات ويعتمد قيمها الرسمية، ويراجع دفعات الأغذية المستوردة.',
+                                default => self::permissionsOf($get('role')),
                             })
                             ->rule(fn (?User $record) => function (string $attribute, mixed $value, Closure $fail) use ($record) {
                                 if ($reason = AccountRules::roleChange($record, $value, auth()->user())) {
@@ -84,10 +87,29 @@ class UserForm
                             ->multiple()
                             ->preload()
                             ->searchable()
-                            ->visible(fn (Get $get) => $get('role') === Access::BRAND_OWNER)
-                            ->required(fn (Get $get) => $get('role') === Access::BRAND_OWNER)
+                            ->visible(fn (Get $get) => self::managesOwnBrands($get('role')))
+                            ->required(fn (Get $get) => self::managesOwnBrands($get('role')))
                             ->helperText('صاحب البراند لا يرى أي براند غير المختار هنا.'),
                     ]),
             ]);
+    }
+
+    /** A role made in the panel: what it may do, from its permissions. */
+    private static function permissionsOf(?string $role): ?string
+    {
+        $names = Role::query()->where('name', (string) $role)->first()?->permissions->pluck('name')->all() ?? [];
+
+        return $names === [] ? 'بلا صلاحيات بعد.' : 'يقدر: '.implode('، ', array_map(fn (string $n) => Access::permissionLabels()[$n] ?? $n, $names)).'.';
+    }
+
+    /** The brand owner, or any role given "its own brands": it needs brands linked to it. */
+    public static function managesOwnBrands(?string $role): bool
+    {
+        if ($role === Access::BRAND_OWNER) {
+            return true;
+        }
+
+        return filled($role) && Role::query()->where('name', $role)
+            ->whereHas('permissions', fn ($q) => $q->where('name', Access::BRANDS_MANAGE_OWN))->exists();
     }
 }

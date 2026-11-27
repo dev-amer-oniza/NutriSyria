@@ -42,6 +42,7 @@ class UsersTable
                     ->color(fn (string $state) => match ($state) {
                         Access::SUPER_ADMIN => 'danger',
                         Access::NUTRITIONIST => 'info',
+                        Access::REVIEWER => 'warning',
                         default => 'primary',
                     })
                     ->placeholder('مستخدم الموقع'),

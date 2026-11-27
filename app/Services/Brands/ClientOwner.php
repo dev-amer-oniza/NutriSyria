@@ -27,10 +27,9 @@ class ClientOwner
     {
         return User::query()
             ->where('is_active', true)
-            ->where(fn (Builder $q) => $q
-                ->whereDoesntHave('roles')
-                ->orWhereHas('roles', fn (Builder $r) => $r->where('name', Access::BRAND_OWNER)))
-            ->whereDoesntHave('roles', fn (Builder $r) => $r->whereIn('name', [Access::SUPER_ADMIN, Access::NUTRITIONIST]));
+            // No role, or the brand-owner role and nothing else (not the admin, a nutritionist,
+            // a reviewer or a role made from the panel).
+            ->whereDoesntHave('roles', fn (Builder $r) => $r->where('name', '!=', Access::BRAND_OWNER));
     }
 
     /** @return array<int, string> user id => "email · name", for the picker */

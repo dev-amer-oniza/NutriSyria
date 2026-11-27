@@ -84,7 +84,7 @@ class ReviewNotesTest extends TestCase
 
     public function test_a_note_reaches_the_brand_managers_and_blocks_approval_until_fixed(): void
     {
-        $nutritionist = $this->signInAs(Access::NUTRITIONIST);
+        $nutritionist = $this->signInAs(Access::REVIEWER);
 
         Livewire::test(ReviewNotesPanel::class, ['productId' => $this->product->id])
             ->callAction('sendNote', ['body' => 'كمية العدس 200 غ لصحن واحد؟ تأكد من الوزن.'])
@@ -125,7 +125,7 @@ class ReviewNotesTest extends TestCase
 
     public function test_each_side_only_sees_its_own_buttons(): void
     {
-        $note = app(ProductReviewNotes::class)->send($this->product, $this->user('n@example.test', Access::NUTRITIONIST), 'الوزن بعد الطبخ ناقص.');
+        $note = app(ProductReviewNotes::class)->send($this->product, $this->user('n@example.test', Access::REVIEWER), 'الوزن بعد الطبخ ناقص.');
 
         $this->actingAs($this->owner);
         Livewire::test(ReviewNotesPanel::class, ['productId' => $this->product->id])
@@ -138,7 +138,7 @@ class ReviewNotesTest extends TestCase
             ->assertDontSee('إرسال ملاحظة لصاحب البراند')
             ->assertDontSee('إغلاق بلا تعديل');
 
-        $this->signInAs(Access::NUTRITIONIST);
+        $this->signInAs(Access::REVIEWER);
         Livewire::test(ReviewNotesPanel::class, ['productId' => $this->product->id])
             ->assertActionVisible('sendNote')
             ->assertActionHidden(TestAction::make('resolveNote')->arguments(['note' => $note->id]))
@@ -158,7 +158,7 @@ class ReviewNotesTest extends TestCase
 
     public function test_an_empty_note_is_refused(): void
     {
-        $this->signInAs(Access::NUTRITIONIST);
+        $this->signInAs(Access::REVIEWER);
 
         Livewire::test(ReviewNotesPanel::class, ['productId' => $this->product->id])
             ->callAction('sendNote', ['body' => ''])

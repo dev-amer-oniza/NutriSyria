@@ -7,7 +7,10 @@ use App\Models\Permission;
 use App\Models\User;
 use App\Policies\Concerns\DeniesByDefault;
 
-/** The permission list comes from App\Auth\Access: it can be read, never edited from the panel. */
+/**
+ * Permissions are locks the code checks (App\Auth\Access): their Arabic name and description
+ * can be edited, but none is added or deleted from the panel (the owner's decision 2a).
+ */
 class PermissionPolicy
 {
     use DeniesByDefault;
@@ -18,6 +21,11 @@ class PermissionPolicy
     }
 
     public function view(User $user, Permission $permission): bool
+    {
+        return $user->allows(Access::USERS_MANAGE);
+    }
+
+    public function update(User $user, Permission $permission): bool
     {
         return $user->allows(Access::USERS_MANAGE);
     }

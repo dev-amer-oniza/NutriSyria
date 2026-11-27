@@ -59,7 +59,7 @@ enum NutritionApprovalStatus: string implements HasColor, HasIcon, HasLabel
         return match ($this) {
             self::NoRecipe => 'بلا وصفة',
             self::ChangesRequested => 'مطلوب تعديل',
-            self::Awaiting => 'ينتظر اعتماد الأخصائي',
+            self::Awaiting => 'ينتظر اعتماد المراجع',
             self::Changed => 'تغيّرت الوصفة بعد الاعتماد',
             self::Approved => 'قيم رسمية معتمدة',
         };

@@ -41,7 +41,7 @@ class ProductForm
                 View::make('filament.clusters.brands.components.product-steps')
                     ->viewData(fn ($record) => ['status' => self::statusOf($record)]),
                 // First on the page, so a brand owner opening it from a notification sees it at once.
-                Section::make('ملاحظة الأخصائي')
+                Section::make('ملاحظة المراجع')
                     ->icon('heroicon-o-chat-bubble-left-right')
                     ->visible(fn ($record) => $record
                         && ($record->reviewNotes()->exists() || auth()->user()?->can('sendReviewNote', $record)))
