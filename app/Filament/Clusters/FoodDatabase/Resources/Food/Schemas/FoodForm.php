@@ -3,6 +3,7 @@
 namespace App\Filament\Clusters\FoodDatabase\Resources\Food\Schemas;
 
 use App\Enums\Allergen;
+use App\Filament\Support\ImageUpload;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -52,9 +53,8 @@ class FoodForm
                 Section::make('الصورة والحالة')
                     ->columns(2)
                     ->components([
-                        FileUpload::make('img')
+                        ImageUpload::apply(FileUpload::make('img'))
                             ->label('صورة الغذاء')
-                            ->image()
                             ->disk('public')
                             ->directory('foods')
                             ->imageEditor(),

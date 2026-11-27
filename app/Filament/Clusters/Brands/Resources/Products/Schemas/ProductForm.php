@@ -7,6 +7,7 @@ use App\Enums\NutritionApprovalStatus;
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
 use App\Filament\Clusters\Brands\Resources\Categories\ProductCategoryResource;
 use App\Filament\Clusters\Brands\Resources\Preparations\PreparationResource;
+use App\Filament\Support\ImageUpload;
 use App\Livewire\ReviewNotesPanel;
 use App\Models\Preparation;
 use App\Models\Product;
@@ -202,9 +203,8 @@ class ProductForm
 
     private static function imageField(): FileUpload
     {
-        return FileUpload::make('img')
+        return ImageUpload::apply(FileUpload::make('img'))
             ->label('صورة الطبق')
-            ->image()
             ->disk('public')
             ->directory('products')
             ->imageEditor();

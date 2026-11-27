@@ -473,6 +473,7 @@
   - اللوحة تحتاج `npm ci && npm run build` (viteTheme).
 - **البحث العربي** (`App\Support\ArabicSearch`): "ارز" يجد "أرز"، "جبنه" يجد "جبنة"، والتشكيل يُهمَل. الكلمة تمر بـ `ArabicNormalizer`، والعمود يُوحَّد في SQL بـ `replace` متداخلة (MySQL وSQLite، بلا عمود إضافي). مستعمل في: قائمة المكوّن (والأسماء البديلة `food_aliases`)، جداول الأغذية والمنتجات والبراندات والمستخدمين والحصص وسجلات الدفعة، البحث العلوي (`ArabicGlobalSearch`)، والقوائم المنسدلة المرتبطة بـ `->arabicSearch()` بعد `->relationship()`. حقل جديد بأسماء عربية يحتاج واحداً منها.
 - **كل القوائم المنسدلة تُحمَّل مسبقاً** (طلب صاحب المشروع): `Select::configureUsing(->preload())` و`SelectFilter` في `AdminPanelProvider::boot`. قائمة المكوّن تحمّل حتى 1000 سجل معتمد، والبحث يذهب للسيرفر.
+- **حقول الصور** كلها عبر `App\Filament\Support\ImageUpload::apply` (بلاغ صاحب المشروع: صور الموبايل ما كانت ترتفع): PNG/JPG/WebP، المتصفح يصغّرها لـ 1600px قبل الإرسال (فصورة 5 ميغا توصل بمئات الكيلوبايتات مهما كان حد السيرفر)، والحد 10 ميغا برسالة عربية؛ و`jpeg` مضاف لقواعد `config/livewire.php`. **حقل صورة جديد = عبر `ImageUpload::apply`.**
 - **الصور** (شعار البراند، صورة المنتج والغذاء) على قرص `public` بـ `->disk('public')` في الحقل والعمود، ورابطها نسبي `/storage/...` (لا يعتمد على `APP_URL`)، ويخدمها Laravel حتى بلا `storage:link`. ملفات الاستيراد تبقى على `local` الخاص.
 - **الاستيراد من سطر الأوامر:** `php artisan import:bundle <dir>` ← `import:commit <batch>` ← `import:review <batch>` ← `import:approve <batch>`.
 - **المطابقة من سطر الأوامر:**
