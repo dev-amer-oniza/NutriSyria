@@ -149,6 +149,9 @@ class AdminPanelProvider extends PanelProvider
                 HTML)
             // Deny by default: a model without a policy, or a policy without the asked ability,
             // is an error instead of silently allowed (see App\Policies\Concerns\DeniesByDefault).
+            // Leaving a page with unsaved changes asks first (the «تحضير جديد» button now opens
+            // in the same tab, so a product being written is not lost by accident).
+            ->unsavedChangesAlerts()
             ->strictAuthorization()
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->brandName('NutriSyria')

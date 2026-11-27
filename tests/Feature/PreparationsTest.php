@@ -155,6 +155,28 @@ class PreparationsTest extends TestCase
         $this->assertSame(['p'.$cream->id], array_values(array_column($state, 'food_source_record_id')));
     }
 
+    public function test_new_preparation_opens_in_the_same_tab_and_leads_back_to_the_product(): void
+    {
+        $this->signInAs(Access::BRAND_OWNER)->brands()->attach($this->brand->id);
+        $product = $this->product([[$this->lentils, 100]]);
+        $back = ProductResource::getUrl('edit', ['record' => $product]);
+        $create = PreparationResource::getUrl('create', ['return' => $back]);
+
+        $this->get($back)->assertOk()->assertSee(e($create), false)->assertDontSee('target="_blank"', false);
+
+        $this->get($create)->assertOk()->assertSee('رجوع للمنتج')->assertSee($back, false);
+        Livewire::withQueryParams(['return' => $back])->test(CreatePreparation::class)
+            ->fillForm(['name' => 'كريمة تمر', 'ingredients' => [
+                ['food_source_record_id' => $this->dates->id, 'amount' => 300, 'measure_unit_id' => $this->grams->id],
+            ]])
+            ->call('create')
+            ->assertRedirect($back);
+
+        // A link to anywhere else is ignored: back to the list instead.
+        $this->get(PreparationResource::getUrl('create', ['return' => 'https://evil.example/x']))->assertOk()
+            ->assertDontSee('evil.example')->assertSee('رجوع إلى');
+    }
+
     public function test_another_brands_preparation_is_refused(): void
     {
         $this->signInAs(Access::BRAND_OWNER)->brands()->attach($this->brand->id);
@@ -226,10 +248,10 @@ class PreparationsTest extends TestCase
             ->assertSee(trim(json_encode('كريمة تمر (تحضير خاص)'), '"'), false)
             ->assertSee('رجوع إلى');
 
-        // The analysis lists it with what is in it and its values per 100 g: 840 kcal in 400 g.
+        // The analysis gives its four values per 100 g only (840 kcal in 400 g), not its recipe.
         $this->get(RecipeAnalysis::getUrl().'?product='.$product->id)->assertOk()
             ->assertSee('تحضيرات خاصة بالعميل')
-            ->assertSee('تمر 300 غرام')
+            ->assertDontSee('تمر 300 غرام')
             ->assertSee('210.0')
             ->assertSee('رجوع للمنتج');
     }

@@ -125,13 +125,11 @@
     @php($preparations = $result ? $this->preparations() : [])
     @if ($preparations)
         <x-filament::section heading="تحضيرات خاصة بالعميل" icon="heroicon-o-beaker" class="mt-6"
-            description="مكوّن حضّره العميل بنفسه، ويُحسب من مكوّناته. القيم لكل 100 غ منه.">
+            description="ما في كل 100 غ منه.">
             <div class="flex flex-col gap-4">
                 @foreach ($preparations as $prep)
                     <div class="rounded-xl border border-gray-200 dark:border-white/10 p-4">
                         <div class="font-bold text-gray-950 dark:text-white">{{ $prep['name'] }} <span class="text-sm font-normal text-gray-500">(تحضير خاص)</span></div>
-                        <div class="mt-1 text-sm text-gray-600 dark:text-gray-300">فيه: {{ implode('، ', $prep['ingredients']) }}@if ($prep['weight']) · وزنه بعد التحضير {{ \App\Support\Amount::short($prep['weight'], 0) }} غ@endif</div>
-                        @if ($prep['note'])<div class="mt-1 text-sm text-gray-500">{{ $prep['note'] }}</div>@endif
                         <dl class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
                             @foreach (['energy_kcal' => ['الطاقة', 'سعرة'], 'protein_g' => ['البروتين', 'غ'], 'fat_g' => ['الدهون', 'غ'], 'carbohydrate_g' => ['الكربوهيدرات', 'غ']] as $code => [$label, $unit])
                                 <div class="rounded-lg bg-gray-50 dark:bg-white/5 px-3 py-2">
