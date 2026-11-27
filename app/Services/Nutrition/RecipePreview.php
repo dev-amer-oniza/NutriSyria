@@ -21,7 +21,7 @@ class RecipePreview
 
     /**
      * @param  array<string, mixed>|null  $recipe  the form's "recipe" state (servings, weight, ingredients)
-     * @return array{rows: int, complete: int, unconverted: list<string>, servings: int, hasWeight: bool, perServing: array<string, ?float>}
+     * @return array{rows: int, complete: int, unconverted: list<string>, servings: float, hasWeight: bool, perServing: array<string, ?float>}
      */
     public function of(?array $recipe): array
     {
@@ -46,7 +46,8 @@ class RecipePreview
             );
         }
 
-        $servings = max(1, (int) ($recipe['servings'] ?? 1));
+        $servings = (float) ($recipe['servings'] ?? 1);
+        $servings = $servings > 0 ? $servings : 1.0;
         $weight = (float) ($recipe['weight_after_cooking_g'] ?? 0);
         $empty = ['rows' => $rows, 'complete' => count($lines), 'unconverted' => [], 'servings' => $servings,
             'hasWeight' => $weight > 0, 'perServing' => array_fill_keys(self::SHOWN, null)];

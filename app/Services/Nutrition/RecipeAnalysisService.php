@@ -63,7 +63,7 @@ final class RecipeAnalysisService
                     addedAfterCooking: (bool) $i->is_added_after_cooking,
                     preparationId: $i->preparation_id !== null ? (int) $i->preparation_id : null,
                 ))->all(),
-            servings: (int) $recipe->servings,
+            servings: (float) $recipe->servings,
             weightBeforeCookingG: $recipe->weight_before_cooking_g !== null ? (float) $recipe->weight_before_cooking_g : null,
             weightAfterCookingG: $recipe->weight_after_cooking_g !== null ? (float) $recipe->weight_after_cooking_g : null,
         );

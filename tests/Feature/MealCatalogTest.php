@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Clusters\Brands\Resources\Products\Schemas\ProductForm;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\ProductRecipe;
 use App\Services\Site\MealCatalog;
+use App\Services\Site\PublicCatalogCache;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\Concerns\MealFixtures;
@@ -37,6 +39,19 @@ class MealCatalogTest extends TestCase
         $this->assertSame(12, $card['fat']);
         $this->assertSame('calculated', $card['verification']);
         $this->assertNull($card['image']);
+    }
+
+    public function test_a_fraction_of_portions_gives_the_portion_sold(): void
+    {
+        // A 500 g pot sold as 200 g portions = 2.5 portions (the owner's 1700 g ÷ 200 g = 8.5).
+        $meal = $this->approvedMeal('مجدرة');
+        DB::table('product_recipes')->where('product_id', $meal->id)->update(['servings' => 2.5]);
+        app(PublicCatalogCache::class)->flush();
+
+        $this->assertEquals(2.5, ProductRecipe::where('product_id', $meal->id)->value('servings'));
+        $this->assertSame(200, app(MealCatalog::class)->latest()[0]['portion']);
+        $this->assertSame('الحصة = اللي بتبيعه للزبون: صحن، كيس، علبة. الكسور مقبولة (8.5). الحصة الواحدة = 200 غ.',
+            ProductForm::servingHint('8.5', '1700'));
     }
 
     public function test_only_approved_public_meals_are_listed_newest_first(): void

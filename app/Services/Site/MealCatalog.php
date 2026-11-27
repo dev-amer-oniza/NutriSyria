@@ -242,7 +242,7 @@ class MealCatalog
     {
         $recipe = $product->recipe;
         $weight = (float) ($recipe?->weight_after_cooking_g ?? 0);
-        $servings = (int) ($recipe?->servings ?? 0);
+        $servings = (float) ($recipe?->servings ?? 0);
 
         return $weight > 0 && $servings > 0 ? $weight / $servings : null;
     }

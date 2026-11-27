@@ -16,7 +16,7 @@
 <div class="flex flex-col gap-4">
     <div class="flex items-end justify-between gap-4">
         <div>
-            <div class="text-sm text-gray-500 dark:text-gray-400">الصحن الواحد (من {{ $preview['servings'] }})</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">الحصة الواحدة (من {{ \App\Support\Amount::short($preview['servings']) }})</div>
             <div class="text-3xl font-bold tabular-nums text-gray-950 dark:text-white">
                 {{ $kcal !== null ? number_format($kcal) : '—' }} <span class="text-base font-medium text-gray-500">سعرة</span>
             </div>

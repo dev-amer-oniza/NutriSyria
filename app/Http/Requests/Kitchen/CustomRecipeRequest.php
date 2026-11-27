@@ -28,7 +28,7 @@ class CustomRecipeRequest extends FormRequest
             'lines.*.amount' => ['required', 'numeric', 'gt:0', 'max:10000'],
             'lines.*.portion_id' => ['nullable', 'integer', 'min:1'],
             'lines.*.after' => ['boolean'],
-            'servings' => ['required', 'integer', 'min:1', 'max:50'],
+            'servings' => ['required', 'numeric', 'min:0.5', 'max:50'],
             'weight_after' => ['nullable', 'numeric', 'min:1', 'max:50000'],
         ];
     }
@@ -43,7 +43,7 @@ class CustomRecipeRequest extends FormRequest
             'lines.*.amount.required' => 'اكتب الكمية في كل سطر.',
             'lines.*.amount.gt' => 'الكمية يجب أن تكون أكبر من صفر.',
             'lines.*.amount.max' => 'الكمية كبيرة جداً.',
-            'servings.*' => 'عدد الحصص بين 1 و50.',
+            'servings.*' => 'عدد الحصص بين 0.5 و50.',
             'weight_after.*' => 'الوزن بعد الطبخ بين 1 و50000 غرام، أو اتركه فارغاً.',
         ];
     }
@@ -60,7 +60,7 @@ class CustomRecipeRequest extends FormRequest
                 portionId: isset($l['portion_id']) ? (int) $l['portion_id'] : null,
                 addedAfterCooking: (bool) ($l['after'] ?? false),
             ), array_values($data['lines'])),
-            servings: (int) $data['servings'],
+            servings: (float) $data['servings'],
             weightAfterCookingG: isset($data['weight_after']) ? (float) $data['weight_after'] : null,
         );
     }

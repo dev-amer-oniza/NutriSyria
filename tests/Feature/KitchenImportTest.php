@@ -80,7 +80,7 @@ CSV;
 
         $dish = Product::where('name', 'حمص بطحينة')->with('recipe.ingredients', 'category')->sole();
         $this->assertSame([Brand::platform()->id, 'الفطور', true], [$dish->brand_id, $dish->category->name, $dish->eaten_with_bread]);
-        $this->assertSame([4, 330.0, 458.0], [$dish->recipe->servings, (float) $dish->recipe->weight_before_cooking_g, (float) $dish->recipe->weight_after_cooking_g]);
+        $this->assertSame([4.0, 330.0, 458.0], [$dish->recipe->servings, (float) $dish->recipe->weight_before_cooking_g, (float) $dish->recipe->weight_after_cooking_g]);
         $this->assertSame($best->id, $dish->recipe->ingredients[0]->food_source_record_id);
         $this->assertTrue((bool) $dish->recipe->ingredients[1]->is_added_after_cooking);
         $this->assertNull($dish->recipe->nutrition_approved_at, 'the owner approves it');
@@ -89,7 +89,7 @@ CSV;
         // Run again, after the owner changed the dish: left as it is.
         $dish->recipe->update(['servings' => 5]);
         $this->assertSame('exists', app(KitchenRecipeImporter::class)->import(KitchenRecipeFile::parse(self::CSV)['dishes'])[0]['result']);
-        $this->assertSame(5, $dish->recipe->fresh()->servings);
+        $this->assertSame(5.0, $dish->recipe->fresh()->servings);
         $this->assertSame(1, Product::where('name', 'حمص بطحينة')->count());
     }
 

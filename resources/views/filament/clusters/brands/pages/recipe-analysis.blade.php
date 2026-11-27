@@ -12,7 +12,7 @@
                 </div>
                 <div class="text-sm text-gray-500 dark:text-gray-400 text-end">
                     <div>وزن المكونات: {{ number_format($result['grams_total'], 1) }} غ</div>
-                    <div>الحصص: {{ $result['servings'] }}</div>
+                    <div>الحصص: {{ \App\Support\Amount::short($result['servings']) }}</div>
                 </div>
             </div>
 
