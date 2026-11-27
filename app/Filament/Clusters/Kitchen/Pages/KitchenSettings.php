@@ -3,6 +3,7 @@
 namespace App\Filament\Clusters\Kitchen\Pages;
 
 use App\Filament\Clusters\Kitchen\KitchenCluster;
+use App\Filament\Support\ImageUpload;
 use App\Models\Brand;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
@@ -59,15 +60,13 @@ class KitchenSettings extends Page implements HasForms
                 Section::make('كيف يظهر المطبخ في الموقع')
                     ->description('في صفحة "المطبخ السوري". الاسم ثابت.')
                     ->components([
-                        FileUpload::make('logo')
+                        ImageUpload::apply(FileUpload::make('logo'))
                             ->label('الشعار')
                             ->helperText('إن لم ترفع شعاراً تظهر رسمة المطبخ الموحّدة.')
-                            ->image()
                             ->disk('public')
                             ->directory('brands')
                             ->imageEditor()
-                            ->avatar()
-                            ->maxSize(2048),
+                            ->avatar(),
                         Textarea::make('description')
                             ->label('الوصف')
                             ->placeholder('أكلات البيت السوري بقيمها الغذائية، من وصفات المنصة.')

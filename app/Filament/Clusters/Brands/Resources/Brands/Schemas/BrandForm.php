@@ -5,6 +5,7 @@ namespace App\Filament\Clusters\Brands\Resources\Brands\Schemas;
 use App\Auth\Access;
 use App\Enums\BrandKind;
 use App\Enums\SyrianGovernorate;
+use App\Filament\Support\ImageUpload;
 use App\Models\Brand;
 use App\Services\Brands\ClientOwner;
 use Filament\Forms\Components\FileUpload;
@@ -121,9 +122,8 @@ class BrandForm
                     ]),
                 Section::make('الشعار')
                     ->components([
-                        FileUpload::make('logo')
+                        ImageUpload::apply(FileUpload::make('logo'))
                             ->label('الشعار')
-                            ->image()
                             ->disk('public')
                             ->directory('brands')
                             ->imageEditor()

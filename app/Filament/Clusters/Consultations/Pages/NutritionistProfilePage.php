@@ -7,6 +7,7 @@ use App\Enums\ConsultationMode;
 use App\Enums\NutritionistSpecialty;
 use App\Enums\SyrianGovernorate;
 use App\Filament\Clusters\Consultations\ConsultationsCluster;
+use App\Filament\Support\ImageUpload;
 use App\Models\NutritionistProfile;
 use App\Services\Consultations\NutritionistDirectory;
 use Filament\Forms\Components\CheckboxList;
@@ -71,8 +72,8 @@ class NutritionistProfilePage extends Page implements HasForms
                     ->components([
                         TextInput::make('display_name')->label('الاسم المعروض')->placeholder('د. ريم الأحمد')
                             ->required()->maxLength(80),
-                        FileUpload::make('photo')->label('الصورة')->image()->disk('public')->directory('nutritionists')
-                            ->imageEditor()->avatar()->maxSize(2048),
+                        ImageUpload::apply(FileUpload::make('photo'))->label('الصورة')->disk('public')->directory('nutritionists')
+                            ->imageEditor()->avatar(),
                         Select::make('city')->label('المحافظة')->options(SyrianGovernorate::options())->required(),
                         TextInput::make('years_experience')->label('سنوات الخبرة')->numeric()->minValue(0)->maxValue(60),
                         CheckboxList::make('specialties')->label('التخصصات')->options(NutritionistSpecialty::options())
