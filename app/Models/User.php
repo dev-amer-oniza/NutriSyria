@@ -74,6 +74,16 @@ class User extends Authenticatable implements FilamentUser
             && $this->roles->isNotEmpty();
     }
 
+    /**
+     * Reads every restaurant's products and recipes: given "all products", or "approve the
+     * official values", since approving means opening the recipes that wait (a role given only
+     * the approval saw nothing to approve, the owner's report).
+     */
+    public function readsAllProducts(): bool
+    {
+        return $this->allows(Access::PRODUCTS_VIEW_ALL) || $this->allows(Access::NUTRITION_APPROVE);
+    }
+
     /** The Syrian kitchen section: the admin, or anyone given its permission. */
     public function managesKitchen(): bool
     {

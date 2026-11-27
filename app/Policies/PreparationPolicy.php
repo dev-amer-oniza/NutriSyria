@@ -26,7 +26,7 @@ class PreparationPolicy
 
     public function view(User $user, Preparation $preparation): bool
     {
-        return $user->allows(Access::PRODUCTS_VIEW_ALL) && ! $user->isSuperAdmin() && ! self::platform($preparation)
+        return $user->readsAllProducts() && ! $user->isSuperAdmin() && ! self::platform($preparation)
             || $this->update($user, $preparation);
     }
 

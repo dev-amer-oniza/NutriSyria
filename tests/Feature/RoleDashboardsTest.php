@@ -25,6 +25,7 @@ use App\Models\Nutrient;
 use App\Models\Product;
 use App\Models\ProductRecipe;
 use App\Models\ProductRecipeIngredient;
+use App\Models\Role;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -110,6 +111,21 @@ class RoleDashboardsTest extends TestCase
         Livewire::test(ProductsAwaitingApproval::class)
             ->assertCanSeeTableRecords([$waiting, $changed])
             ->assertCanNotSeeTableRecords([$done, $other]);
+    }
+
+    public function test_a_role_given_only_the_approval_sees_and_approves_what_waits(): void
+    {
+        // The owner's report: a role with «اعتماد القيم الرسمية» alone saw nothing to review.
+        Role::create(['name' => 'custom-approver', 'label' => 'معتمد', 'guard_name' => 'web'])
+            ->givePermissionTo(Access::NUTRITION_APPROVE);
+        $user = $this->signInAs('custom-approver');
+        $waiting = $this->product($this->mine, 'ينتظر');
+        $theirs = $this->product($this->theirs, 'منتج تاني');
+
+        Livewire::test(ProductsAwaitingApproval::class)->assertCanSeeTableRecords([$waiting, $theirs]);
+        $this->get(RecipeAnalysis::getUrl().'?product='.$waiting->id)->assertOk();
+        $this->assertTrue($user->can('approveNutrition', $waiting));
+        $this->assertFalse($user->can('update', $waiting));
     }
 
     public function test_a_brand_owner_home_shows_their_products_not_the_database(): void
