@@ -1,6 +1,6 @@
 {{--
-    One-time messages after a redirect (the owner's request): a short card that slides down
-    at the top of the page, stays a few seconds, and goes by itself. Done = TIMES['status'],
+    One-time messages after a redirect (the owner's request): a short see-through card that slides in
+    at the side, under the header, stays a few seconds, and goes by itself. Done = TIMES['status'],
     a problem stays a little longer to be read. Pointing at it or focusing it pauses it;
     the × closes it now. Without JavaScript it simply stays.
 --}}
@@ -9,7 +9,7 @@
 @if ($messages)
     <div class="ns-toasts">
         @foreach ($messages as $kind => $message)
-            @php($timeout = ['status' => 4000, 'error' => 7000][$kind])
+            @php($timeout = ['status' => 2500, 'error' => 5000][$kind])
             <div class="ns-alert ns-alert--{{ $kind === 'status' ? 'ok' : 'error' }}"
                  role="{{ $kind === 'error' ? 'alert' : 'status' }}"
                  style="--flash-ms: {{ $timeout }}ms"
