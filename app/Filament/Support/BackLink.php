@@ -4,7 +4,6 @@ namespace App\Filament\Support;
 
 use App\Filament\Clusters\Brands\Resources\Brands\BrandResource;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Resources\Pages\ManageRecords;
 use Filament\Resources\Pages\Page as ResourcePage;
 use Livewire\Component;
 use Throwable;
@@ -27,7 +26,7 @@ final class BackLink
         if (method_exists($page, 'backLink')) {
             return $page->backLink();
         }
-        if (! $page instanceof ResourcePage || $page instanceof ListRecords || $page instanceof ManageRecords) {
+        if (! $page instanceof ResourcePage || $page instanceof ListRecords) {
             return null;
         }
         $resource = $page::getResource();
