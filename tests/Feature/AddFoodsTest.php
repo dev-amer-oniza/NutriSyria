@@ -47,9 +47,9 @@ class AddFoodsTest extends TestCase
         $this->assertContains(UploadImportBatch::getRouteName(), (array) AddFoods::getNavigationItemActiveRoutePattern());
     }
 
-    public function test_the_nutritionist_reviews_but_does_not_add(): void
+    public function test_the_reviewer_reviews_but_does_not_add(): void
     {
-        $this->signInAs(Access::NUTRITIONIST);
+        $this->signInAs(Access::REVIEWER);
 
         $this->get(AddFoods::getUrl())->assertForbidden();
         $this->get(ImportBatchResource::getUrl('index'))->assertOk();

@@ -45,7 +45,7 @@
         </ul>
     @else
         <p class="flex items-center gap-2 text-sm font-medium text-success-700 dark:text-success-300">
-            <span aria-hidden="true">✓</span>الوصفة كاملة. احفظ وبتوصل للأخصائي.
+            <span aria-hidden="true">✓</span>الوصفة كاملة. احفظ وبتوصل للمراجع.
         </p>
     @endif
 </div>

@@ -2,16 +2,19 @@
 
 namespace App\Providers;
 
+use App\Auth\Access;
 use App\Models\Brand;
 use App\Models\Food;
 use App\Models\FoodNutrientValue;
 use App\Models\FoodSourceRecord;
+use App\Models\Permission;
 use App\Models\Preparation;
 use App\Models\PreparationIngredient;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductRecipe;
 use App\Models\ProductRecipeIngredient;
+use App\Models\Role;
 use App\Services\Nutrition\ProductNotices;
 use App\Services\Site\PublicCatalogCache;
 use App\View\Composers\NotificationBellComposer;
@@ -79,6 +82,10 @@ class AppServiceProvider extends ServiceProvider
         View::composer('site.partials.header', NotificationBellComposer::class);
         $this->watchPublicCatalog();
         $this->watchRecipes();
+        foreach ([Role::class, Permission::class] as $model) {
+            $model::saved(fn () => Access::forget());
+            $model::deleted(fn () => Access::forget());
+        }
 
         // N+1 guard (the owner's decision 4a): outside production, a relation loaded one row
         // at a time inside a list is an error, so a slow page is caught before it ships.

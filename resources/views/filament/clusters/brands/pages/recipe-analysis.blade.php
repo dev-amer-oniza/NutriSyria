@@ -115,7 +115,7 @@
                 </div>
             @elseif ($result['can_save_official_value'])
                 <p class="mt-6 text-sm text-gray-500 dark:text-gray-400">
-                    التحليل جاهز. يعتمده أخصائي التغذية كقيمة رسمية بعد مراجعته.
+                    التحليل جاهز. يعتمده مراجع الوصفات كقيمة رسمية بعد مراجعته.
                 </p>
             @endif
         </x-filament::section>

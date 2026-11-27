@@ -9,6 +9,13 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Role and permission names are read once (Access): each test starts from its own database.
+        Access::forget();
+    }
+
     /** Signs in to the admin panel as a new active user with the given role (roles come from the migrations). */
     protected function signInAs(string $role = Access::SUPER_ADMIN, array $attributes = []): User
     {

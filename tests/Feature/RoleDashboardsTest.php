@@ -123,9 +123,9 @@ class RoleDashboardsTest extends TestCase
         Livewire::test(ProductsWorkStats::class)->assertSee('منتجاتي')->assertDontSee('سجلات أغذية تنتظر المراجعة');
     }
 
-    public function test_the_nutritionist_reads_a_product_and_its_records_without_edit_rights(): void
+    public function test_the_reviewer_reads_a_product_and_its_records_without_edit_rights(): void
     {
-        $this->signInAs(Access::NUTRITIONIST);
+        $this->signInAs(Access::REVIEWER);
         $product = $this->product($this->theirs, 'سندويشة شاورما');
 
         $this->get(ProductResource::getUrl('view', ['record' => $product]))->assertOk()->assertSee('تحليل الوصفة');
@@ -154,9 +154,9 @@ class RoleDashboardsTest extends TestCase
         $this->assertStringContainsString('170285', $details);
     }
 
-    public function test_after_approving_the_nutritionist_lands_on_a_page_they_may_open(): void
+    public function test_after_approving_the_reviewer_lands_on_a_page_they_may_open(): void
     {
-        $nutritionist = $this->signInAs(Access::NUTRITIONIST);
+        $nutritionist = $this->signInAs(Access::REVIEWER);
         DataSource::create(['code' => 'internal_product_recipes', 'name' => 'وصفات المنتجات', 'type' => 'internal_product_recipes']);
         $energy = Nutrient::create(['code' => 'energy_kcal', 'name_ar' => 'الطاقة', 'name_en' => 'Energy', 'unit' => 'kcal', 'group' => 'energy', 'is_core' => true]);
         FoodNutrientValue::create(['food_source_record_id' => $this->lentils->id, 'nutrient_id' => $energy->id, 'amount_per_100g' => 352, 'unit' => 'kcal']);

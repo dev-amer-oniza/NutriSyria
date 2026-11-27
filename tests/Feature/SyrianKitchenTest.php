@@ -100,10 +100,10 @@ class SyrianKitchenTest extends TestCase
         $this->assertFalse(auth()->user()->can('view', $dish));
     }
 
-    public function test_the_nutritionist_does_not_see_the_kitchen(): void
+    public function test_the_reviewer_does_not_see_the_kitchen(): void
     {
         $dish = Product::create(['brand_id' => $this->kitchen->id, 'name' => 'فتوش']);
-        $nutritionist = $this->signInAs(Access::NUTRITIONIST);
+        $nutritionist = $this->signInAs(Access::REVIEWER);
 
         $this->get(KitchenCategoryResource::getUrl())->assertForbidden();
         $this->assertFalse($nutritionist->can('view', $dish));

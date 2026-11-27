@@ -8,9 +8,11 @@ use App\Models\User;
 use App\Policies\Concerns\DeniesByDefault;
 
 /**
- * The three roles are fixed (the code relies on their names): they can be viewed and their
- * permissions changed, but not created, renamed or deleted. The super-admin role needs no
- * permissions, so it is not editable either.
+ * Roles from the panel (the owner's decisions 1a 3a): new ones are made from the same
+ * permissions, renamed and deleted. The built-in roles (Access::PANEL_ROLES) can have their
+ * Arabic name and permissions changed but are never deleted, since the code relies on them;
+ * the super-admin role is not edited at all (it needs no permissions). A role still given to
+ * users is not deleted either (the delete action says how many).
  */
 class RolePolicy
 {
@@ -26,8 +28,18 @@ class RolePolicy
         return $user->allows(Access::USERS_MANAGE);
     }
 
+    public function create(User $user): bool
+    {
+        return $user->allows(Access::USERS_MANAGE);
+    }
+
     public function update(User $user, Role $role): bool
     {
         return $user->allows(Access::USERS_MANAGE) && $role->name !== Access::SUPER_ADMIN;
+    }
+
+    public function delete(User $user, Role $role): bool
+    {
+        return $user->allows(Access::USERS_MANAGE) && ! in_array($role->name, Access::PANEL_ROLES, true);
     }
 }
