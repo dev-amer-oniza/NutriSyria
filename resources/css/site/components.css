@@ -183,25 +183,36 @@
     .ns-share__fill { display: block; height: 100%; border-radius: inherit; transition: width .5s cubic-bezier(.2,.7,.2,1); }
 
     /* ---------- Messages (partials/flash) ---------- */
+    /* Panels that say something in place (معاييري) share the colours. */
     .ns-alert { position: relative; overflow: hidden; display: flex; align-items: flex-start; gap: var(--space-3); margin: 0 0 var(--space-5); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); font-size: 1rem; line-height: 1.5rem; }
     .ns-alert--ok { background: var(--pine-soft); color: var(--pine); }
     .ns-alert--error { background: var(--terracotta-soft); color: var(--terracotta-ink); }
     .ns-alert__text { flex: 1; margin: 0; }
-    .ns-alert__close { flex: none; display: grid; place-items: center; width: 28px; height: 28px; margin: -3px -6px -3px 0; padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent; color: inherit; cursor: pointer; }
+
+    /* After a redirect: a short card at the top of the page, over the header, gone in seconds. */
+    .ns-toasts { position: fixed; top: var(--space-3); inset-inline: var(--space-4); z-index: 60; display: flex; flex-direction: column; align-items: center; gap: var(--space-2); pointer-events: none; }
+    .ns-toasts .ns-alert { width: auto; max-width: min(440px, 100%); margin: 0; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3); border-radius: var(--radius-full); background: var(--surface-raised); color: var(--ink); box-shadow: var(--shadow-md); border: 1px solid var(--line); pointer-events: auto; }
+    .ns-toasts .ns-alert__text { font-size: 0.9375rem; line-height: 1.375rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .ns-alert__mark { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: var(--radius-full); font-size: 0.8125rem; font-weight: 700; color: #fff; }
+    .ns-alert--ok .ns-alert__mark { background: var(--pine); }
+    .ns-alert--error .ns-alert__mark { background: var(--terracotta-ink); }
+    .ns-alert__close { flex: none; display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--ink-muted); cursor: pointer; }
     .ns-alert__close:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
     .ns-alert__close:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-    .ns-alert__close svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
-    /* Time left before a status closes: a thin line that shrinks, and stops when paused. */
-    .ns-alert__timer { position: absolute; inset-inline: 0; bottom: 0; height: 3px; background: currentColor; opacity: .35; transform-origin: right; animation: ns-flash-timer var(--flash-ms) linear forwards; }
+    .ns-alert__close svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+    /* Time left: a thin line that shrinks, and stops when paused. */
+    .ns-alert__timer { position: absolute; inset-inline: 18px; bottom: 0; height: 2px; border-radius: 2px; opacity: .5; transform-origin: right; animation: ns-flash-timer var(--flash-ms) linear forwards; }
+    .ns-alert--ok .ns-alert__timer { background: var(--pine); }
+    .ns-alert--error .ns-alert__timer { background: var(--terracotta-ink); }
     .ns-alert__timer.is-paused { animation-play-state: paused; }
     @keyframes ns-flash-timer { to { transform: scaleX(0); } }
-
-    /* Site-wide messages float under the header instead of pushing the page down. */
-    .ns-toasts { position: fixed; top: 88px; inset-inline: var(--space-4); z-index: 30; display: flex; flex-direction: column; align-items: center; gap: var(--space-2); pointer-events: none; }
-    .ns-toasts .ns-alert { width: 100%; max-width: 560px; margin: 0; box-shadow: var(--shadow-md); pointer-events: auto; }
+    .ns-toast-in { transition: transform .35s cubic-bezier(.2,.8,.2,1), opacity .25s ease; }
+    .ns-toast-in.is-off { transform: translateY(-140%); opacity: 0; }
 
     @media (prefers-reduced-motion: reduce) {
         .ns-alert__timer { display: none; }
+        .ns-toast-in { transition: opacity .2s ease; }
+        .ns-toast-in.is-off { transform: none; }
     }
 }
 
