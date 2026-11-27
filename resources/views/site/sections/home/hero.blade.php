@@ -4,7 +4,7 @@
         <div class="ns-hero__copy" x-data="{ q: '' }">
             <p class="ns-eyebrow">القيم الغذائية لوجبات المطاعم السورية</p>
             <h1 class="t-display ns-hero__title">اعرف ما في وجبتك<br>وكم تناسبك <span>أنت</span></h1>
-            <p class="t-lead ns-muted ns-hero__lead">مرجع غذائي موثّق المصدر لوجبات المطاعم، يراجعه أخصائي تغذية. ابحث عن وجبة أو مطعم، واعرف مدى مناسبتها لجسمك وهدفك.</p>
+            <p class="t-lead ns-muted ns-hero__lead">مرجع غذائي موثّق المصدر لوجبات المطاعم، يراجعه مراجع الوصفات. ابحث عن وجبة أو مطعم، واعرف مدى مناسبتها لجسمك وهدفك.</p>
 
             @include('site.components.search-field', [
                 'id' => 'q',

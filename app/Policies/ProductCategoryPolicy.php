@@ -21,8 +21,11 @@ class ProductCategoryPolicy
 
     public function view(User $user, ProductCategory $category): bool
     {
-        if ($user->isSuperAdmin() || $category->isPlatform()) {
-            return $user->isSuperAdmin() && $category->isPlatform();
+        if ($category->isPlatform()) {
+            return $user->managesKitchen();
+        }
+        if ($user->isSuperAdmin()) {
+            return false;
         }
 
         return $user->allows(Access::PRODUCTS_VIEW_ALL) || $this->update($user, $category);
@@ -36,8 +39,11 @@ class ProductCategoryPolicy
 
     public function update(User $user, ProductCategory $category): bool
     {
-        if ($user->isSuperAdmin() || $category->isPlatform()) {
-            return $user->isSuperAdmin() && $category->isPlatform();
+        if ($category->isPlatform()) {
+            return $user->managesKitchen();
+        }
+        if ($user->isSuperAdmin()) {
+            return false;
         }
 
         return $user->allows(Access::BRANDS_MANAGE_ALL)

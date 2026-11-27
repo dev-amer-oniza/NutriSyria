@@ -74,6 +74,12 @@ class User extends Authenticatable implements FilamentUser
             && $this->roles->isNotEmpty();
     }
 
+    /** The Syrian kitchen section: the admin, or anyone given its permission. */
+    public function managesKitchen(): bool
+    {
+        return $this->allows(Access::KITCHEN_MANAGE);
+    }
+
     public function isSuperAdmin(): bool
     {
         return $this->hasRole(Access::SUPER_ADMIN);

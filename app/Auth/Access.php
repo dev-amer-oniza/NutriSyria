@@ -53,6 +53,10 @@ final class Access
     // Consultations: a public profile on the site and clients who book (nutritionists).
     public const CONSULTATIONS_PROVIDE = 'consultations.provide';
 
+    // The platform's own dishes ("المطبخ السوري"): categories, dishes, analysis and approval,
+    // its page's logo and text, and the dishes people asked for.
+    public const KITCHEN_MANAGE = 'kitchen.manage';
+
     // Accounts.
     public const USERS_MANAGE = 'users.manage';
 
@@ -70,6 +74,7 @@ final class Access
             self::PRODUCTS_VIEW_ALL => 'عرض منتجات كل البراندات ووصفاتها',
             self::NUTRITION_APPROVE => 'اعتماد القيم الغذائية الرسمية للمنتجات',
             self::CONSULTATIONS_PROVIDE => 'بروفايل عام في الموقع واستقبال المراجعين',
+            self::KITCHEN_MANAGE => 'إدارة المطبخ السوري',
             self::USERS_MANAGE => 'إدارة المستخدمين والأدوار والصلاحيات',
         ];
     }
@@ -88,6 +93,7 @@ final class Access
             self::PRODUCTS_VIEW_ALL => 'يشوف منتجات كل المطاعم ووصفاتها وتحليلها.',
             self::NUTRITION_APPROVE => 'يعتمد القيم الرسمية للمنتجات ويرسل ملاحظات المراجعة، ويوصله «منتج ينتظر الاعتماد».',
             self::CONSULTATIONS_PROVIDE => 'بروفايل أخصائي بالموقع، وطلبات الاستشارة ومراجعيني.',
+            self::KITCHEN_MANAGE => 'قسم «المطبخ السوري» كاملاً: التصنيفات والوجبات ووصفاتها، تحليلها واعتمادها مباشرة، معلومات المطبخ، والأكلات المطلوبة.',
             self::USERS_MANAGE => 'المستخدمون والأدوار والصلاحيات. للمدير وحده.',
         ];
     }

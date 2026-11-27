@@ -42,7 +42,7 @@ class KitchenSettings extends Page implements HasForms
 
     public static function canAccess(): bool
     {
-        return (bool) auth()->user()?->isSuperAdmin();
+        return (bool) auth()->user()?->managesKitchen();
     }
 
     public function mount(): void

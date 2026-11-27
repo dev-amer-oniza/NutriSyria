@@ -30,7 +30,7 @@ class MethodPageTest extends TestCase
     {
         $this->get(route('site.method'))->assertOk()
             ->assertSee('كيف نصل إلى رقم تثق به')
-            ->assertSeeInOrder(['كل رقم له مصدر', 'من الكمية إلى الغرام', 'الحساب', 'تكميل الناقص بلا تخمين', 'يعتمدها أخصائي تغذية'])
+            ->assertSeeInOrder(['كل رقم له مصدر', 'من الكمية إلى الغرام', 'الحساب', 'تكميل الناقص بلا تخمين', 'يعتمدها مراجع الوصفات'])
             ->assertSee('طبخة مجدرة، خطوة بخطوة')
             ->assertSee('مثال توضيحي')
             ->assertSee('ما لا نستطيع أن نعدك به')
