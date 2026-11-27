@@ -28,7 +28,7 @@ class ProductCategoryPolicy
             return false;
         }
 
-        return $user->allows(Access::PRODUCTS_VIEW_ALL) || $this->update($user, $category);
+        return $user->readsAllProducts() || $this->update($user, $category);
     }
 
     public function create(User $user): bool

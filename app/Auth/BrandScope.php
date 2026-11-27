@@ -18,7 +18,7 @@ final class BrandScope
         if ($user === null) {
             return [];
         }
-        if ($user->allows(Access::BRANDS_MANAGE_ALL) || ($readOnly && $user->allows(Access::PRODUCTS_VIEW_ALL))) {
+        if ($user->allows(Access::BRANDS_MANAGE_ALL) || ($readOnly && $user->readsAllProducts())) {
             return null;
         }
 

@@ -28,7 +28,7 @@ class ProductPolicy
 
         return $user->allows(Access::BRANDS_MANAGE_ALL)
             || $user->allows(Access::BRANDS_MANAGE_OWN)
-            || $user->allows(Access::PRODUCTS_VIEW_ALL);
+            || $user->readsAllProducts();
     }
 
     public function view(User $user, Product $product): bool
@@ -40,7 +40,7 @@ class ProductPolicy
             return false;
         }
 
-        return $user->allows(Access::PRODUCTS_VIEW_ALL) || $this->update($user, $product);
+        return $user->readsAllProducts() || $this->update($user, $product);
     }
 
     public function create(User $user): bool
